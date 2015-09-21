@@ -1,12 +1,10 @@
 package logic;
-import java.sql.Date;
-import java.sql.Time;
+import java.util.Calendar;
 
 
 public class Event extends TaskWithDeadlines {
 
-	protected Time startTime;
-	protected Date startDate;
+	protected Calendar start;
 	
 	public Event() {
 		
@@ -14,23 +12,14 @@ public class Event extends TaskWithDeadlines {
 	
 	public Event(userData parsedInput) {
 		super();
-		this.startTime = parsedInput.startTime;
-		this.startDate = parsedInput.startDate;
+		this.start = parsedInput.start;
 	}
 
-	public Time getStartTime() {
-		return startTime;
+	public Calendar getStart() {
+		return start;
 	}
 
-	public Date getStartDate() {
-		return startDate;
-	}
-
-	protected void setStartTime(Time time) {
-		this.startTime = time;
-	}
-
-	protected void setStartDate(Date date) {
-		this.startDate = date;
+	protected void setStart(Calendar start) {
+		this.start = start;
 	}
 }

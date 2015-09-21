@@ -1,12 +1,10 @@
 package logic;
-import java.sql.Date;
-import java.sql.Time;
+import java.util.Calendar;
 
 
 public class TaskWithDeadlines extends TaskWithoutDeadlines{
 	
-	protected Time endTime;
-	protected Date endDate;
+	protected Calendar end;
 
 	public TaskWithDeadlines() {
 		super();
@@ -14,23 +12,14 @@ public class TaskWithDeadlines extends TaskWithoutDeadlines{
 
 	public TaskWithDeadlines(userData parsedInput) {
 		super();
-		this.endTime = parsedInput.endTime;
-		this.endDate = parsedInput.endDate;
+		this.end = parsedInput.end;
 	}
 
-	public Time getEndTime() {
-		return endTime;
+	public Calendar getEnd() {
+		return end;
 	}
 
-	public Date getEndDate() {
-		return endDate;
-	}
-
-	protected void setEndTime(Time time) {
-		this.endTime = time;
-	}
-
-	protected void setEndDate(Date date) {
-		this.endDate = date;
+	protected void setEnd(Calendar end) {
+		this.end = end;
 	}
 }
