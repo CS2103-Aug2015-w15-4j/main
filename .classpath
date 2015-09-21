@@ -9,5 +9,6 @@
 	<classpathentry kind="lib" path="C:/library/natty-0.12.jar"/>
 	<classpathentry kind="lib" path="C:/library/slf4j-api-1.7.12.jar"/>
 	<classpathentry kind="lib" path="C:/library/slf4j-simple-1.7.12.jar"/>
+	<classpathentry kind="lib" path="C:/library/gson-2.3.1"/>
 	<classpathentry kind="output" path=""/>
 </classpath>

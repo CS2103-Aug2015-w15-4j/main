@@ -1,6 +1,5 @@
 package logic;
-import java.sql.Date;
-import java.sql.Time;
+import java.util.Calendar;
 
 
 public class userData {
@@ -11,9 +10,7 @@ public class userData {
 	protected boolean isCompleted;
 	protected String tags;
 	public String type;
-	public Time startTime;
-	public Time endTime;
-	public Date startDate;
-	public Date endDate;
+	public Calendar start;
+	public Calendar end;
 	
 }
