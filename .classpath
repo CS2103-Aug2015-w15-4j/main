@@ -4,8 +4,10 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="con" path="org.eclipse.fx.ide.jdt.core.JAVAFX_CONTAINER"/>
-	<classpathentry kind="lib" path="C:/Users/Nicole/workspace/CS2103T/parser/antlr-4.5.1-complete.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Nicole/workspace/CS2103T/parser/ical4j-2.0-beta1.zip"/>
-	<classpathentry kind="lib" path="C:/Users/Nicole/workspace/CS2103T/parser/natty-0.12.jar"/>
+	<classpathentry kind="lib" path="C:/library/antlr-4.5.1-complete.jar"/>
+	<classpathentry kind="lib" path="C:/library/ical4j-2.0-beta1.zip"/>
+	<classpathentry kind="lib" path="C:/library/natty-0.12.jar"/>
+	<classpathentry kind="lib" path="C:/library/slf4j-api-1.7.12.jar"/>
+	<classpathentry kind="lib" path="C:/library/slf4j-simple-1.7.12.jar"/>
 	<classpathentry kind="output" path=""/>
 </classpath>
