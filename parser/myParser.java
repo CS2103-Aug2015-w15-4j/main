@@ -2,17 +2,14 @@ package parser;
 
 import java.util.Date;
 import java.util.List;
-//import java.util.Map;
-//import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 import com.joestelmach.natty.*;
 
 
-public class myParser {
+public class MyParser {
 
 	
-	@SuppressWarnings("deprecation")
 	public static void main(String[] args) {
 		//System.out.println("Hi");
 		Parser parser = new Parser();
@@ -20,7 +17,7 @@ public class myParser {
 		
 		for(DateGroup group:groups) {
 		  List<Date> dates = group.getDates();
-		  System.out.println(dates.get(0).getDate());
+		  System.out.println(dates.get(0).toString());
 		  /*
 		  int line = group.getLine();
 		  int column = group.getPosition();
