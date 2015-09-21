@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 public class StringParserTest {
-	StringParser sp = new StringParser();
 	@Test
 	public void testGetFormattedDates() {
 		// Check invalid day
@@ -41,6 +40,41 @@ public class StringParserTest {
 		assertEquals("1/10/12", StringParser.getFormattedDates("Hello how are you 1/10/12 today 2/3/12 2/4/15?")[0]);
 		assertEquals("2/3/12", StringParser.getFormattedDates("Hello how are you 1/10/12 today 2/3/12 2/4/15?")[1]);
 		
+	}
+	
+	@Test
+	public void testGetFormattedTimes() {
+		// Check support for start and end times
+		assertEquals("1140", StringParser.getFormattedTimes("hello @1140-1329 blahblah")[0]);
+		assertEquals("1329", StringParser.getFormattedTimes("hello @1140-1329 blahblah")[1]);
+		
+		// Check support for single time (start time)
+		assertEquals("1140", StringParser.getFormattedTimes("hello @1140 blahblah")[0]);
+		assertEquals(null, StringParser.getFormattedTimes("hello @1140 blahblah")[1]);
+		
+		// Check missing whitespace does not affect parsing
+		assertEquals("1140", StringParser.getFormattedTimes("hello@1140-1300blahblah")[0]);
+		assertEquals("1300", StringParser.getFormattedTimes("hello@1140-1300blahblah")[1]);
+				
+		// Check extra numbers are ignored
+		assertEquals("1140", StringParser.getFormattedTimes("hello @1140-13003 blahblah")[0]);
+		assertEquals("1300", StringParser.getFormattedTimes("hello @1140-13003 blahblah")[1]);
+		
+		// Check invalid hours
+		assertEquals(null, StringParser.getFormattedTimes("hello @3140-1300 blahblah")[0]);
+		assertEquals(null, StringParser.getFormattedTimes("hello @3140-1300 blahblah")[1]);
+		assertEquals(null, StringParser.getFormattedTimes("hello @2540-1300 blahblah")[0]);
+		assertEquals(null, StringParser.getFormattedTimes("hello @2540-1300 blahblah")[1]);
+		assertEquals("1140", StringParser.getFormattedTimes("hello @1140-2503 blahblah")[0]);
+		assertEquals(null, StringParser.getFormattedTimes("hello @1140-2503 blahblah")[1]);
+		assertEquals("1140", StringParser.getFormattedTimes("hello @1140-1160 blahblah")[0]);
+		assertEquals(null, StringParser.getFormattedTimes("hello @1140-1160 blahblah")[1]);
+		
+		// Check if no times at all
+		assertEquals(null, StringParser.getFormattedTimes("hello @blah-blah bye bye")[0]);
+		assertEquals(null, StringParser.getFormattedTimes("hello @blah-blah bye bye")[1]);
+		
+
 	}
 
 }
