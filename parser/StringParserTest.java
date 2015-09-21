@@ -2,6 +2,8 @@ package parser;
 
 import static org.junit.Assert.*;
 
+import java.util.Date;
+
 import org.junit.Test;
 
 public class StringParserTest {
@@ -73,8 +75,15 @@ public class StringParserTest {
 		// Check if no times at all
 		assertEquals(null, StringParser.getFormattedTimes("hello @blah-blah bye bye")[0]);
 		assertEquals(null, StringParser.getFormattedTimes("hello @blah-blah bye bye")[1]);
-		
-
 	}
-
+	
+	@Test
+	public void testConvertStringToCalendar() {
+		String[] dates = StringParser.getFormattedDates("Hello how 23/12/14 are you @1200-1530 today?");
+		String[] times = StringParser.getFormattedTimes("Hello how 23/12/14 are you @1200-1530 today?");
+		assertEquals(StringParser.parseStringToDate("Tue Dec 23 12:00:00 SGT 2014"), 
+						StringParser.convertStringToCalendar(dates, times)[0].getTime());
+		assertEquals(StringParser.parseStringToDate("Tue Dec 23 15:30:00 SGT 2014"), 
+				StringParser.convertStringToCalendar(dates, times)[1].getTime());
+	}
 }
