@@ -65,25 +65,31 @@ public class StringParser {
 		return ans;
 	}
 	
+	// Note this does not distinguish between tasks due at 0000 and tasks with no timing
 	public static Calendar[] convertStringToCalendar(String[] dates, String[] times) {
 		Calendar[] calTimes = new Calendar[2];
 		Calendar startCal = Calendar.getInstance();
 		Calendar endCal = Calendar.getInstance();
 				
-		// assumes dates[0] != null; ie have start date
-		
 		try {
-			if (times[0] == null) { // no start time
-				String startDate = dates[0];
-				startCal.setTime(dateFormat.parse(startDate));
-			} else { // has start date and time
-				String startDateTime = dates[0] + " " + times[0];
-				startCal.setTime(dateTimeFormat.parse(startDateTime));
-			}
-		
-			if (times[1] != null) { // has end time
-				String endDateTime = dates[0] + " " + times[1];
-				endCal.setTime(dateTimeFormat.parse(endDateTime));
+			if (dates[0] == null) { // no date and time
+				startCal = null;
+				endCal = null;
+			} else {
+				if (times[0] == null) { // no start time
+					String startDate = dates[0];
+					startCal.setTime(dateFormat.parse(startDate));
+				} else { // has start date and time
+					String startDateTime = dates[0] + " " + times[0];
+					startCal.setTime(dateTimeFormat.parse(startDateTime));
+				}
+
+				if (times[1] != null) { // has end time
+					String endDateTime = dates[0] + " " + times[1];
+					endCal.setTime(dateTimeFormat.parse(endDateTime));
+				} else {
+					endCal = null;
+				}
 			}
 		} catch (java.text.ParseException e) {
 			e.printStackTrace();
@@ -138,14 +144,19 @@ public class StringParser {
 	public static String getTitleFromString(String inputArgs) {
 		String regex = "((\\s*(0?[1-9]|[12][0-9]|3[01])/(0?[1-9]|1[012])/(\\d\\d))\\s*)|(@((0[0-9]|1[0-9]|2[0-3])([0-5][0-9]))(-((0[0-9]|1[0-9]|2[0-3])([0-5][0-9])))?)|(\"[^\"]*?\")|(#(\\w+))";
 		inputArgs = inputArgs.replaceAll(regex, ""); 
-//		String[]tokens = inputArgs.split("@|\\d|\"");
-	//	 return tokens[0].trim();
 		return inputArgs.trim();
 	}
 
-	public static Calendar[] getTimesFromString(String inputArgs) {
-		// TODO Auto-generated method stub
-		return null;
+	public static Calendar[] getDatesTimesFromString(String inputArgs) {
+		// Add whitespace before string for case where string starts with date
+		// Regex only detects date surrounded with whitespace
+		// Cannot make whitespace optional else cannot remove cases e.g. 32/3/12 which are detected as 2/3/12
+		String input = " " + inputArgs; 
+		String[] dates = getFormattedDates(input);
+		String[] times = getFormattedTimes(input);
+		Calendar[] cal = new Calendar[2];
+		cal = convertStringToCalendar(dates, times);
+		return cal;
 	}
 
 	public static String getDescriptionFromString(String inputArgs) {

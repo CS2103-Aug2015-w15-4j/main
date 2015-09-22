@@ -97,4 +97,20 @@ public class StringParserTest {
 		assertEquals("Meet John about proposal", StringParser.getTitleFromString("#cs2101 Meet John about proposal #cs2103 @1200 12/2/13"));
 		assertEquals("Meet John about proposal", StringParser.getTitleFromString(" @1200 12/2/13 Meet John about proposal #cs2103"));
 	}
+	
+	@Test
+	public void testGetDatesTimesFromString() {
+		// Test has start and end time
+		assertEquals(StringParser.parseStringToDate("Tue Feb 12 12:00:00 SGT 2013"), StringParser.getDatesTimesFromString("12/2/13 Meet John about proposal #cs2103 @1200-1330")[0].getTime());
+		assertEquals(StringParser.parseStringToDate("Tue Feb 12 13:30:00 SGT 2013"), StringParser.getDatesTimesFromString("12/2/13 Meet John about proposal #cs2103 @1200-1330")[1].getTime());
+		// Test only has start time
+		assertEquals(StringParser.parseStringToDate("Tue Feb 12 12:00:00 SGT 2013"), StringParser.getDatesTimesFromString("12/2/13 Meet John about proposal @1200 #cs2103 #cs2101")[0].getTime());
+		assertEquals(null, StringParser.getDatesTimesFromString("12/2/13 Meet John about proposal @1200 #cs2103 #cs2101")[1]);
+		// Test only has start date
+		assertEquals(StringParser.parseStringToDate("Tue Feb 12 00:00:00 SGT 2013"), StringParser.getDatesTimesFromString("12/2/13 Meet John about proposal #cs2103 #cs2101")[0].getTime());
+		assertEquals(null, StringParser.getDatesTimesFromString("12/2/13 Meet John about proposal @1200 #cs2103 #cs2101")[1]);
+		// Test no date & time
+		assertEquals(null, StringParser.getDatesTimesFromString("Meet John about proposal @1200 #cs2103 #cs2101")[0]);
+		assertEquals(null, StringParser.getDatesTimesFromString("Meet John about proposal @1200 #cs2103 #cs2101")[1]);
+	}
 }
