@@ -18,7 +18,7 @@ import com.sun.org.apache.xerces.internal.impl.xpath.regex.ParseException;
 public class StringParser {
 	private static Pattern ddmmyy = Pattern.compile("(\\s(0?[1-9]|[12][0-9]|3[01])/(0?[1-9]|1[012])/(\\d\\d))\\s");
 	private static Pattern hhmm = Pattern.compile("@((0[0-9]|1[0-9]|2[0-3])([0-5][0-9]))(-((0[0-9]|1[0-9]|2[0-3])([0-5][0-9])))?");
-	
+	private static Pattern quotes = Pattern.compile("\"([^\"]*)\"");
 	private static SimpleDateFormat dateTimeFormat = new SimpleDateFormat("d/M/yy HHmm");
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("d/M/yy");
 	
@@ -160,8 +160,18 @@ public class StringParser {
 	}
 
 	public static String getDescriptionFromString(String inputArgs) {
-		// TODO Auto-generated method stub
-		return null;
+		Matcher m = quotes.matcher(inputArgs); 
+		String description = null;
+		
+		if (m.find()) {
+			description = m.group();
+		}
+		
+		if (description != null) {
+			return description.substring(1, description.length()-1);
+		} else {
+			return null;
+		}
 	}
 
 	public static int getTaskIdFromString(String inputArgs) {

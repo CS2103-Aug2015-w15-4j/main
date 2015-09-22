@@ -113,4 +113,11 @@ public class StringParserTest {
 		assertEquals(null, StringParser.getDatesTimesFromString("Meet John about proposal @1200 #cs2103 #cs2101")[0]);
 		assertEquals(null, StringParser.getDatesTimesFromString("Meet John about proposal @1200 #cs2103 #cs2101")[1]);
 	}
+	
+	@Test
+	public void testGetDescriptionFromString() {
+		assertEquals("and this my description", StringParser.getDescriptionFromString("this is my task \"and this my description\" blah blah 23/3/12"));
+		assertEquals("my desc", StringParser.getDescriptionFromString("Meet John about proposal @1200 #cs2103 \"my desc\" #cs2101"));
+		assertEquals(null, StringParser.getDescriptionFromString("Meet John about proposal @1200 #cs2103 #cs2101"));
+	}
 }
