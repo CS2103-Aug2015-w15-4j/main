@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -132,5 +133,33 @@ public class StringParser {
 		} catch(ParseException | java.text.ParseException pe) {
 		    throw new IllegalArgumentException();
 		}
+	}
+
+	public static String getTitleFromString(String inputArgs) {
+		String regex = "((\\s*(0?[1-9]|[12][0-9]|3[01])/(0?[1-9]|1[012])/(\\d\\d))\\s*)|(@((0[0-9]|1[0-9]|2[0-3])([0-5][0-9]))(-((0[0-9]|1[0-9]|2[0-3])([0-5][0-9])))?)|(\"[^\"]*?\")|(#(\\w+))";
+		inputArgs = inputArgs.replaceAll(regex, ""); 
+//		String[]tokens = inputArgs.split("@|\\d|\"");
+	//	 return tokens[0].trim();
+		return inputArgs.trim();
+	}
+
+	public static Calendar[] getTimesFromString(String inputArgs) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public static String getDescriptionFromString(String inputArgs) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public static int getTaskIdFromString(String inputArgs) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public static ArrayList<String> getTagsFromString(String inputArgs) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
