@@ -2,6 +2,7 @@ package parser;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 import org.junit.Test;
@@ -126,5 +127,13 @@ public class StringParserTest {
 		assertEquals(23, StringParser.getTaskIdFromString("this is my T23task \"and this my description\" blah blah 23/3/12"));
 		assertEquals(4242, StringParser.getTaskIdFromString("T4242 Meet John about proposal @1200 #cs2103 \"my desc\" #cs2101"));
 		assertEquals(0, StringParser.getTaskIdFromString("Meet Task John about proposal @1200 #cs2103 #cs2101"));
+	}
+	
+	@Test
+	public void testGetTagsFromString() {
+		assertEquals("cs2103", StringParser.getTagsFromString("Meet Task John about proposal #cs2103 @1200 #cs2101").get(0));
+		assertEquals("cs2101", StringParser.getTagsFromString("Meet Task John about proposal #cs2103 @1200 #cs2101").get(1));
+		assertEquals(new ArrayList<String>(), StringParser.getTagsFromString("Meet Task John about proposal @1200"));
+		
 	}
 }

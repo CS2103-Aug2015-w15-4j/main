@@ -20,6 +20,7 @@ public class StringParser {
 	private static Pattern hhmm = Pattern.compile("@((0[0-9]|1[0-9]|2[0-3])([0-5][0-9]))(-((0[0-9]|1[0-9]|2[0-3])([0-5][0-9])))?");
 	private static Pattern quotes = Pattern.compile("\"([^\"]*)\"");
 	private static Pattern taskId = Pattern.compile("(T[0-9]+)");
+	private static Pattern tags = Pattern.compile("#\\w+");
 	
 	private static SimpleDateFormat dateTimeFormat = new SimpleDateFormat("d/M/yy HHmm");
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("d/M/yy");
@@ -188,7 +189,14 @@ public class StringParser {
 	}
 
 	public static ArrayList<String> getTagsFromString(String inputArgs) {
-		// TODO Auto-generated method stub
-		return null;
+		Matcher m = tags.matcher(inputArgs);
+		ArrayList<String> tags = new ArrayList<String>();
+		
+		while (m.find()) {
+			String tag = m.group().substring(1);
+			tags.add(tag);
+		}
+		
+		return tags;
 	}
 }
