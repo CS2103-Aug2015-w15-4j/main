@@ -19,9 +19,11 @@ public class StringParser {
 	private static Pattern ddmmyy = Pattern.compile("(\\s(0?[1-9]|[12][0-9]|3[01])/(0?[1-9]|1[012])/(\\d\\d))\\s");
 	private static Pattern hhmm = Pattern.compile("@((0[0-9]|1[0-9]|2[0-3])([0-5][0-9]))(-((0[0-9]|1[0-9]|2[0-3])([0-5][0-9])))?");
 	private static Pattern quotes = Pattern.compile("\"([^\"]*)\"");
+	private static Pattern taskId = Pattern.compile("(T[0-9]+)");
+	
 	private static SimpleDateFormat dateTimeFormat = new SimpleDateFormat("d/M/yy HHmm");
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("d/M/yy");
-	
+
 	
 	// Note that second date is currently unnecessary, assumption that events do not span across days
 	/** 
@@ -175,8 +177,14 @@ public class StringParser {
 	}
 
 	public static int getTaskIdFromString(String inputArgs) {
-		// TODO Auto-generated method stub
-		return 0;
+		Matcher m = taskId.matcher(inputArgs); 
+		int taskId = 0;
+		
+		if (m.find()) {
+			taskId = Integer.parseInt(m.group().substring(1));
+		}
+		
+		return taskId;
 	}
 
 	public static ArrayList<String> getTagsFromString(String inputArgs) {

@@ -120,4 +120,11 @@ public class StringParserTest {
 		assertEquals("my desc", StringParser.getDescriptionFromString("Meet John about proposal @1200 #cs2103 \"my desc\" #cs2101"));
 		assertEquals(null, StringParser.getDescriptionFromString("Meet John about proposal @1200 #cs2103 #cs2101"));
 	}
+	
+	@Test
+	public void testGetTaskIdFromString() {
+		assertEquals(23, StringParser.getTaskIdFromString("this is my T23task \"and this my description\" blah blah 23/3/12"));
+		assertEquals(4242, StringParser.getTaskIdFromString("T4242 Meet John about proposal @1200 #cs2103 \"my desc\" #cs2101"));
+		assertEquals(0, StringParser.getTaskIdFromString("Meet Task John about proposal @1200 #cs2103 #cs2101"));
+	}
 }
