@@ -1,91 +1,135 @@
 package logic;
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
-
 
 public class Logic {
 
-	public static void main(String[] args) {
-		LinkedList<Invoker> commandHistory = new LinkedList<Invoker>();
-		
-		String userInput = "duck";
-		Parser parser = new Parser();
-		userData data = parser.parse(userInput);
-		
-		data.id = 1;
-		data.type = "Event";
-		Command newCommand1 = new Add(data);
-		Invoker invoke = new Invoker(newCommand1);
-		
-		invoke.execute();
-		commandHistory.addFirst(invoke);
-		
-		userData data1 = parser.parse(userInput);
-		data1.type = "Taskwithoutdeadline";
-		Command newCommand2 = new Add(data1);
-		invoke = new Invoker(newCommand2);
-		
-		invoke.execute();
-		commandHistory.addFirst(invoke);
-		commandHistory.poll().undo();;
-		invoke.execute();
-		commandHistory.addFirst(invoke);
-		invoke.execute();
-		commandHistory.addFirst(invoke);
-		
-		invoke = new Invoker(newCommand1);
-		
-		invoke.execute();
-		commandHistory.addFirst(invoke);
-		
-		userData data2 = parser.parse(userInput);
-		data2.type = "Taskwithoutdeadline";
-		Command newCommand3 = new Delete(data2);
-		invoke = new Invoker(newCommand3);
-		invoke.execute();
-		commandHistory.addFirst(invoke);
-		
-		Command newCommand4 = new Delete(data2);
-		invoke = new Invoker(newCommand4);
-		invoke.execute();
-		commandHistory.addFirst(invoke);
-		
-		userData data3 = parser.parse(userInput);
-		data3.type = "Event";
-		Command newCommand5 = new Delete(data3);
-		invoke = new Invoker(newCommand5);
-		invoke.execute();
-		commandHistory.addFirst(invoke);
-		
-		// Undo all
-		while (commandHistory.size() != 0) {
-			commandHistory.pollFirst().undo();
-		}
+	private static final String COMMAND_UNDO = "Undo";
+	// User commands
+	private static final String COMMAND_EXIT = "exit";
+	private static final String COMMAND_DELETE = "delete";
+	private static final String COMMAND_CLEAR = "clear";
+	private static final String COMMAND_DISPLAY = "display";
+	private static final String COMMAND_ADD = "add";
+	private static final String COMMAND_SEARCH = "search";
+	private static final String COMMAND_SORT = "sort";
+	
+	private static final String MESSAGE_INVALID_FORMAT = "invalid command format :%1$s";
+	
+	enum COMMAND_TYPE {
+		ADD, DISPLAY, DELETE, CLEAR, EXIT, INVALID, SORT, SEARCH, UNDO
+	}
+	
+	private Storage storage;
+	private Invoker invoke;
+	private LinkedList<Invoker> commandHistory = new LinkedList<Invoker>();
+	
+	public Logic() {
+		storage = new Storage();
+	}
+	
+	public View executeCommand(String userCommand) {
+		if(checkIfEmptyString(userCommand))
+			return new View(MESSAGE_INVALID_FORMAT,storage.getAllTasks());
 
+		COMMAND_TYPE commandType = getCommandType(userCommand);
+		switch (commandType) {
+		case ADD:
+			return executeAdd(removeFirstWord(userCommand));
+		case UNDO:
+			return executeUndo();
+		case DELETE:
+			return executeDelete(removeFirstWord(userCommand));
+	/*	case CLEAR:
+			return clear();			
+		case SORT:
+			return sort();
+		case SEARCH:
+			return search(removeFirstWord(userCommand));
+	*/ 
+		case INVALID:
+			return new View(MESSAGE_INVALID_FORMAT, storage.getAllTasks());
+		case EXIT:
+			System.exit(0);
+		default:
+			//throw an error if the command is not recognized
+			throw new Error("Unrecognized command type");
+		}
 	}
 	
-	public List<Task> getCompletedTasks() {
-		Storage storage = new Storage();
-		List<Task> taskList = storage.getAllTasks();
-		List<Task> completed = new ArrayList<Task>();
-		for (int i=0; i<taskList.size(); i++) {
-			if (taskList.get(i).getIsCompleted() == true) {
-				completed.add(taskList.get(i));
-			}
+	private View executeUndo() {
+		if (commandHistory.size() != 0) {
+			commandHistory.poll().undo();
+		} else {
+			return new View("Nothing to undo", storage.getAllTasks());
 		}
-		return taskList;
+		return new View("Undo Successful",storage.getAllTasks());
+	}
+
+	private View executeDelete(String userCommand) {
+		Parser parser = new Parser();
+		userData specifications = parser.parse(userCommand);
+		Command command = new Delete(specifications);
+		invoke = new Invoker(command);
+		invoke.execute();
+		commandHistory.addFirst(invoke);
+		
+		String consoleMessage = "Delete Successful";
+		return new View(consoleMessage,storage.getAllTasks());
+	}
+
+	private View executeAdd(String userCommand) {
+		Parser parser = new Parser();
+		userData specifications = parser.parse(userCommand);
+		Command command = new Add(specifications);
+		invoke = new Invoker(command);
+		invoke.execute();
+		commandHistory.addFirst(invoke);
+		
+		String consoleMessage = "Add Successful";
+		return new View(consoleMessage,storage.getAllTasks());
+	}
+
+	private static COMMAND_TYPE determineCommandType(String commandTypeString) {
+		if (commandTypeString == null) {
+			throw new Error("command type string cannot be null!");
+		}
+		if (commandTypeString.equalsIgnoreCase(COMMAND_ADD)) {
+			return COMMAND_TYPE.ADD;
+		} else if (commandTypeString.equalsIgnoreCase(COMMAND_DISPLAY)) {
+			return COMMAND_TYPE.DISPLAY;
+		} else if(commandTypeString.equalsIgnoreCase(COMMAND_CLEAR)) {
+			return COMMAND_TYPE.CLEAR;
+		} else if(commandTypeString.equalsIgnoreCase(COMMAND_DELETE)) {
+			return COMMAND_TYPE.DELETE;
+		} else if (commandTypeString.equalsIgnoreCase(COMMAND_SORT)) {
+			return COMMAND_TYPE.SORT;
+		} else if (commandTypeString.equalsIgnoreCase(COMMAND_SEARCH)) {
+			return COMMAND_TYPE.SEARCH;
+		} else if (commandTypeString.equalsIgnoreCase(COMMAND_EXIT)) {
+			return COMMAND_TYPE.EXIT;
+		} else if (commandTypeString.equalsIgnoreCase(COMMAND_UNDO)) {
+			return COMMAND_TYPE.UNDO;
+		} else {
+			return COMMAND_TYPE.INVALID;
+		}
 	}
 	
-	public List<Task> getUncompletedTasks() {
-		Storage storage = new Storage();
-		List<Task> taskList = storage.getAllTasks();
-		List<Task> completed = new ArrayList<Task>();
-		for (int i=0; i<taskList.size(); i++) {
-			if (taskList.get(i).getIsCompleted() == false) {
-				completed.add(taskList.get(i));
-			}
-		}
-		return taskList;
+	private static COMMAND_TYPE getCommandType(String userCommand) {
+		String commandTypeString = getFirstWord(userCommand);
+		COMMAND_TYPE commandType = determineCommandType(commandTypeString);
+		return commandType;
+	}
+	
+	private static String getFirstWord(String userCommand) {
+		String commandTypeString = userCommand.trim().split("\\s+")[0];
+		return commandTypeString;
+	}
+	
+	private static boolean checkIfEmptyString(String userCommand) {
+		return userCommand.trim().equals("");
+	}
+	
+	private static String removeFirstWord(String userCommand) {
+		return userCommand.replace(getFirstWord(userCommand), "").trim();
 	}
 }

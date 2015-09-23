@@ -12,11 +12,11 @@ public class Add implements Command{
 
 	@Override
 	public void execute() {
-		if (specifications.type.equalsIgnoreCase("TaskWithDeadline")) {
+		if (specifications.type.equalsIgnoreCase("DeadlineTask")) {
 			DeadlineTask newDeadlineTask = new DeadlineTask(specifications);
 			newDeadlineTask.createDeadlineTask(newDeadlineTask);
 			newTask = newDeadlineTask;
-		} else if (specifications.type.equalsIgnoreCase("TaskWithoutDeadline")) {
+		} else if (specifications.type.equalsIgnoreCase("Task")) {
 			newTask.createTask(newTask);
 		} else if (specifications.type.equalsIgnoreCase("Event")) {
 			Event newEvent =  new Event(specifications);
