@@ -79,6 +79,8 @@ public class StringParser {
 				startCal = null;
 				endCal = null;
 			} else {
+				dateFormat.setLenient(false);
+				dateTimeFormat.setLenient(false);
 				if (times[0] == null) { // no start time
 					String startDate = dates[0];
 					startCal.setTime(dateFormat.parse(startDate));

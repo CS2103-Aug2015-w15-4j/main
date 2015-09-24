@@ -28,6 +28,7 @@ public class ParsedCommand {
 	private static final int TASK = 1;
 	private static final int DEADLINE_TASK = 2;
 	private static final int EVENT = 3;
+	private static final String ERROR_INVALID_DATE = "Error: Invalid date(s) input";
 	
 	public ParsedCommand(CommandType cmdType, String title, Calendar start, Calendar end, 
 			             String description, ArrayList<String> tags, int taskId, int taskType) {
@@ -128,6 +129,9 @@ public class ParsedCommand {
 		} else {
 			String title = StringParser.getTitleFromString(inputArgs);
 			Calendar[] times = StringParser.getDatesTimesFromString(inputArgs);
+			if (times == null) {
+				return createParsedCommandError(ERROR_INVALID_DATE);
+			}
 			Calendar start = times[INDEX_FOR_START];
 			Calendar end = times[INDEX_FOR_END];
 			int taskType = 0;
