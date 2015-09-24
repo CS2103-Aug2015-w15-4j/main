@@ -10,7 +10,7 @@ public class TaskWithDeadlines extends TaskWithoutDeadlines{
 		super();
 	}
 
-	public TaskWithDeadlines(userData parsedInput) {
+	public TaskWithDeadlines(UserData parsedInput) {
 		super();
 		this.end = parsedInput.end;
 	}

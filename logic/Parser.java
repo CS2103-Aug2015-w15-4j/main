@@ -6,8 +6,8 @@ public class Parser {
 		
 	}
 	
-	public userData parse(String userInput) {
-		userData newData = new userData();
+	public UserData parse(String userInput) {
+		UserData newData = new UserData();
 		newData.type = "Task";
 		return newData;
 	}

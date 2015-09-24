@@ -13,7 +13,7 @@ import javafx.scene.shape.*;
 import javafx.scene.text.*;
 
 
-public class Main extends Application {
+public class GUI extends Application {
 	final static String[] tabNames = { 
 		"Calender", 
 		"Task", 
@@ -46,7 +46,8 @@ public class Main extends Application {
 	final static int SIDEBAR_PADDING_VERTICAL = 10;
 	final static Pos SIDEBAR_ORIENTATION = Pos.BOTTOM_LEFT;
 	
-	public static TextFlow sidebarTextbox;
+	public static TextFlow sidebarTextbox; // list of messages from application
+	public static TextFlow logTextbox; // list of user's previous commands
 	public static logic.Controller controller = new Controller(); 
 	
 	@Override
@@ -88,7 +89,7 @@ public class Main extends Application {
 		
 
 		// edit Log tab
-		TextFlow logTextbox = new TextFlow();
+		logTextbox = new TextFlow();
 		logTextbox.setMinHeight(0);
 		logTextbox.setMaxHeight(TABPANE_HEIGHT);
 		tabPane.getTabs().get(LOG).setContent(logTextbox);
@@ -97,7 +98,7 @@ public class Main extends Application {
 		TextField userTextField = new TextField();
 		userTextField.setPromptText(MSG_PROMPT);
 		userTextField.setOnAction((ActionEvent event) -> 
-			processUserTextField(logTextbox, userTextField, TABPANE_HEIGHT));
+			processUserTextField(userTextField, TABPANE_HEIGHT));
 		border.setBottom(userTextField);
 		
 		
@@ -108,7 +109,7 @@ public class Main extends Application {
 		userTextField.requestFocus();
 		primaryStage.setScene(scene);
 	    primaryStage.setTitle(APP_TITLE);
-	    scene.getStylesheets().add(Main.class.getResource(FILE_CSS).toExternalForm());
+	    scene.getStylesheets().add(GUI.class.getResource(FILE_CSS).toExternalForm());
 	    primaryStage.show();
 	}
 	
@@ -116,27 +117,28 @@ public class Main extends Application {
 		launch(args);
 	}
 	
-	public static void processUserTextField(TextFlow textbox, TextField userTextField, int height) {
-		executeCommand(textbox, userTextField.getText(), height, true);
+	public static void processUserTextField(TextField userTextField, int height) {
+		String temp = userTextField.getText();
     	userTextField.clear();
+		executeCommand(temp, height);
 	}
 	
-	public static void executeCommand(TextFlow textbox, String input, int height, boolean execute) {
+	public static void addToTextbox(TextFlow textbox, String input, int height) {
+		textbox.getChildren().add(new Text(input.trim()+"\n"));
+		// delete lines as they exceed sidebar's limit
+		maintainTextboxLimit(textbox, height);
+	}
+	
+	public static void executeCommand(String input, int height) {
 		if (input!= null && !input.isEmpty()) {
 			if (input.trim().equalsIgnoreCase(CMD_CLEAR)) {
-				textbox.getChildren().clear();
+				//textbox.getChildren().clear();
+				sidebarTextbox.getChildren().clear();
 			}
 			else {
-				textbox.getChildren().add(new Text(input.trim()+"\n"));
-				// delete lines as they exceed sidebar's limit
-				maintainTextboxLimit(textbox, height);
-				
-				// execute
-				if (execute) {
-					logic.View view = controller.commandEntered(input);
-					executeCommand(sidebarTextbox, view.getConsoleMessage(), SIDEBAR_MAX_HEIGHT, false);
-				}
-
+				addToTextbox(logTextbox,input, height);
+				logic.View view = controller.commandEntered(input);
+				addToTextbox(sidebarTextbox, view.getConsoleMessage(), SIDEBAR_MAX_HEIGHT);
 			}
 	    }
 	}
