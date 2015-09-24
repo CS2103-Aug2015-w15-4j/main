@@ -5,7 +5,7 @@ import java.util.Calendar;
 
 public class ParsedCommand {
 	public enum CommandType {
-		ADD, DELETE, EDIT, DISPLAY, ERROR, UNDO, INVALID, EXIT;
+		ADD, DELETE, EDIT, DISPLAY, ERROR, UNDO, DONE, INVALID, EXIT;
 	}
 	
 	private CommandType cmdType;
@@ -65,6 +65,9 @@ public class ParsedCommand {
 		        	return createParsedCommandDisplay(input); */
 		        case UNDO : 
 		        	return createParsedCommandUndo();
+		        	
+		        case DONE : 
+		        	return createParsedCommandDone(input);
 		        	
 		        case INVALID :
 		        	return createParsedCommandError(ERROR_INVALID_COMMAND);
@@ -129,6 +132,21 @@ public class ParsedCommand {
 			}
 		}
 	}
+	
+	private static ParsedCommand createParsedCommandDone(String[] input) {
+		if (input.length < 2) {
+			return createParsedCommandError(ERROR_MISSING_ARGS);
+		} else {
+			String inputArgs = input[INDEX_FOR_ARGS].trim();
+			int taskId = StringParser.getTaskIdFromString(inputArgs);
+			if (taskId == 0) {
+				return createParsedCommandError(ERROR_INVALID_TASKID);
+			} else {
+				ParsedCommand pc = new ParsedCommand(CommandType.DONE, null, null, null, null, null, taskId, 0);
+				return pc;
+			}
+		}
+	}
 
 	private static ParsedCommand createParsedCommandAdd(String[] input) {
 		if (input.length < 2) {
@@ -176,6 +194,8 @@ public class ParsedCommand {
 			return CommandType.EDIT;
 		} else if (commandTypeString.equalsIgnoreCase("undo")) {
 			return CommandType.UNDO;
+		} else if (commandTypeString.equalsIgnoreCase("done")) {
+			return CommandType.DONE;
 		} else if (commandTypeString.equalsIgnoreCase("exit")) {
 		 	return CommandType.EXIT;
 		} else {

@@ -14,6 +14,7 @@ public class ParsedCommandTest {
 	private ParsedCommand pcUndo;
 	private ParsedCommand pcEdit;
 	private ParsedCommand pcDelete;
+	private ParsedCommand pcDone;
 	private ArrayList<String> emptyArrayList = new ArrayList<String>();
 	
 	@Test
@@ -126,6 +127,29 @@ public class ParsedCommandTest {
 	public void testParseCommandUndo() {
 		pcUndo = ParsedCommand.parseCommand("Undo");
 		assertEquals(CommandType.UNDO, pcUndo.getCommandType());
+	}
+	
+	@Test
+	public void testParseCommandDone() {
+		pcDone = ParsedCommand.parseCommand("Done 234");
+		assertEquals(CommandType.DONE, pcDone.getCommandType());
+		assertEquals(234, pcDone.getTaskId());
+		
+		// Test allow extra whitespace
+		pcDone = ParsedCommand.parseCommand("Done  234");
+		assertEquals(CommandType.DONE, pcDone.getCommandType());
+		assertEquals(234, pcDone.getTaskId());
+		
+		
+		// Test missing arguments
+		pcDone = ParsedCommand.parseCommand("delete");
+    	assertEquals(CommandType.ERROR, pcDone.getCommandType());
+		assertEquals("Error: No arguments entered", pcDone.getErrorMessage());
+		
+		// Test invalid/missing taskId
+		pcDone = ParsedCommand.parseCommand("delete abc");
+    	assertEquals(CommandType.ERROR, pcDone.getCommandType());
+		assertEquals("Error: Invalid/Missing taskId", pcDone.getErrorMessage());
 	}
 /*
 	@Test
