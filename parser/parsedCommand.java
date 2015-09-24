@@ -23,12 +23,13 @@ public class ParsedCommand {
 	private String messageToUser;
 	private int taskId;
 	
+	private static final String ERROR_INVALID_COMMAND = "Error: Invalid command";
 	private static final String ERROR_NO_INPUT = "Error: No user input";
+	private static final String ERROR_MISSING_ARGS = "Error: No arguments entered";
 	private static final int INDEX_FOR_START = 0;
 	private static final int INDEX_FOR_END = 1;
-	private static final String ERROR_MISSING_ARGS = "Error: No arguments entered";
-	private static final int INDEX_FOR_ARGS = 1;
 	private static final int INDEX_FOR_CMD = 0;
+	private static final int INDEX_FOR_ARGS = 1;
 	
 	public ParsedCommand(CommandType cmdType, String title, Calendar start, Calendar end, 
 			             String description, ArrayList<String> tags, String msg, int taskId) {
