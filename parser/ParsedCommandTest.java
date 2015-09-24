@@ -17,7 +17,6 @@ public class ParsedCommandTest {
 		fail("Not yet implemented");
 	}*/
 	
-
 	@Test
 	public void testParseCommandAdd() {
 		pcAdd = ParsedCommand.parseCommand("Add meeting with john 23/11/10 @1200");
@@ -31,6 +30,11 @@ public class ParsedCommandTest {
 		pcAdd = ParsedCommand.parseCommand("Add meeting with john 31/4/10 @1200 #proj");
 		assertEquals(CommandType.ERROR, pcAdd.getCommandType());
 		assertEquals("Error: Invalid date(s) input", pcAdd.getErrorMessage());
+		
+		// Test missing arguments
+		pcAdd = ParsedCommand.parseCommand("Add");
+		assertEquals(CommandType.ERROR, pcAdd.getCommandType());
+		assertEquals("Error: No arguments entered", pcAdd.getErrorMessage());
 	}
 	
 	@Test

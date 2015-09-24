@@ -94,10 +94,10 @@ public class ParsedCommand {
 	}*/
 
 	private static ParsedCommand createParsedCommandEdit(String[] input) {
-		String inputArgs = input[INDEX_FOR_ARGS];
-		if (inputArgs == null) {
+		if (input.length < 2) {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
+			String inputArgs = input[INDEX_FOR_ARGS];
 			String title = StringParser.getTitleFromString(inputArgs);
 			Calendar[] times = StringParser.getDatesTimesFromString(inputArgs);
 			Calendar start = times[INDEX_FOR_START];
@@ -112,10 +112,10 @@ public class ParsedCommand {
 	}
 
 	private static ParsedCommand createParsedCommandDelete(String[] input) {
-		String inputArgs = input[INDEX_FOR_ARGS];
-		if (inputArgs == null) {
+		if (input.length < 2) {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
+			String inputArgs = input[INDEX_FOR_ARGS];
 			int taskId = StringParser.getTaskIdFromString(inputArgs);
 			ParsedCommand pc = new ParsedCommand(CommandType.DELETE, null, null, null, null, null, taskId, 0);
 			return pc;
@@ -123,10 +123,10 @@ public class ParsedCommand {
 	}
 
 	private static ParsedCommand createParsedCommandAdd(String[] input) {
-		String inputArgs = input[INDEX_FOR_ARGS];
-		if (inputArgs == null) {
+		if (input.length < 2) {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
+			String inputArgs = input[INDEX_FOR_ARGS];
 			String title = StringParser.getTitleFromString(inputArgs);
 			Calendar[] times = StringParser.getDatesTimesFromString(inputArgs);
 			if (times == null) {
