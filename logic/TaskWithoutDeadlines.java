@@ -12,7 +12,7 @@ public class TaskWithoutDeadlines {
 	
 	}
 
-	public TaskWithoutDeadlines(userData parsedInput) {
+	public TaskWithoutDeadlines(UserData parsedInput) {
 		this.name = parsedInput.name;
 		this.details = parsedInput.details;
 		this.id = parsedInput.id;

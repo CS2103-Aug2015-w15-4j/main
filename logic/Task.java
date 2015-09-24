@@ -19,7 +19,7 @@ public class Task implements Comparable<Task>{
 	public Task(ParsedCommand parsedInput) {
 		this.name = parsedInput.getTitle();
 		this.details = parsedInput.getDescription();
-		this.id = parsedInput.getid;
+		this.id = parsedInput.getTaskId();
 		this.isCompleted = false;
 		this.tags = parsedInput.getTags();
 	}
@@ -35,7 +35,7 @@ public class Task implements Comparable<Task>{
 		storage.delete(id);
 	}
 	
-	public Task getTask(userData parsedInput) {
+	public Task getTask(UserData parsedInput) {
 		Storage storage = new Storage();
 		List<Task> taskList = storage.getAllTasks();
 		return taskList.get(parsedInput.id);		

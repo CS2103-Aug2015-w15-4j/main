@@ -1,7 +1,7 @@
 package logic;
 import java.util.Calendar;
 
-public class userData {
+public class UserData {
 	
 	// Task/DeadlineTask/Event details
 	public String name;
