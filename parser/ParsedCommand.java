@@ -29,6 +29,7 @@ public class ParsedCommand {
 	private static final int DEADLINE_TASK = 2;
 	private static final int EVENT = 3;
 	private static final String ERROR_INVALID_DATE = "Error: Invalid date(s) input";
+	private static final String ERROR_INVALID_TASKID = "Error: Invalid/Missing taskId";
 	
 	public ParsedCommand(CommandType cmdType, String title, Calendar start, Calendar end, 
 			             String description, ArrayList<String> tags, int taskId, int taskType) {
@@ -98,12 +99,15 @@ public class ParsedCommand {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
 			String inputArgs = input[INDEX_FOR_ARGS];
+			int taskId = StringParser.getTaskIdFromString(inputArgs);
+			if (taskId == 0) {
+				return createParsedCommandError(ERROR_INVALID_TASKID);
+			}
 			String title = StringParser.getTitleFromString(inputArgs);
 			Calendar[] times = StringParser.getDatesTimesFromString(inputArgs);
 			Calendar start = times[INDEX_FOR_START];
 			Calendar end = times[INDEX_FOR_END];
 			String description = StringParser.getDescriptionFromString(inputArgs);
-			int taskId = StringParser.getTaskIdFromString(inputArgs);
 			ArrayList<String> tags = StringParser.getTagsFromString(inputArgs);
 			
 			ParsedCommand pc = new ParsedCommand(CommandType.EDIT, title, start, end, description, tags, taskId, 0);
@@ -117,8 +121,12 @@ public class ParsedCommand {
 		} else {
 			String inputArgs = input[INDEX_FOR_ARGS];
 			int taskId = StringParser.getTaskIdFromString(inputArgs);
-			ParsedCommand pc = new ParsedCommand(CommandType.DELETE, null, null, null, null, null, taskId, 0);
-			return pc;
+			if (taskId == 0) {
+				return createParsedCommandError(ERROR_INVALID_TASKID);
+			} else {
+				ParsedCommand pc = new ParsedCommand(CommandType.DELETE, null, null, null, null, null, taskId, 0);
+				return pc;
+			}
 		}
 	}
 
