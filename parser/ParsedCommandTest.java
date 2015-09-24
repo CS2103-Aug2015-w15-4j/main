@@ -39,9 +39,38 @@ public class ParsedCommandTest {
 	
 	@Test
 	public void testParseCommandDelete() {
-		//pcDelete = ParsedCommand.parseCommand("x 234");
-		//assertEquals(CommandType.DELETE, pcDelete.getCommandType());
+		pcDelete = ParsedCommand.parseCommand("Delete 234");
+		assertEquals(CommandType.DELETE, pcDelete.getCommandType());
+		assertEquals(234, pcDelete.getTaskId());
+		
+		// Test missing arguments
+		pcDelete = ParsedCommand.parseCommand("delete");
+    	assertEquals(CommandType.ERROR, pcDelete.getCommandType());
+		assertEquals("Error: No arguments entered", pcDelete.getErrorMessage());
+		
+		// Test invalid arguments
+		pcDelete = ParsedCommand.parseCommand("delete abc");
+    	assertEquals(CommandType.ERROR, pcDelete.getCommandType());
+		assertEquals("Error: Invalid/Missing taskId", pcDelete.getErrorMessage());		
 	}
+	
+	@Test
+	public void testParseCommandEdit() {
+		pcEdit = ParsedCommand.parseCommand("Edit 234");
+		assertEquals(CommandType.EDIT, pcEdit.getCommandType());
+		assertEquals(234, pcEdit.getTaskId());
+		
+		// Test missing arguments
+		pcEdit = ParsedCommand.parseCommand("edit");
+    	assertEquals(CommandType.ERROR, pcEdit.getCommandType());
+		assertEquals("Error: No arguments entered", pcEdit.getErrorMessage());
+		
+		// Test invalid arguments
+		pcEdit = ParsedCommand.parseCommand("edit abc #hello");
+    	assertEquals(CommandType.ERROR, pcEdit.getCommandType());
+		assertEquals("Error: Invalid/Missing taskId", pcEdit.getErrorMessage());		
+	}
+
 	
 	@Test
 	public void testParseCommandUndo() {
