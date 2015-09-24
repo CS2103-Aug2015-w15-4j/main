@@ -1,24 +1,28 @@
 package logic;
 
+import parser.ParsedCommand;
+
 public class Add implements Command{
 
 	Task newTask;
-	userData specifications;
+	ParsedCommand specifications;
+	int id;
 
-	public Add(userData specifications) {
+	public Add(ParsedCommand specifications,int newId) {
 		this.specifications = specifications;
 		newTask = new Task(specifications);
+		this.id = newId;
 	}
 
 	@Override
 	public void execute() {
-		if (specifications.type.equalsIgnoreCase("DeadlineTask")) {
+		if (specifications.getTaskType() == 2) {
 			DeadlineTask newDeadlineTask = new DeadlineTask(specifications);
 			newDeadlineTask.createDeadlineTask(newDeadlineTask);
 			newTask = newDeadlineTask;
-		} else if (specifications.type.equalsIgnoreCase("Task")) {
+		} else if (specifications.getTaskType() == 1) {
 			newTask.createTask(newTask);
-		} else if (specifications.type.equalsIgnoreCase("Event")) {
+		} else if (specifications.getTaskType() == 3) {
 			Event newEvent =  new Event(specifications);
 			newEvent.createEvent(newEvent);
 			newTask = newEvent;
@@ -27,7 +31,7 @@ public class Add implements Command{
 
 	@Override
 	public void undo() {
-		newTask.deleteTask(specifications.id);
+		newTask.deleteTask(id);
 	}
 
 }

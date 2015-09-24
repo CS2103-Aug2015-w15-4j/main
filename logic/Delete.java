@@ -1,36 +1,39 @@
 package logic;
 import java.util.List;
+import parser.ParsedCommand;
 
 public class Delete implements Command{
 
 	Task toDelete;
-	userData specifications;
+	ParsedCommand specifications;
+	int id;
 	
 	public Delete() {
 		
 	}
 
-	public Delete(userData specifications) {
+	public Delete(ParsedCommand specifications,int id) {
 		this.specifications = specifications;
 		Storage storage = new Storage();
 		List<Task> taskList = storage.getAllTasks();
-		toDelete = taskList.get(specifications.id);
+		this.id = id;
+		this.toDelete = taskList.get(id);
 	}
 
 	@Override
 	public void execute() {
-		toDelete.deleteTask(specifications.id);
+		toDelete.deleteTask(id);
 	}
 
 	@Override
 	public void undo() {
-		if (specifications.type.equalsIgnoreCase("TaskWithDeadline")) {
+		if (specifications.getTaskType() == 2) {
 			DeadlineTask deleted = (DeadlineTask) toDelete; 
 			deleted.createDeadlineTask(deleted);
-		} else if (specifications.type.equalsIgnoreCase("TaskWithoutDeadline")) {
+		} else if (specifications.getTaskType() == 1) {
 			Task deleted = (Task) toDelete; 
 			deleted.createTask(deleted);
-		} else if (specifications.type.equalsIgnoreCase("Event")) {
+		} else if (specifications.getTaskType() == 3) {
 			Event deleted = (Event) toDelete; 
 			deleted.createEvent(deleted);
 		}

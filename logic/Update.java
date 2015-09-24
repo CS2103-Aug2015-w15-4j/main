@@ -2,9 +2,9 @@ package logic;
 
 public class Update implements Command {
 	
-	userData specifications;
+	UserData specifications;
 	
-	public Update(userData specifications) {
+	public Update(UserData specifications) {
 		this.specifications = specifications;
 	}
 	
