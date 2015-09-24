@@ -82,7 +82,6 @@ public class GUI extends Application {
 		for (int i=0; i<tabNames.length;i++) {
 			Tab tab = new Tab(String.format("%-10s", tabNames[i]));
 			tab.setId(tabNames[i]);
-			tab.setContent(createRect(TABPANE_WIDTH, TABPANE_HEIGHT, tabNames[i]));
 			tabPane.getTabs().add(tab);
 		}
 		border.setCenter(tabPane);
@@ -92,7 +91,10 @@ public class GUI extends Application {
 		logTextbox = new TextFlow();
 		logTextbox.setMinHeight(0);
 		logTextbox.setMaxHeight(TABPANE_HEIGHT);
-		tabPane.getTabs().get(LOG).setContent(logTextbox);
+		VBox logVBox = new VBox();
+		logVBox.setAlignment(Pos.BOTTOM_LEFT);
+		logVBox.getChildren().add(logTextbox);
+		tabPane.getTabs().get(LOG).setContent(logVBox);
 		
 		// create input field
 		TextField userTextField = new TextField();
@@ -100,10 +102,6 @@ public class GUI extends Application {
 		userTextField.setOnAction((ActionEvent event) -> 
 			processUserTextField(userTextField, TABPANE_HEIGHT));
 		border.setBottom(userTextField);
-		
-		
-		
-		
 		
 		Scene scene = new Scene(border, border.getPrefWidth(), border.getPrefHeight());
 		userTextField.requestFocus();
