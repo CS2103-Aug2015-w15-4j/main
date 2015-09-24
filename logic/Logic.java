@@ -82,7 +82,7 @@ public class Logic {
 		Storage storage = new Storage();
 		List<Task> taskList = storage.getAllTasks();
 		
-		return taskList.get(taskList.size()).getId() + 1; 
+		return taskList.get(taskList.size()-1).getId() + 1; 
 	}
 	
 	

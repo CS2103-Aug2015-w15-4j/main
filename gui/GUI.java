@@ -118,8 +118,9 @@ public class GUI extends Application {
 	}
 	
 	public static void processUserTextField(TextField userTextField, int height) {
-		executeCommand(userTextField.getText(), height);
+		String temp = userTextField.getText();
     	userTextField.clear();
+		executeCommand(temp, height);
 	}
 	
 	public static void addToTextbox(TextFlow textbox, String input, int height) {
