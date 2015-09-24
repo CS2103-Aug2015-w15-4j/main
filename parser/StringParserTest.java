@@ -86,6 +86,9 @@ public class StringParserTest {
 						StringParser.convertStringToCalendar(dates, times)[0].getTime());
 		assertEquals(StringParser.parseStringToDate("Tue Dec 23 15:30:00 SGT 2014"), 
 				StringParser.convertStringToCalendar(dates, times)[1].getTime());
+		String[] invalidDates = StringParser.getFormattedDates("Hello how 31/2/14 are you @1200-1530 today?");
+		String[] invalidTimes = StringParser.getFormattedTimes("Hello how 31/2/14 are you @1200-1530 today?");
+		assertArrayEquals(null, StringParser.convertStringToCalendar(invalidDates, invalidTimes));
 	}
 	
 	@Test

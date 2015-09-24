@@ -26,6 +26,13 @@ public class ParsedCommandTest {
 		pcUndo = ParsedCommand.parseCommand("Undo");
 		assertEquals(CommandType.UNDO, pcUndo.getCommandType());
 	}
+	
+	@Test
+	public void testInvalidAddCommands() {
+		pcAdd = ParsedCommand.parseCommand("Add meeting with john 31/4/10 @1200 #proj");
+		assertEquals(CommandType.ERROR, pcAdd.getCommandType());
+		assertEquals("Error: Invalid date(s) input", pcAdd.getErrorMessage());
+	}
 /*
 	@Test
 	public void testGetCommandType() {
