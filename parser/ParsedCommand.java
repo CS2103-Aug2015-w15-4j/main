@@ -5,7 +5,7 @@ import java.util.Calendar;
 
 public class ParsedCommand {
 	public enum CommandType {
-		ADD, DELETE, EDIT, DISPLAY, ERROR, INVALID, EXIT;
+		ADD, DELETE, EDIT, DISPLAY, ERROR, INVALID, EXIT, UNDO;
 	}
 	
 	private CommandType cmdType;
