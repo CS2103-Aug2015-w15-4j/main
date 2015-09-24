@@ -1,9 +1,10 @@
 package gui;
-	
+
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.geometry.*;
 import javafx.stage.Stage;
+import logic.Controller;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.control.TabPane.*;
@@ -45,6 +46,9 @@ public class Main extends Application {
 	final static int SIDEBAR_PADDING_VERTICAL = 10;
 	final static Pos SIDEBAR_ORIENTATION = Pos.BOTTOM_LEFT;
 	
+	public static TextFlow sidebarTextbox;
+	public static logic.Controller controller = new Controller(); 
+	
 	@Override
 	public void start(Stage primaryStage) {
 		// prevent resizing
@@ -62,7 +66,7 @@ public class Main extends Application {
 		border.setRight(sidebar); // put the sidebar on the right side
 		
 		// create the text
-		TextFlow sidebarTextbox = new TextFlow();
+		sidebarTextbox = new TextFlow();
 		sidebarTextbox.setId(TAG_SIDEBAR_TEXTBOX);
 		sidebarTextbox.setMaxWidth(SIDEBAR_WIDTH);
 		sidebarTextbox.setMinWidth(SIDEBAR_WIDTH);
@@ -93,7 +97,7 @@ public class Main extends Application {
 		TextField userTextField = new TextField();
 		userTextField.setPromptText(MSG_PROMPT);
 		userTextField.setOnAction((ActionEvent event) -> 
-			executeCommand(logTextbox, userTextField, TABPANE_HEIGHT));
+			processUserTextField(logTextbox, userTextField, TABPANE_HEIGHT));
 		border.setBottom(userTextField);
 		
 		
@@ -112,18 +116,28 @@ public class Main extends Application {
 		launch(args);
 	}
 	
-	public static void executeCommand(TextFlow textbox, TextField userTextField, int height) {
-		if (userTextField.getText() != null && !userTextField.getText().isEmpty()) {
-			if (userTextField.getText().trim().equalsIgnoreCase(CMD_CLEAR)) {
+	public static void processUserTextField(TextFlow textbox, TextField userTextField, int height) {
+		executeCommand(textbox, userTextField.getText(), height, true);
+    	userTextField.clear();
+	}
+	
+	public static void executeCommand(TextFlow textbox, String input, int height, boolean execute) {
+		if (input!= null && !input.isEmpty()) {
+			if (input.trim().equalsIgnoreCase(CMD_CLEAR)) {
 				textbox.getChildren().clear();
 			}
 			else {
-				textbox.getChildren().add(new Text(userTextField.getText().trim()+"\n"));
+				textbox.getChildren().add(new Text(input.trim()+"\n"));
 				// delete lines as they exceed sidebar's limit
 				maintainTextboxLimit(textbox, height);
+				
+				// execute
+				if (execute) {
+					logic.View view = controller.commandEntered(input);
+					executeCommand(sidebarTextbox, view.getConsoleMessage(), SIDEBAR_MAX_HEIGHT, false);
+				}
+
 			}
-			
-	    	userTextField.clear();
 	    }
 	}
 	
