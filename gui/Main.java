@@ -62,13 +62,13 @@ public class Main extends Application {
 		border.setRight(sidebar); // put the sidebar on the right side
 		
 		// create the text
-		TextFlow textbox = new TextFlow();
-		textbox.setId(TAG_SIDEBAR_TEXTBOX);
-		textbox.setMaxWidth(SIDEBAR_WIDTH);
-		textbox.setMinWidth(SIDEBAR_WIDTH);
-		textbox.setMaxHeight(SIDEBAR_MAX_HEIGHT);
-		textbox.setMinHeight(SIDEBAR_MIN_HEIGHT);
-		sidebar.getChildren().add(textbox); 
+		TextFlow sidebarTextbox = new TextFlow();
+		sidebarTextbox.setId(TAG_SIDEBAR_TEXTBOX);
+		sidebarTextbox.setMaxWidth(SIDEBAR_WIDTH);
+		sidebarTextbox.setMinWidth(SIDEBAR_WIDTH);
+		sidebarTextbox.setMaxHeight(SIDEBAR_MAX_HEIGHT);
+		sidebarTextbox.setMinHeight(SIDEBAR_MIN_HEIGHT);
+		sidebar.getChildren().add(sidebarTextbox); 
 		
 		// Tab manager
 		TabPane tabPane = new TabPane();
@@ -82,13 +82,19 @@ public class Main extends Application {
 		}
 		border.setCenter(tabPane);
 		
+
+		// edit Log tab
+		TextFlow logTextbox = new TextFlow();
+		logTextbox.setMinHeight(0);
+		logTextbox.setMaxHeight(TABPANE_HEIGHT);
+		tabPane.getTabs().get(LOG).setContent(logTextbox);
+		
 		// create input field
 		TextField userTextField = new TextField();
 		userTextField.setPromptText(MSG_PROMPT);
-		userTextField.setOnAction((ActionEvent event) -> executeCommand(textbox, userTextField));
+		userTextField.setOnAction((ActionEvent event) -> 
+			executeCommand(logTextbox, userTextField, TABPANE_HEIGHT));
 		border.setBottom(userTextField);
-		
-		// edit Log tab
 		
 		
 		
@@ -106,7 +112,7 @@ public class Main extends Application {
 		launch(args);
 	}
 	
-	public static void executeCommand(TextFlow textbox, TextField userTextField) {
+	public static void executeCommand(TextFlow textbox, TextField userTextField, int height) {
 		if (userTextField.getText() != null && !userTextField.getText().isEmpty()) {
 			if (userTextField.getText().trim().equalsIgnoreCase(CMD_CLEAR)) {
 				textbox.getChildren().clear();
@@ -114,7 +120,7 @@ public class Main extends Application {
 			else {
 				textbox.getChildren().add(new Text(userTextField.getText().trim()+"\n"));
 				// delete lines as they exceed sidebar's limit
-				maintainTextboxLimit(textbox, SIDEBAR_MAX_HEIGHT);
+				maintainTextboxLimit(textbox, height);
 			}
 			
 	    	userTextField.clear();
