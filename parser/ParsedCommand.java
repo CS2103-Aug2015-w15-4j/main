@@ -1,49 +1,47 @@
 package parser;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Locale;
-
-import MyTextBuddy.COMMAND_TYPE;
 
 public class ParsedCommand {
-	private enum CommandType {
+	public enum CommandType {
 		ADD, DELETE, EDIT, DISPLAY, ERROR, INVALID, EXIT;
 	}
 	
-	private String input;
 	private CommandType cmdType;
 	private String title;
 	private Calendar start;
 	private Calendar end;
 	private String description;
 	private ArrayList<String> tags;
-	private String messageToUser;
 	private int taskId;
+	private int taskType;
 	
 	private static final String ERROR_INVALID_COMMAND = "Error: Invalid command";
 	private static final String ERROR_NO_INPUT = "Error: No user input";
 	private static final String ERROR_MISSING_ARGS = "Error: No arguments entered";
+	private static final String ERROR_NOT_AN_ERROR = "Error: No error message as this is not an error";
 	private static final int INDEX_FOR_START = 0;
 	private static final int INDEX_FOR_END = 1;
 	private static final int INDEX_FOR_CMD = 0;
 	private static final int INDEX_FOR_ARGS = 1;
+	private static final int TASK = 1;
+	private static final int DEADLINE_TASK = 2;
+	private static final int EVENT = 3;
 	
 	public ParsedCommand(CommandType cmdType, String title, Calendar start, Calendar end, 
-			             String description, ArrayList<String> tags, String msg, int taskId) {
+			             String description, ArrayList<String> tags, int taskId, int taskType) {
 		this.cmdType = cmdType;
 		this.title = title;
 		this.start = start;
 		this.end = end;
 		this.description = description;
 		this.tags = tags;
-		this.messageToUser = msg;
 		this.taskId = taskId;
+		this.taskType = taskType;
 	}
 	
-	public ParsedCommand parseCommand(String userInput) {
+	public static ParsedCommand parseCommand(String userInput) {
 		if (userInput.length() == 0) {
 			return createParsedCommandError(ERROR_NO_INPUT);
 		} else {
@@ -61,8 +59,8 @@ public class ParsedCommand {
 		        case EDIT :
 		        	return createParsedCommandEdit(input);
 
-		        case DISPLAY :
-		        	return createParsedCommandDisplay(input);
+		        /*case DISPLAY :
+		        	return createParsedCommandDisplay(input); */
 		        	
 		        case INVALID :
 		        	return createParsedCommandError(ERROR_INVALID_COMMAND);
@@ -77,17 +75,17 @@ public class ParsedCommand {
 		}
 	}
 	
-	private ParsedCommand createParsedCommandExit() {
-		ParsedCommand pc = new ParsedCommand(CommandType.EXIT, null, null, null, null, null, MESSAGE_EXIT, 0);
+	private static ParsedCommand createParsedCommandExit() {
+		ParsedCommand pc = new ParsedCommand(CommandType.EXIT, null, null, null, null, null, 0, 0);
 		return pc;
 	}
 
-	private ParsedCommand createParsedCommandDisplay(String input) {
-		ParsedCommand pc = new ParsedCommand(CommandType.DISPLAY, null, null, null, null, null, null, 0);
+  /*private static ParsedCommand createParsedCommandDisplay(String input) {
+		ParsedCommand pc = new ParsedCommand(CommandType.DISPLAY, null, null, null, null, null, 0);
 		return pc;
-	}
+	}*/
 
-	private ParsedCommand createParsedCommandEdit(String[] input) {
+	private static ParsedCommand createParsedCommandEdit(String[] input) {
 		String inputArgs = input[INDEX_FOR_ARGS];
 		if (inputArgs == null) {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
@@ -100,25 +98,23 @@ public class ParsedCommand {
 			int taskId = StringParser.getTaskIdFromString(inputArgs);
 			ArrayList<String> tags = StringParser.getTagsFromString(inputArgs);
 			
-			ParsedCommand pc = new ParsedCommand(CommandType.EDIT, title, start, end, description,
-					                             tags, null, taskId);
+			ParsedCommand pc = new ParsedCommand(CommandType.EDIT, title, start, end, description, tags, taskId, 0);
 			return pc;
 		}
 	}
 
-	private ParsedCommand createParsedCommandDelete(String[] input) {
+	private static ParsedCommand createParsedCommandDelete(String[] input) {
 		String inputArgs = input[INDEX_FOR_ARGS];
 		if (inputArgs == null) {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
 			int taskId = StringParser.getTaskIdFromString(inputArgs);
-			ParsedCommand pc = new ParsedCommand(CommandType.DELETE, null, null, null, null,
-                    tags, null, taskId);
+			ParsedCommand pc = new ParsedCommand(CommandType.DELETE, null, null, null, null, null, taskId, 0);
 			return pc;
 		}
 	}
 
-	private ParsedCommand createParsedCommandAdd(String[] input) {
+	private static ParsedCommand createParsedCommandAdd(String[] input) {
 		String inputArgs = input[INDEX_FOR_ARGS];
 		if (inputArgs == null) {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
@@ -127,17 +123,26 @@ public class ParsedCommand {
 			Calendar[] times = StringParser.getDatesTimesFromString(inputArgs);
 			Calendar start = times[INDEX_FOR_START];
 			Calendar end = times[INDEX_FOR_END];
+			int taskType = 0;
+			if (end == null) {
+				if (start == null) {
+					taskType = TASK;
+				} else {
+					taskType = DEADLINE_TASK;
+				} 
+			} else {
+				taskType = EVENT;
+			}
 			String description = StringParser.getDescriptionFromString(inputArgs);
 			ArrayList<String> tags = StringParser.getTagsFromString(inputArgs);
 			
-			ParsedCommand pc = new ParsedCommand(CommandType.ADD, title, start, end, description,
-					                             tags, null, 0);
+			ParsedCommand pc = new ParsedCommand(CommandType.ADD, title, start, end, description, tags, 0, taskType);
 			return pc;
 		}
 	}
 
-	private ParsedCommand createParsedCommandError(String errorMsg) {
-		ParsedCommand pc = new ParsedCommand(CommandType.ERROR, null, null, null, null, null, errorMsg, 0);
+	private static ParsedCommand createParsedCommandError(String errorMsg) {
+		ParsedCommand pc = new ParsedCommand(CommandType.ERROR, errorMsg, null, null, null, null, 0, 0);
 		return pc;
 	}
 	
@@ -155,11 +160,6 @@ public class ParsedCommand {
 		} else {
 			return CommandType.INVALID;
 		}
-	}
-
-	private void setError(String errorMsg) {
-		this.cmdType = CommandType.ERROR;
-		this.messageToUser = errorMsg;
 	}
 	
 	public CommandType getCommandType() {
@@ -187,10 +187,18 @@ public class ParsedCommand {
 	}
 	
 	public String getErrorMessage() {
-		return this.messageToUser;
+		if (this.cmdType == CommandType.ERROR) {
+			return this.title;
+		} else {
+			return ERROR_NOT_AN_ERROR;
+		}
 	}
 	
 	public int getTaskId() {
 		return this.taskId;
+	}
+	
+	public int getTaskType() {
+		return this.taskType;
 	}
 }
