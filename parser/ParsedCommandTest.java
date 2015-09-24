@@ -9,29 +9,40 @@ import parser.ParsedCommand.CommandType;
 public class ParsedCommandTest {
 	private ParsedCommand pcAdd;
 	private ParsedCommand pcUndo;
+	private ParsedCommand pcEdit;
+	private ParsedCommand pcDelete;
 	
 	/*@Test
 	public void testParsedCommand() {
 		fail("Not yet implemented");
 	}*/
+	
 
 	@Test
-	public void testParseCommand() {
+	public void testParseCommandAdd() {
 		pcAdd = ParsedCommand.parseCommand("Add meeting with john 23/11/10 @1200");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
 		assertEquals(StringParser.parseStringToDate("Tue Nov 23 12:00:00 SGT 2010"), pcAdd.getStart().getTime());
 		assertEquals(null, pcAdd.getEnd());
 		assertEquals(2, pcAdd.getTaskType());
-		pcUndo = ParsedCommand.parseCommand("Undo");
-		assertEquals(CommandType.UNDO, pcUndo.getCommandType());
-	}
-	
-	@Test
-	public void testInvalidAddCommands() {
+		
+		// Test invalid date
 		pcAdd = ParsedCommand.parseCommand("Add meeting with john 31/4/10 @1200 #proj");
 		assertEquals(CommandType.ERROR, pcAdd.getCommandType());
 		assertEquals("Error: Invalid date(s) input", pcAdd.getErrorMessage());
+	}
+	
+	@Test
+	public void testParseCommandDelete() {
+		//pcDelete = ParsedCommand.parseCommand("x 234");
+		//assertEquals(CommandType.DELETE, pcDelete.getCommandType());
+	}
+	
+	@Test
+	public void testParseCommandUndo() {
+		pcUndo = ParsedCommand.parseCommand("Undo");
+		assertEquals(CommandType.UNDO, pcUndo.getCommandType());
 	}
 /*
 	@Test
