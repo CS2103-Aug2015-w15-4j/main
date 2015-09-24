@@ -82,6 +82,12 @@ public class ParsedCommandTest {
 		assertEquals(CommandType.DELETE, pcDelete.getCommandType());
 		assertEquals(234, pcDelete.getTaskId());
 		
+		// Test allow extra whitespace
+		pcDelete = ParsedCommand.parseCommand("Delete  234");
+		assertEquals(CommandType.DELETE, pcDelete.getCommandType());
+		assertEquals(234, pcDelete.getTaskId());
+		
+		
 		// Test missing arguments
 		pcDelete = ParsedCommand.parseCommand("delete");
     	assertEquals(CommandType.ERROR, pcDelete.getCommandType());
@@ -96,6 +102,11 @@ public class ParsedCommandTest {
 	@Test
 	public void testParseCommandEdit() {
 		pcEdit = ParsedCommand.parseCommand("Edit 234");
+		assertEquals(CommandType.EDIT, pcEdit.getCommandType());
+		assertEquals(234, pcEdit.getTaskId());
+		
+		// Test allow extra whitespace
+		pcEdit = ParsedCommand.parseCommand("Edit  234");
 		assertEquals(CommandType.EDIT, pcEdit.getCommandType());
 		assertEquals(234, pcEdit.getTaskId());
 		

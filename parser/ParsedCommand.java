@@ -98,7 +98,7 @@ public class ParsedCommand {
 		if (input.length < 2) {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
-			String inputArgs = input[INDEX_FOR_ARGS];
+			String inputArgs = input[INDEX_FOR_ARGS].trim();
 			int taskId = StringParser.getTaskIdFromString(inputArgs);
 			if (taskId == 0) {
 				return createParsedCommandError(ERROR_INVALID_TASKID);
@@ -119,7 +119,7 @@ public class ParsedCommand {
 		if (input.length < 2) {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
-			String inputArgs = input[INDEX_FOR_ARGS];
+			String inputArgs = input[INDEX_FOR_ARGS].trim();
 			int taskId = StringParser.getTaskIdFromString(inputArgs);
 			if (taskId == 0) {
 				return createParsedCommandError(ERROR_INVALID_TASKID);
