@@ -35,8 +35,8 @@ public class Logic {
 		case SEARCH:
 			return search(removeFirstWord(userCommand));
 	*/ 
-		case INVALID:
-			return new View(MESSAGE_INVALID_FORMAT, storage.getAllTasks());
+		case ERROR:
+			return new View(parsedCommand.getErrorMessage(), storage.getAllTasks());
 		case EXIT:
 			System.exit(0);
 		default:
