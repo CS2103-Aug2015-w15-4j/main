@@ -35,10 +35,10 @@ public class Task implements Comparable<Task>{
 		storage.delete(id);
 	}
 	
-	public Task getTask(UserData parsedInput) {
+	public Task getTask(ParsedCommand parsedInput) {
 		Storage storage = new Storage();
 		List<Task> taskList = storage.getAllTasks();
-		return taskList.get(parsedInput.id);		
+		return taskList.get(id);		
 	}
 
 	public String getName() {
