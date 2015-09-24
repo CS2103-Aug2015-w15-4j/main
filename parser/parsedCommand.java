@@ -28,6 +28,7 @@ public class ParsedCommand {
 	private static final int INDEX_FOR_END = 1;
 	private static final String ERROR_MISSING_ARGS = "Error: No arguments entered";
 	private static final int INDEX_FOR_ARGS = 1;
+	private static final int INDEX_FOR_CMD = 0;
 	
 	public ParsedCommand(CommandType cmdType, String title, Calendar start, Calendar end, 
 			             String description, ArrayList<String> tags, String msg, int taskId) {
@@ -46,7 +47,7 @@ public class ParsedCommand {
 			return createParsedCommandError(ERROR_NO_INPUT);
 		} else {
 			String input[] = userInput.split(" ", 2);
-			String userCommand = input[INDEX_FOR_COMMAND];
+			String userCommand = input[INDEX_FOR_CMD];
 			CommandType command = determineCommandType(userCommand);
 			
 			switch (command) {
