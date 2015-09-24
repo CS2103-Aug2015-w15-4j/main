@@ -48,6 +48,7 @@ public class GUI extends Application {
 	
 	public static TextFlow sidebarTextbox; // list of messages from application
 	public static TextFlow logTextbox; // list of user's previous commands
+	public static TabPane tabPane;
 	public static logic.Controller controller = new Controller(); 
 	
 	@Override
@@ -76,12 +77,13 @@ public class GUI extends Application {
 		sidebar.getChildren().add(sidebarTextbox); 
 		
 		// Tab manager
-		TabPane tabPane = new TabPane();
+		tabPane = new TabPane();
 		tabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
 		// Create tabs
 		for (int i=0; i<tabNames.length;i++) {
 			Tab tab = new Tab(String.format("%-10s", tabNames[i]));
 			tab.setId(tabNames[i]);
+			//tab.setContent(createRect(TABPANE_WIDTH, TABPANE_HEIGHT, tabNames[i]));
 			tabPane.getTabs().add(tab);
 		}
 		border.setCenter(tabPane);
@@ -92,7 +94,12 @@ public class GUI extends Application {
 		logTextbox.setMinHeight(0);
 		logTextbox.setMaxHeight(TABPANE_HEIGHT);
 		VBox logVBox = new VBox();
+		logVBox.setMaxHeight(TABPANE_HEIGHT);
+		logVBox.setMinHeight(TABPANE_HEIGHT);
+		logVBox.setMinWidth(TABPANE_WIDTH);
+		logVBox.setMaxWidth(TABPANE_WIDTH);
 		logVBox.setAlignment(Pos.BOTTOM_LEFT);
+		logVBox.setId("logVbox");
 		logVBox.getChildren().add(logTextbox);
 		tabPane.getTabs().get(LOG).setContent(logVBox);
 		

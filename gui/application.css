@@ -6,18 +6,6 @@
 	-fx-background-repeat: no-repeat;
 }
 
-.rect-Calender {
-	-fx-fill: #B0C4DE;
-	-fx-opacity: 0.4;
-}
-.rect-Task {
-	-fx-fill: #B0C4DE;
-	-fx-opacity: 0.4;
-}
-.rect-Today {
-	-fx-fill: #B0C4DE;
-	-fx-opacity: 0.4;
-}
 .sidebar {
 	-fx-background-color: #336699;
 	/* -fx-opacity: 0.5; */
