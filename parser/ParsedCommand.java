@@ -5,7 +5,7 @@ import java.util.Calendar;
 
 public class ParsedCommand {
 	public enum CommandType {
-		ADD, DELETE, EDIT, DISPLAY, ERROR, INVALID, EXIT;
+		ADD, DELETE, EDIT, DISPLAY, ERROR, UNDO, INVALID, EXIT;
 	}
 	
 	private CommandType cmdType;
@@ -61,6 +61,8 @@ public class ParsedCommand {
 
 		        /*case DISPLAY :
 		        	return createParsedCommandDisplay(input); */
+		        case UNDO : 
+		        	return createParsedCommandUndo();
 		        	
 		        case INVALID :
 		        	return createParsedCommandError(ERROR_INVALID_COMMAND);
@@ -75,6 +77,11 @@ public class ParsedCommand {
 		}
 	}
 	
+	private static ParsedCommand createParsedCommandUndo() {
+		ParsedCommand pc = new ParsedCommand(CommandType.UNDO, null, null, null, null, null, 0, 0);
+		return pc;
+	}
+
 	private static ParsedCommand createParsedCommandExit() {
 		ParsedCommand pc = new ParsedCommand(CommandType.EXIT, null, null, null, null, null, 0, 0);
 		return pc;
@@ -155,6 +162,8 @@ public class ParsedCommand {
 			return CommandType.DISPLAY;
 		} else if (commandTypeString.equalsIgnoreCase("edit")) {
 			return CommandType.EDIT;
+		} else if (commandTypeString.equalsIgnoreCase("undo")) {
+			return CommandType.UNDO;
 		} else if (commandTypeString.equalsIgnoreCase("exit")) {
 		 	return CommandType.EXIT;
 		} else {

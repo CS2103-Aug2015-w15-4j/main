@@ -8,7 +8,7 @@ import parser.ParsedCommand.CommandType;
 
 public class ParsedCommandTest {
 	private ParsedCommand pcAdd;
-	
+	private ParsedCommand pcUndo;
 	
 	/*@Test
 	public void testParsedCommand() {
@@ -23,6 +23,8 @@ public class ParsedCommandTest {
 		assertEquals(StringParser.parseStringToDate("Tue Nov 23 12:00:00 SGT 2010"), pcAdd.getStart().getTime());
 		assertEquals(null, pcAdd.getEnd());
 		assertEquals(2, pcAdd.getTaskType());
+		pcUndo = ParsedCommand.parseCommand("Undo");
+		assertEquals(CommandType.UNDO, pcUndo.getCommandType());
 	}
 /*
 	@Test
