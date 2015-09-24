@@ -24,14 +24,14 @@ public class View {
 	}
 	
 	public String getConsoleMessage() {
-		return this.consoleMessage;
+		return consoleMessage;
 	}
 	
 	public List<Task> getTasksToDisplay() {
-		return this.tasksToDisplay;
+		return tasksToDisplay;
 	}
 	
 	public List<Task> getAllTasks() {
-		return this.allTasks;
+		return allTasks;
 	}
 }

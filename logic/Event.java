@@ -1,6 +1,8 @@
 package logic;
 import java.util.Calendar;
 
+import parser.ParsedCommand;
+
 public class Event extends DeadlineTask {
 
 	protected Calendar start;
@@ -9,9 +11,9 @@ public class Event extends DeadlineTask {
 		
 	}
 	
-	public Event(userData parsedInput) {
+	public Event(ParsedCommand parsedInput) {
 		super();
-		this.start = parsedInput.start;
+		this.start = parsedInput.getStart();
 	}
 	
 	public void createEvent(Event newEvent) {

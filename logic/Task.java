@@ -1,5 +1,8 @@
 package logic;
+import java.util.ArrayList;
 import java.util.List;
+
+import parser.ParsedCommand;
 
 public class Task implements Comparable<Task>{
 
@@ -7,18 +10,18 @@ public class Task implements Comparable<Task>{
 	protected String details;
 	protected int id;
 	protected boolean isCompleted;
-	protected String tags;
+	protected ArrayList<String> tags;
 	
 	public Task() {
 		
 	}
 
-	public Task(userData parsedInput) {
-		this.name = parsedInput.name;
-		this.details = parsedInput.details;
-		this.id = parsedInput.id;
-		this.isCompleted = parsedInput.isCompleted;
-		this.tags = parsedInput.tags;
+	public Task(ParsedCommand parsedInput) {
+		this.name = parsedInput.getTitle();
+		this.details = parsedInput.getDescription();
+		this.id = parsedInput.getid;
+		this.isCompleted = false;
+		this.tags = parsedInput.getTags();
 	}
 	
 	
@@ -54,7 +57,7 @@ public class Task implements Comparable<Task>{
 		return isCompleted;
 	}
 
-	public String getTags() {
+	public ArrayList<String> getTags() {
 		return tags;
 	}
 
@@ -74,7 +77,7 @@ public class Task implements Comparable<Task>{
 		this.isCompleted = isCompleted;
 	}
 	
-	protected void setTags(String tags) {
+	protected void setTags(ArrayList<String> tags) {
 		this.tags = tags;
 	}
 

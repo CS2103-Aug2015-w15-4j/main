@@ -11,7 +11,7 @@ public class CommandUnitTest {
 		
 		String userInput = "duck";
 		Parser parser = new Parser();
-		userData data = parser.parse(userInput);
+		UserData data = parser.parse(userInput);
 		
 		data.id = 1;
 		data.type = "Event";
@@ -21,7 +21,7 @@ public class CommandUnitTest {
 		invoke.execute();
 		commandHistory.addFirst(invoke);
 		
-		userData data1 = parser.parse(userInput);
+		UserData data1 = parser.parse(userInput);
 		data1.type = "Taskwithoutdeadline";
 		Command newCommand2 = new Add(data1);
 		invoke = new Invoker(newCommand2);
@@ -39,7 +39,7 @@ public class CommandUnitTest {
 		invoke.execute();
 		commandHistory.addFirst(invoke);
 		
-		userData data2 = parser.parse(userInput);
+		UserData data2 = parser.parse(userInput);
 		data2.type = "Taskwithoutdeadline";
 		Command newCommand3 = new Delete(data2);
 		invoke = new Invoker(newCommand3);
@@ -51,7 +51,7 @@ public class CommandUnitTest {
 		invoke.execute();
 		commandHistory.addFirst(invoke);
 		
-		userData data3 = parser.parse(userInput);
+		UserData data3 = parser.parse(userInput);
 		data3.type = "Event";
 		Command newCommand5 = new Delete(data3);
 		invoke = new Invoker(newCommand5);

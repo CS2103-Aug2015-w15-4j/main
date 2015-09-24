@@ -2,23 +2,27 @@ package logic;
 
 public class Controller {
 	
-	private static View view;
-	private static Logic model;
+	private View view;
+	private Logic model;
 	
 	public Controller() {
 		model = new Logic();
 	}
 	
-	public View commandEntered(String command) {
+	public void commandEntered() {
 		// Stub, replace get command with actual method to read string when implemented.
+		String command = "undo command";
 		if (command != null && !command.equals("")) {
 			view = model.executeCommand(command);
-			//updateView(view); 	// Stub, used to update the GUI output fields
-			return view;
-		}
-		else {
-			return null;
+			// updateView(view); 	// Stub, used to update the GUI output fields
+			
 		}
 		
-	}	
+	}
+	// Used to test controller, delete
+	public static void main(String[] args) {
+		Controller newController = new Controller(); 
+		newController.commandEntered();
+	}
+	
 }
