@@ -18,6 +18,12 @@ public class ReadFile {
 	//ArrayList<TaskWithoutDeadlines>;
 	String fileName = "";
 	
+	static String name;
+	static String details;
+	static int id;
+	static boolean isCompleted;
+	static String tags;
+	
 	public ReadFile(){}
 	
 	public static List<Task> readFile(File fileInput){
@@ -26,11 +32,14 @@ public class ReadFile {
 			FileReader fr = new FileReader(fileInput);
 			BufferedReader br = new BufferedReader(fr);
 			String sCurrentLine = null;
-			int i = 1;
 			if ((sCurrentLine = br.readLine()) != null) {
 				while (sCurrentLine != null) {
-					//sb.append(i + ". " + sCurrentLine + "\n");
 					String[] line = sCurrentLine.split("|");
+					name = line[0];
+					details = line[1];
+					id = Integer.parseInt(line[2]);
+					isCompleted = Boolean.parseBoolean(line[3]);
+					tags = line[4];
 					if (line[4].equalsIgnoreCase("Event")){
 						//stubTaskList.add(new Event());
 					} else if (line[4].equalsIgnoreCase("TaskWithDeadlines")){
@@ -38,8 +47,6 @@ public class ReadFile {
 					} else if (line[4].equalsIgnoreCase("TaskWithoutDeadlines")){
 						
 					}
-					
-					i++;
 					sCurrentLine = br.readLine();
 				}
 			}

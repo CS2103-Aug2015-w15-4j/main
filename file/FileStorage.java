@@ -8,21 +8,27 @@ import java.util.List;
 import logic.Storage;
 import logic.Task;
 
+// Main class for file storage
 public class FileStorage {
 
 	String fileName;
 	static File fileInput;
-
+	
+	public FileStorage(){}
+	
+	// Get the path at the start, create the file for the first time
 	public FileStorage(String fileName) {
 		this.fileName = fileName;
 		createFile(fileName);
 	}
 	
+	// Read the file
 	public static List<Task> readFile() {
 		ReadFile rf = new ReadFile();
 		return rf.readFile(fileInput);
 	}
 
+	// Save the file when the user close the program
 	public static void saveFile() {
 		Storage storage = new Storage();
 		SaveFile sf = new SaveFile();
