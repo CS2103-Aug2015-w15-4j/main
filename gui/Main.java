@@ -19,6 +19,11 @@ public class Main extends Application {
 		"Today", 
 		"Log" // command log 
 	};
+	final static int CAL = 0;
+	final static int TASK = 1;
+	final static int TODAY = 2;
+	final static int LOG = 3;
+	
 	final static String APP_TITLE = "Prototype";
 	final static String FILE_CSS = "application.css";
 	
@@ -30,8 +35,9 @@ public class Main extends Application {
 	
 	final static int WINDOW_WIDTH = 800;
 	final static int WINDOW_HEIGHT = 600;
-	final static int TAB_WIDTH = 600;
-	final static int TAB_HEIGHT = 400;
+	final static int TAB_WIDTH = 50;
+	final static int TABPANE_WIDTH = 600;
+	final static int TABPANE_HEIGHT = 400;
 	final static int SIDEBAR_WIDTH = 150;
 	final static int SIDEBAR_MIN_HEIGHT = 0;
 	final static int SIDEBAR_MAX_HEIGHT = 400;
@@ -53,34 +59,46 @@ public class Main extends Application {
 		border.maxWidth(WINDOW_WIDTH);
 
 		VBox sidebar = createVBox(TAG_SIDEBAR);
+		border.setRight(sidebar); // put the sidebar on the right side
 		
-		TextFlow textbox = new TextFlow();
-		textbox.setId(TAG_SIDEBAR_TEXTBOX);
-		textbox.setMaxWidth(SIDEBAR_WIDTH);
-		textbox.setMinWidth(SIDEBAR_WIDTH);
-		textbox.setMaxHeight(SIDEBAR_MAX_HEIGHT);
-		textbox.setMinHeight(SIDEBAR_MIN_HEIGHT);
-		sidebar.getChildren().add(textbox);
-		border.setRight(sidebar);
+		// create the text
+		TextFlow sidebarTextbox = new TextFlow();
+		sidebarTextbox.setId(TAG_SIDEBAR_TEXTBOX);
+		sidebarTextbox.setMaxWidth(SIDEBAR_WIDTH);
+		sidebarTextbox.setMinWidth(SIDEBAR_WIDTH);
+		sidebarTextbox.setMaxHeight(SIDEBAR_MAX_HEIGHT);
+		sidebarTextbox.setMinHeight(SIDEBAR_MIN_HEIGHT);
+		sidebar.getChildren().add(sidebarTextbox); 
 		
 		// Tab manager
 		TabPane tabPane = new TabPane();
 		tabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
-		
 		// Create tabs
 		for (int i=0; i<tabNames.length;i++) {
-			Tab tab = new Tab(tabNames[i]);
+			Tab tab = new Tab(String.format("%-10s", tabNames[i]));
 			tab.setId(tabNames[i]);
-			tab.setContent(createRect(TAB_WIDTH, TAB_HEIGHT, tabNames[i]));
+			tab.setContent(createRect(TABPANE_WIDTH, TABPANE_HEIGHT, tabNames[i]));
 			tabPane.getTabs().add(tab);
 		}
 		border.setCenter(tabPane);
 		
+
+		// edit Log tab
+		TextFlow logTextbox = new TextFlow();
+		logTextbox.setMinHeight(0);
+		logTextbox.setMaxHeight(TABPANE_HEIGHT);
+		tabPane.getTabs().get(LOG).setContent(logTextbox);
+		
 		// create input field
 		TextField userTextField = new TextField();
 		userTextField.setPromptText(MSG_PROMPT);
-		userTextField.setOnAction((ActionEvent event) -> executeCommand(textbox, userTextField));
+		userTextField.setOnAction((ActionEvent event) -> 
+			executeCommand(logTextbox, userTextField, TABPANE_HEIGHT));
 		border.setBottom(userTextField);
+		
+		
+		
+		
 		
 		Scene scene = new Scene(border, border.getPrefWidth(), border.getPrefHeight());
 		userTextField.requestFocus();
@@ -94,7 +112,7 @@ public class Main extends Application {
 		launch(args);
 	}
 	
-	public static void executeCommand(TextFlow textbox, TextField userTextField) {
+	public static void executeCommand(TextFlow textbox, TextField userTextField, int height) {
 		if (userTextField.getText() != null && !userTextField.getText().isEmpty()) {
 			if (userTextField.getText().trim().equalsIgnoreCase(CMD_CLEAR)) {
 				textbox.getChildren().clear();
@@ -102,7 +120,7 @@ public class Main extends Application {
 			else {
 				textbox.getChildren().add(new Text(userTextField.getText().trim()+"\n"));
 				// delete lines as they exceed sidebar's limit
-				maintainTextboxLimit(textbox, SIDEBAR_MAX_HEIGHT);
+				maintainTextboxLimit(textbox, height);
 			}
 			
 	    	userTextField.clear();
