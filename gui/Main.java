@@ -19,6 +19,11 @@ public class Main extends Application {
 		"Today", 
 		"Log" // command log 
 	};
+	final static int CAL = 0;
+	final static int TASK = 1;
+	final static int TODAY = 2;
+	final static int LOG = 3;
+	
 	final static String APP_TITLE = "Prototype";
 	final static String FILE_CSS = "application.css";
 	
@@ -30,8 +35,9 @@ public class Main extends Application {
 	
 	final static int WINDOW_WIDTH = 800;
 	final static int WINDOW_HEIGHT = 600;
-	final static int TAB_WIDTH = 600;
-	final static int TAB_HEIGHT = 400;
+	final static int TAB_WIDTH = 50;
+	final static int TABPANE_WIDTH = 600;
+	final static int TABPANE_HEIGHT = 400;
 	final static int SIDEBAR_WIDTH = 150;
 	final static int SIDEBAR_MIN_HEIGHT = 0;
 	final static int SIDEBAR_MAX_HEIGHT = 400;
@@ -53,25 +59,25 @@ public class Main extends Application {
 		border.maxWidth(WINDOW_WIDTH);
 
 		VBox sidebar = createVBox(TAG_SIDEBAR);
+		border.setRight(sidebar); // put the sidebar on the right side
 		
+		// create the text
 		TextFlow textbox = new TextFlow();
 		textbox.setId(TAG_SIDEBAR_TEXTBOX);
 		textbox.setMaxWidth(SIDEBAR_WIDTH);
 		textbox.setMinWidth(SIDEBAR_WIDTH);
 		textbox.setMaxHeight(SIDEBAR_MAX_HEIGHT);
 		textbox.setMinHeight(SIDEBAR_MIN_HEIGHT);
-		sidebar.getChildren().add(textbox);
-		border.setRight(sidebar);
+		sidebar.getChildren().add(textbox); 
 		
 		// Tab manager
 		TabPane tabPane = new TabPane();
 		tabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
-		
 		// Create tabs
 		for (int i=0; i<tabNames.length;i++) {
-			Tab tab = new Tab(tabNames[i]);
+			Tab tab = new Tab(String.format("%-10s", tabNames[i]));
 			tab.setId(tabNames[i]);
-			tab.setContent(createRect(TAB_WIDTH, TAB_HEIGHT, tabNames[i]));
+			tab.setContent(createRect(TABPANE_WIDTH, TABPANE_HEIGHT, tabNames[i]));
 			tabPane.getTabs().add(tab);
 		}
 		border.setCenter(tabPane);
@@ -81,6 +87,12 @@ public class Main extends Application {
 		userTextField.setPromptText(MSG_PROMPT);
 		userTextField.setOnAction((ActionEvent event) -> executeCommand(textbox, userTextField));
 		border.setBottom(userTextField);
+		
+		// edit Log tab
+		
+		
+		
+		
 		
 		Scene scene = new Scene(border, border.getPrefWidth(), border.getPrefHeight());
 		userTextField.requestFocus();
