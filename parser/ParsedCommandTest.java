@@ -2,30 +2,69 @@ package parser;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
+
 import org.junit.Test;
 
 import parser.ParsedCommand.CommandType;
 
 public class ParsedCommandTest {
+	private ParsedCommand pc;
 	private ParsedCommand pcAdd;
 	private ParsedCommand pcUndo;
 	private ParsedCommand pcEdit;
 	private ParsedCommand pcDelete;
+	private ArrayList<String> emptyArrayList = new ArrayList<String>();
 	
-	/*@Test
+	@Test
 	public void testParsedCommand() {
-		fail("Not yet implemented");
-	}*/
+		// Test empty input
+		pc = ParsedCommand.parseCommand("");
+		assertEquals(CommandType.ERROR, pc.getCommandType());
+		assertEquals("Error: No user input", pc.getErrorMessage());
+		
+		// Test unrecognised command
+		pc = ParsedCommand.parseCommand("hello");
+		assertEquals(CommandType.ERROR, pc.getCommandType());
+		assertEquals("Error: Invalid command", pc.getErrorMessage());
+	}
 	
 	@Test
 	public void testParseCommandAdd() {
+		ArrayList<String> taskTags = new ArrayList<String>();
+		taskTags.add("cs2103");
+		taskTags.add("proj");
+		taskTags.add("cs2101");
+		
+		// Test task
+		pcAdd = ParsedCommand.parseCommand("Add meeting with john #cs2103 #proj \"rmb to bring notes\" #cs2101");
+		assertEquals(CommandType.ADD, pcAdd.getCommandType());
+		assertEquals("meeting with john", pcAdd.getTitle());
+		assertEquals("rmb to bring notes", pcAdd.getDescription());
+		assertEquals(null, pcAdd.getStart());
+		assertEquals(null, pcAdd.getEnd());
+		assertEquals(taskTags, pcAdd.getTags());
+		assertEquals(1, pcAdd.getTaskType());
+		
+		// Test deadline task
 		pcAdd = ParsedCommand.parseCommand("Add meeting with john 23/11/10 @1200");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
+		assertEquals(null, pcAdd.getDescription());
 		assertEquals(StringParser.parseStringToDate("Tue Nov 23 12:00:00 SGT 2010"), pcAdd.getStart().getTime());
 		assertEquals(null, pcAdd.getEnd());
+		assertEquals(emptyArrayList, pcAdd.getTags());
 		assertEquals(2, pcAdd.getTaskType());
 		
+		// Test event
+		pcAdd = ParsedCommand.parseCommand("Add  23/11/10 @1200-1330 meeting with john #cs2103 #proj #cs2101");
+		assertEquals(CommandType.ADD, pcAdd.getCommandType());
+		assertEquals("meeting with john", pcAdd.getTitle());
+		assertEquals(null, pcAdd.getDescription());
+		assertEquals(StringParser.parseStringToDate("Tue Nov 23 12:00:00 SGT 2010"), pcAdd.getStart().getTime());
+		assertEquals(StringParser.parseStringToDate("Tue Nov 23 13:30:00 SGT 2010"), pcAdd.getEnd().getTime());
+		assertEquals(3, pcAdd.getTaskType());
+
 		// Test invalid date
 		pcAdd = ParsedCommand.parseCommand("Add meeting with john 31/4/10 @1200 #proj");
 		assertEquals(CommandType.ERROR, pcAdd.getCommandType());
@@ -48,7 +87,7 @@ public class ParsedCommandTest {
     	assertEquals(CommandType.ERROR, pcDelete.getCommandType());
 		assertEquals("Error: No arguments entered", pcDelete.getErrorMessage());
 		
-		// Test invalid arguments
+		// Test invalid/missing taskId
 		pcDelete = ParsedCommand.parseCommand("delete abc");
     	assertEquals(CommandType.ERROR, pcDelete.getCommandType());
 		assertEquals("Error: Invalid/Missing taskId", pcDelete.getErrorMessage());		
