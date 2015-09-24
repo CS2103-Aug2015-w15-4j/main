@@ -47,6 +47,7 @@ public class Main extends Application {
 	final static Pos SIDEBAR_ORIENTATION = Pos.BOTTOM_LEFT;
 	
 	public static TextFlow sidebarTextbox;
+	public static logic.Controller controller = new Controller(); 
 	
 	@Override
 	public void start(Stage primaryStage) {
@@ -132,7 +133,7 @@ public class Main extends Application {
 				
 				// execute
 				if (execute) {
-					logic.View view = Controller.commandEntered(input);
+					logic.View view = controller.commandEntered(input);
 					executeCommand(sidebarTextbox, view.getConsoleMessage(), SIDEBAR_MAX_HEIGHT, false);
 				}
 

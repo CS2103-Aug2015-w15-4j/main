@@ -9,7 +9,7 @@ public class Controller {
 		model = new Logic();
 	}
 	
-	public static View commandEntered(String command) {
+	public View commandEntered(String command) {
 		// Stub, replace get command with actual method to read string when implemented.
 		if (command != null && !command.equals("")) {
 			view = model.executeCommand(command);
