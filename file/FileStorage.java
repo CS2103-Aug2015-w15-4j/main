@@ -29,10 +29,9 @@ public class FileStorage {
 	}
 
 	// Save the file when the user close the program
-	public static void saveFile() {
-		Storage storage = new Storage();
+	public static void saveFile(List<Task> task) {
 		SaveFile sf = new SaveFile();
-		sf.saveFile(fileInput, storage.getAllTasks());
+		sf.saveFile(fileInput, task);
 	}
 
 	// Check whether the file exists

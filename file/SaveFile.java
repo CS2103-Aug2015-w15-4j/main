@@ -8,10 +8,10 @@ import java.util.List;
 
 import logic.Task;
 
-
 public class SaveFile {
-	
-	public SaveFile(){}
+
+	public SaveFile() {
+	}
 
 	// Save file
 	public static void saveFile(File fileInput, List<Task> list) {
@@ -19,9 +19,11 @@ public class SaveFile {
 		try {
 			FileWriter fw = new FileWriter(fileInput, true);
 			BufferedWriter bw = new BufferedWriter(fw);
-			// NEED TO UPDATE !!!
 			for (Task temp : list) {
-				bw.write(temp.getName() + "|" + temp.getDetails() + "|" + temp.getId() + "|" + temp.getIsCompleted() + "|" + temp.getTags() + "\r\n");
+				// getDate(), getTime() ???
+				bw.write(temp.getName() + "|" + temp.getDetails() + "|"
+						+ temp.getId() + "|" + temp.getIsCompleted() + "|"
+						+ temp.getTags() + "\r\n");
 			}
 			bw.close();
 			fw.close();
@@ -29,7 +31,7 @@ public class SaveFile {
 			System.out.println(e.getMessage());
 		}
 	}
-	
+
 	// Clear the text
 	public static void clearFile(File fileInput) {
 		try {
