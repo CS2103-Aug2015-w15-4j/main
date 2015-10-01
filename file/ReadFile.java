@@ -5,24 +5,24 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import logic.DeadlineTask;
-import logic.Event;
 import logic.Task;
 
 public class ReadFile {
-	
+
 	String fileName = "";
 	static String name;
 	static String details;
 	static int id;
 	static boolean isCompleted;
 	static ArrayList<String> tags;
-	
-	public ReadFile(){}
-	
-	public static List<Task> readFile(File fileInput){
+
+	public ReadFile() {
+	}
+
+	public static List<Task> readFile(File fileInput) {
 		List<Task> taskList = new ArrayList<Task>();
 		try {
 			FileReader fr = new FileReader(fileInput);
@@ -36,10 +36,17 @@ public class ReadFile {
 					id = Integer.parseInt(line[2]);
 					isCompleted = Boolean.parseBoolean(line[3]);
 					String[] tagFromFile = line[4].split(",");
-					/*for (String temp : tagFromFile){
-						tags.add(temp);
-					}*/
+					List<String> temp = Arrays.asList(tagFromFile);
+					ArrayList<String> tagList = new ArrayList<String>(temp);
+					/*
+					 * for (String temp : tagFromFile){ tags.add(temp); }
+					 */
 					Task task = new Task();
+					task.setName(name);
+					task.setDetails(details);
+					task.setId(id);
+					task.setIsCompleted(isCompleted);
+					task.setTags(tagList);
 					taskList.add(task); // add task to list
 					sCurrentLine = br.readLine();
 				}
@@ -51,5 +58,5 @@ public class ReadFile {
 		}
 		return taskList;
 	}
-	
+
 }
