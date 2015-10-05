@@ -64,6 +64,13 @@ public class Add implements Command {
 
 		if (taskType != 0 || taskType != 1 || taskType != 2) {
 			view.setConsoleMessage("Logic Error: task type missing"); 
+		} else if (parsedInput.getDescription() == null) {
+			view.setConsoleMessage("Error: Missing task description");
+			return false;
+		} 
+		
+		if (taskType != 0 || taskType != 1 || taskType != 2) {
+			view.setConsoleMessage("Logic Error: task type missing");	
 			return false;
 		}
 		if (taskType == TASK) {
@@ -80,7 +87,7 @@ public class Add implements Command {
 				return false;
 			}
 		} else if (taskType == EVENT) {
-
+			
 		}
 
 		return true;
