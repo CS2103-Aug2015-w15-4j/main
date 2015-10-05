@@ -15,11 +15,6 @@ public class DeadlineTask extends Task{
 		super();
 		this.end = parsedInput.getEnd();
 	}
-	
-	public void createDeadlineTask(DeadlineTask newTask) {
-		Storage storage = new Storage();
-		storage.add(newTask);
-	}
 
 	public Calendar getEnd() {
 		return end;

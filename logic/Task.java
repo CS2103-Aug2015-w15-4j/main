@@ -24,22 +24,12 @@ public class Task implements Comparable<Task>{
 		this.tags = parsedInput.getTags();
 	}
 	
-	
-	public void createTask(Task newTask) {
-		Storage storage = new Storage();
-		storage.add(newTask);
-	}
-	
-	public void deleteTask(int id) {
-		Storage storage = new Storage();
-		storage.delete(id);
-	}
-	
 	public Task getTask(ParsedCommand parsedInput) {
 		Storage storage = new Storage();
 		List<Task> taskList = storage.getAllTasks();
 		return taskList.get(id);		
 	}
+	
 
 	public String getName() {
 		return name;

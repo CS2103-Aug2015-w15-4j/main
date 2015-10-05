@@ -15,12 +15,6 @@ public class Event extends DeadlineTask {
 		super();
 		this.start = parsedInput.getStart();
 	}
-	
-	public void createEvent(Event newEvent) {
-		Storage storage = new Storage();
-		storage.add(newEvent);
-	}
-	
 
 	public Calendar getStart() {
 		return start;

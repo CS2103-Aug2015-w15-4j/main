@@ -34,4 +34,8 @@ public class View {
 	public List<Task> getAllTasks() {
 		return allTasks;
 	}
+	
+	public void setConsoleMessage(String consoleMessage) {
+		this.consoleMessage = consoleMessage;
+	}
 }
