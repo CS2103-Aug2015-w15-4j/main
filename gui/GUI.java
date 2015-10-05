@@ -11,7 +11,6 @@ import javafx.scene.layout.*;
 import javafx.scene.shape.*;
 import javafx.scene.text.*;
 
-
 public class GUI extends Application {
 	final static String[] tabNames = { 
 		"Calender", 
