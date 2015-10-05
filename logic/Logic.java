@@ -102,6 +102,7 @@ public class Logic {
 		int newId = getNewId();
 <<<<<<< HEAD
 		View view = new View(consoleMessage,storage.getAllTasks());
+		System.out.println(userCommand.getDescription());
 		if (!Add.checkValid(userCommand,view)) {
 =======
 		View view = new View(consoleMessage, storage.getAllTasks());

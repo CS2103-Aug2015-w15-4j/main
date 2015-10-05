@@ -11,8 +11,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 public class LogTab {
-	public static final int TABNUM = 3; // for the array check
-	public static final String TABNAME = GUI.tabNames[TABNUM]; 
+	public static final int TABNAME = 3; // for the array check
 	public static final int WIDTH = GUI.TABPANE_WIDTH;
 	public static final int PADDING = 10;
 	

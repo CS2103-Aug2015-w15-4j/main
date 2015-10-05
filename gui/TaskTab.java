@@ -13,8 +13,7 @@ import javafx.scene.text.Text;
 import logic.Task;
 
 public class TaskTab {
-	public static final int TABNUM = 1; // for the array check
-	public static final String TABNAME = GUI.tabNames[TABNUM]; 
+	public static final int TABNAME = 1; // for the array check
 	public static final int WIDTH = GUI.TABPANE_WIDTH;
 	public static final int PADDING = 10;
 	
@@ -53,8 +52,6 @@ public class TaskTab {
 		if (task!=null) {
 			listOfTasks.add(task);
 			vbox.getChildren().add(createDisplay(task));
-			// then change focus to task tab
-			GUI.tabPane.getSelectionModel().select(TABNUM);
 		}
 	}
 	
@@ -108,9 +105,6 @@ public class TaskTab {
 			text += "Details	: None\n";
 		}
 		
-		Text node = new Text(text);
-		node.setId("fancytext");
-		
-		return node;
+		return new Text(text);
 	}
 }
