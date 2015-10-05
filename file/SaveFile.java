@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 
 import logic.Task;
 
@@ -15,14 +14,21 @@ public class SaveFile {
 	public SaveFile() {
 	}
 
-	public static void addAndSaveFile(File fileInput, List<Task> list) {
+	public static void addAndSaveFile(File fileInput, Task list) {
+		String taskType = "task";
+		/*
+		 * if ( == 1){ taskType = "task"; } else if ( == 2){ taskType =
+		 * "deadlineTask"; } else if ( == 3) { taskType = "event"; }
+		 */
+
 		try {
 			FileWriter fw = new FileWriter(fileInput, true);
 			BufferedWriter bw = new BufferedWriter(fw);
-			Task temp = list.get(list.size() - 1);
-			bw.write(temp.getName() + "|" + temp.getDetails() + "|"
-					+ temp.getId() + "|" + temp.getIsCompleted() + "|"
-					+ temp.getTags() + "\r\n"); // getDate(), getTime()
+			// Task temp = list.get(list.size() - 1);
+			bw.write(list.getName() + "|" + list.getDetails() + "|"
+					+ list.getId() + "|" + list.getIsCompleted() + "|"
+					+ list.getTags() + "|" + "taskType:" + taskType + "\r\n"); // getDate(),
+																				// getTime()
 			bw.close();
 			fw.close();
 		} catch (IOException e) {

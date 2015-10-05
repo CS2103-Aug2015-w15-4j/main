@@ -9,25 +9,41 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
+import logic.DeadlineTask;
+import logic.Event;
 import logic.Task;
 
 // Main class for file storage
-public class FileStorage {
+public class Storage {
 
 	static File filePath = new File("./Path/path.txt"); // store current
 														// location
-	static String fileName;
+
+	static String fileDirectory = Paths.get("").toAbsolutePath().toString()
+			+ "Storage/";
+	static String fileName = "myData.txt";
 	static File fileInput;
 
-	public FileStorage() {
+	static List<Task> listOfTask = new ArrayList<Task>();
+
+	public Storage() {
+		this.fileName = fileName;
+		createFile(fileName);
 	}
 
 	// Get the path at the start, create the file for the first time
-	public FileStorage(String fileName) {
-		this.fileName = fileName;
-		createFile(fileName);
+	// need to set a flag? to check this is first time calling
+	/*
+	 * public Storage(String fileName) { this.fileName = fileName;
+	 * createFile(fileName); }
+	 */
+
+	// Open the folder which contain the path and read it
+	public static void readFilePath() {
 	}
 
 	// Move the file to the new location
@@ -38,16 +54,17 @@ public class FileStorage {
 	// Read the file
 	public static List<Task> readFile() {
 		ReadFile rf = new ReadFile();
-		return rf.readFile(fileInput);
+		listOfTask = rf.readFile(fileInput);
+		return listOfTask;
 	}
 
-	// ADD
-	public static void saveFileForAdd(List<Task> task) {
+	// Add
+	public static void saveFileForAdd(Task task) {
 		SaveFile sf = new SaveFile();
 		sf.addAndSaveFile(fileInput, task);
 	}
 
-	// DELETE
+	// Delete
 	public static void saveFileForDelete(Task task) {
 		SaveFile sf = new SaveFile();
 		sf.deleteAndSaveFile(fileInput, task);
@@ -55,7 +72,13 @@ public class FileStorage {
 
 	// Check whether the file exists
 	public static void createFile(String fileName) {
-		fileInput = new File(fileName);
+		File fileDir = new File(fileDirectory);
+
+		if (!fileDir.exists()) {
+			fileDir.mkdirs();
+		}
+
+		fileInput = new File(fileDirectory + fileName);
 		try {
 			fileInput.createNewFile();
 		} catch (IOException e) {
@@ -116,6 +139,23 @@ public class FileStorage {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
+	public String getFieName() {
+		return this.fileName;
+	}
+
+	public List<Task> getAllTasks() {
+		ArrayList<Task> stubTaskList = new ArrayList<Task>();
+		stubTaskList.add(new Event());
+		stubTaskList.add(new DeadlineTask());
+		stubTaskList.add(new DeadlineTask());
+		stubTaskList.add(new Event());
+		return stubTaskList;
 	}
 
 }
