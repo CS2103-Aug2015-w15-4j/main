@@ -17,10 +17,7 @@ public class Controller {
 		// implemented.
 		if (command != null && !command.equals("")) {
 			view = model.executeCommand(command);
-<<<<<<< HEAD:logic/Controller.java
 			// updateView(view); // Stub, used to update the GUI output fields
-=======
->>>>>>> 85d174f727779744f8dc0a86be30367e63c61326:gui/Controller.java
 			return view;
 		} else {
 			return null;
