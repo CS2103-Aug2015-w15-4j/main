@@ -31,9 +31,9 @@ public class ReadFile {
 			if ((sCurrentLine = br.readLine()) != null) {
 				while (sCurrentLine != null) {
 					String[] line = sCurrentLine.split("|");
-					name = line[0];
-					details = line[1];
-					id = Integer.parseInt(line[2]);
+					id = Integer.parseInt(line[0]);
+					name = line[1];
+					details = line[2];
 					isCompleted = Boolean.parseBoolean(line[3]);
 					String[] tagFromFile = line[4].split(",");
 					List<String> temp = Arrays.asList(tagFromFile);

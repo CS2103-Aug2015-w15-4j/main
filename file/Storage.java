@@ -28,6 +28,8 @@ public class Storage {
 
 	static List<Task> listOfTask = new ArrayList<Task>();
 
+	// static HashMap<Integer, List<Task> task> = new HashMap();
+
 	public Storage() {
 		this.fileName = fileName;
 		createFile(fileName);
@@ -67,8 +69,10 @@ public class Storage {
 		// compare with the list
 		// get the id
 		// delete
+		// get the content
 		SaveFile sf = new SaveFile();
-		sf.deleteAndSaveFile(fileInput, id, listOfTask);
+		System.out.println(fileInput);
+		sf.deleteAndSaveFile(fileInput, id);
 	}
 
 	// Edit
@@ -89,6 +93,9 @@ public class Storage {
 		// if > 0
 		// read the file
 		// and save it to list
+		if (fileInput.length() > 0) {
+			readFile();
+		}
 
 		try {
 			fileInput.createNewFile();
