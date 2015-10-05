@@ -1,22 +1,28 @@
 package logic;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import parser.ParsedCommand;
 
-public class Task implements Comparable<Task>{
+public class Task implements Comparable<Task> {
 
-	protected String name;
-	protected String details;
-	protected int id;
-	protected boolean isCompleted;
-	protected ArrayList<String> tags;
-	
+	private String name;
+	private String details;
+	private int id;
+	private boolean isCompleted;
+	private ArrayList<String> tags;
+
 	public Task() {
-		name = details = "";
-		id = 0;
-		isCompleted = false;
-		tags = new ArrayList<String>();
+		
+	}
+	
+	public Task(String name, String details,int id,boolean isCompleted,ArrayList<String> tags) {
+		setName(name);
+		setDetails(details);
+		setId(id);
+		setIsCompleted(isCompleted);
+		setTags(tags);
 	}
 
 	public Task(ParsedCommand parsedInput) {
@@ -26,13 +32,12 @@ public class Task implements Comparable<Task>{
 		this.isCompleted = false;
 		this.tags = parsedInput.getTags();
 	}
-	
+
 	public Task getTask(ParsedCommand parsedInput) {
 		Storage storage = new Storage();
 		List<Task> taskList = storage.getAllTasks();
-		return taskList.get(id);		
+		return taskList.get(id);
 	}
-	
 
 	public String getName() {
 		return name;
@@ -54,23 +59,23 @@ public class Task implements Comparable<Task>{
 		return tags;
 	}
 
-	protected void setName(String name) {
+	public void setName(String name) {
 		this.name = name;
 	}
-	
-	protected void setDetails(String details) {
+
+	public void setDetails(String details) {
 		this.details = details;
 	}
-	
-	protected void setId(int id) {
+
+	public void setId(int id) {
 		this.id = id;
 	}
-	
-	protected void setIsCompleted(boolean isCompleted) {
+
+	public void setIsCompleted(boolean isCompleted) {
 		this.isCompleted = isCompleted;
 	}
-	
-	protected void setTags(ArrayList<String> tags) {
+
+	public void setTags(ArrayList<String> tags) {
 		this.tags = tags;
 	}
 
@@ -84,5 +89,4 @@ public class Task implements Comparable<Task>{
 		}
 	}
 
-	
 }
