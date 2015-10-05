@@ -1,0 +1,96 @@
+package gui;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import logic.Task;
+
+public class TaskTab {
+	public static final int TABNAME = 1; // for the array check
+	public static final int WIDTH = GUI.TABPANE_WIDTH;
+	public static final int PADDING = 10;
+	
+	public static final ScrollBarPolicy V_POLICY = ScrollBarPolicy.AS_NEEDED;
+	public static final ScrollBarPolicy H_POLICY = ScrollBarPolicy.NEVER;
+	public static final Pos ALIGNMENT = Pos.TOP_LEFT;
+	public static final String ID_VBOX = "taskVbox";
+	public static final String ID_SCROLL = "taskScroll";
+	
+	protected VBox vbox;
+	protected ScrollPane sp;
+	protected List<Task> listOfTasks = new ArrayList<Task>(); // currently displayed tasks
+	
+	public TaskTab() {
+		vbox = new VBox();
+		vbox.setMinWidth(WIDTH);
+		vbox.setMaxWidth(WIDTH);
+		vbox.setAlignment(ALIGNMENT);
+		vbox.setId(ID_VBOX);
+		sp = new ScrollPane(vbox);
+		sp.setPadding(new Insets(PADDING));
+		sp.setFitToHeight(true);
+		sp.setVbarPolicy(V_POLICY);
+		sp.setHbarPolicy(H_POLICY);
+		sp.setId(ID_SCROLL);
+	}
+	
+	/**
+	 * Returns the master node for this object
+	 * @return Node
+	 */
+	public Node getNode() { 
+		return sp;
+	}
+	
+	public void addTask(Task task) {
+		if (task!=null) {
+			System.out.println("Task added");
+			listOfTasks.add(task);
+			vbox.getChildren().add(createDisplay(task));
+		}
+	}
+	
+	public void addAllTasks(List<Task> tasks) {
+		if (tasks!=null) {
+			System.out.println(tasks.size());
+			deleteAllTasks();
+			
+			for(Task task : tasks) {
+				addTask(task);
+			}
+		}
+	}
+	
+	public void deleteAllTasks() {
+		vbox.getChildren().clear();
+		listOfTasks.clear();		
+	}
+	
+	protected Text createDisplay(Task task) {
+		String text = "";
+		// Name
+		if (!task.getName().isEmpty()) {
+			text += task.getName();
+		} else {
+			text += "Task	" + vbox.getChildren().size() + "\n";
+		}
+		
+		// ID
+		text += "ID		: " + task.getId() + "\n";
+		// details
+		if (!task.getDetails().isEmpty() ) {
+			text += "Details: " + task.getDetails() + "\n";
+		} else {
+			text += "Details: None\n";
+		}
+		
+		return new Text(text);
+	}
+}

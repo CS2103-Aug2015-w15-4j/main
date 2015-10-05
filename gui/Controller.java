@@ -1,4 +1,7 @@
-package logic;
+package gui;
+
+import logic.Logic;
+import logic.View;
 
 public class Controller {
 	
@@ -13,7 +16,6 @@ public class Controller {
 		// Stub, replace get command with actual method to read string when implemented.
 		if (command != null && !command.equals("")) {
 			view = model.executeCommand(command);
-			// updateView(view); 	// Stub, used to update the GUI output fields
 			return view;
 		}
 		else {
