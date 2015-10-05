@@ -14,10 +14,7 @@ public class Task implements Comparable<Task> {
 	private ArrayList<String> tags;
 
 	public Task() {
-		name = details = "";
-		id = 0;
-		isCompleted = false;
-		tags = new ArrayList<String>();
+		
 	}
 	
 	public Task(String name, String details,int id,boolean isCompleted,ArrayList<String> tags) {

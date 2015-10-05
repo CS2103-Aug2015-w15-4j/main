@@ -100,17 +100,12 @@ public class Logic {
 	private View executeAdd(ParsedCommand userCommand) {
 		String consoleMessage = "";
 		int newId = getNewId();
-<<<<<<< HEAD
 		View view = new View(consoleMessage, storage.getAllTasks());
 		int taskType = checkTaskType(userCommand);
 		userCommand.setTaskType(taskType);
+		System.out.println(taskType);
 		
 		if (!Add.checkValid(userCommand, view)) {
-=======
-		View view = new View(consoleMessage,storage.getAllTasks());
-		System.out.println(userCommand.getDescription());
-		if (!Add.checkValid(userCommand,view)) {
->>>>>>> 85d174f727779744f8dc0a86be30367e63c61326
 			return view;
 		} else {
 			Command command = new Add(userCommand, newId);
