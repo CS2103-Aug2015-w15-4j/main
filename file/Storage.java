@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,8 +22,7 @@ public class Storage {
 	static File filePath = new File("./Path/path.txt"); // store current
 														// location
 
-	static String fileDirectory = Paths.get("").toAbsolutePath().toString()
-			+ "Storage/";
+	static String fileDirectory = "./Storage/";
 	static String fileName = "myData.txt";
 	static File fileInput;
 
@@ -59,15 +57,22 @@ public class Storage {
 	}
 
 	// Add
-	public static void saveFileForAdd(Task task) {
+	public void saveFileForAdd(Task task) {
 		SaveFile sf = new SaveFile();
 		sf.addAndSaveFile(fileInput, task);
 	}
 
 	// Delete
-	public static void saveFileForDelete(Task task) {
+	public void saveFileForDelete(int id) {
+		// compare with the list
+		// get the id
+		// delete
 		SaveFile sf = new SaveFile();
-		sf.deleteAndSaveFile(fileInput, task);
+		sf.deleteAndSaveFile(fileInput, id, listOfTask);
+	}
+
+	// Edit
+	public static void editFile() {
 	}
 
 	// Check whether the file exists
@@ -79,6 +84,12 @@ public class Storage {
 		}
 
 		fileInput = new File(fileDirectory + fileName);
+
+		// check the file size
+		// if > 0
+		// read the file
+		// and save it to list
+
 		try {
 			fileInput.createNewFile();
 		} catch (IOException e) {

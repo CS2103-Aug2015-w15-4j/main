@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 
 import logic.Task;
 
@@ -36,7 +37,7 @@ public class SaveFile {
 		}
 	}
 
-	public void deleteAndSaveFile(File fileInput, Task list) {
+	public void deleteAndSaveFile(File fileInput, int id, List<Task> list) {
 		String deletedLine = "";
 		String tempLine;
 		try {
@@ -44,9 +45,12 @@ public class SaveFile {
 			BufferedReader br = new BufferedReader(new FileReader(
 					fileInput.getName()));
 			BufferedWriter bw = new BufferedWriter(new FileWriter(tmp));
-			String input = list.getName() + "|" + list.getDetails() + "|"
-					+ list.getId() + "|" + list.getIsCompleted() + "|"
-					+ list.getTags() + "\r\n";
+			/*
+			 * String input = list.getName() + "|" + list.getDetails() + "|" +
+			 * list.getId() + "|" + list.getIsCompleted() + "|" + list.getTags()
+			 * + "\r\n";
+			 */
+			String input = "";
 			while (!(tempLine = br.readLine()).equals(input)) {
 				bw.write(String.format("%s%n", tempLine));
 			}
