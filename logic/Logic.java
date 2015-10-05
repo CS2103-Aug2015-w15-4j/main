@@ -97,6 +97,7 @@ public class Logic {
 		String consoleMessage = "";
 		int newId = getNewId();
 		View view = new View(consoleMessage,storage.getAllTasks());
+		System.out.println(userCommand.getDescription());
 		if (!Add.checkValid(userCommand,view)) {
 			return view;
 		} else {

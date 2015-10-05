@@ -13,7 +13,10 @@ public class Task implements Comparable<Task>{
 	protected ArrayList<String> tags;
 	
 	public Task() {
-		
+		name = details = "";
+		id = 0;
+		isCompleted = false;
+		tags = new ArrayList<String>();
 	}
 
 	public Task(ParsedCommand parsedInput) {

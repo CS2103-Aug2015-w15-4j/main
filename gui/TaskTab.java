@@ -42,8 +42,7 @@ public class TaskTab {
 	}
 	
 	/**
-	 * Returns the master node for this object
-	 * @return Node
+	 * @return the master/parent node for this object
 	 */
 	public Node getNode() { 
 		return sp;
@@ -51,7 +50,6 @@ public class TaskTab {
 	
 	public void addTask(Task task) {
 		if (task!=null) {
-			System.out.println("Task added");
 			listOfTasks.add(task);
 			vbox.getChildren().add(createDisplay(task));
 		}
@@ -59,7 +57,6 @@ public class TaskTab {
 	
 	public void addAllTasks(List<Task> tasks) {
 		if (tasks!=null) {
-			System.out.println(tasks.size());
 			deleteAllTasks();
 			
 			for(Task task : tasks) {
@@ -73,6 +70,22 @@ public class TaskTab {
 		listOfTasks.clear();		
 	}
 	
+	/**
+	 * 
+	 * @param task
+	 * @return true if successful deletion
+	 */
+	public boolean deleteTask(Task task) {
+		for (int i=0;i<listOfTasks.size();i++) {
+			if (listOfTasks.get(i).equals(task)) {
+				listOfTasks.remove(i);
+				vbox.getChildren().remove(i);
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	protected Text createDisplay(Task task) {
 		String text = "";
 		// Name
@@ -84,11 +97,12 @@ public class TaskTab {
 		
 		// ID
 		text += "ID		: " + task.getId() + "\n";
+		
 		// details
 		if (!task.getDetails().isEmpty() ) {
-			text += "Details: " + task.getDetails() + "\n";
+			text += "Details	:" + task.getDetails() + "\n";
 		} else {
-			text += "Details: None\n";
+			text += "Details	: None\n";
 		}
 		
 		return new Text(text);

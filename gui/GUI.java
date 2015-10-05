@@ -135,7 +135,7 @@ public class GUI extends Application {
 				logObject.addToTextbox(input);
 				logic.View view = controller.commandEntered(input);
 				sidebarObject.addToTextbox(view.getConsoleMessage());
-				taskObject.addAllTasks(view.getTasksToDisplay());
+				taskObject.addAllTasks(view.getAllTasks());
 			}
 	    }
 	}

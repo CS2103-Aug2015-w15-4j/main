@@ -55,12 +55,15 @@ public class Add implements Command{
 		// Check if Task fields are present
 		if (parsedInput.getTitle() == null) {
 			view.setConsoleMessage("Error: Missing task title");
+			return false;
 		} else if (parsedInput.getDescription() == null) {
 			view.setConsoleMessage("Error: Missing task description");
+			return false;
 		} 
 		
 		if (taskType != 0 || taskType != 1 || taskType != 2) {
 			view.setConsoleMessage("Logic Error: task type missing");	// Do i need to determine task type too -____-
+			return false;
 		}
 		if (taskType == TASK) { 
 			if (parsedInput.getEnd() != null) {				// Error: Task Should have no End Field
@@ -76,7 +79,7 @@ public class Add implements Command{
 				return false;
 			}
 		} else if (taskType == EVENT) {
-
+			
 		}
 		
 		return true;	

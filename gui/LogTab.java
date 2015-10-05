@@ -42,8 +42,7 @@ public class LogTab {
 	}
 	
 	/**
-	 * Returns the master node for this object
-	 * @return Node
+	 * @return the master/parent node for this object
 	 */
 	public Node getNode() { 
 		return sp;
