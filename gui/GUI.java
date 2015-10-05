@@ -48,7 +48,7 @@ public class GUI extends Application {
 	public static TextFlow sidebarTextbox; // list of messages from application
 	public static TextFlow logTextbox; // list of user's previous commands
 	public static TabPane tabPane;
-	public static logic.Controller controller = new Controller(); 
+	public static Controller controller = new Controller(); 
 	
 	@Override
 	public void start(Stage primaryStage) {

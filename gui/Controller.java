@@ -1,4 +1,7 @@
-package logic;
+package gui;
+
+import logic.Logic;
+import logic.View;
 
 public class Controller {
 

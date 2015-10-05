@@ -6,6 +6,10 @@
 	-fx-background-repeat: no-repeat;
 }
 
+.scroll-pane > .viewport {
+   -fx-background-color: transparent;
+}
+
 .sidebar {
 	-fx-background-color: #336699;
 	/* -fx-opacity: 0.5; */
@@ -14,6 +18,14 @@
 #sidebar-textbox {
     -fx-font: 12px Tahoma;
     -fx-orientation: left;
+}
+
+#fancytext {
+    -fx-font: 15px Tahoma;
+    -fx-fill: black;
+    /*-fx-fill: linear-gradient(from 0% 0% to 100% 200%, repeat, aqua 0%, red 50%);
+    -fx-stroke: black;
+    -fx-stroke-width: 1; */
 }
 
 
@@ -25,8 +37,21 @@
 #Today{
 }
 
+#taskScroll {
+	-fx-background-color: transparent;
+}
 
+#taskVbox {
+	-fx-background-color: rgba(0, 0, 0, 0.3);
+}
 
+#logScroll {
+	-fx-background-color: transparent;
+}
+
+#logVbox {
+	-fx-background-color: rgba(0, 0, 0, 0.3);
+}
 
 
 
