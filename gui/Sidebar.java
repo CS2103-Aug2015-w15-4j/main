@@ -26,7 +26,6 @@ public class Sidebar {
 	protected ImageView imageView;
 
 	public Sidebar() {
-		//image = new Image(Sidebar.class.getResourceAsStream(AVATAR_IMAGE));
 		textbox = new TextFlow();
 		textbox.setId(TAG_TEXTBOX);
 		textbox.setMaxWidth(WIDTH);
