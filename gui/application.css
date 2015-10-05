@@ -6,6 +6,10 @@
 	-fx-background-repeat: no-repeat;
 }
 
+.scroll-pane > .viewport {
+   -fx-background-color: transparent;
+}
+
 .sidebar {
 	-fx-background-color: #336699;
 	/* -fx-opacity: 0.5; */
@@ -25,8 +29,21 @@
 #Today{
 }
 
+#taskScroll {
+	-fx-background-color: transparent;
+}
 
+#taskVbox {
+	-fx-background-color: rgba(0, 0, 0, 0.3);
+}
 
+#logScroll {
+	-fx-background-color: transparent;
+}
+
+#logVbox {
+	-fx-background-color: rgba(0, 0, 0, 0.3);
+}
 
 
 
