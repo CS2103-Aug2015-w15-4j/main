@@ -16,7 +16,7 @@ public class TaskTab {
 	public static final int TABNUM = 1; // for the array check
 	public static final String TABNAME = GUI.tabNames[TABNUM]; 
 	public static final int WIDTH = GUI.TABPANE_WIDTH;
-	public static final int PADDING = 10;
+	public static final int PADDING = 8;
 	
 	public static final ScrollBarPolicy V_POLICY = ScrollBarPolicy.AS_NEEDED;
 	public static final ScrollBarPolicy H_POLICY = ScrollBarPolicy.NEVER;
