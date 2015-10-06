@@ -11,12 +11,18 @@ public class Add implements Command {
 
 	private Task newTask;
 	private ParsedCommand specifications;
-	int id;
+	private int id;
+	private Storage storage;
 
-	public Add(ParsedCommand specifications, int newId) {
+	public Add(Storage storage) {
+		this.storage = storage;
+	}
+	
+	public Add(ParsedCommand specifications, int newId, Storage storage) {
 		this.specifications = specifications;
 		newTask = new Task(specifications);
 		this.id = newId;
+		this.storage = storage;
 	}
 
 	@Override
@@ -24,31 +30,23 @@ public class Add implements Command {
 		if (specifications.getTaskType() == 2) {
 			DeadlineTask newDeadlineTask = new DeadlineTask(specifications);
 			newDeadlineTask.setId(id);
-			storeTask((Task) newDeadlineTask);
+			storage.add((Task) newDeadlineTask);
 			newTask = newDeadlineTask;
 		} else if (specifications.getTaskType() == 1) {
 			newTask = new Task(specifications);
 			newTask.setId(id);
-			storeTask(newTask);
+			storage.add(newTask);
 		} else if (specifications.getTaskType() == 3) {
 			Event newEvent = new Event(specifications);
-			storeTask((Task) newEvent);
 			newEvent.setId(id);
+			storage.add((Task) newEvent);
 			newTask = newEvent;
 		}
 	}
 
 	@Override
 	public void undo() {
-		Delete.deleteTask(id);
-	}
-
-	/*
-	 * Creates a new task in the database
-	 */
-	public static void storeTask(Task newTask) {
-		Storage storage = new Storage();
-		storage.add(newTask);
+		storage.delete(id);
 	}
 
 	/*

@@ -24,6 +24,7 @@ public class View {
 		this.consoleMessage = consoleMessage;
 		this.tasksToDisplay = tasksToDisplay;
 		this.allTasks = allTasks;
+		System.out.println(allTasks.size());
 	}
 
 	public String getConsoleMessage() {

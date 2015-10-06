@@ -12,26 +12,32 @@ public class Task implements Comparable<Task> {
 	private int id;
 	private boolean isCompleted;
 	private ArrayList<String> tags;
+	private int taskType;
 
 	public Task() {
+		name = details = "";
+		id = 0;
+		isCompleted = false;
+		tags = null;
 		
 	}
 	
-	public Task(String name, String details,int id,boolean isCompleted,ArrayList<String> tags) {
+	public Task(String name, String details,int id,boolean isCompleted,ArrayList<String> tags,int taskType) {
 		setName(name);
 		setDetails(details);
 		setId(id);
 		setIsCompleted(isCompleted);
 		setTags(tags);
+		setTaskType(taskType);
 	}
 
 	public Task(ParsedCommand parsedInput) {
 		this.name = parsedInput.getTitle();
-		System.out.println(name);
 		this.details = parsedInput.getDescription();
 		this.id = parsedInput.getTaskId();
 		this.isCompleted = false;
 		this.tags = parsedInput.getTags();
+		this.taskType = parsedInput.getTaskType();
 	}
 /*
 	public Task getTask(ParsedCommand parsedInput) {
@@ -60,6 +66,10 @@ public class Task implements Comparable<Task> {
 	public ArrayList<String> getTags() {
 		return tags;
 	}
+	
+	public int getTaskType() {
+		return taskType;
+	}
 
 	public void setName(String name) {
 		this.name = name;
@@ -80,15 +90,15 @@ public class Task implements Comparable<Task> {
 	public void setTags(ArrayList<String> tags) {
 		this.tags = tags;
 	}
-
-	// Returns 0 if equal to and -1 otherwise
+	
+	public void setTaskType(int taskType) {
+		this.taskType = taskType;	
+	}
+	
 	@Override
 	public int compareTo(Task o) {
-		if (id == o.getId()) {
-			return 0;
-		} else {
-			return -1;
-		}
+		return ((Integer)id).compareTo(o.getId());
 	}
+
 
 }
