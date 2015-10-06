@@ -13,8 +13,8 @@ public class Event extends DeadlineTask {
 
 	}
 	
-	public Event(String name, String details,int id,boolean isCompleted,ArrayList<String> tags, Calendar end, Calendar start) {
-		super(name, details,id,isCompleted,tags,end);
+	public Event(String name, String details,int id,boolean isCompleted,ArrayList<String> tags,int taskType, Calendar end, Calendar start) {
+		super(name, details,id,isCompleted,tags,taskType,end);
 		setStart(start);
 	}
 
