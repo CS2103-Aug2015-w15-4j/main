@@ -4,13 +4,11 @@ import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.geometry.*;
 import javafx.stage.Stage;
-import logic.Controller;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.control.TabPane.*;
 import javafx.scene.layout.*;
 import javafx.scene.shape.*;
-import javafx.scene.text.*;
 
 
 public class GUI extends Application {
@@ -30,25 +28,28 @@ public class GUI extends Application {
 	
 	final static String TAG_SIDEBAR = "sidebar";
 	final static String TAG_SIDEBAR_TEXTBOX = "sidebar-textbox";
+	final static String TAG_TABPANE = "tabpane";
 	
 	final static String MSG_PROMPT = "Type command here";
 	final static String CMD_CLEAR = "clear";
 	
-	final static int WINDOW_WIDTH = 800;
-	final static int WINDOW_HEIGHT = 600;
+	final static int WINDOW_WIDTH = 16 * 60;
+	final static int WINDOW_HEIGHT = 9 * 60;
 	final static int TAB_WIDTH = 50;
-	final static int TABPANE_WIDTH = 600;
-	final static int TABPANE_HEIGHT = 400;
-	final static int SIDEBAR_WIDTH = 150;
+	final static int TABPANE_WIDTH = 13* WINDOW_WIDTH/16;
+	final static int TABPANE_HEIGHT = WINDOW_HEIGHT;
+	final static int SIDEBAR_WIDTH = 3*WINDOW_WIDTH/16;
 	final static int SIDEBAR_MIN_HEIGHT = 0;
-	final static int SIDEBAR_MAX_HEIGHT = 400;
-	final static int SIDEBAR_PADDING_LATERAL = 12;
-	final static int SIDEBAR_PADDING_VERTICAL = 10;
+	final static int SIDEBAR_MAX_HEIGHT = WINDOW_HEIGHT;
 	final static Pos SIDEBAR_ORIENTATION = Pos.BOTTOM_LEFT;
 	
-	public static TextFlow sidebarTextbox; // list of messages from application
-	public static TextFlow logTextbox; // list of user's previous commands
-	public static logic.Controller controller = new Controller(); 
+	public TaskTab taskObject;
+	public LogTab logObject;
+	public Sidebar sidebarObject;
+	public AnchorPane center;
+	
+	public static TabPane tabPane;
+	public static Controller controller = new Controller();
 	
 	@Override
 	public void start(Stage primaryStage) {
@@ -60,50 +61,52 @@ public class GUI extends Application {
 		 * Splits the different sections apart
 		 */
 		BorderPane border = new BorderPane();
-		border.maxHeight(WINDOW_HEIGHT);
-		border.maxWidth(WINDOW_WIDTH);
-
-		VBox sidebar = createVBox(TAG_SIDEBAR);
-		border.setRight(sidebar); // put the sidebar on the right side
-		
+		border.setMaxSize(WINDOW_WIDTH, WINDOW_HEIGHT);	
 		// create the text
-		sidebarTextbox = new TextFlow();
-		sidebarTextbox.setId(TAG_SIDEBAR_TEXTBOX);
-		sidebarTextbox.setMaxWidth(SIDEBAR_WIDTH);
-		sidebarTextbox.setMinWidth(SIDEBAR_WIDTH);
-		sidebarTextbox.setMaxHeight(SIDEBAR_MAX_HEIGHT);
-		sidebarTextbox.setMinHeight(SIDEBAR_MIN_HEIGHT);
-		sidebar.getChildren().add(sidebarTextbox); 
+		sidebarObject = new Sidebar();
+		border.setRight(sidebarObject.getNode()); // put the sidebar on the right side
 		
 		// Tab manager
-		TabPane tabPane = new TabPane();
+		tabPane = new TabPane();
+		tabPane.setMinWidth(TABPANE_WIDTH);
+		tabPane.setMaxWidth(TABPANE_WIDTH);
+		tabPane.setMinHeight(TABPANE_HEIGHT);
+		tabPane.setMaxHeight(TABPANE_HEIGHT);
+		tabPane.setId(TAG_TABPANE);
 		tabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
 		// Create tabs
 		for (int i=0; i<tabNames.length;i++) {
 			Tab tab = new Tab(String.format("%-10s", tabNames[i]));
 			tab.setId(tabNames[i]);
+			//tab.setContent(createRect(TABPANE_WIDTH, TABPANE_HEIGHT, tabNames[i]));
 			tabPane.getTabs().add(tab);
 		}
-		border.setCenter(tabPane);
-		
-
-		// edit Log tab
-		logTextbox = new TextFlow();
-		logTextbox.setMinHeight(0);
-		logTextbox.setMaxHeight(TABPANE_HEIGHT);
-		VBox logVBox = new VBox();
-		logVBox.setAlignment(Pos.BOTTOM_LEFT);
-		logVBox.getChildren().add(logTextbox);
-		tabPane.getTabs().get(LOG).setContent(logVBox);
+		// add Task tab
+		taskObject = new TaskTab();
+		tabPane.getTabs().get(TASK).setContent(taskObject.getNode());
+		// add Log tab
+		logObject = new LogTab();
+		tabPane.getTabs().get(LOG).setContent(logObject.getNode());
 		
 		// create input field
 		TextField userTextField = new TextField();
+		userTextField.setMinWidth(TABPANE_WIDTH);
 		userTextField.setPromptText(MSG_PROMPT);
 		userTextField.setOnAction((ActionEvent event) -> 
 			processUserTextField(userTextField, TABPANE_HEIGHT));
-		border.setBottom(userTextField);
+		//border.setBottom(userTextField);
 		
-		Scene scene = new Scene(border, border.getPrefWidth(), border.getPrefHeight());
+		// add the stuff to the center
+		center = new AnchorPane();
+		center.getChildren().addAll(tabPane, userTextField);
+		center.setMaxHeight(TABPANE_WIDTH);
+		AnchorPane.setTopAnchor(tabPane, 0.0);
+		AnchorPane.setLeftAnchor(tabPane, 0.0);
+		AnchorPane.setBottomAnchor(userTextField, 0.0);
+		AnchorPane.setLeftAnchor(userTextField, 0.0);
+		border.setCenter(center);
+		
+		Scene scene = new Scene(border, WINDOW_WIDTH+10, WINDOW_HEIGHT+10);//border.getPrefWidth(), border.getPrefHeight());
 		userTextField.requestFocus();
 		primaryStage.setScene(scene);
 	    primaryStage.setTitle(APP_TITLE);
@@ -115,56 +118,26 @@ public class GUI extends Application {
 		launch(args);
 	}
 	
-	public static void processUserTextField(TextField userTextField, int height) {
+	public void processUserTextField(TextField userTextField, int height) {
 		String temp = userTextField.getText();
     	userTextField.clear();
 		executeCommand(temp, height);
+		logObject.refresh();
 	}
 	
-	public static void addToTextbox(TextFlow textbox, String input, int height) {
-		textbox.getChildren().add(new Text(input.trim()+"\n"));
-		// delete lines as they exceed sidebar's limit
-		maintainTextboxLimit(textbox, height);
-	}
-	
-	public static void executeCommand(String input, int height) {
+	public void executeCommand(String input, int height) {
 		if (input!= null && !input.isEmpty()) {
 			if (input.trim().equalsIgnoreCase(CMD_CLEAR)) {
 				//textbox.getChildren().clear();
-				sidebarTextbox.getChildren().clear();
+				sidebarObject.textbox.getChildren().clear();
 			}
 			else {
-				addToTextbox(logTextbox,input, height);
+				logObject.addToTextbox(input);
 				logic.View view = controller.commandEntered(input);
-				addToTextbox(sidebarTextbox, view.getConsoleMessage(), SIDEBAR_MAX_HEIGHT);
+				sidebarObject.addToTextbox(view.getConsoleMessage());
+				taskObject.addAllTasks(view.getAllTasks());
 			}
 	    }
-	}
-	
-	public static void maintainTextboxLimit(TextFlow textbox, int maxHeight) {
-		int height = 0; // initialise a num to start the sum from
-		int delete = -1; 
-		for (int i=0;i<textbox.getChildren().size();i++) {
-			height += textbox.getChildren().get(i).getBoundsInParent().getHeight();
-			while (height > maxHeight) {
-				delete++;
-				height -= textbox.getChildren().get(delete).getBoundsInParent().getHeight();
-			}
-		}
-		
-		if (delete>=0) {
-			textbox.getChildren().remove(0, delete+1);
-		}
-	}
-	
-	public static VBox createVBox(String tagname) {
-		VBox sidebar = new VBox();
-		sidebar.setPadding(new Insets(SIDEBAR_PADDING_VERTICAL, SIDEBAR_PADDING_LATERAL, 
-				SIDEBAR_PADDING_VERTICAL, SIDEBAR_PADDING_LATERAL));
-		sidebar.setSpacing(SIDEBAR_PADDING_VERTICAL);
-		sidebar.setAlignment(SIDEBAR_ORIENTATION);
-		sidebar.getStyleClass().add(tagname);
-		return sidebar;
 	}
 	
 	public static Rectangle createRect(double width, double height, String name) {
@@ -180,4 +153,3 @@ public class GUI extends Application {
 	}
 		
 }
-

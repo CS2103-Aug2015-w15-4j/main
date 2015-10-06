@@ -1,4 +1,6 @@
 package logic;
+
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import parser.ParsedCommand;
@@ -6,27 +8,26 @@ import parser.ParsedCommand;
 public class Event extends DeadlineTask {
 
 	protected Calendar start;
-	
+
 	public Event() {
-		
+
 	}
 	
+	public Event(String name, String details,int id,boolean isCompleted,ArrayList<String> tags, Calendar end, Calendar start) {
+		super(name, details,id,isCompleted,tags,end);
+		setStart(start);
+	}
+
 	public Event(ParsedCommand parsedInput) {
 		super();
 		this.start = parsedInput.getStart();
 	}
-	
-	public void createEvent(Event newEvent) {
-		Storage storage = new Storage();
-		storage.add(newEvent);
-	}
-	
 
 	public Calendar getStart() {
 		return start;
 	}
 
-	protected void setStart(Calendar start) {
+	public void setStart(Calendar start) {
 		this.start = start;
 	}
 }

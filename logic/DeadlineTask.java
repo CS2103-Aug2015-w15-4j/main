@@ -1,31 +1,33 @@
 package logic;
+
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import parser.ParsedCommand;
 
-public class DeadlineTask extends Task{
-	
+public class DeadlineTask extends Task {
+
 	protected Calendar end;
 
+	public DeadlineTask(String name, String details,int id,boolean isCompleted,ArrayList<String> tags, Calendar end) {
+		super(name, details,id,isCompleted,tags);
+		setEnd(end);
+	}
+	
 	public DeadlineTask() {
-		super();
+		
 	}
 
 	public DeadlineTask(ParsedCommand parsedInput) {
 		super();
 		this.end = parsedInput.getEnd();
 	}
-	
-	public void createDeadlineTask(DeadlineTask newTask) {
-		Storage storage = new Storage();
-		storage.add(newTask);
-	}
 
 	public Calendar getEnd() {
 		return end;
 	}
 
-	protected void setEnd(Calendar end) {
+	public void setEnd(Calendar end) {
 		this.end = end;
 	}
 }

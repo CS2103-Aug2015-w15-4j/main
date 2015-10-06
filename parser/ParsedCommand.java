@@ -7,7 +7,7 @@ public class ParsedCommand {
 	public enum CommandType {
 		ADD, DELETE, EDIT, DISPLAY, ERROR, UNDO, DONE, INVALID, EXIT;
 	}
-	
+
 	private CommandType cmdType;
 	private String title;
 	private Calendar start;
@@ -16,7 +16,7 @@ public class ParsedCommand {
 	private ArrayList<String> tags;
 	private int taskId;
 	private int taskType;
-	
+
 	private static final String ERROR_INVALID_COMMAND = "Error: Invalid command";
 	private static final String ERROR_NO_INPUT = "Error: No user input";
 	private static final String ERROR_MISSING_ARGS = "Error: No arguments entered";
@@ -30,6 +30,7 @@ public class ParsedCommand {
 	private static final int EVENT = 3;
 	private static final String ERROR_INVALID_DATE = "Error: Invalid date(s) input";
 	private static final String ERROR_INVALID_TASKID = "Error: Invalid/Missing taskId";
+<<<<<<< HEAD
 	
 	
     /**
@@ -46,6 +47,12 @@ public class ParsedCommand {
      */
 	public ParsedCommand(CommandType cmdType, String title, Calendar start, Calendar end, 
 			             String description, ArrayList<String> tags, int taskId, int taskType) {
+=======
+
+	public ParsedCommand(CommandType cmdType, String title, Calendar start,
+			Calendar end, String description, ArrayList<String> tags,
+			int taskId, int taskType) {
+>>>>>>> f33b58c54942d161ce89d768b7af7d677ec49c3a
 		this.cmdType = cmdType;
 		this.title = title;
 		this.start = start;
@@ -55,6 +62,7 @@ public class ParsedCommand {
 		this.taskId = taskId;
 		this.taskType = taskType;
 	}
+<<<<<<< HEAD
 	
 	/**
 	 * Parses given user input and returns ParsedCommand object with appropriate attributes filled in.
@@ -62,6 +70,9 @@ public class ParsedCommand {
 	 * @param userInput Entire string input by user.
 	 * @return ParsedCommand object, with type error if userInput is invalid.
 	 */
+=======
+
+>>>>>>> f33b58c54942d161ce89d768b7af7d677ec49c3a
 	public static ParsedCommand parseCommand(String userInput) {
 		if (userInput.length() == 0) {
 			return createParsedCommandError(ERROR_NO_INPUT);
@@ -69,52 +80,56 @@ public class ParsedCommand {
 			String input[] = userInput.split(" ", 2);
 			String userCommand = input[INDEX_FOR_CMD];
 			CommandType command = determineCommandType(userCommand);
-			
-			switch (command) {
-		        case ADD :
-		    	    return createParsedCommandAdd(input);
-		    	    
-		        case DELETE :
-		        	return createParsedCommandDelete(input);
-		        	
-		        case EDIT :
-		        	return createParsedCommandEdit(input);
 
-		        /*case DISPLAY :
-		        	return createParsedCommandDisplay(input); */
-		        case UNDO : 
-		        	return createParsedCommandUndo();
-		        	
-		        case DONE : 
-		        	return createParsedCommandDone(input);
-		        	
-		        case INVALID :
-		        	return createParsedCommandError(ERROR_INVALID_COMMAND);
-		        	
-		        case EXIT : 
-		        	return createParsedCommandExit();
-		        
-		        default :
-		        	// is never visited
-		        	throw new Error("ERROR");
-			} 
+			switch (command) {
+			case ADD:
+				return createParsedCommandAdd(input);
+
+			case DELETE:
+				return createParsedCommandDelete(input);
+
+			case EDIT:
+				return createParsedCommandEdit(input);
+
+				/*
+				 * case DISPLAY : return createParsedCommandDisplay(input);
+				 */
+			case UNDO:
+				return createParsedCommandUndo();
+
+			case DONE:
+				return createParsedCommandDone(input);
+
+			case INVALID:
+				return createParsedCommandError(ERROR_INVALID_COMMAND);
+
+			case EXIT:
+				return createParsedCommandExit();
+
+			default:
+				// is never visited
+				throw new Error("ERROR");
+			}
 		}
 	}
-	
+
 	private static ParsedCommand createParsedCommandUndo() {
-		ParsedCommand pc = new ParsedCommand(CommandType.UNDO, null, null, null, null, null, 0, 0);
+		ParsedCommand pc = new ParsedCommand(CommandType.UNDO, null, null,
+				null, null, null, 0, 0);
 		return pc;
 	}
 
 	private static ParsedCommand createParsedCommandExit() {
-		ParsedCommand pc = new ParsedCommand(CommandType.EXIT, null, null, null, null, null, 0, 0);
+		ParsedCommand pc = new ParsedCommand(CommandType.EXIT, null, null,
+				null, null, null, 0, 0);
 		return pc;
 	}
 
-  /*private static ParsedCommand createParsedCommandDisplay(String input) {
-		ParsedCommand pc = new ParsedCommand(CommandType.DISPLAY, null, null, null, null, null, 0);
-		return pc;
-	}*/
+	/*
+	 * private static ParsedCommand createParsedCommandDisplay(String input) {
+	 * ParsedCommand pc = new ParsedCommand(CommandType.DISPLAY, null, null,
+	 * null, null, null, 0); return pc; }
+	 */
 
 	private static ParsedCommand createParsedCommandEdit(String[] input) {
 		if (input.length < 2) {
@@ -129,10 +144,12 @@ public class ParsedCommand {
 			Calendar[] times = StringParser.getDatesTimesFromString(inputArgs);
 			Calendar start = times[INDEX_FOR_START];
 			Calendar end = times[INDEX_FOR_END];
-			String description = StringParser.getDescriptionFromString(inputArgs);
+			String description = StringParser
+					.getDescriptionFromString(inputArgs);
 			ArrayList<String> tags = StringParser.getTagsFromString(inputArgs);
-			
-			ParsedCommand pc = new ParsedCommand(CommandType.EDIT, title, start, end, description, tags, taskId, 0);
+
+			ParsedCommand pc = new ParsedCommand(CommandType.EDIT, title,
+					start, end, description, tags, taskId, 0);
 			return pc;
 		}
 	}
@@ -146,12 +163,13 @@ public class ParsedCommand {
 			if (taskId == 0) {
 				return createParsedCommandError(ERROR_INVALID_TASKID);
 			} else {
-				ParsedCommand pc = new ParsedCommand(CommandType.DELETE, null, null, null, null, null, taskId, 0);
+				ParsedCommand pc = new ParsedCommand(CommandType.DELETE, null,
+						null, null, null, null, taskId, 0);
 				return pc;
 			}
 		}
 	}
-	
+
 	private static ParsedCommand createParsedCommandDone(String[] input) {
 		if (input.length < 2) {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
@@ -161,7 +179,8 @@ public class ParsedCommand {
 			if (taskId == 0) {
 				return createParsedCommandError(ERROR_INVALID_TASKID);
 			} else {
-				ParsedCommand pc = new ParsedCommand(CommandType.DONE, null, null, null, null, null, taskId, 0);
+				ParsedCommand pc = new ParsedCommand(CommandType.DONE, null,
+						null, null, null, null, taskId, 0);
 				return pc;
 			}
 		}
@@ -185,23 +204,26 @@ public class ParsedCommand {
 					taskType = TASK;
 				} else {
 					taskType = DEADLINE_TASK;
-				} 
+				}
 			} else {
 				taskType = EVENT;
 			}
-			String description = StringParser.getDescriptionFromString(inputArgs);
+			String description = StringParser
+					.getDescriptionFromString(inputArgs);
 			ArrayList<String> tags = StringParser.getTagsFromString(inputArgs);
-			
-			ParsedCommand pc = new ParsedCommand(CommandType.ADD, title, start, end, description, tags, 0, taskType);
+
+			ParsedCommand pc = new ParsedCommand(CommandType.ADD, title, start,
+					end, description, tags, 0, taskType);
 			return pc;
 		}
 	}
 
 	private static ParsedCommand createParsedCommandError(String errorMsg) {
-		ParsedCommand pc = new ParsedCommand(CommandType.ERROR, errorMsg, null, null, null, null, 0, 0);
+		ParsedCommand pc = new ParsedCommand(CommandType.ERROR, errorMsg, null,
+				null, null, null, 0, 0);
 		return pc;
 	}
-	
+
 	private static CommandType determineCommandType(String commandTypeString) {
 		if (commandTypeString.equalsIgnoreCase("add")) {
 			return CommandType.ADD;
@@ -216,11 +238,12 @@ public class ParsedCommand {
 		} else if (commandTypeString.equalsIgnoreCase("done")) {
 			return CommandType.DONE;
 		} else if (commandTypeString.equalsIgnoreCase("exit")) {
-		 	return CommandType.EXIT;
+			return CommandType.EXIT;
 		} else {
 			return CommandType.INVALID;
 		}
 	}
+<<<<<<< HEAD
 	
 	/**
 	 * Returns command type of command, including error CommandType.
@@ -274,6 +297,33 @@ public class ParsedCommand {
 	 * Returns error message if ParsedCommand is of type Error.
 	 * @return
 	 */
+=======
+
+	public CommandType getCommandType() {
+		return this.cmdType;
+	}
+
+	public String getTitle() {
+		return this.title;
+	}
+
+	public Calendar getStart() {
+		return this.start;
+	}
+
+	public Calendar getEnd() {
+		return this.end;
+	}
+
+	public String getDescription() {
+		return this.description;
+	}
+
+	public ArrayList<String> getTags() {
+		return this.tags;
+	}
+
+>>>>>>> f33b58c54942d161ce89d768b7af7d677ec49c3a
 	public String getErrorMessage() {
 		if (this.cmdType == CommandType.ERROR) {
 			return this.title;
@@ -281,6 +331,7 @@ public class ParsedCommand {
 			return ERROR_NOT_AN_ERROR;
 		}
 	}
+<<<<<<< HEAD
 	
 	/**
 	 * Returns taskId of task, 0 if not applicable.
@@ -294,7 +345,18 @@ public class ParsedCommand {
 	 * Returns 1 for task, 2 for deadline task, 3 for event, 0 if not applicable.
 	 * @return
 	 */
+=======
+
+	public int getTaskId() {
+		return this.taskId;
+	}
+
+>>>>>>> f33b58c54942d161ce89d768b7af7d677ec49c3a
 	public int getTaskType() {
 		return this.taskType;
+	}
+	
+	public void setTaskType(int taskType) {
+		this.taskType = taskType;
 	}
 }
