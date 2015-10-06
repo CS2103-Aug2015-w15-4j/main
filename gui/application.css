@@ -4,6 +4,8 @@
 	-fx-background-size: contain;
 	-fx-background-position: left; 
 	-fx-background-repeat: no-repeat;
+	-fx-font-size: 12pt;
+    -fx-font-family: "Sans Serif";
 }
 
 .scroll-pane > .viewport {
@@ -16,12 +18,12 @@
 }
 
 #sidebar-textbox {
-    -fx-font: 12px Tahoma;
+    /*-fx-font: 12px Tahoma;*/
     -fx-orientation: left;
 }
 
 #fancytext {
-    -fx-font: 15px Tahoma;
+    -fx-font: 15px Helvetica;
     -fx-fill: black;
     /*-fx-fill: linear-gradient(from 0% 0% to 100% 200%, repeat, aqua 0%, red 50%);
     -fx-stroke: black;
@@ -42,7 +44,15 @@
 }
 
 #taskVbox {
-	-fx-background-color: rgba(0, 0, 0, 0.3);
+	-fx-background-color: rgba(0, 0, 1, 0.3);
+}
+
+#taskVbox1 {
+	/*-fx-background-color: rgba(0, 0, 1, 0.3);*/
+}
+
+#taskVbox2 {
+	/*-fx-background-color: rgba(1, 0, 0, 0.3);*/
 }
 
 #logScroll {

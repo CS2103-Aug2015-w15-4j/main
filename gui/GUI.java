@@ -12,16 +12,12 @@ import javafx.scene.shape.*;
 
 
 public class GUI extends Application {
-	final static String[] tabNames = { 
-		"Calender", 
-		"Task", 
-		"Today", 
+	final static String[] tabNames = {
+		"Task",  
 		"Log" // command log 
 	};
-	final static int CAL = 0;
-	final static int TASK = 1;
-	final static int TODAY = 2;
-	final static int LOG = 3;
+	final static int TASK = 0;
+	final static int LOG = 1;
 	
 	final static String APP_TITLE = "Prototype";
 	final static String FILE_CSS = "application.css";
@@ -37,7 +33,7 @@ public class GUI extends Application {
 	final static int WINDOW_HEIGHT = 9 * 60;
 	final static int TAB_WIDTH = 50;
 	final static int TABPANE_WIDTH = 13* WINDOW_WIDTH/16;
-	final static int TABPANE_HEIGHT = WINDOW_HEIGHT;
+	final static int TABPANE_HEIGHT = 8*WINDOW_HEIGHT/9;
 	final static int SIDEBAR_WIDTH = 3*WINDOW_WIDTH/16;
 	final static int SIDEBAR_MIN_HEIGHT = 0;
 	final static int SIDEBAR_MAX_HEIGHT = WINDOW_HEIGHT;
