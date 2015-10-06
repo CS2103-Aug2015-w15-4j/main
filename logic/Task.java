@@ -27,17 +27,19 @@ public class Task implements Comparable<Task> {
 
 	public Task(ParsedCommand parsedInput) {
 		this.name = parsedInput.getTitle();
+		System.out.println(name);
 		this.details = parsedInput.getDescription();
 		this.id = parsedInput.getTaskId();
 		this.isCompleted = false;
 		this.tags = parsedInput.getTags();
 	}
-
+/*
 	public Task getTask(ParsedCommand parsedInput) {
 		Storage storage = new Storage();
 		List<Task> taskList = storage.getAllTasks();
 		return taskList.get(id);
 	}
+	*/
 
 	public String getName() {
 		return name;

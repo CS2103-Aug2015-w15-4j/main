@@ -1,15 +1,16 @@
 package logic;
 
 import parser.ParsedCommand;
+import storage.Storage;
 
 public class Add implements Command {
 
-	private static final int TASK = 0;
-	private static final int DEADLINETASK = 1;
-	private static final int EVENT = 2;
+	private static final int TASK = 1;
+	private static final int DEADLINETASK = 2;
+	private static final int EVENT = 3;
 
-	Task newTask;
-	ParsedCommand specifications;
+	private Task newTask;
+	private ParsedCommand specifications;
 	int id;
 
 	public Add(ParsedCommand specifications, int newId) {
@@ -22,14 +23,17 @@ public class Add implements Command {
 	public void execute() {
 		if (specifications.getTaskType() == 2) {
 			DeadlineTask newDeadlineTask = new DeadlineTask(specifications);
+			newDeadlineTask.setId(id);
 			storeTask((Task) newDeadlineTask);
 			newTask = newDeadlineTask;
 		} else if (specifications.getTaskType() == 1) {
 			newTask = new Task(specifications);
+			newTask.setId(id);
 			storeTask(newTask);
 		} else if (specifications.getTaskType() == 3) {
 			Event newEvent = new Event(specifications);
 			storeTask((Task) newEvent);
+			newEvent.setId(id);
 			newTask = newEvent;
 		}
 	}

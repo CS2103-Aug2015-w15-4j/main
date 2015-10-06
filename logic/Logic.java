@@ -1,18 +1,20 @@
 package logic;
 
 import java.util.ArrayList;
+
 import java.util.LinkedList;
 import java.util.List;
 
 import parser.ParsedCommand;
+import storage.Storage;
 
 public class Logic {
 
-	private static final int EVENT = 2;
+	private static final int EVENT = 3;
 
-	private static final int DEADLINETASK = 1;
+	private static final int DEADLINETASK = 2;
 
-	private static final int TASK = 0;
+	private static final int TASK = 1;
 
 	private static final String MESSAGE_INVALID_FORMAT = "invalid command format :%1$s";
 
@@ -102,12 +104,10 @@ public class Logic {
 		int newId = getNewId();
 		View view = new View(consoleMessage, storage.getAllTasks());
 		int taskType = checkTaskType(userCommand);
-		userCommand.setTaskType(taskType);
-		System.out.println(taskType);
 		
-		if (!Add.checkValid(userCommand, view)) {
+	/*	if (!Add.checkValid(userCommand, view)) {
 			return view;
-		} else {
+		} else { */
 			Command command = new Add(userCommand, newId);
 			invoke = new Invoker(command);
 			invoke.execute();
@@ -115,7 +115,7 @@ public class Logic {
 
 			consoleMessage = "Add Successful";
 			return new View(consoleMessage, storage.getAllTasks());
-		}
+			//}
 	}
 
 	public static int getNewId() {

@@ -2,16 +2,17 @@ package logic;
 
 import java.util.List;
 
+import storage.Storage;
 import parser.ParsedCommand;
 
 public class Update implements Command {
 
-	private static final int EVENT = 2;
-	private static final int DEADLINETASK = 1;
-	private static final int TASK = 0;
-	ParsedCommand specifications;
-	Task toUpdate;
-	Task updated;
+	private static final int EVENT = 3;
+	private static final int DEADLINETASK = 2;
+	private static final int TASK = 1;
+	private ParsedCommand specifications;
+	private Task toUpdate;
+	private Task updated;
 
 	public Update(ParsedCommand specifications) {
 		this.specifications = specifications;
@@ -21,18 +22,17 @@ public class Update implements Command {
 		Storage storage = new Storage();
 		List<Task> taskList = storage.getAllTasks();
 		toUpdate = taskList.get(specifications.getTaskId());
+		
 
 		updated = updateTask(specifications, toUpdate);
-		if (updated == null) { // If failed to update;
-
-		}
-
+		storage.delete(toUpdate.getId());
+		storage.add(updated);
 	}
 
 	public void undo() {
 		Storage storage = new Storage();
 		storage.delete(updated.getId());
-		storage.add(updated);
+		storage.add(toUpdate);
 	}
 
 	/*
