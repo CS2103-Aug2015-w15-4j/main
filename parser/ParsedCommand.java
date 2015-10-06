@@ -30,8 +30,6 @@ public class ParsedCommand {
 	private static final int EVENT = 3;
 	private static final String ERROR_INVALID_DATE = "Error: Invalid date(s) input";
 	private static final String ERROR_INVALID_TASKID = "Error: Invalid/Missing taskId";
-<<<<<<< HEAD
-	
 	
     /**
      * This method creates a ParsedCommand object (constructor).
@@ -45,14 +43,9 @@ public class ParsedCommand {
      * @param taskId TaskId of task for edit, delete.
      * @param taskType Type of task, 1 for task, 2 for deadline task, 3 for event.
      */
-	public ParsedCommand(CommandType cmdType, String title, Calendar start, Calendar end, 
-			             String description, ArrayList<String> tags, int taskId, int taskType) {
-=======
-
 	public ParsedCommand(CommandType cmdType, String title, Calendar start,
 			Calendar end, String description, ArrayList<String> tags,
 			int taskId, int taskType) {
->>>>>>> f33b58c54942d161ce89d768b7af7d677ec49c3a
 		this.cmdType = cmdType;
 		this.title = title;
 		this.start = start;
@@ -62,17 +55,12 @@ public class ParsedCommand {
 		this.taskId = taskId;
 		this.taskType = taskType;
 	}
-<<<<<<< HEAD
 	
 	/**
-	 * Parses given user input and returns ParsedCommand object with appropriate attributes filled in.
 	 * 
 	 * @param userInput Entire string input by user.
 	 * @return ParsedCommand object, with type error if userInput is invalid.
 	 */
-=======
-
->>>>>>> f33b58c54942d161ce89d768b7af7d677ec49c3a
 	public static ParsedCommand parseCommand(String userInput) {
 		if (userInput.length() == 0) {
 			return createParsedCommandError(ERROR_NO_INPUT);
@@ -243,7 +231,6 @@ public class ParsedCommand {
 			return CommandType.INVALID;
 		}
 	}
-<<<<<<< HEAD
 	
 	/**
 	 * Returns command type of command, including error CommandType.
@@ -297,33 +284,6 @@ public class ParsedCommand {
 	 * Returns error message if ParsedCommand is of type Error.
 	 * @return
 	 */
-=======
-
-	public CommandType getCommandType() {
-		return this.cmdType;
-	}
-
-	public String getTitle() {
-		return this.title;
-	}
-
-	public Calendar getStart() {
-		return this.start;
-	}
-
-	public Calendar getEnd() {
-		return this.end;
-	}
-
-	public String getDescription() {
-		return this.description;
-	}
-
-	public ArrayList<String> getTags() {
-		return this.tags;
-	}
-
->>>>>>> f33b58c54942d161ce89d768b7af7d677ec49c3a
 	public String getErrorMessage() {
 		if (this.cmdType == CommandType.ERROR) {
 			return this.title;
@@ -331,7 +291,6 @@ public class ParsedCommand {
 			return ERROR_NOT_AN_ERROR;
 		}
 	}
-<<<<<<< HEAD
 	
 	/**
 	 * Returns taskId of task, 0 if not applicable.
@@ -345,13 +304,6 @@ public class ParsedCommand {
 	 * Returns 1 for task, 2 for deadline task, 3 for event, 0 if not applicable.
 	 * @return
 	 */
-=======
-
-	public int getTaskId() {
-		return this.taskId;
-	}
-
->>>>>>> f33b58c54942d161ce89d768b7af7d677ec49c3a
 	public int getTaskType() {
 		return this.taskType;
 	}
