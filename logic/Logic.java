@@ -1,7 +1,6 @@
 package logic;
 
 import java.util.ArrayList;
-
 import java.util.LinkedList;
 import java.util.List;
 
@@ -58,7 +57,7 @@ public class Logic {
 
 	private View executeUpdate(ParsedCommand userCommand) {
 
-		Command command = new Update(userCommand);
+		Command command = new Update(userCommand,storage);
 		String consoleMessage = "";
 		// Check if update id is correct
 		View view = new View(consoleMessage, storage.getAllTasks());
@@ -84,12 +83,12 @@ public class Logic {
 	}
 
 	private View executeDelete(ParsedCommand userCommand) {
-
+		
 		if (!Delete.checkValid(userCommand)) {
 			String consoleMessage = "Error: Invalid taskID";
 			return new View(consoleMessage, storage.getAllTasks());
 		} else {
-			Command command = new Delete(userCommand);
+			Command command = new Delete(userCommand,storage);
 			invoke = new Invoker(command);
 			invoke.execute();
 			commandHistory.addFirst(invoke);
@@ -108,7 +107,7 @@ public class Logic {
 	/*	if (!Add.checkValid(userCommand, view)) {
 			return view;
 		} else { */
-			Command command = new Add(userCommand, newId);
+			Command command = new Add(userCommand, newId,storage);
 			invoke = new Invoker(command);
 			invoke.execute();
 			commandHistory.addFirst(invoke);
@@ -122,7 +121,7 @@ public class Logic {
 		Storage storage = new Storage();
 		List<Task> taskList = storage.getAllTasks();
 		if (taskList.size() == 0) {
-			return 0;
+			return 1;
 		} else {
 			return taskList.get(taskList.size() - 1).getId() + 1;
 		}
@@ -143,6 +142,17 @@ public class Logic {
 		}
 		
 		return 0;
+	}
+	
+	public static Task searchList(List<Task> taskList, int taskId) {
+		
+		for (int i=0; i<taskList.size(); i++) {
+			if (taskList.get(i).getId() == taskId) {
+				return taskList.get(i);
+			}
+		}
+		
+		return null;
 	}
 
 }

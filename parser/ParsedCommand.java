@@ -30,7 +30,19 @@ public class ParsedCommand {
 	private static final int EVENT = 3;
 	private static final String ERROR_INVALID_DATE = "Error: Invalid date(s) input";
 	private static final String ERROR_INVALID_TASKID = "Error: Invalid/Missing taskId";
-
+	
+    /**
+     * This method creates a ParsedCommand object (constructor).
+     * 
+     * @param cmdType Type of command or error.
+     * @param title Title of task or error message (for error objects).
+     * @param start Start date and time of task.
+     * @param end End date and time of task.
+     * @param description Description of task.
+     * @param tags ArrayList of tags in task, tags must be alphanumeric with no whitespace.
+     * @param taskId TaskId of task for edit, delete.
+     * @param taskType Type of task, 1 for task, 2 for deadline task, 3 for event.
+     */
 	public ParsedCommand(CommandType cmdType, String title, Calendar start,
 			Calendar end, String description, ArrayList<String> tags,
 			int taskId, int taskType) {
@@ -43,7 +55,12 @@ public class ParsedCommand {
 		this.taskId = taskId;
 		this.taskType = taskType;
 	}
-
+	
+	/**
+	 * 
+	 * @param userInput Entire string input by user.
+	 * @return ParsedCommand object, with type error if userInput is invalid.
+	 */
 	public static ParsedCommand parseCommand(String userInput) {
 		if (userInput.length() == 0) {
 			return createParsedCommandError(ERROR_NO_INPUT);
@@ -214,31 +231,59 @@ public class ParsedCommand {
 			return CommandType.INVALID;
 		}
 	}
-
+	
+	/**
+	 * Returns command type of command, including error CommandType.
+	 * @return
+	 */
 	public CommandType getCommandType() {
 		return this.cmdType;
 	}
-
+	
+	/**
+	 * Returns title of task, null if not applicable.
+	 * @return
+	 */
 	public String getTitle() {
 		return this.title;
 	}
-
+	
+	/**
+	 * Returns start date and time of task in Calendar format, null if not applicable.
+	 * @return
+	 */
 	public Calendar getStart() {
 		return this.start;
 	}
-
+	
+	/**
+	 * Returns end date and time of task in Calendar format, null if not applicable.
+	 * @return
+	 */
 	public Calendar getEnd() {
 		return this.end;
 	}
-
+	
+	/**
+	 * Returns description of task, null if not applicable.
+	 * @return
+	 */
 	public String getDescription() {
 		return this.description;
 	}
-
+	
+	/**
+	 * Returns ArrayList of tags, empty ArrayList if not applicable.
+	 * @return
+	 */
 	public ArrayList<String> getTags() {
 		return this.tags;
 	}
-
+	
+	/**
+	 * Returns error message if ParsedCommand is of type Error.
+	 * @return
+	 */
 	public String getErrorMessage() {
 		if (this.cmdType == CommandType.ERROR) {
 			return this.title;
@@ -246,11 +291,19 @@ public class ParsedCommand {
 			return ERROR_NOT_AN_ERROR;
 		}
 	}
-
+	
+	/**
+	 * Returns taskId of task, 0 if not applicable.
+	 * @return
+	 */
 	public int getTaskId() {
 		return this.taskId;
 	}
-
+	
+	/**
+	 * Returns 1 for task, 2 for deadline task, 3 for event, 0 if not applicable.
+	 * @return
+	 */
 	public int getTaskType() {
 		return this.taskType;
 	}

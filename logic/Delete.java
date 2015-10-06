@@ -7,46 +7,32 @@ import storage.Storage;
 
 public class Delete implements Command {
 
-	Task toDelete;
-	int taskId;
-	Storage storage = new Storage();
+	private Task toDelete;
+	private int taskId;
+	private Storage storage;
 
-	public Delete() {
-
+	public Delete(Storage storage) {
+		this.storage = storage;
 	}
 
-	public Delete(ParsedCommand specifications) {
+	public Delete(ParsedCommand specifications,Storage storage) {
 		List<Task> taskList = storage.getAllTasks();
 		this.taskId = specifications.getTaskId();
-		this.toDelete = taskList.get(taskId);
+		this.toDelete = Logic.searchList(taskList,taskId);
+		this.storage = storage;
 	}
 
 	@Override
 	public void execute() {
-		deleteTask(taskId);
+		storage.delete(taskId);
 	}
 
 	@Override
 	public void undo() {
-		if (taskId == 2) {
-			DeadlineTask deleted = (DeadlineTask) toDelete;
-			Add.storeTask(deleted);
-		} else if (taskId == 1) {
-			Task deleted = (Task) toDelete;
-			Add.storeTask(deleted);
-		} else if (taskId == 3) {
-			Event deleted = (Event) toDelete;
-			Add.storeTask(deleted);
-		}
+		Task deleted = toDelete;
+		storage.add(deleted);
 	}
 
-	/*
-	 * Deletes the specified task from the database
-	 */
-	public static void deleteTask(int id) {
-		Storage storage = new Storage();
-		storage.delete(id);
-	}
 
 	public static boolean checkValid(ParsedCommand specifications) {
 		int idToCheck = specifications.getTaskId();

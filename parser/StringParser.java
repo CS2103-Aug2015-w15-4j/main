@@ -161,6 +161,12 @@ public class StringParser {
 		return inputArgs.trim();
 	}
 
+	/**
+	 * Returns Calendar array of first 2 dates and times encountered in string.
+	 * @param inputArgs String user input.
+	 * @return Calendar array with arr[0] = first date and first time, arr[1] = second date and second time, 
+	 *         or returns null if dates are invalid
+	 */
 	public static Calendar[] getDatesTimesFromString(String inputArgs) {
 		// Add whitespace before string for case where string starts with date
 		// Regex only detects date surrounded with whitespace
@@ -173,7 +179,7 @@ public class StringParser {
 		cal = convertStringToCalendar(dates, times);
 		return cal;
 	}
-
+	
 	public static String getDescriptionFromString(String inputArgs) {
 		Matcher m = quotes.matcher(inputArgs);
 		String description = null;
@@ -189,6 +195,11 @@ public class StringParser {
 		}
 	}
 
+	/**
+	 * Parses string to return taskId (integer at beginning of string), returns 0 if not found.
+	 * @param inputArgs
+	 * @return
+	 */
 	public static int getTaskIdFromString(String inputArgs) {
 		Matcher m = taskId.matcher(inputArgs);
 		int taskId = 0;
@@ -200,6 +211,13 @@ public class StringParser {
 		return taskId;
 	}
 
+	/**
+	 * Parses string and returns ArrayList of tags (alphanumeric with no whitespace), 
+	 * returns empty ArrayList if not found.
+	 * 
+	 * @param inputArgs
+	 * @return
+	 */
 	public static ArrayList<String> getTagsFromString(String inputArgs) {
 		Matcher m = tags.matcher(inputArgs);
 		ArrayList<String> tags = new ArrayList<String>();

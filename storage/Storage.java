@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import logic.Task;
@@ -48,7 +49,8 @@ public class Storage {
 			writer.close();
 			
 			taskList.add(task);
-			
+			Collections.sort(taskList);
+			rewriteFile();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -61,7 +63,7 @@ public class Storage {
 				taskList.remove(i);
 			}
 		}
-		
+		Collections.sort(taskList);
 		rewriteFile();
 	}
 	
@@ -87,7 +89,7 @@ public class Storage {
 		createFile();
 		Gson gson = new Gson();
 		Task task = new Task();
-		ArrayList<String> tags = new ArrayList<String>();
+		
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(fileName));
 			String currentLine = reader.readLine();
@@ -96,6 +98,7 @@ public class Storage {
 				taskList.add(task);
 				currentLine = reader.readLine();
 			}
+			reader.close();
 			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

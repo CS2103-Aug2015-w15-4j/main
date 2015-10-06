@@ -13,24 +13,27 @@ public class Update implements Command {
 	private ParsedCommand specifications;
 	private Task toUpdate;
 	private Task updated;
+	private Storage storage;
 
-	public Update(ParsedCommand specifications) {
+	public Update(Storage storage) {
+		this.storage = storage;
+	}
+	
+	public Update(ParsedCommand specifications,Storage storage) {
 		this.specifications = specifications;
+		this.storage = storage;
 	}
 
 	public void execute() {
-		Storage storage = new Storage();
 		List<Task> taskList = storage.getAllTasks();
-		toUpdate = taskList.get(specifications.getTaskId());
+		toUpdate = Logic.searchList(taskList,specifications.getTaskId());
 		
-
 		updated = updateTask(specifications, toUpdate);
 		storage.delete(toUpdate.getId());
 		storage.add(updated);
 	}
 
 	public void undo() {
-		Storage storage = new Storage();
 		storage.delete(updated.getId());
 		storage.add(toUpdate);
 	}
@@ -41,36 +44,44 @@ public class Update implements Command {
 	 */
 	public Task updateTask(ParsedCommand parsedInput, Task toUpdate) {
 
-		int taskType = parsedInput.getTaskType();
-
+		int taskType = toUpdate.getTaskType();
 		if (taskType == TASK) {
 			if (parsedInput.getTitle() != null) {
 				toUpdate.setName(parsedInput.getTitle());
-			} else if (parsedInput.getDescription() != null) {
+			}
+			if (parsedInput.getDescription() != null) {
 				toUpdate.setDetails(parsedInput.getDescription());
-			} else if (parsedInput.getTags().size() != 0) {
+			}
+			if (parsedInput.getTags().size() != 0) {
 				toUpdate.setTags(parsedInput.getTags());
 			}
 		} else if (taskType == DEADLINETASK) {
 			if (parsedInput.getTitle() != null) {
 				toUpdate.setName(parsedInput.getTitle());
-			} else if (parsedInput.getDescription() != null) {
+			}
+			if (parsedInput.getDescription() != null) {
 				toUpdate.setDetails(parsedInput.getDescription());
-			} else if (parsedInput.getTags().size() != 0) {
+			}
+			if (parsedInput.getTags().size() != 0) {
 				toUpdate.setTags(parsedInput.getTags());
-			} else if (parsedInput.getEnd() != null) {
+			} 
+			if (parsedInput.getEnd() != null) {
 				((DeadlineTask) toUpdate).setEnd(parsedInput.getEnd());
 			}
 		} else if (taskType == EVENT) {
 			if (parsedInput.getTitle() != null) {
 				toUpdate.setName(parsedInput.getTitle());
-			} else if (parsedInput.getDescription() != null) {
+			} 
+			if (parsedInput.getDescription() != null) {
 				toUpdate.setDetails(parsedInput.getDescription());
-			} else if (parsedInput.getTags().size() != 0) {
+			} 
+			if (parsedInput.getTags().size() != 0) {
 				toUpdate.setTags(parsedInput.getTags());
-			} else if (parsedInput.getEnd() != null) {
+			}
+			if (parsedInput.getEnd() != null) {
 				((DeadlineTask) toUpdate).setEnd(parsedInput.getEnd());
-			} else if (parsedInput.getStart() != null) {
+			}
+			if (parsedInput.getStart() != null) {
 				((Event) toUpdate).setStart(parsedInput.getEnd());
 			}
 		}
