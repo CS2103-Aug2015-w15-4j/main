@@ -21,19 +21,19 @@ public class StringParserTest {
 		assertEquals("2/2/14", StringParser.getFormattedDates("Hello how 2/2/14 are you today?")[0]);
 
 		
-		// Check invalid month
+		// Check invalid month (i.e. numbers more than 12)
 		assertEquals(null, StringParser.getFormattedDates("Hello how 10/13/14 are you today?")[0]);
 		assertEquals(null, StringParser.getFormattedDates("Hello how 10/13/14 are you today?")[1]);
 		
-		// Check invalid year
+		// Check invalid year (i.e. non 2-digit number)
 		assertEquals(null, StringParser.getFormattedDates("Hello how 10/12/1 are you today?")[0]);
 		assertEquals(null, StringParser.getFormattedDates("Hello how 10/12/1 are you today?")[1]);
 
-		// Check whitespace
+		// Check required to have whitespace
 		assertEquals(null, StringParser.getFormattedDates("Hello how 12/3/14are you1/10/12 today?")[0]);
 		assertEquals(null, StringParser.getFormattedDates("Hello how 12/3/14are you1/10/12 today?")[1]);
 		
-		// Check 2 valid dates
+		// Check 2 valid dates are accepted
 		assertEquals("23/12/14", StringParser.getFormattedDates("Hello how 23/12/14 are you 1/5/12 today?")[0]);
 		assertEquals("1/5/12", StringParser.getFormattedDates("Hello how 23/12/14 are you 1/5/12 today?")[1]);
 		

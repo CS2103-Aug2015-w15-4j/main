@@ -88,7 +88,6 @@ public class ParsedCommandTest {
 		assertEquals(CommandType.DELETE, pcDelete.getCommandType());
 		assertEquals(234, pcDelete.getTaskId());
 		
-		
 		// Test missing arguments
 		pcDelete = ParsedCommand.parseCommand("delete");
     	assertEquals(CommandType.ERROR, pcDelete.getCommandType());
@@ -140,7 +139,6 @@ public class ParsedCommandTest {
 		assertEquals(CommandType.DONE, pcDone.getCommandType());
 		assertEquals(234, pcDone.getTaskId());
 		
-		
 		// Test missing arguments
 		pcDone = ParsedCommand.parseCommand("delete");
     	assertEquals(CommandType.ERROR, pcDone.getCommandType());
@@ -151,50 +149,12 @@ public class ParsedCommandTest {
     	assertEquals(CommandType.ERROR, pcDone.getCommandType());
 		assertEquals("Error: Invalid/Missing taskId", pcDone.getErrorMessage());
 	}
-/*
-	@Test
-	public void testGetCommandType() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetTitle() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetStart() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetEnd() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetDescription() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetTags() {
-		fail("Not yet implemented");
-	}
-
+	
 	@Test
 	public void testGetErrorMessage() {
-		fail("Not yet implemented");
+		// Test not allowed to get errorMessage if not error
+		pcDone = ParsedCommand.parseCommand("Done 234");
+		assertEquals(CommandType.DONE, pcDone.getCommandType());
+		assertEquals("Error: No error message as this is not an error", pcDone.getErrorMessage());
 	}
-
-	@Test
-	public void testGetTaskId() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetTaskType() {
-		fail("Not yet implemented");
-	} */
-
 }
