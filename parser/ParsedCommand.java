@@ -79,9 +79,8 @@ public class ParsedCommand {
 			case EDIT:
 				return createParsedCommandEdit(input);
 
-				/*
-				 * case DISPLAY : return createParsedCommandDisplay(input);
-				 */
+			case DISPLAY : return createParsedCommandDisplay(input);
+			
 			case UNDO:
 				return createParsedCommandUndo();
 
@@ -148,10 +147,26 @@ public class ParsedCommand {
 		} else {
 			String inputArgs = input[INDEX_FOR_ARGS].trim();
 			int taskId = StringParser.getTaskIdFromString(inputArgs);
-			if (taskId == 0) {
+			if (taskId <= 0) {
 				return createParsedCommandError(ERROR_INVALID_TASKID);
 			} else {
 				ParsedCommand pc = new ParsedCommand(CommandType.DELETE, null,
+						null, null, null, null, taskId, 0);
+				return pc;
+			}
+		}
+	}
+	
+	private static ParsedCommand createParsedCommandDisplay(String[] input) {
+		if (input.length < 2) {
+			return createParsedCommandError(ERROR_MISSING_ARGS);
+		} else {
+			String inputArgs = input[INDEX_FOR_ARGS].trim();
+			int taskId = StringParser.getTaskIdFromString(inputArgs);
+			if (taskId <= 0) {
+				return createParsedCommandError(ERROR_INVALID_TASKID);
+			} else {
+				ParsedCommand pc = new ParsedCommand(CommandType.DISPLAY, null,
 						null, null, null, null, taskId, 0);
 				return pc;
 			}

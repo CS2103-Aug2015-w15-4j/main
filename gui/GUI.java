@@ -2,52 +2,59 @@ package gui;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.*;
 import javafx.stage.Stage;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.control.TabPane.*;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.shape.*;
-
+import javafx.scene.text.*;
 
 public class GUI extends Application {
-	final static String[] tabNames = { 
-		"Calender", 
-		"Task", 
-		"Today", 
+	final static String[] tabNames = {
+		"Task",  
 		"Log" // command log 
 	};
-	final static int CAL = 0;
-	final static int TASK = 1;
-	final static int TODAY = 2;
-	final static int LOG = 3;
+	final static int TASK = 0;
+	final static int LOG = 1;
 	
 	final static String APP_TITLE = "Prototype";
 	final static String FILE_CSS = "application.css";
+	final static String AVATAR_IMAGENAME = "avatar2.png";
 	
 	final static String TAG_SIDEBAR = "sidebar";
 	final static String TAG_SIDEBAR_TEXTBOX = "sidebar-textbox";
 	final static String TAG_TABPANE = "tabpane";
+	final static String ID_FANCYTEXT = "fancytext";
 	
 	final static String MSG_PROMPT = "Type command here";
 	final static String CMD_CLEAR = "clear";
+	
+	final static String STYLE_COLOR = "-fx-background-color: %1$s;";
 	
 	final static int WINDOW_WIDTH = 16 * 60;
 	final static int WINDOW_HEIGHT = 9 * 60;
 	final static int TAB_WIDTH = 50;
 	final static int TABPANE_WIDTH = 13* WINDOW_WIDTH/16;
-	final static int TABPANE_HEIGHT = WINDOW_HEIGHT;
+	final static int TABPANE_HEIGHT = (int)(8.7*WINDOW_HEIGHT/9);
+	final static int TABPANE_SIDEBAR_WIDTH = TABPANE_WIDTH/5;
+	final static int TABPANE_SIDEBAR_HEIGHT = TABPANE_HEIGHT;
 	final static int SIDEBAR_WIDTH = 3*WINDOW_WIDTH/16;
 	final static int SIDEBAR_MIN_HEIGHT = 0;
 	final static int SIDEBAR_MAX_HEIGHT = WINDOW_HEIGHT;
-	final static Pos SIDEBAR_ORIENTATION = Pos.BOTTOM_LEFT;
+	final static Pos SIDEBAR_ORIENTATION = Pos.BOTTOM_CENTER;//Pos.BOTTOM_LEFT;
 	
 	public TaskTab taskObject;
-	public LogTab logObject;
+	public Log logCommands;
+	public Log logConsole;
+	public VBox logObject;
 	public Sidebar sidebarObject;
 	public AnchorPane center;
-	
+	 
+	public static TextField userTextField;
 	public static TabPane tabPane;
 	public static Controller controller = new Controller();
 	
@@ -85,11 +92,15 @@ public class GUI extends Application {
 		taskObject = new TaskTab();
 		tabPane.getTabs().get(TASK).setContent(taskObject.getNode());
 		// add Log tab
-		logObject = new LogTab();
-		tabPane.getTabs().get(LOG).setContent(logObject.getNode());
+		logObject = new VBox();
+		logCommands = new Log();
+		logConsole = new Log();
+		logObject.getChildren().add(logCommands.getNode());
+		logObject.getChildren().add(logConsole.getNode());
+		tabPane.getTabs().get(LOG).setContent(logObject);
 		
 		// create input field
-		TextField userTextField = new TextField();
+		userTextField = new TextField();
 		userTextField.setMinWidth(TABPANE_WIDTH);
 		userTextField.setPromptText(MSG_PROMPT);
 		userTextField.setOnAction((ActionEvent event) -> 
@@ -107,11 +118,27 @@ public class GUI extends Application {
 		border.setCenter(center);
 		
 		Scene scene = new Scene(border, WINDOW_WIDTH+10, WINDOW_HEIGHT+10);//border.getPrefWidth(), border.getPrefHeight());
+		addHandlers(scene);
 		userTextField.requestFocus();
 		primaryStage.setScene(scene);
 	    primaryStage.setTitle(APP_TITLE);
 	    scene.getStylesheets().add(GUI.class.getResource(FILE_CSS).toExternalForm());
 	    primaryStage.show();
+	}
+	
+	/**
+	 * Adds handlers to the scene
+	 */
+	public void addHandlers(Scene scene) {
+		/*
+		scene.setOnKeyPressed((new EventHandler<KeyEvent>() {
+	        @Override
+	        public void handle(KeyEvent keyEvent) {
+	            if(keyEvent.getCode().toString() == "ESCAPE"){
+	            	userTextField.requestFocus();
+	            }
+	        }
+	    }));//*/
 	}
 	
 	public static void main(String[] args) {
@@ -122,7 +149,6 @@ public class GUI extends Application {
 		String temp = userTextField.getText();
     	userTextField.clear();
 		executeCommand(temp, height);
-		logObject.refresh();
 	}
 	
 	public void executeCommand(String input, int height) {
@@ -132,9 +158,10 @@ public class GUI extends Application {
 				sidebarObject.textbox.getChildren().clear();
 			}
 			else {
-				logObject.addToTextbox(input);
 				logic.View view = controller.commandEntered(input);
 				sidebarObject.addToTextbox(view.getConsoleMessage());
+				logCommands.addToTextbox(input);
+				logConsole.addToTextbox(view.getConsoleMessage());
 				taskObject.addAllTasks(view.getAllTasks());
 			}
 	    }
@@ -151,5 +178,23 @@ public class GUI extends Application {
 	public static Rectangle createRect(double width, double height) {
 		return createRect(width, height, "");
 	}
-		
+	
+	/**
+	 * 
+	 * @param text Sets this text to FancyText css style
+	 */
+	public static void setFancyText(Text text) {
+		text.setId(ID_FANCYTEXT);
+		text.setSmooth(true);
+	}
+	
+	/**
+	 * 
+	 * @param flow The TextFlow being added to
+	 * @param text The Text which requires a \n
+	 */
+	public static void addParagraphToTextFlow(TextFlow flow, Text text) {
+		text.setText(text.getText()+"\n");
+		flow.getChildren().add(text);
+	}
 }

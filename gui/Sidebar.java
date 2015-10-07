@@ -10,7 +10,7 @@ import javafx.scene.text.TextFlow;
 public class Sidebar {
 	public final static String TAG = GUI.TAG_SIDEBAR;
 	public final static String TAG_TEXTBOX = GUI.TAG_SIDEBAR_TEXTBOX;
-	public final static String AVATAR_IMAGE = "avatar.png";
+	public final static String AVATAR_IMAGE = GUI.AVATAR_IMAGENAME;
 	
 	public final static int WIDTH = GUI.SIDEBAR_WIDTH;
 	public final static int HEIGHT = GUI.WINDOW_HEIGHT;
@@ -56,7 +56,7 @@ public class Sidebar {
 	}
 	
 	public void addToTextbox(String input) {
-		textbox.getChildren().add(new Text(input.trim()+"\n"));
+		GUI.addParagraphToTextFlow(textbox,new Text(input.trim()));
 		maintainTextboxLimit();
 	}
 	

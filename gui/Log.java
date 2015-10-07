@@ -10,8 +10,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
-public class LogTab {
-	public static final int TABNUM = 3; // for the array check
+public class Log {
+	public static final int TABNUM = GUI.LOG; // for the array check
 	public static final String TABNAME = GUI.tabNames[TABNUM]; 
 	public static final int WIDTH = GUI.TABPANE_WIDTH;
 	public static final int PADDING = 8;
@@ -24,9 +24,9 @@ public class LogTab {
 	
 	protected VBox vbox;
 	protected ScrollPane sp;
-	protected TextFlow textbox; // list of user's previous commands
+	protected TextFlow textbox; // the storage for the log
 	
-	public LogTab() {
+	public Log() {
 		textbox = new TextFlow();
 		vbox = new VBox();
 		vbox.setMinWidth(WIDTH);
@@ -55,6 +55,7 @@ public class LogTab {
 	}
 	
 	public void addToTextbox(String input) {
-		textbox.getChildren().add(new Text(input.trim()+"\n"));
+		textbox.getChildren().add(new Text(">"+input.trim()+"\n"));
+		refresh();
 	}
 }
