@@ -11,7 +11,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 public class LogTab {
-	public static final int TABNUM = 3; // for the array check
+	public static final int TABNUM = GUI.LOG; // for the array check
 	public static final String TABNAME = GUI.tabNames[TABNUM]; 
 	public static final int WIDTH = GUI.TABPANE_WIDTH;
 	public static final int PADDING = 8;
@@ -29,8 +29,8 @@ public class LogTab {
 	public LogTab() {
 		textbox = new TextFlow();
 		vbox = new VBox();
-		vbox.setMinWidth(WIDTH);
-		vbox.setMaxWidth(WIDTH);
+		vbox.setMinWidth(WIDTH-2*PADDING);
+		vbox.setMaxWidth(WIDTH-2*PADDING);
 		vbox.setAlignment(ALIGNMENT);
 		vbox.setId(ID_VBOX);
 		vbox.getChildren().add(textbox);
@@ -55,6 +55,6 @@ public class LogTab {
 	}
 	
 	public void addToTextbox(String input) {
-		textbox.getChildren().add(new Text(input.trim()+"\n"));
-	}
+		GUI.addParagraphToTextFlow(textbox,new Text(input.trim()));
+	} 
 }

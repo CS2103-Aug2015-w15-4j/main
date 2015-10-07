@@ -9,8 +9,8 @@ public class DeadlineTask extends Task {
 
 	protected Calendar end;
 
-	public DeadlineTask(String name, String details,int id,boolean isCompleted,ArrayList<String> tags, Calendar end) {
-		super(name, details,id,isCompleted,tags);
+	public DeadlineTask(String name, String details,int id,boolean isCompleted,ArrayList<String> tags,int taskType, Calendar end) {
+		super(name, details,id,isCompleted,tags,taskType);
 		setEnd(end);
 	}
 	

@@ -56,7 +56,7 @@ public class Sidebar {
 	}
 	
 	public void addToTextbox(String input) {
-		textbox.getChildren().add(new Text(input.trim()+"\n"));
+		GUI.addParagraphToTextFlow(textbox,new Text(input.trim()));
 		maintainTextboxLimit();
 	}
 	
