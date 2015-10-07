@@ -127,6 +127,14 @@ public class ParsedCommand {
 			if (taskId == 0) {
 				return createParsedCommandError(ERROR_INVALID_TASKID);
 			}
+			String input2[] = inputArgs.split(" ", 2);
+			//String userCommand;
+			if (input2.length< 2) {
+				return createParsedCommandError(ERROR_MISSING_ARGS);
+			}
+			inputArgs = input2[1];
+			
+			String userCommand = input[INDEX_FOR_CMD];
 			String title = StringParser.getTitleFromString(inputArgs);
 			Calendar[] times = StringParser.getDatesTimesFromString(inputArgs);
 			Calendar start = times[INDEX_FOR_START];
