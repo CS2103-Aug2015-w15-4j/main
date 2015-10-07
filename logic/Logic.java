@@ -26,7 +26,8 @@ public class Logic {
 		storage = new Storage();
 	}
 	
-	public View initializeTaskList() {
+	public static View initializeTaskList() {
+		Storage storage = new Storage();
 		return new View("",storage.getAllTasks());
 	}
 
