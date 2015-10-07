@@ -136,12 +136,16 @@ public class ParsedCommandTest {
 
 	@Test
 	public void testParseCommandEdit() {
-		pcEdit = ParsedCommand.parseCommand("Edit 234");
+		pcEdit = ParsedCommand.parseCommand("Edit 234 meeting");
+		assertEquals(CommandType.EDIT, pcEdit.getCommandType());
+		assertEquals("meeting", pcEdit.getTitle());
+		
+		pcEdit = ParsedCommand.parseCommand("Edit 234 test");
 		assertEquals(CommandType.EDIT, pcEdit.getCommandType());
 		assertEquals(234, pcEdit.getTaskId());
 
 		// Test allow extra whitespace
-		pcEdit = ParsedCommand.parseCommand("Edit  234");
+		pcEdit = ParsedCommand.parseCommand("Edit  234 test");
 		assertEquals(CommandType.EDIT, pcEdit.getCommandType());
 		assertEquals(234, pcEdit.getTaskId());
 
