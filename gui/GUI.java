@@ -34,6 +34,8 @@ public class GUI extends Application {
 	final static int TAB_WIDTH = 50;
 	final static int TABPANE_WIDTH = 13* WINDOW_WIDTH/16;
 	final static int TABPANE_HEIGHT = (int)(8.7*WINDOW_HEIGHT/9);
+	final static int TABPANE_SIDEBAR_WIDTH = TABPANE_WIDTH/5;
+	final static int TABPANE_SIDEBAR_HEIGHT = TABPANE_HEIGHT;
 	final static int SIDEBAR_WIDTH = 3*WINDOW_WIDTH/16;
 	final static int SIDEBAR_MIN_HEIGHT = 0;
 	final static int SIDEBAR_MAX_HEIGHT = WINDOW_HEIGHT;
