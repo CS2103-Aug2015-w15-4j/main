@@ -51,32 +51,27 @@ public class TaskTab {
 		master.getChildren().add(listView);
 		
 		main = new VBox();
-		main.setMinWidth(WIDTH_WINDOW);
-		main.setMaxWidth(WIDTH_WINDOW);
 		main.setAlignment(ALIGNMENT);
 		main.setId(ID_VBOX);
 		sp = new ScrollPane(main);
 		sp.setFitToHeight(true);
-		sp.setMinWidth(WIDTH-WIDTH_SIDEBAR);
-		sp.setMaxWidth(WIDTH-WIDTH_SIDEBAR);
 		sp.setPadding(new Insets(PADDING));
 		sp.setVbarPolicy(V_POLICY);
 		sp.setHbarPolicy(H_POLICY);
 		sp.setId(ID_SCROLL);
 		master.getChildren().add(sp);
+		VBox.setVgrow(sp, Priority.ALWAYS);
 		
 		// now add a listener for the sidebar
 		listView.getSelectionModel().selectedItemProperty().addListener(
 				new ChangeListener<Node>() {
 					public void changed(ObservableValue<? extends Node> ov, Node old_val, Node new_val) {
-						if (!GUI.userTextField.isFocused()) { // if it is not focused on userTextField
-							main.getChildren().clear();
-							main.getChildren().add(
-								createMainDisplay(
-										listOfTasks.get(listView.getSelectionModel().getSelectedIndex())
-								)
-							);
-						}
+						main.getChildren().clear();
+						main.getChildren().add(
+							createMainDisplay(
+									listOfTasks.get(listView.getSelectionModel().getSelectedIndex())
+							)
+						);
 					}
 				});
 	}
@@ -110,9 +105,26 @@ public class TaskTab {
 			
 			if (refresh) {
 				refresh();
-				listView.scrollTo(items.size()-1);
-				listView.getSelectionModel().select(items.size()-1);
+				selectNode(items.size()-1);
 			}
+		}
+	}
+	
+	/**
+	 * Highlights/Selects the first node in the list
+	 */
+	public void selectFirstNode() {
+		selectNode(0);
+	}
+	
+	/**
+	 * Highlights/Selects the node in location i in the list
+	 * If i > list size, function does nothing
+	 */
+	public void selectNode(int i) {
+		if (items.size()>i) {
+			listView.scrollTo(i);
+			listView.getSelectionModel().select(i);
 		}
 	}
 	
@@ -129,6 +141,7 @@ public class TaskTab {
 			}
 			
 			refresh();
+			selectFirstNode();
 		}
 	}
 	
@@ -175,11 +188,26 @@ public class TaskTab {
 		text = new Text();
 		text.setWrappingWidth(WIDTH_WINDOW);
 		if (task.getDetails()!=null&&!task.getDetails().isEmpty() ) {
-			text.setText("Details	:" + task.getDetails());
+			text.setText("Details	: " + task.getDetails());
 		} else {
 			text.setText("Details	: None");
 		}
 		subBox.getChildren().add(text);
+		
+		// tags
+		text = new Text();
+		if (task.getTags()!=null&&!task.getTags().isEmpty() ) {
+			String temp = "Tags		: \n";
+			for (String tag : task.getTags()) {
+				if (tag!=null) {
+					temp += "	" + tag + "\n";
+				}
+			}
+			text.setText(temp);
+		} else {
+			text.setText("Tags		: None");
+		}
+		subBox.getChildren().add(text);//*/
 		
 		return subBox;
 	}

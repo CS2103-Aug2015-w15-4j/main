@@ -3,6 +3,7 @@ package gui;
 import javafx.geometry.*;
 import javafx.scene.Node;
 import javafx.scene.image.*;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -30,19 +31,17 @@ public class Sidebar {
 		textbox.setId(TAG_TEXTBOX);
 		textbox.setMaxWidth(WIDTH);
 		textbox.setMinWidth(WIDTH);
-		textbox.setMaxHeight(textboxHeight);
 		vbox = new VBox();
 		vbox.setPadding(new Insets(PADDING));
 		vbox.setSpacing(PADDING);
 		vbox.setAlignment(ORIENTATION);
 		vbox.getStyleClass().add(TAG);
 		vbox.getChildren().add(textbox);
+		VBox.setVgrow(textbox, Priority.ALWAYS);
 		image = new Image(Sidebar.class.getResourceAsStream(AVATAR_IMAGE),
 				WIDTH, imageHeight, true, true);
 		if (image!=null) {
 			imageHeight = (int) image.getHeight();
-			textboxHeight = HEIGHT - imageHeight - 20;
-			textbox.setMaxHeight(textboxHeight);
 			imageView = new ImageView(image);
 			vbox.getChildren().add(imageView);
 		}

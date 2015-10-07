@@ -5,12 +5,12 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.*;
 import javafx.stage.Stage;
+import logic.Logic;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.control.TabPane.*;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
-import javafx.scene.shape.*;
 import javafx.scene.text.*;
 
 public class GUI extends Application {
@@ -23,7 +23,6 @@ public class GUI extends Application {
 	
 	final static String APP_TITLE = "Prototype";
 	final static String FILE_CSS = "application.css";
-	final static String AVATAR_IMAGENAME = "avatar2.png";
 	
 	final static String TAG_SIDEBAR = "sidebar";
 	final static String TAG_SIDEBAR_TEXTBOX = "sidebar-textbox";
@@ -46,6 +45,9 @@ public class GUI extends Application {
 	final static int SIDEBAR_MIN_HEIGHT = 0;
 	final static int SIDEBAR_MAX_HEIGHT = WINDOW_HEIGHT;
 	final static Pos SIDEBAR_ORIENTATION = Pos.BOTTOM_CENTER;//Pos.BOTTOM_LEFT;
+
+	public static String AVATAR_IMAGENAME = "avatar2.png";
+	public static String BACKGROUND_NAME = "background.jpg";
 	
 	public TaskTab taskObject;
 	public Log logCommands;
@@ -53,10 +55,10 @@ public class GUI extends Application {
 	public VBox logObject;
 	public Sidebar sidebarObject;
 	public AnchorPane center;
-	 
+	
 	public static TextField userTextField;
 	public static TabPane tabPane;
-	public static Controller controller = new Controller();
+	public static Logic controller = new Logic();
 	
 	@Override
 	public void start(Stage primaryStage) {
@@ -74,23 +76,25 @@ public class GUI extends Application {
 		border.setRight(sidebarObject.getNode()); // put the sidebar on the right side
 		
 		// Tab manager
-		tabPane = new TabPane();
+		tabPane = new TabPane();//*
 		tabPane.setMinWidth(TABPANE_WIDTH);
 		tabPane.setMaxWidth(TABPANE_WIDTH);
 		tabPane.setMinHeight(TABPANE_HEIGHT);
-		tabPane.setMaxHeight(TABPANE_HEIGHT);
+		tabPane.setMaxHeight(TABPANE_HEIGHT);//*/
 		tabPane.setId(TAG_TABPANE);
 		tabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
 		// Create tabs
 		for (int i=0; i<tabNames.length;i++) {
 			Tab tab = new Tab(String.format("%-10s", tabNames[i]));
 			tab.setId(tabNames[i]);
-			//tab.setContent(createRect(TABPANE_WIDTH, TABPANE_HEIGHT, tabNames[i]));
 			tabPane.getTabs().add(tab);
 		}
 		// add Task tab
 		taskObject = new TaskTab();
 		tabPane.getTabs().get(TASK).setContent(taskObject.getNode());
+		// intialise tasks
+		taskObject.addAllTasks(Logic.initializeTaskList().getAllTasks());
+		taskObject.selectFirstNode();
 		// add Log tab
 		logObject = new VBox();
 		logCommands = new Log();
@@ -107,9 +111,8 @@ public class GUI extends Application {
 		userTextField.setPromptText(MSG_PROMPT);
 		userTextField.setOnAction((ActionEvent event) -> 
 			processUserTextField(userTextField, TABPANE_HEIGHT));
-		//border.setBottom(userTextField);
 		
-		// add the stuff to the center
+		// add them to the center
 		center = new AnchorPane();
 		center.getChildren().addAll(tabPane, userTextField);
 		center.setMaxHeight(TABPANE_WIDTH);
@@ -121,6 +124,7 @@ public class GUI extends Application {
 		
 		Scene scene = new Scene(border, WINDOW_WIDTH+10, WINDOW_HEIGHT+10);//border.getPrefWidth(), border.getPrefHeight());
 		addHandlers(scene);
+		scene.getRoot().setStyle("-fx-background-image: url(\"" + BACKGROUND_NAME + "\");");
 		userTextField.requestFocus();
 		primaryStage.setScene(scene);
 	    primaryStage.setTitle(APP_TITLE);
@@ -132,11 +136,11 @@ public class GUI extends Application {
 	 * Adds handlers to the scene
 	 */
 	public void addHandlers(Scene scene) {
-		/*
+		//*
 		scene.setOnKeyPressed((new EventHandler<KeyEvent>() {
 	        @Override
 	        public void handle(KeyEvent keyEvent) {
-	            if(keyEvent.getCode().toString() == "ESCAPE"){
+	            if(keyEvent.getCode().toString() == "`"){
 	            	userTextField.requestFocus();
 	            }
 	        }
@@ -160,25 +164,13 @@ public class GUI extends Application {
 				sidebarObject.textbox.getChildren().clear();
 			}
 			else {
-				logic.View view = controller.commandEntered(input);
+				logic.View view = controller.executeCommand(input.trim());
 				sidebarObject.addToTextbox(view.getConsoleMessage());
 				logCommands.addToTextbox(input);
 				logConsole.addToTextbox(view.getConsoleMessage());
 				taskObject.addAllTasks(view.getAllTasks());
 			}
 	    }
-	}
-	
-	public static Rectangle createRect(double width, double height, String name) {
-		Rectangle rect = new Rectangle(width,height);
-		if (name!="") {
-			rect.getStyleClass().add("rect-"+name);
-		}
-		return rect;
-	}
-	// Overloading
-	public static Rectangle createRect(double width, double height) {
-		return createRect(width, height, "");
 	}
 	
 	/**
