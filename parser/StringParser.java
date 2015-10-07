@@ -88,9 +88,10 @@ public class StringParser {
 			} else {
 				dateFormat.setLenient(false);
 				dateTimeFormat.setLenient(false);
-				if (times[0] == null) { // no start time
-					String startDate = dates[0];
-					startCal.setTime(dateFormat.parse(startDate));
+				if (times[0] == null) { // no start time, assume deadline 2359h
+					//String startDate = dates[0];
+					String startDate = dates[0] + " 2359";
+					startCal.setTime(dateTimeFormat.parse(startDate));
 				} else { // has start date and time
 					String startDateTime = dates[0] + " " + times[0];
 					startCal.setTime(dateTimeFormat.parse(startDateTime));
