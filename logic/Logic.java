@@ -25,6 +25,10 @@ public class Logic {
 	public Logic() {
 		storage = new Storage();
 	}
+	
+	public View initializeTaskList() {
+		return new View("",storage.getAllTasks());
+	}
 
 	public View executeCommand(String userCommand) {
 		if (checkIfEmptyString(userCommand))
