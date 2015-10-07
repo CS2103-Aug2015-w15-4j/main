@@ -30,7 +30,20 @@
 } .list-cell:filled:selected:focused, .list-cell:filled:selected {
     -fx-background-color: linear-gradient(#328BDB 0%, #207BCF 25%, #1973C9 75%, #0A65BF 100%);
     -fx-text-fill: red;
-}
+} .list-view .scroll-bar:vertical .increment-arrow,
+.list-view .scroll-bar:vertical .decrement-arrow,
+.list-view .scroll-bar:vertical .increment-button,
+.list-view .scroll-bar:vertical .decrement-button {
+    -fx-padding:0;
+} .list-view .scroll-bar:horizontal .increment-arrow,
+.list-view .scroll-bar:horizontal .decrement-arrow,
+.list-view .scroll-bar:horizontal .increment-button,
+.list-view .scroll-bar:horizontal .decrement-button {
+    -fx-padding:0;
+}/* .list-view .scroll-bar:vertical {
+    -fx-opacity: 0;
+    -fx-padding: -7;
+}*/
 
 #sidebar-textbox {
     /*-fx-font: 12px Tahoma;*/
@@ -38,11 +51,11 @@
 }
 
 #fancytext {
-    -fx-font: 15px Helvetica;
-    -fx-fill: black;
-    /*-fx-fill: linear-gradient(from 0% 0% to 100% 200%, repeat, aqua 0%, red 50%);
+    -fx-font-family: Helvetica;
+    -fx-fill: white;
+    /*-fx-fill: linear-gradient(from 0% 0% to 100% 200%, repeat, aqua 0%, red 50%);*/
     -fx-stroke: black;
-    -fx-stroke-width: 1; */
+    -fx-stroke-width: 1; /**/
 }
 
 
@@ -60,6 +73,10 @@
 
 #taskList {
 	-fx-background-color: transparent;/*rgba(0, 0, 1, 0.3);*/
+}
+
+#taskVbox {
+	-fx-background-color: rgba(0, 0, 1, 0.2);
 }
 
 #logScroll {

@@ -9,7 +9,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.TabPane.*;
 import javafx.scene.layout.*;
 import javafx.scene.shape.*;
-
+import javafx.scene.text.*;
 
 public class GUI extends Application {
 	final static String[] tabNames = {
@@ -25,9 +25,12 @@ public class GUI extends Application {
 	final static String TAG_SIDEBAR = "sidebar";
 	final static String TAG_SIDEBAR_TEXTBOX = "sidebar-textbox";
 	final static String TAG_TABPANE = "tabpane";
+	final static String ID_FANCYTEXT = "fancytext";
 	
 	final static String MSG_PROMPT = "Type command here";
 	final static String CMD_CLEAR = "clear";
+	
+	final static String STYLE_COLOR = "-fx-background-color: %1$s;";
 	
 	final static int WINDOW_WIDTH = 16 * 60;
 	final static int WINDOW_HEIGHT = 9 * 60;
@@ -149,5 +152,23 @@ public class GUI extends Application {
 	public static Rectangle createRect(double width, double height) {
 		return createRect(width, height, "");
 	}
-		
+	
+	/**
+	 * 
+	 * @param text Sets this text to FancyText css style
+	 */
+	public static void setFancyText(Text text) {
+		text.setId(ID_FANCYTEXT);
+		text.setSmooth(true);
+	}
+	
+	/**
+	 * 
+	 * @param flow The TextFlow being added to
+	 * @param text The Text which requires a \n
+	 */
+	public static void addParagraphToTextFlow(TextFlow flow, Text text) {
+		text.setText(text.getText()+"\n");
+		flow.getChildren().add(text);
+	}
 }
