@@ -17,7 +17,6 @@ public class Controller {
 		// implemented.
 		if (command != null && !command.equals("")) {
 			view = model.executeCommand(command);
-			// updateView(view); // Stub, used to update the GUI output fields
 			return view;
 		} else {
 			return null;

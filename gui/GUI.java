@@ -97,6 +97,8 @@ public class GUI extends Application {
 		logConsole = new Log();
 		logObject.getChildren().add(logCommands.getNode());
 		logObject.getChildren().add(logConsole.getNode());
+		VBox.setVgrow(logCommands.getNode(), Priority.ALWAYS);
+		VBox.setVgrow(logConsole.getNode(), Priority.ALWAYS);
 		tabPane.getTabs().get(LOG).setContent(logObject);
 		
 		// create input field
