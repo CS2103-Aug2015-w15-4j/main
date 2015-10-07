@@ -2,9 +2,6 @@ package gui;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import com.sun.prism.paint.Color;
-
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -14,9 +11,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 import logic.Task;
 
 public class TaskTab {
@@ -74,12 +69,14 @@ public class TaskTab {
 		listView.getSelectionModel().selectedItemProperty().addListener(
 				new ChangeListener<Node>() {
 					public void changed(ObservableValue<? extends Node> ov, Node old_val, Node new_val) {
-						main.getChildren().clear();
-						main.getChildren().add(
-							createMainDisplay(
-								listOfTasks.get(listView.getSelectionModel().getSelectedIndex())
-							)
-						);
+						if (!GUI.userTextField.isFocused()) { // if it is not focused on userTextField
+							main.getChildren().clear();
+							main.getChildren().add(
+								createMainDisplay(
+										listOfTasks.get(listView.getSelectionModel().getSelectedIndex())
+								)
+							);
+						}
 					}
 				});
 	}
