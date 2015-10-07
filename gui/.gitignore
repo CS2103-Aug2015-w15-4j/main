@@ -1,5 +1,3 @@
 *.class
-gui/GUI_archive.java
-gui/TaskTab_archive.java
 TaskTab_archive.java
 GUI_archive.java

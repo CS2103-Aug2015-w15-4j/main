@@ -17,6 +17,18 @@
 	/* -fx-opacity: 0.5; */
 }
 
+.list-cell {
+    -fx-skin: "com.sun.javafx.scene.control.skin.ListCellSkin";
+    -fx-background-color: rgba(0, 0, 0, 0.1);/*-fx-control-inner-background;*/
+    -fx-padding: 0.25em; /* 3 */
+    -fx-text-fill: -fx-text-inner-color;
+    -fx-opacity: 1;
+} .list-cell:empty {
+    -fx-opacity: 0;
+} .list-cell:odd {
+    -fx-background-color: rgba(0, 0, 0, 0.3);/*derive(-fx-control-inner-background,-5%);*/
+}
+
 #sidebar-textbox {
     /*-fx-font: 12px Tahoma;*/
     -fx-orientation: left;
@@ -43,16 +55,8 @@
 	-fx-background-color: transparent;
 }
 
-#taskVbox {
-	-fx-background-color: rgba(0, 0, 1, 0.3);
-}
-
-#taskVbox1 {
-	/*-fx-background-color: rgba(0, 0, 1, 0.3);*/
-}
-
-#taskVbox2 {
-	/*-fx-background-color: rgba(1, 0, 0, 0.3);*/
+#taskList {
+	-fx-background-color: transparent;/*rgba(0, 0, 1, 0.3);*/
 }
 
 #logScroll {

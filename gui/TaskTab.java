@@ -20,40 +20,24 @@ public class TaskTab {
 	public static final int WIDTH = GUI.TABPANE_WIDTH;
 	public static final int PADDING = 8;
 	
-	public static final ScrollBarPolicy V_POLICY = ScrollBarPolicy.AS_NEEDED;
-	public static final ScrollBarPolicy H_POLICY = ScrollBarPolicy.NEVER;
-	//public static final Pos ALIGNMENT = Pos.TOP_LEFT;
-	public static final String ID_VBOX = "taskVbox";
-	public static final String ID_SCROLL = "taskScroll";
+	public static final String ID_LIST = "taskList";
 	
 	protected ListView<Node> listView;
 	protected ObservableList<Node> items;
-	protected ScrollPane sp;
 	protected List<Task> listOfTasks = new ArrayList<Task>(); // currently displayed tasks
-	protected String[] backgrounds = {"taskVbox1", "taskVbox2"}; 
-			//{"-fx-background: rgba(0, 0, 1, 0.3);", "-fx-background: rgba(1, 0, 0, 0.3);"};
-	protected int currentColor = 0;
 	
 	public TaskTab() {
 		items = FXCollections.observableArrayList();
 		listView = new ListView<Node>();
-		listView.setMinWidth(WIDTH);
 		listView.setMaxWidth(WIDTH);
-		listView.setId(ID_VBOX);
-		/*
-		sp = new ScrollPane(listView);
-		sp.setPadding(new Insets(PADDING));
-		sp.setFitToHeight(true);
-		sp.setVbarPolicy(V_POLICY);
-		sp.setHbarPolicy(H_POLICY);
-		sp.setId(ID_SCROLL);//*/
+		listView.setId(ID_LIST);
 	}
 	
 	/**
 	 * @return the master/parent node for this object
 	 */
 	public Node getNode() { 
-		return listView;//sp;
+		return listView;
 	}
 	
 	/**
@@ -102,7 +86,6 @@ public class TaskTab {
 		items.clear();
 		listOfTasks.clear();
 		refresh();
-		currentColor = 0;
 	}
 	
 	/**
@@ -116,34 +99,10 @@ public class TaskTab {
 				listOfTasks.remove(i);
 				items.remove(i);
 				refresh();
-				changeAllColor();
 				return true;
 			}
 		}
 		return false;
-	}
-	
-	/**
-	 * 
-	 * @return newly changed color 
-	 */
-	protected int changeColor() {
-		if (currentColor==1) {
-			currentColor = 0;
-		} else {
-			currentColor = 1;
-		}
-		return currentColor;
-	}
-	
-	/**
-	 * Ensures that all the colors alternate
-	 */
-	protected void changeAllColor() {
-		currentColor = 0;
-		for (Node node : items) {
-			node.setStyle(backgrounds[changeColor()]);
-		}
 	}
 	
 	protected Node createDisplay(Task task) {
@@ -164,15 +123,12 @@ public class TaskTab {
 		text = new Text();
 		
 		// details
-		if (!task.getDetails().isEmpty() ) {
+		if (task.getDetails()!=null&&!task.getDetails().isEmpty() ) {
 			text.setText("Details	:" + task.getDetails());
 		} else {
 			text.setText("Details	: None");
 		}
 		subBox.getChildren().add(text);
-		
-		// formatting of subBox
-		subBox.setId(backgrounds[changeColor()]);//backgrounds[changeColor()]);
 		
 		return subBox;
 	}
