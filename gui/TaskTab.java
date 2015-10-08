@@ -53,8 +53,6 @@ public class TaskTab {
 		// sidebar
 		items = FXCollections.observableArrayList();
 		listView = new ListView<Node>();
-		//listView.setMinWidth(WIDTH_SIDEBAR);
-		//listView.setMaxWidth(WIDTH_SIDEBAR);
 		listView.getStyleClass().add(GUI.STYLE_TRANSPARENT);
 		master.getChildren().add(listView);
 		listView.prefWidthProperty().bind(master.widthProperty().divide(6));
@@ -65,14 +63,12 @@ public class TaskTab {
 		main.setId(ID_GRID);
 		sp = new ScrollPane(main);
 		sp.setFitToHeight(true);
-		sp.setPadding(new Insets(PADDING));
 		sp.setVbarPolicy(V_POLICY);
 		sp.setHbarPolicy(H_POLICY);
 		sp.getStyleClass().add(GUI.STYLE_TRANSPARENT);
 		master.getChildren().add(sp);
 		sp.prefWidthProperty().bind(master.widthProperty().multiply(5).divide(6));
-		main.prefWidthProperty().bind(sp.widthProperty());
-
+		main.prefWidthProperty().bind(sp.prefWidthProperty());
 	    main.getColumnConstraints().add(new ColumnConstraints(GRID_COL_HEADER_FINAL_LENGTH)); 
 		
 		// now add a listener for the sidebar
@@ -201,10 +197,10 @@ public class TaskTab {
 	}
 	
 	/**
-	 * 
-	 * @param task Task to take information from
-	 * @param wrappingWidth
-	 * @return VBox with Name and ID
+	 * Creates the main display
+	 * @param task The task details to add
+	 * @param grid The grid to be added to
+	 * @return grid after it is modified
 	 */
 	protected Node createDisplay(Task task, GridPane grid) {		
 		Label text = new Label();
@@ -212,7 +208,7 @@ public class TaskTab {
 		if (!task.getName().isEmpty()) {
 			text.setText(task.getName());
 		} else {
-			text.setText("Task	" + items.size());
+			task.setName("Task	" + items.size());
 		}
 		grid.add(text, GRID_COL_HEADER, GRID_ROW_NAME, 2, 1); // span 2 col and 1 row
 		
@@ -230,8 +226,9 @@ public class TaskTab {
 	
 	/**
 	 * Creates a node for the main TaskTab display
-	 * @param task
-	 * @return VBox with Name, ID and Description
+	 * @param task The task details to add
+	 * @param grid The grid to be added to
+	 * @return grid after it is modified
 	 */
 	protected Node createMainDisplay(Task task, GridPane grid) {
 		grid = (GridPane) createDisplay(task, grid);
