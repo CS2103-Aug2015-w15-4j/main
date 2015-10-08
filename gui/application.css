@@ -1,11 +1,12 @@
 /* JavaFX CSS - Leave this comment until you have at least create one rule which uses -fx-Property */
 .root {
-	/*-fx-background-image: url("background.jpg");*/
+	-fx-background-image: url("background.jpg");
 	-fx-background-size: contain;
 	-fx-background-position: left; 
 	-fx-background-repeat: no-repeat;
 	-fx-font-size: 12pt;
     -fx-font-family: "Sans Serif";
+    -fx-text-fill: black;
 }
 
 .scroll-pane > .viewport {
@@ -52,8 +53,8 @@
 
 #fancytext {
     -fx-font-family: Helvetica;
-    -fx-fill: white;
-    /*-fx-fill: linear-gradient(from 0% 0% to 100% 200%, repeat, aqua 0%, red 50%);*/
+    /*-fx-fill: white;*/
+    -fx-fill: linear-gradient(from 0% 0% to 100% 200%, repeat, aqua 0%, red 50%);/**/
     -fx-stroke: black;
     -fx-stroke-width: 1; /**/
 }

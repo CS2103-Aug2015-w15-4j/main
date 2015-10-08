@@ -11,7 +11,6 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.layout.*;
-import javafx.scene.text.Text;
 import logic.Task;
 
 public class TaskTab {
@@ -30,10 +29,21 @@ public class TaskTab {
 	public static final String ID_SCROLL = "taskScroll";	
 	public static final String ID_LIST = "taskList";
 	
+	// grid locations
+	public static final int GRID_ROW_NAME = 0;
+	public static final int GRID_ROW_ID = 1;
+	public static final int GRID_ROW_DESCRIPTION = 2;
+	public static final int GRID_ROW_DATE = 3;
+	public static final int GRID_ROW_TAGS = 4;
+	public static final int GRID_COL_HEADER = 0;
+	public static final int GRID_COL_CONTENT = 1;
+	public static final VPos GRID_HEADER_VERT_ALIGNMENT = VPos.TOP;
+	public static final int GRID_COL_HEADER_FINAL_LENGTH = 90; // header col's fixed length
+	
 	public static final String HEADER_COLOR = "YELLOW";//"#0000FF";
 
 	protected HBox master; // the overall TaskTab manager
-	protected VBox main; // main window
+	protected GridPane main; // main window
 	protected ScrollPane sp; // a scrollpane managing the main window
 	protected ListView<Node> listView; // the sidebar
 	protected ObservableList<Node> items; // the items within the sidebar
@@ -41,16 +51,18 @@ public class TaskTab {
 	
 	public TaskTab() {
 		master = new HBox();
-		master.setMaxWidth(WIDTH);
+		//master.setMaxWidth(WIDTH);
 		// sidebar
 		items = FXCollections.observableArrayList();
 		listView = new ListView<Node>();
-		listView.setMaxWidth(WIDTH_SIDEBAR);
-		listView.setMinWidth(WIDTH_SIDEBAR);
+		//listView.setMinWidth(WIDTH_SIDEBAR);
+		//listView.setMaxWidth(WIDTH_SIDEBAR);
 		listView.setId(ID_LIST);
 		master.getChildren().add(listView);
+		listView.prefWidthProperty().bind(master.widthProperty().divide(6));
+		listView.maxWidthProperty().bind(master.maxWidthProperty().divide(6));
 		
-		main = new VBox();
+		main = new GridPane();
 		main.setAlignment(ALIGNMENT);
 		main.setId(ID_VBOX);
 		sp = new ScrollPane(main);
@@ -60,18 +72,16 @@ public class TaskTab {
 		sp.setHbarPolicy(H_POLICY);
 		sp.setId(ID_SCROLL);
 		master.getChildren().add(sp);
-		VBox.setVgrow(sp, Priority.ALWAYS);
+		sp.prefWidthProperty().bind(master.widthProperty().multiply(5).divide(6));
+		main.prefWidthProperty().bind(sp.widthProperty());
+
+	    main.getColumnConstraints().add(new ColumnConstraints(GRID_COL_HEADER_FINAL_LENGTH)); 
 		
 		// now add a listener for the sidebar
 		listView.getSelectionModel().selectedItemProperty().addListener(
 				new ChangeListener<Node>() {
 					public void changed(ObservableValue<? extends Node> ov, Node old_val, Node new_val) {
-						main.getChildren().clear();
-						main.getChildren().add(
-							createMainDisplay(
-									listOfTasks.get(listView.getSelectionModel().getSelectedIndex())
-							)
-						);
+						refreshMainDisplay();
 					}
 				});
 	}
@@ -79,7 +89,7 @@ public class TaskTab {
 	/**
 	 * @return the master/parent node for this object
 	 */
-	public Node getNode() { 
+	public Region getNode() { 
 		return master;
 	}
 	
@@ -130,6 +140,7 @@ public class TaskTab {
 	
 	public void refresh() {
 		listView.setItems(items);
+		refreshMainDisplay();
 	}
 	
 	public void addAllTasks(List<Task> tasks) {
@@ -169,56 +180,26 @@ public class TaskTab {
 	}
 	
 	/**
-	 * Creates a VBox node for the main TaskTab display
-	 * @param task
-	 * @return VBox with Name, ID and Description
-	 */
-	protected Node createMainDisplay(Task task) {
-		VBox subBox = (VBox) createDisplay(task, WIDTH_WINDOW); // get the name and ID
-		
-		// modify the header
-		Text text = (Text) subBox.getChildren().remove(0);
-		GUI.setFancyText(text);
-		VBox header = new VBox();
-		header.setStyle(String.format(GUI.STYLE_COLOR, HEADER_COLOR));
-		header.getChildren().add(text);
-		subBox.getChildren().add(0, header);
-		
-		// details
-		text = new Text();
-		text.setWrappingWidth(WIDTH_WINDOW);
-		if (task.getDetails()!=null&&!task.getDetails().isEmpty() ) {
-			text.setText("Details	: " + task.getDetails());
-		} else {
-			text.setText("Details	: None");
-		}
-		subBox.getChildren().add(text);
-		
-		// tags
-		text = new Text();
-		if (task.getTags()!=null&&!task.getTags().isEmpty() ) {
-			String temp = "Tags		: \n";
-			for (String tag : task.getTags()) {
-				if (tag!=null) {
-					temp += "	" + tag + "\n";
-				}
-			}
-			text.setText(temp);
-		} else {
-			text.setText("Tags		: None");
-		}
-		subBox.getChildren().add(text);//*/
-		
-		return subBox;
-	}
-	
-	/**
 	 * 
 	 * @param task Task to take information from
 	 * @return VBox with Name and ID
 	 */
 	protected Node createSidebarDisplay(Task task) {
-		return createDisplay(task, WIDTH_SIDEBAR-PADDING);
+		GridPane grid = new GridPane();
+		grid.prefWidthProperty().bind(listView.widthProperty());
+		return createDisplay(task, grid);
+	}
+	
+	/**
+	 * creates a label that is bounded by a Region
+	 * @param boundingBox Region item to be bounded to
+	 * @return a Label that has wrapText and width properties ready
+	 */
+	protected Label createLabel(Region boundingBox) {
+		Label label = new Label();
+		label.setWrapText(true);
+		label.prefWidthProperty().bind(boundingBox.prefWidthProperty());
+		return label;
 	}
 	
 	/**
@@ -227,36 +208,91 @@ public class TaskTab {
 	 * @param wrappingWidth
 	 * @return VBox with Name and ID
 	 */
-	protected Node createDisplay(Task task, int wrappingWidth) {
-		VBox subBox = new VBox();
-		subBox.setMaxWidth(wrappingWidth);
-		Text text = new Text();
-		text.setWrappingWidth(wrappingWidth);
+	protected Node createDisplay(Task task, GridPane grid) {		
+		Label text = new Label();
 		// Name
 		if (!task.getName().isEmpty()) {
 			text.setText(task.getName());
 		} else {
 			text.setText("Task	" + items.size());
 		}
-		subBox.getChildren().add(text);
+		grid.add(text, GRID_COL_HEADER, GRID_ROW_NAME, 2, 1); // span 2 col and 1 row
 		
-		// ID
-		text = new Text();
-		text.setText("ID		: " + task.getId());
-		//GUI.addParagraphToTextFlow(subBox, text);
-		subBox.getChildren().add(text);
+		// ID header
+		text = new Label("ID		: ");
+		GridPane.setValignment(text, GRID_HEADER_VERT_ALIGNMENT);
+		grid.add(text, GRID_COL_HEADER, GRID_ROW_ID);
+		// ID content
+		text = new Label();
+		text.setText(""+ task.getId());
+		grid.add(text, GRID_COL_CONTENT, GRID_ROW_ID);
 		
+		return grid;
+	}
+	
+	/**
+	 * Creates a node for the main TaskTab display
+	 * @param task
+	 * @return VBox with Name, ID and Description
+	 */
+	protected Node createMainDisplay(Task task, GridPane grid) {
+		grid = (GridPane) createDisplay(task, grid);
+		Label label = (Label) grid.getChildren().remove(0);
+		label.setWrapText(true);
+		GUI.setFancyText(label);
+		VBox header = new VBox();
+		header.setStyle(String.format(GUI.STYLE_COLOR, HEADER_COLOR));
+		header.getChildren().add(label);
+		grid.add(header, GRID_COL_HEADER, GRID_ROW_NAME, 2, 1); // span 2 col and 1 row
 		
-		/*
+		// headers
+		label = new Label("Details	: ");
+		grid.add(label, GRID_COL_HEADER, GRID_ROW_DESCRIPTION); 
+		GridPane.setValignment(label, GRID_HEADER_VERT_ALIGNMENT);
+		label = new Label("Tags		: ");
+		grid.add(label, GRID_COL_HEADER, GRID_ROW_TAGS); 
+		GridPane.setValignment(label, GRID_HEADER_VERT_ALIGNMENT);
+		
 		// details
-		text = new Text();
+		label = new Label();
+		label.setWrapText(true);
 		if (task.getDetails()!=null&&!task.getDetails().isEmpty() ) {
-			text.setText("Details	:" + task.getDetails());
+			label.setText(task.getDetails());
 		} else {
-			text.setText("Details	: None");
+			label.setText("None");
 		}
-		// add to the vbox
-		subBox.getChildren().add(text);//*/
-		return subBox;
+		grid.add(label, GRID_COL_CONTENT, GRID_ROW_DESCRIPTION); // 1st col, 2nd row
+		//label.maxWidthProperty().bind();
+		
+		// tags
+		label = new Label();
+		label.setWrapText(true);
+		if (task.getTags()!=null&&!task.getTags().isEmpty() ) {
+			String temp = "";
+			for (String tag : task.getTags()) {
+				if (tag!=null) {
+					temp += tag + "\n";
+				}
+			}
+			label.setText(temp);
+		} else {
+			label.setText("None");
+		}
+		grid.add(label, GRID_COL_CONTENT, GRID_ROW_TAGS); 
+		
+		return grid;
+	}
+	
+	/**
+	 * Refreshes the window so that the task description is updated
+	 */
+	public void refreshMainDisplay() {
+		main.getChildren().clear();
+		if (!items.isEmpty()&&listView.getSelectionModel().getSelectedIndex()!=-1) {
+			createMainDisplay(
+				listOfTasks.get(listView.getSelectionModel().getSelectedIndex()),
+				main
+			);
+		}
 	}
 }
