@@ -27,7 +27,8 @@ public class GUI extends Application {
 	final static String TAG_SIDEBAR = "sidebar";
 	final static String TAG_SIDEBAR_TEXTBOX = "sidebar-textbox";
 	final static String TAG_TABPANE = "tabpane";
-	final static String ID_FANCYTEXT = "fancytext";
+	final static String STYLE_FANCYTEXT = "fancytext";
+	final static String STYLE_TRANSPARENT = "transparent";
 	
 	final static String MSG_PROMPT = "Type command here";
 	final static String CMD_CLEAR = "clear";
@@ -180,7 +181,7 @@ public class GUI extends Application {
 	 * @param text Sets this text to FancyText css style
 	 */
 	public static void setFancyText(Node text) {
-		text.setId(ID_FANCYTEXT);
+		text.getStyleClass().add(STYLE_FANCYTEXT);
 	}
 	
 	/**

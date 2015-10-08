@@ -25,9 +25,7 @@ public class TaskTab {
 	public static final ScrollBarPolicy H_POLICY = ScrollBarPolicy.NEVER;
 	public static final Pos ALIGNMENT = Pos.TOP_LEFT;
 	
-	public static final String ID_VBOX = "taskVbox";
-	public static final String ID_SCROLL = "taskScroll";	
-	public static final String ID_LIST = "taskList";
+	public static final String ID_GRID = "taskGrid";
 	
 	// grid locations
 	public static final int GRID_ROW_NAME = 0;
@@ -57,20 +55,20 @@ public class TaskTab {
 		listView = new ListView<Node>();
 		//listView.setMinWidth(WIDTH_SIDEBAR);
 		//listView.setMaxWidth(WIDTH_SIDEBAR);
-		listView.setId(ID_LIST);
+		listView.getStyleClass().add(GUI.STYLE_TRANSPARENT);
 		master.getChildren().add(listView);
 		listView.prefWidthProperty().bind(master.widthProperty().divide(6));
 		listView.maxWidthProperty().bind(master.maxWidthProperty().divide(6));
 		
 		main = new GridPane();
 		main.setAlignment(ALIGNMENT);
-		main.setId(ID_VBOX);
+		main.setId(ID_GRID);
 		sp = new ScrollPane(main);
 		sp.setFitToHeight(true);
 		sp.setPadding(new Insets(PADDING));
 		sp.setVbarPolicy(V_POLICY);
 		sp.setHbarPolicy(H_POLICY);
-		sp.setId(ID_SCROLL);
+		sp.getStyleClass().add(GUI.STYLE_TRANSPARENT);
 		master.getChildren().add(sp);
 		sp.prefWidthProperty().bind(master.widthProperty().multiply(5).divide(6));
 		main.prefWidthProperty().bind(sp.widthProperty());

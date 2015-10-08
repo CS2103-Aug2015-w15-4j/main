@@ -6,7 +6,6 @@
 	-fx-background-repeat: no-repeat;
 	-fx-font-size: 12pt;
     -fx-font-family: "Sans Serif";
-    -fx-text-fill: black;
 }
 
 .scroll-pane > .viewport {
@@ -51,7 +50,11 @@
     -fx-orientation: left;
 }
 
-#fancytext {
+.transparent {
+	-fx-background-color: transparent;
+}
+
+.fancytext {
     -fx-font-family: Helvetica;
     /*-fx-fill: white;*/
     -fx-fill: linear-gradient(from 0% 0% to 100% 200%, repeat, aqua 0%, red 50%);/**/
@@ -59,25 +62,9 @@
     -fx-stroke-width: 1; /**/
 }
 
-
-#Calender {
-}
-#Task {
-}
-
-#Today{
-}
-
-#taskScroll {
-	-fx-background-color: transparent;
-}
-
-#taskList {
-	-fx-background-color: transparent;/*rgba(0, 0, 1, 0.3);*/
-}
-
-#taskVbox {
+#taskGrid {
 	-fx-background-color: rgba(0, 0, 1, 0.2);
+	-fx-fill: linear-gradient(from 0% 0% to 100% 200%, repeat, aqua 0%, red 50%);
 }
 
 #logScroll {
