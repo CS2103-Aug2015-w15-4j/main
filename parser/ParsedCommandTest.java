@@ -20,12 +20,17 @@ public class ParsedCommandTest {
 
 	@Test
 	public void testParsedCommand() {
-		// Test empty input
+		// Check empty input returns no user input error
 		pc = ParsedCommand.parseCommand("");
 		assertEquals(CommandType.ERROR, pc.getCommandType());
 		assertEquals("Error: No user input", pc.getErrorMessage());
 
-		// Test unrecognised command
+		// Check empty input returns no user input error
+		pc = ParsedCommand.parseCommand(" ");
+		assertEquals(CommandType.ERROR, pc.getCommandType());
+		assertEquals("Error: No user input", pc.getErrorMessage());
+
+		// Check unrecognised command returns invalid command error
 		pc = ParsedCommand.parseCommand("hello");
 		assertEquals(CommandType.ERROR, pc.getCommandType());
 		assertEquals("Error: Invalid command", pc.getErrorMessage());
@@ -38,9 +43,8 @@ public class ParsedCommandTest {
 		taskTags.add("proj");
 		taskTags.add("cs2101");
 
-		// Test task
-		pcAdd = ParsedCommand
-				.parseCommand("Add meeting with john #cs2103 #proj \"rmb to bring notes\" #cs2101");
+		// Check support for floating task
+		pcAdd = ParsedCommand.parseCommand("Add meeting with john #cs2103 #proj \"rmb to bring notes\" #cs2101");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
 		assertEquals("rmb to bring notes", pcAdd.getDescription());
@@ -49,40 +53,41 @@ public class ParsedCommandTest {
 		assertEquals(taskTags, pcAdd.getTags());
 		assertEquals(1, pcAdd.getTaskType());
 
-		// Test deadline task
-		pcAdd = ParsedCommand
-				.parseCommand("Add meeting with john 1/4/15 @1200");
+		// Check support for deadline task
+		pcAdd = ParsedCommand.parseCommand("Add meeting with john 1/4/15 @1200");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
 		assertEquals(null, pcAdd.getDescription());
-		assertEquals(
-				StringParser.parseStringToDate("Wed Apr 1 12:00:00 SGT 2015"),
-				pcAdd.getStart().getTime());
+		assertEquals(StringParser.parseStringToDate("Wed Apr 1 12:00:00 SGT 2015"), pcAdd.getStart().getTime());
 		assertEquals(null, pcAdd.getEnd());
 		assertEquals(emptyArrayList, pcAdd.getTags());
 		assertEquals(2, pcAdd.getTaskType());
 
-		// Test event
-		pcAdd = ParsedCommand
-				.parseCommand("Add  23/11/10 @1200-1330 meeting with john #cs2103 #proj #cs2101");
+		// Check support for event
+		pcAdd = ParsedCommand.parseCommand("Add  23/11/10 @1200-1330 meeting with john #cs2103 #proj #cs2101");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
 		assertEquals(null, pcAdd.getDescription());
-		assertEquals(
-				StringParser.parseStringToDate("Tue Nov 23 12:00:00 SGT 2010"),
-				pcAdd.getStart().getTime());
-		assertEquals(
-				StringParser.parseStringToDate("Tue Nov 23 13:30:00 SGT 2010"),
-				pcAdd.getEnd().getTime());
+		assertEquals(StringParser.parseStringToDate("Tue Nov 23 12:00:00 SGT 2010"), pcAdd.getStart().getTime());
+		assertEquals(StringParser.parseStringToDate("Tue Nov 23 13:30:00 SGT 2010"), pcAdd.getEnd().getTime());
 		assertEquals(3, pcAdd.getTaskType());
 
-		// Test invalid date
-		pcAdd = ParsedCommand
-				.parseCommand("Add meeting with john 31/4/10 @1200 #proj");
+		// Check invalid date returns invalid date error, where invalid date is in proper format
+		pcAdd = ParsedCommand.parseCommand("Add meeting with john 31/4/10 @1200 #proj");
 		assertEquals(CommandType.ERROR, pcAdd.getCommandType());
 		assertEquals("Error: Invalid date(s) input", pcAdd.getErrorMessage());
 
-		// Test missing arguments
+		/**********CHECK! better to detect all xx/xx/xx formats when checking title?********/
+		// Check dates in improper format are ignored and assumed to be not date
+		pcAdd = ParsedCommand.parseCommand("Add meeting with john 41/4/10 @1200 #proj");
+		assertEquals(CommandType.ADD, pcAdd.getCommandType());
+		assertEquals("meeting with john 4", pcAdd.getTitle());
+		assertEquals(null, pcAdd.getDescription());
+		assertEquals(null, pcAdd.getStart());
+		assertEquals(null, pcAdd.getEnd());
+		assertEquals(1, pcAdd.getTaskType());
+		
+		// Check missing arguments returns no arguments error
 		pcAdd = ParsedCommand.parseCommand("Add");
 		assertEquals(CommandType.ERROR, pcAdd.getCommandType());
 		assertEquals("Error: No arguments entered", pcAdd.getErrorMessage());
@@ -90,25 +95,25 @@ public class ParsedCommandTest {
 
 	@Test
 	public void testParseCommandDelete() {
+		// Check delete
 		pcDelete = ParsedCommand.parseCommand("Delete 234");
 		assertEquals(CommandType.DELETE, pcDelete.getCommandType());
 		assertEquals(234, pcDelete.getTaskId());
 
-		// Test allow extra whitespace
+		// Check allow extra whitespace
 		pcDelete = ParsedCommand.parseCommand("Delete  234");
 		assertEquals(CommandType.DELETE, pcDelete.getCommandType());
 		assertEquals(234, pcDelete.getTaskId());
 
-		// Test missing arguments
+		// Check missing arguments returns no arguments error
 		pcDelete = ParsedCommand.parseCommand("delete");
 		assertEquals(CommandType.ERROR, pcDelete.getCommandType());
 		assertEquals("Error: No arguments entered", pcDelete.getErrorMessage());
 
-		// Test invalid/missing taskId
+		// Check invalid/missing taskId returns error
 		pcDelete = ParsedCommand.parseCommand("delete abc");
 		assertEquals(CommandType.ERROR, pcDelete.getCommandType());
-		assertEquals("Error: Invalid/Missing taskId",
-				pcDelete.getErrorMessage());
+		assertEquals("Error: Invalid/Missing taskId", pcDelete.getErrorMessage());
 	}
 
 	@Test
@@ -117,49 +122,58 @@ public class ParsedCommandTest {
 		assertEquals(CommandType.DISPLAY, pcDisplay.getCommandType());
 		assertEquals(234, pcDisplay.getTaskId());
 
-		// Test allow extra whitespace
+		// Check allow extra whitespace
 		pcDisplay = ParsedCommand.parseCommand("show  234");
 		assertEquals(CommandType.DISPLAY, pcDisplay.getCommandType());
 		assertEquals(234, pcDisplay.getTaskId());
 
-		// Test missing arguments
+		// Check missing arguments returns error
 		pcDisplay = ParsedCommand.parseCommand("show");
 		assertEquals(CommandType.ERROR, pcDisplay.getCommandType());
 		assertEquals("Error: No arguments entered", pcDisplay.getErrorMessage());
 
-		// Test invalid/missing taskId
+		// Check invalid/missing taskId returns error
 		pcDisplay = ParsedCommand.parseCommand("show abc");
 		assertEquals(CommandType.ERROR, pcDisplay.getCommandType());
-		assertEquals("Error: Invalid/Missing taskId",
-				pcDisplay.getErrorMessage());
+		assertEquals("Error: Invalid/Missing taskId", pcDisplay.getErrorMessage());
 	}
 
 	@Test
 	public void testParseCommandEdit() {
+		// Check support for edit title
 		pcEdit = ParsedCommand.parseCommand("Edit 234 meeting");
 		assertEquals(CommandType.EDIT, pcEdit.getCommandType());
 		assertEquals("meeting", pcEdit.getTitle());
-		
-		pcEdit = ParsedCommand.parseCommand("Edit 234 test");
-		assertEquals(CommandType.EDIT, pcEdit.getCommandType());
 		assertEquals(234, pcEdit.getTaskId());
 
-		// Test allow extra whitespace
+		// Check support for edit description, date, time, tag
+		pcEdit = ParsedCommand.parseCommand("Edit 234 \"hello\" 23/11/10 @1300-1500 #tag");
+		assertEquals(CommandType.EDIT, pcEdit.getCommandType());
+		assertEquals("hello", pcEdit.getDescription());
+		assertEquals(StringParser.parseStringToDate("Tue Nov 23 13:00:00 SGT 2010"), pcEdit.getStart().getTime());
+		assertEquals(StringParser.parseStringToDate("Tue Nov 23 15:00:00 SGT 2010"), pcEdit.getEnd().getTime());
+		ArrayList<String> list = new ArrayList<String>();
+		list.add("tag");
+		assertEquals(list, pcEdit.getTags());
+		assertEquals("", pcEdit.getTitle());
+		
+		// Check allow extra whitespace
 		pcEdit = ParsedCommand.parseCommand("Edit  234 test");
 		assertEquals(CommandType.EDIT, pcEdit.getCommandType());
 		assertEquals(234, pcEdit.getTaskId());
+		assertEquals("test", pcEdit.getTitle());
 		
-		// Test missing field inputs
+		// Check missing field inputs returns error
 		pcEdit = ParsedCommand.parseCommand("Edit 234");
 		assertEquals(CommandType.ERROR, pcEdit.getCommandType());
 		assertEquals("Error: No fields were entered for editing", pcEdit.getErrorMessage());
 
-		// Test missing arguments
+		// Check missing arguments returns error
 		pcEdit = ParsedCommand.parseCommand("edit");
 		assertEquals(CommandType.ERROR, pcEdit.getCommandType());
 		assertEquals("Error: No arguments entered", pcEdit.getErrorMessage());
 
-		// Test invalid arguments
+		// Check invalid taskId returns error
 		pcEdit = ParsedCommand.parseCommand("edit abc #hello");
 		assertEquals(CommandType.ERROR, pcEdit.getCommandType());
 		assertEquals("Error: Invalid/Missing taskId", pcEdit.getErrorMessage());
@@ -177,24 +191,25 @@ public class ParsedCommandTest {
 		assertEquals(CommandType.DONE, pcDone.getCommandType());
 		assertEquals(234, pcDone.getTaskId());
 
-		// Test allow extra whitespace
+		// Check allow extra whitespace
 		pcDone = ParsedCommand.parseCommand("Done  234");
 		assertEquals(CommandType.DONE, pcDone.getCommandType());
 		assertEquals(234, pcDone.getTaskId());
 
-		// Test missing arguments
-		pcDone = ParsedCommand.parseCommand("delete");
+		// Check missing arguments returns error
+		pcDone = ParsedCommand.parseCommand("done ");
 		assertEquals(CommandType.ERROR, pcDone.getCommandType());
 		assertEquals("Error: No arguments entered", pcDone.getErrorMessage());
 
-		// Test invalid/missing taskId
+		// Check invalid/missing taskId returns error
 		pcDone = ParsedCommand.parseCommand("delete abc");
 		assertEquals(CommandType.ERROR, pcDone.getCommandType());
 		assertEquals("Error: Invalid/Missing taskId", pcDone.getErrorMessage());
 	}
+	
 	@Test
 	public void testGetErrorMessage() {
-		// Test not allowed to get errorMessage if not error
+		// Check not allowed to get errorMessage if not error
 		pcDone = ParsedCommand.parseCommand("Done 234");
 		assertEquals(CommandType.DONE, pcDone.getCommandType());
 		assertEquals("Error: No error message as this is not an error", pcDone.getErrorMessage());
