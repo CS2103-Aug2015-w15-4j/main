@@ -72,7 +72,7 @@ public class StringParser {
 	 */
 	public static int getTaskIdFromString(String inputArgs) {
 		Matcher m = taskId.matcher(inputArgs);
-		int taskId = 0;
+		int taskId = -1;
 
 		if (m.find()) {
 			taskId = Integer.parseInt(m.group());

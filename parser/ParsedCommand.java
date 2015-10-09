@@ -127,7 +127,7 @@ public class ParsedCommand {
 		} else {
 			String inputArgs[] = input[INDEX_FOR_ARGS].trim().split(" ", 2);
 			int taskId = StringParser.getTaskIdFromString(inputArgs[INDEX_FOR_TASKID]);
-			if (taskId == 0) {
+			if (taskId < 0) {
 				return createParsedCommandError(ERROR_INVALID_TASKID);
 			}
 			
@@ -155,7 +155,7 @@ public class ParsedCommand {
 		} else {
 			String inputArgs = input[INDEX_FOR_ARGS].trim();
 			int taskId = StringParser.getTaskIdFromString(inputArgs);
-			if (taskId <= 0) {
+			if (taskId < 0) {
 				return createParsedCommandError(ERROR_INVALID_TASKID);
 			} else {
 				ParsedCommand pc = new ParsedCommand(CommandType.DELETE, null,
@@ -187,7 +187,7 @@ public class ParsedCommand {
 		} else {
 			String inputArgs = input[INDEX_FOR_ARGS].trim();
 			int taskId = StringParser.getTaskIdFromString(inputArgs);
-			if (taskId == 0) {
+			if (taskId < 0) {
 				return createParsedCommandError(ERROR_INVALID_TASKID);
 			} else {
 				ParsedCommand pc = new ParsedCommand(CommandType.DONE, null,
