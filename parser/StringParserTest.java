@@ -20,19 +20,26 @@ public class StringParserTest {
 
 	@Test
 	public void testGetDatesTimesFromString() {
-		// Test has start and end time
+		// Check supported formats
+		
+		// Check support for formatted input (has start and end time)
 		assertEquals(StringParser.parseStringToDate("Tue Feb 12 12:00:00 SGT 2013"),
 				StringParser.getDatesTimesFromString("12/2/13 Meet John about proposal #cs2103 @1200-1330")[0].getTime());
 		assertEquals(StringParser.parseStringToDate("Tue Feb 12 13:30:00 SGT 2013"), 
 				     StringParser.getDatesTimesFromString("12/2/13 Meet John about proposal #cs2103 @1200-1330")[1].getTime());
+		
+		/* 
 		// Test only has start time
 		assertEquals(StringParser.parseStringToDate("Tue Feb 12 12:00:00 SGT 2013"),
 				StringParser.getDatesTimesFromString("12/2/13 Meet John about proposal @1200 #cs2103 #cs2101")[0].getTime());
 		assertEquals(null, StringParser.getDatesTimesFromString("12/2/13 Meet John about proposal @1200 #cs2103 #cs2101")[1]);
+		
 		// Test only has start date
 		assertEquals(StringParser.parseStringToDate("Tue Feb 12 23:59:00 SGT 2013"), StringParser.getDatesTimesFromString("12/2/13 Meet John about proposal #cs2103 #cs2101")[0].getTime());
 		assertEquals(null, StringParser.getDatesTimesFromString("12/2/13 Meet John about proposal @1200 #cs2103 #cs2101")[1]);
-		// Test no date & time
+		*/
+		
+		// Check support for no date & time
 		assertEquals(null, StringParser.getDatesTimesFromString("Meet John about proposal @1200 #cs2103 #cs2101")[0]);
 		assertEquals(null, StringParser.getDatesTimesFromString("Meet John about proposal @1200 #cs2103 #cs2101")[1]);
 	}
@@ -46,9 +53,12 @@ public class StringParserTest {
 
 	@Test
 	public void testGetTaskIdFromString() {
-		assertEquals(0, StringParser.getTaskIdFromString("this is my 23 task \"and this my description\" blah blah 23/3/12"));
+		// Check getTaskId returns integer at front of line
 		assertEquals(4242, StringParser.getTaskIdFromString("4242 Meet John about proposal @1200 #cs2103 \"my desc\" #cs2101"));
-		assertEquals(0, StringParser.getTaskIdFromString("Meet Task John about proposal @1200 #cs2103 #cs2101"));
+		
+		// Check invalid/missing taskId returns -1
+		assertEquals(-1, StringParser.getTaskIdFromString("Meet Task John about proposal @1200 #cs2103 #cs2101"));
+		assertEquals(-1, StringParser.getTaskIdFromString("this is my 23 task \"and this my description\" blah blah 23/3/12"));
 	}
 
 	@Test
