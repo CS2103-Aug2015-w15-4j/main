@@ -13,7 +13,7 @@ public class StringParserTest {
 		assertEquals("hello this is my task", StringParser.getTitleFromString("@1330hello this is my task"));
 		assertEquals("hello this ismy task", StringParser.getTitleFromString(" hello this is 12/12/12 my task"));
 		assertEquals("hello  task", StringParser.getTitleFromString(" hello \"this is my\" task @1200"));
-		assertEquals("Meet John about proposal", StringParser.getTitleFromString("12/2/13 Meet John about proposal #cs2103 @1200"));
+		assertEquals("Meet John about proposal", StringParser.getTitleFromString("12.2-13 Meet John about proposal #cs2103 @1200"));
 		assertEquals("Meet John about proposal", StringParser.getTitleFromString("#cs2101 Meet John about proposal #cs2103 @1200 12/2/13"));
 		assertEquals("Meet John about proposal", StringParser.getTitleFromString(" @1200 12/2/13 Meet John about proposal #cs2103"));
 	}

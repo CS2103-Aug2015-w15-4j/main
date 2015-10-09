@@ -13,25 +13,22 @@ public class StringParser {
 	private static Pattern quotes = Pattern.compile("\"([^\"]*)\"");
 	private static Pattern taskId = Pattern.compile("(^[0-9]+)");
 	private static Pattern tags = Pattern.compile("#\\w+");
+	
+	private static final String DD = "(0?[1-9]|[12][0-9]|3[01])";
+	private static final String MM = "(0?[1-9]|1[012])";
+	private static final String YY = "(\\d\\d))";
+	private static final String DATE_DELIM = "([-/.])";
+	private static final String WHITESPACES = "\\s*";
+	private static final String TIME_REGEX = "(@((0[0-9]|1[0-9]|2[0-3])([0-5][0-9]))(-((0[0-9]|1[0-9]|2[0-3])([0-5][0-9])))?)";
+	private static final String TAG_REGEX = "(#(\\w+)";
+	private static final String DESCRIPTION_REGEX = "(\"[^\"]*?\")";
 
+	private static String notTitleRegex = "(" + WHITESPACES + DD + DATE_DELIM + MM + DATE_DELIM + YY + WHITESPACES + "|" +
+                                           TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX + ")";  	                                        
 	
 	// Note that second date is currently unnecessary, assumption that events do
 	// not span across days
-	// For reference only, not in use
-	public static Calendar parseNattyDateTime(String date) {
-		Calendar cal = Calendar.getInstance();
-		SimpleDateFormat sdf = new SimpleDateFormat(
-				"EEE MMM dd HH:mm:ss z yyyy");
-		try {
-			cal.setTime(sdf.parse(date));
-		} catch (ParseException | java.text.ParseException e) {
-			e.printStackTrace();
-			System.out.println("Failed to parse date");
-			return null;
-		}
-		return cal;
-	}
-
+	
 	public static Date parseStringToDate(String input) {
 		Date date = new Date();
 		try {
@@ -43,9 +40,10 @@ public class StringParser {
 			throw new IllegalArgumentException();
 		}
 	}
-
+	
+    // returns "" if not found
 	public static String getTitleFromString(String inputArgs) {
-		String regex = "((\\s*(0?[1-9]|[12][0-9]|3[01])/(0?[1-9]|1[012])/(\\d\\d))\\s*)|(@((0[0-9]|1[0-9]|2[0-3])([0-5][0-9]))(-((0[0-9]|1[0-9]|2[0-3])([0-5][0-9])))?)|(\"[^\"]*?\")|(#(\\w+))";
+		String regex = notTitleRegex;
 		inputArgs = inputArgs.replaceAll(regex, "");
 		return inputArgs.trim();
 	}
