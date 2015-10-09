@@ -43,10 +43,13 @@ public class StringParser {
 		}
 	}
 	
-    // returns "" if not found
+    // returns null if not found
 	public static String getTitleFromString(String inputArgs) {
 		String regex = notTitleRegex;
 		inputArgs = inputArgs.replaceAll(regex, "");
+		if (inputArgs.equals("")) {
+			return null;
+		}
 		return inputArgs.trim();
 	}
 
