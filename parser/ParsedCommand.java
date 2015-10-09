@@ -65,10 +65,10 @@ public class ParsedCommand {
 	 * @return ParsedCommand object, with type error if userInput is invalid.
 	 */
 	public static ParsedCommand parseCommand(String userInput) {
-		if (userInput.length() == 0) {
+		if (userInput.trim().length() == 0) {
 			return createParsedCommandError(ERROR_NO_INPUT);
 		} else {
-			String input[] = userInput.split(" ", 2);
+			String input[] = userInput.trim().split(" ", 2);
 			String userCommand = input[INDEX_FOR_CMD];
 			CommandType command = determineCommandType(userCommand);
 
