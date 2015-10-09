@@ -51,12 +51,12 @@ public class ParsedCommandTest {
 
 		// Test deadline task
 		pcAdd = ParsedCommand
-				.parseCommand("Add meeting with john 23/11/10 @1200");
+				.parseCommand("Add meeting with john 1/4/15 @1200");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
 		assertEquals(null, pcAdd.getDescription());
 		assertEquals(
-				StringParser.parseStringToDate("Tue Nov 23 12:00:00 SGT 2010"),
+				StringParser.parseStringToDate("Wed Apr 1 12:00:00 SGT 2015"),
 				pcAdd.getStart().getTime());
 		assertEquals(null, pcAdd.getEnd());
 		assertEquals(emptyArrayList, pcAdd.getTags());
@@ -148,6 +148,11 @@ public class ParsedCommandTest {
 		pcEdit = ParsedCommand.parseCommand("Edit  234 test");
 		assertEquals(CommandType.EDIT, pcEdit.getCommandType());
 		assertEquals(234, pcEdit.getTaskId());
+		
+		// Test missing field inputs
+		pcEdit = ParsedCommand.parseCommand("Edit 234");
+		assertEquals(CommandType.ERROR, pcEdit.getCommandType());
+		assertEquals("Error: No fields were entered for editing", pcEdit.getErrorMessage());
 
 		// Test missing arguments
 		pcEdit = ParsedCommand.parseCommand("edit");
