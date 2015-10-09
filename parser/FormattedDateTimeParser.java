@@ -8,8 +8,12 @@ import java.util.regex.Pattern;
 public class FormattedDateTimeParser extends DateTimeParser{
 	private static SimpleDateFormat dateTimeFormat = new SimpleDateFormat("d/M/yy HHmm");
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("d/M/yy");
-
-	private static Pattern ddmmyy = Pattern.compile("(\\s(0?[1-9]|[12][0-9]|3[01])/(0?[1-9]|1[012])/(\\d\\d))\\s");
+    
+	private static final String DD = "(0?[1-9]|[12][0-9]|3[01])";
+	private static final String MM = "(0?[1-9]|1[012])";
+	private static final String YY = "(\\d\\d))";
+	private static final String DATE_DELIM = "([-/.])";
+	private static Pattern ddmmyy = Pattern.compile("(\\s" + DD + DATE_DELIM + MM + DATE_DELIM + YY + "\\s");
 	private static Pattern hhmm = Pattern.compile("@((0[0-9]|1[0-9]|2[0-3])([0-5][0-9]))(-((0[0-9]|1[0-9]|2[0-3])([0-5][0-9])))?");
 	
 	//private String userInput;
@@ -101,6 +105,11 @@ public class FormattedDateTimeParser extends DateTimeParser{
 		return cal;
 	}
 	
+	private static String convertDateToStandardFormat(String date) {
+		date.replaceAll(DATE_DELIM,"/");
+		return date;
+	}
+	
 	/**
 	 * This method looks for dd/mm/yy substrings of userInput, single digit
 	 * inputs allowed for date and month.
@@ -118,7 +127,7 @@ public class FormattedDateTimeParser extends DateTimeParser{
 		int i = 0;
 
 		while (m.find() & i < 2) {
-			ans[i] = m.group().trim();
+			ans[i] = convertDateToStandardFormat(m.group().trim());
 			i++;
 		}
 

@@ -19,7 +19,19 @@ public class FormattedDateTimeParserTest {
 		assertEquals("2/02/14", FormattedDateTimeParser.getFormattedDates("Hello how 2/02/14 are you today?")[0]);
 		assertEquals("2/2/14", FormattedDateTimeParser.getFormattedDates("Hello how 2/2/14 are you today?")[0]);
 		
-		// Check invalid month (i.e. numbers more than 12)
+		// Check support for / for date
+		assertEquals("2/12/14", FormattedDateTimeParser.getFormattedDates("Hello how 2/12/14 are you today?")[0]);
+		assertEquals("02/12/14", FormattedDateTimeParser.getFormattedDates("Hello how 02/12/14 are you today?")[0]);
+
+		// Check support for . for date
+		assertEquals("2.12.14", FormattedDateTimeParser.getFormattedDates("Hello how 2.12.14 are you today?")[0]);
+		assertEquals("02.12.14", FormattedDateTimeParser.getFormattedDates("Hello how 02.12.14 are you today?")[0]);
+
+		// Check support for - for date
+		assertEquals("2-12-14", FormattedDateTimeParser.getFormattedDates("Hello how 2-12-14 are you today?")[0]);
+		assertEquals("02-12-14", FormattedDateTimeParser.getFormattedDates("Hello how 02-12-14 are you today?")[0]);
+
+	    // Check invalid month (i.e. numbers more than 12)
 		assertEquals(null, FormattedDateTimeParser.getFormattedDates("Hello how 10/13/14 are you today?")[0]);
 		assertEquals(null, FormattedDateTimeParser.getFormattedDates("Hello how 10/13/14 are you today?")[1]);
 		
