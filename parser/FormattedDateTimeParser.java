@@ -15,7 +15,7 @@ public class FormattedDateTimeParser extends DateTimeParser{
 	private static final String DATE_DELIM = "([-/.])";
 	private static Pattern ddmmyy = Pattern.compile("(\\s" + DD + DATE_DELIM + MM + DATE_DELIM + YY + "\\s");
 	private static Pattern hhmm = Pattern.compile("@((0[0-9]|1[0-9]|2[0-3])([0-5][0-9]))(-((0[0-9]|1[0-9]|2[0-3])([0-5][0-9])))?");
-	
+	private static Pattern dateDelim = Pattern.compile(DATE_DELIM);
 	//private String userInput;
 	
 	public FormattedDateTimeParser() {
@@ -44,6 +44,7 @@ public class FormattedDateTimeParser extends DateTimeParser{
 		return ans;
 	}
 	
+	// Converts standard format dates and times array to Calendar array
 	// Default time: 2359
 	public static Calendar[] convertStringToCalendar(String[] dates,
 			String[] times) {
@@ -106,13 +107,13 @@ public class FormattedDateTimeParser extends DateTimeParser{
 	}
 	
 	private static String convertDateToStandardFormat(String date) {
-		date.replaceAll(DATE_DELIM,"/");
+		date = dateDelim.matcher(date).replaceAll("/");
 		return date;
 	}
 	
 	/**
-	 * This method looks for dd/mm/yy substrings of userInput, single digit
-	 * inputs allowed for date and month.
+	 * This method looks for dd/mm/yy or dd.mm.yy or dd-mm-yy) substrings of userInput, single digit
+	 * inputs allowed for date and month and returns dates formated dd/MM/yy.
 	 *
 	 * @param userInput
 	 *            Unparsed command arguments input by user.
