@@ -10,21 +10,23 @@ import java.util.regex.Pattern;
 import com.sun.org.apache.xerces.internal.impl.xpath.regex.ParseException;
 
 public class StringParser {
-	private static Pattern quotes = Pattern.compile("\"([^\"]*)\"");
-	private static Pattern taskId = Pattern.compile("(^[0-9]+)");
-	private static Pattern tags = Pattern.compile("#\\w+");
-	
 	private static final String DD = "(0?[1-9]|[12][0-9]|3[01])";
 	private static final String MM = "(0?[1-9]|1[012])";
-	private static final String YY = "(\\d\\d))";
+	private static final String YY = "(\\d\\d)";
 	private static final String DATE_DELIM = "([-/.])";
 	private static final String WHITESPACES = "\\s*";
 	private static final String TIME_REGEX = "(@((0[0-9]|1[0-9]|2[0-3])([0-5][0-9]))(-((0[0-9]|1[0-9]|2[0-3])([0-5][0-9])))?)";
-	private static final String TAG_REGEX = "(#(\\w+)";
+	private static final String TAG_REGEX = "(#(\\w+))";
 	private static final String DESCRIPTION_REGEX = "(\"[^\"]*?\")";
-
-	private static String notTitleRegex = "(" + WHITESPACES + DD + DATE_DELIM + MM + DATE_DELIM + YY + WHITESPACES + "|" +
-                                           TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX + ")";  	                                        
+	private static final String NATTY_REGEX = "([(]([a-zA-Z0-9.\\s]+)[)])";
+	
+	private static Pattern quotes = Pattern.compile("\"([^\"]*)\"");
+	private static Pattern taskId = Pattern.compile("(^[0-9]+)");
+	
+	private static Pattern tags = Pattern.compile(TAG_REGEX);
+	
+	private static String notTitleRegex = "(" + WHITESPACES + "(" + DD + DATE_DELIM + MM + DATE_DELIM + YY + ")" + WHITESPACES + "|" +
+                                           TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX + "|" + NATTY_REGEX + ")";  	                                        
 	
 	// Note that second date is currently unnecessary, assumption that events do
 	// not span across days
@@ -99,11 +101,12 @@ public class StringParser {
 	}
 	
 	public static Calendar[] getDatesTimesFromString(String input) {
-		if (DateTimeParser.isFormattedDateTime(input)) {
-			DateTimeParser dtp = new FormattedDateTimeParser();
-			return dtp.getDatesTimes(input);
+		DateTimeParser dtp;
+		if (DateTimeParser.isNattyDateTime(input)) {
+			dtp = new NattyDateTimeParser();
 		} else {
-			return null;
+			dtp = new FormattedDateTimeParser();
 		}
+		return dtp.getDatesTimes(input);
 	}
 }

@@ -63,6 +63,16 @@ public class ParsedCommandTest {
 		assertEquals(emptyArrayList, pcAdd.getTags());
 		assertEquals(2, pcAdd.getTaskType());
 
+		// Check support for deadline task natty
+		pcAdd = ParsedCommand.parseCommand("Add meeting with john (april 1 2015 at 12pm)");
+		assertEquals(CommandType.ADD, pcAdd.getCommandType());
+		assertEquals("meeting with john", pcAdd.getTitle());
+		assertEquals(null, pcAdd.getDescription());
+		assertEquals(StringParser.parseStringToDate("Wed Apr 1 12:00:00 SGT 2015"), pcAdd.getStart().getTime());
+		assertEquals(null, pcAdd.getEnd());
+		assertEquals(emptyArrayList, pcAdd.getTags());
+		assertEquals(2, pcAdd.getTaskType());
+
 		// Check support for event
 		pcAdd = ParsedCommand.parseCommand("Add  23/11/10 @1200-1330 meeting with john #cs2103 #proj #cs2101");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
