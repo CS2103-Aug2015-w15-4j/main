@@ -68,10 +68,10 @@ public class NattyDateTimeParser extends DateTimeParser{
     	  cal.setTime(date);
     	  return cal;
     }
-    
+    /*
 	@Override
 	Calendar[] getDatesTimes(String input) {
 		return parseDateTimeWithNatty(getNattyFromString(input));
-	}
+	}*/
 
 }

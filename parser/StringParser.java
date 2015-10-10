@@ -26,8 +26,8 @@ public class StringParser {
 	private static Pattern tags = Pattern.compile(TAG_REGEX);
 	
 	private static String notTitleRegex = "(" + WHITESPACES + "(" + DD + DATE_DELIM + MM + DATE_DELIM + YY + ")" + WHITESPACES + "|" +
-                                           TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX + "|" + NATTY_REGEX + ")";  	                                        
-	
+                                           TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX + "|" + NATTY_REGEX + "|(on|by)([^\"#]*))";  	                                        
+	private static Pattern beforeKeyword = Pattern.compile("[^(//sby//s)|(//son//s)]*");
 	// Note that second date is currently unnecessary, assumption that events do
 	// not span across days
 	
@@ -50,6 +50,11 @@ public class StringParser {
 		if (inputArgs.equals("")) {
 			return null;
 		}
+		
+		/*Matcher m = beforeKeyword.matcher(inputArgs);
+		if (m.find()) {
+			inputArgs = m.group();
+		}*/
 		return inputArgs.trim();
 	}
 
@@ -105,11 +110,11 @@ public class StringParser {
 	
 	public static Calendar[] getDatesTimesFromString(String input) {
 		DateTimeParser dtp;
-		if (DateTimeParser.isNattyDateTime(input)) {
+		/*if (DateTimeParser.isNattyDateTime(input)) {
 			dtp = new NattyDateTimeParser();
 		} else {
 			dtp = new FormattedDateTimeParser();
-		}
-		return dtp.getDatesTimes(input);
+		}*/
+		return DateTimeParser.getDatesTimes(input);
 	}
 }

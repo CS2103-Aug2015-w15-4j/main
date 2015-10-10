@@ -64,7 +64,7 @@ public class ParsedCommandTest {
 		assertEquals(2, pcAdd.getTaskType());
 
 		// Check support for deadline task natty
-		pcAdd = ParsedCommand.parseCommand("Add meeting with john (april 1 2015 at 12pm)");
+		pcAdd = ParsedCommand.parseCommand("Add meeting with john on april 1 2015 at 12pm");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
 		assertEquals(null, pcAdd.getDescription());
@@ -82,11 +82,22 @@ public class ParsedCommandTest {
 		assertEquals(StringParser.parseStringToDate("Tue Nov 23 13:30:00 SGT 2010"), pcAdd.getSecondDate().getTime());
 		assertEquals(3, pcAdd.getTaskType());
 
+		/*
 		// Check invalid date returns invalid date error, where invalid date is in proper format
 		pcAdd = ParsedCommand.parseCommand("Add meeting with john 31/4/10 @1200 #proj");
 		assertEquals(CommandType.ERROR, pcAdd.getCommandType());
 		assertEquals("Error: Invalid date(s) input", pcAdd.getErrorMessage());
+		*/
+		
+		pcAdd = ParsedCommand.parseCommand("add finish homework by 23 nov 12pm");
+		assertEquals(CommandType.ADD, pcAdd.getCommandType());
+		assertEquals("finish homework", pcAdd.getTitle());
+		assertEquals(null, pcAdd.getDescription());
+		assertEquals(StringParser.parseStringToDate("Mon Nov 23 12:00:00 SGT 2015"), pcAdd.getFirstDate().getTime());
+		assertEquals(null, pcAdd.getSecondDate());
+		assertEquals(2, pcAdd.getTaskType());
 
+		
 		/**********CHECK! better to detect all xx/xx/xx formats when checking title?********/
 		// Check dates in improper format are ignored and assumed to be not date
 		pcAdd = ParsedCommand.parseCommand("Add meeting with john 41/4/10 @1200 #proj");

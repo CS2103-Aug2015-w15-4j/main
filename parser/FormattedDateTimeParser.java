@@ -92,6 +92,7 @@ public class FormattedDateTimeParser extends DateTimeParser{
 	 * @return Calendar array with arr[0] = first date and first time, arr[1] = second date and second time, 
 	 *         or returns null if dates are invalid
 	 */
+	/*
 	@Override
 	public Calendar[] getDatesTimes(String inputArgs) {
 		// Add whitespace before string for case where string starts with date
@@ -105,8 +106,8 @@ public class FormattedDateTimeParser extends DateTimeParser{
 		cal = convertStringToCalendar(dates, times);
 		return cal;
 	}
-	
-	private static String convertDateToStandardFormat(String date) {
+	*/
+	public static String convertDateToStandardFormat(String date) {
 		date = dateDelim.matcher(date).replaceAll("/");
 		return date;
 	}
@@ -122,7 +123,7 @@ public class FormattedDateTimeParser extends DateTimeParser{
 	 *         ans[1] = null and if only one date found, ans[1] = null.
 	 */
 	public static String[] getFormattedDates(String userInput) {
-		Matcher m = ddmmyy.matcher(userInput);
+		Matcher m = ddmmyy.matcher(" " + userInput + " ");
 		String[] ans = new String[2];
 
 		int i = 0;

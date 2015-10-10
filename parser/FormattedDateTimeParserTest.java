@@ -68,8 +68,8 @@ public class FormattedDateTimeParserTest {
 		assertEquals("2/3/12", FormattedDateTimeParser.getFormattedDates("Hello how are you 1/10/12 today 2/3/12 2/4/15?")[1]);
 		
 		// Check 2 valid dates are accepted - currently unnecessary
-		// assertEquals("23/12/14", FormattedDateTimeParser.getFormattedDates("Hello how 23/12/14 are you 1/5/12 today?")[0]);
-		// assertEquals("1/5/12", FormattedDateTimeParser.getFormattedDates("Hello how 23/12/14 are you 1/5/12 today?")[1]);
+		assertEquals("23/12/14", FormattedDateTimeParser.getFormattedDates("Hello how 23/12/14 are you 1/5/12 today?")[0]);
+		assertEquals("1/5/12", FormattedDateTimeParser.getFormattedDates("Hello how 23/12/14 are you 1/5/12 today?")[1]);
 	}
 
 	@Test
