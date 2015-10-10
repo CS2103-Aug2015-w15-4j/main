@@ -54,11 +54,11 @@ public class ParsedCommandTest {
 		assertEquals(1, pcAdd.getTaskType());
 
 		// Check support for deadline task
-		pcAdd = ParsedCommand.parseCommand("Add meeting with john 1/4/15 @1200");
+		pcAdd = ParsedCommand.parseCommand("Add meeting with john 1/4/15");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
 		assertEquals(null, pcAdd.getDescription());
-		assertEquals(StringParser.parseStringToDate("Wed Apr 1 12:00:00 SGT 2015"), pcAdd.getFirstDate().getTime());
+		assertEquals(StringParser.parseStringToDate("Wed Apr 1 23:59:00 SGT 2015"), pcAdd.getFirstDate().getTime());
 		assertEquals(null, pcAdd.getSecondDate());
 		assertEquals(emptyArrayList, pcAdd.getTags());
 		assertEquals(2, pcAdd.getTaskType());

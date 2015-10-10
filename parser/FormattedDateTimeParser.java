@@ -98,7 +98,7 @@ public class FormattedDateTimeParser extends DateTimeParser{
 		// Regex only detects date surrounded with whitespace
 		// Cannot make whitespace optional else cannot remove cases e.g. 32/3/12
 		// which are detected as 2/3/12
-		String input = " " + inputArgs;
+		String input = " " + inputArgs + " ";
 		String[] dates = getFormattedDates(input);
 		String[] times = getFormattedTimes(input);
 		Calendar[] cal = new Calendar[2];

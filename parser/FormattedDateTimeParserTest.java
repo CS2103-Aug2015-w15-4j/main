@@ -10,7 +10,7 @@ public class FormattedDateTimeParserTest {
 		// Check supported formats
 		
 		// Check support for / for date
-		assertEquals("2/12/14", FormattedDateTimeParser.getFormattedDates("Hello how 2/12/14 are you today?")[0]);
+		assertEquals("5/4/14", FormattedDateTimeParser.getFormattedDates("Hello how 5/4/14 are you today?")[0]);
 		assertEquals("02/12/14", FormattedDateTimeParser.getFormattedDates("Hello how 02/12/14 are you today?")[0]);
 
 		// Check support for . for date (and returns in standard format dd/MM/yy)

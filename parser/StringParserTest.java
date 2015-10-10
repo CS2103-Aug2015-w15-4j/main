@@ -33,11 +33,16 @@ public class StringParserTest {
 		assertEquals(StringParser.parseStringToDate("Tue Feb 12 12:00:00 SGT 2013"),
 				StringParser.getDatesTimesFromString("12/2/13 Meet John about proposal @1200 #cs2103 #cs2101")[0].getTime());
 		assertEquals(null, StringParser.getDatesTimesFromString("12/2/13 Meet John about proposal @1200 #cs2103 #cs2101")[1]);
+		*/
+		
+		// Test only has start date
+		assertEquals(StringParser.parseStringToDate("Wed Apr 1 23:59:00 SGT 2015"), StringParser.getDatesTimesFromString("Add meeting with john 1/4/15")[0].getTime());
+		assertEquals(null, StringParser.getDatesTimesFromString("Add meeting with john 1/4/15")[1]);
 		
 		// Test only has start date
 		assertEquals(StringParser.parseStringToDate("Tue Feb 12 23:59:00 SGT 2013"), StringParser.getDatesTimesFromString("12/2/13 Meet John about proposal #cs2103 #cs2101")[0].getTime());
 		assertEquals(null, StringParser.getDatesTimesFromString("12/2/13 Meet John about proposal @1200 #cs2103 #cs2101")[1]);
-		*/
+		
 		
 		// Check support for no date & time
 		assertEquals(null, StringParser.getDatesTimesFromString("Meet John about proposal @1200 #cs2103 #cs2101")[0]);
