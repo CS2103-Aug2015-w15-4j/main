@@ -139,11 +139,11 @@ public class Logic {
 	
 	private int checkTaskType(ParsedCommand userCommand) {
 		
-		if (userCommand.getEnd() == null && userCommand.getStart() == null) {
+		if (userCommand.getSecondDate() == null && userCommand.getFirstDate() == null) {
 			return TASK;
-		} else if (userCommand.getStart() == null && userCommand.getEnd() != null) {
+		} else if (userCommand.getFirstDate() == null && userCommand.getSecondDate() != null) {
 			return DEADLINETASK;
-		} else if (userCommand.getEnd() != null) {
+		} else if (userCommand.getSecondDate() != null) {
 			return EVENT;
 		}
 		

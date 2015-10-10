@@ -67,8 +67,8 @@ public class Update implements Command {
 			if (parsedInput.getTags().size() != 0) {
 				toUpdate.setTags(parsedInput.getTags());
 			} 
-			if (parsedInput.getEnd() != null) {
-				((DeadlineTask) toUpdate).setEnd(parsedInput.getEnd());
+			if (parsedInput.getSecondDate() != null) {
+				((DeadlineTask) toUpdate).setEnd(parsedInput.getSecondDate());
 			}
 		} else if (taskType == EVENT) {
 			if (parsedInput.getTitle() != null) {
@@ -80,11 +80,11 @@ public class Update implements Command {
 			if (parsedInput.getTags().size() != 0) {
 				toUpdate.setTags(parsedInput.getTags());
 			}
-			if (parsedInput.getEnd() != null) {
-				((DeadlineTask) toUpdate).setEnd(parsedInput.getEnd());
+			if (parsedInput.getSecondDate() != null) {
+				((DeadlineTask) toUpdate).setEnd(parsedInput.getSecondDate());
 			}
-			if (parsedInput.getStart() != null) {
-				((Event) toUpdate).setStart(parsedInput.getEnd());
+			if (parsedInput.getFirstDate() != null) {
+				((Event) toUpdate).setStart(parsedInput.getSecondDate());
 			}
 		}
 
@@ -102,18 +102,18 @@ public class Update implements Command {
 			view.setConsoleMessage("Logic Error: task type missing");
 		}
 		if (taskType == TASK) {
-			if (parsedInput.getEnd() != null) { // Error: Task Should have no
+			if (parsedInput.getSecondDate() != null) { // Error: Task Should have no
 												// End Field
 				view.setConsoleMessage("Error: Task Should have no end field");
 				return false;
-			} else if (parsedInput.getStart() != null) { // Error: Task Should
+			} else if (parsedInput.getFirstDate() != null) { // Error: Task Should
 															// have no Start
 															// Field
 				view.setConsoleMessage("Error: Task Should have no start field");
 				return false;
 			}
 		} else if (taskType == DEADLINETASK) {
-			if (parsedInput.getStart() != null) { // Error: DeadlineTask Should
+			if (parsedInput.getFirstDate() != null) { // Error: DeadlineTask Should
 													// have no Start Field
 				view.setConsoleMessage("Error: DeadlineTask Should have no start field");
 				return false;

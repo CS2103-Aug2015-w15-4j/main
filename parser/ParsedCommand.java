@@ -10,8 +10,8 @@ public class ParsedCommand {
 
 	private CommandType cmdType;
 	private String title;
-	private Calendar start;
-	private Calendar end;
+	private Calendar firstDate;
+	private Calendar secondDate;
 	private String description;
 	private ArrayList<String> tags;
 	private int taskId;
@@ -21,6 +21,7 @@ public class ParsedCommand {
 	private static final String ERROR_NO_INPUT = "Error: No user input";
 	private static final String ERROR_MISSING_ARGS = "Error: No arguments entered";
 	private static final String ERROR_NOT_AN_ERROR = "Error: No error message as this is not an error";
+	private static final String ERROR_MISSING_FIELDS = "Error: No fields were entered for editing";
 	private static final int INDEX_FOR_START = 0;
 	private static final int INDEX_FOR_END = 1;
 	private static final int INDEX_FOR_CMD = 0;
@@ -30,6 +31,8 @@ public class ParsedCommand {
 	private static final int EVENT = 3;
 	private static final String ERROR_INVALID_DATE = "Error: Invalid date(s) input";
 	private static final String ERROR_INVALID_TASKID = "Error: Invalid/Missing taskId";
+	private static final int INDEX_FOR_TASKID = 0;
+	private static final int INDEX_FOR_FIELDS = 1;
 	
     /**
      * This method creates a ParsedCommand object (constructor).
@@ -48,8 +51,8 @@ public class ParsedCommand {
 			int taskId, int taskType) {
 		this.cmdType = cmdType;
 		this.title = title;
-		this.start = start;
-		this.end = end;
+		this.firstDate = start;
+		this.secondDate = end;
 		this.description = description;
 		this.tags = tags;
 		this.taskId = taskId;
@@ -62,10 +65,10 @@ public class ParsedCommand {
 	 * @return ParsedCommand object, with type error if userInput is invalid.
 	 */
 	public static ParsedCommand parseCommand(String userInput) {
-		if (userInput.length() == 0) {
+		if (userInput.trim().length() == 0) {
 			return createParsedCommandError(ERROR_NO_INPUT);
 		} else {
-			String input[] = userInput.split(" ", 2);
+			String input[] = userInput.trim().split(" ", 2);
 			String userCommand = input[INDEX_FOR_CMD];
 			CommandType command = determineCommandType(userCommand);
 
@@ -117,34 +120,31 @@ public class ParsedCommand {
 	 * ParsedCommand pc = new ParsedCommand(CommandType.DISPLAY, null, null,
 	 * null, null, null, 0); return pc; }
 	 */
-
+	
 	private static ParsedCommand createParsedCommandEdit(String[] input) {
 		if (input.length < 2) {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
-			String inputArgs = input[INDEX_FOR_ARGS].trim();
-			int taskId = StringParser.getTaskIdFromString(inputArgs);
-			if (taskId == 0) {
+			String inputArgs[] = input[INDEX_FOR_ARGS].trim().split(" ", 2);
+			int taskId = StringParser.getTaskIdFromString(inputArgs[INDEX_FOR_TASKID]);
+			if (taskId < 0) {
 				return createParsedCommandError(ERROR_INVALID_TASKID);
 			}
-			String input2[] = inputArgs.split(" ", 2);
-			//String userCommand;
-			if (input2.length< 2) {
-				return createParsedCommandError(ERROR_MISSING_ARGS);
-			}
-			inputArgs = input2[1];
 			
-			String userCommand = input[INDEX_FOR_CMD];
-			String title = StringParser.getTitleFromString(inputArgs);
-			Calendar[] times = StringParser.getDatesTimesFromString(inputArgs);
+			if (inputArgs.length < 2) { //missing edit fields
+				return createParsedCommandError(ERROR_MISSING_FIELDS);
+			}
+			
+			String fieldsInput = inputArgs[INDEX_FOR_FIELDS];
+			String title = StringParser.getTitleFromString(fieldsInput);
+			Calendar[] times = StringParser.getDatesTimesFromString(fieldsInput);
 			Calendar start = times[INDEX_FOR_START];
 			Calendar end = times[INDEX_FOR_END];
 			String description = StringParser
-					.getDescriptionFromString(inputArgs);
-			ArrayList<String> tags = StringParser.getTagsFromString(inputArgs);
+					.getDescriptionFromString(fieldsInput);
+			ArrayList<String> tags = StringParser.getTagsFromString(fieldsInput);
 
-			ParsedCommand pc = new ParsedCommand(CommandType.EDIT, title,
-					start, end, description, tags, taskId, 0);
+			ParsedCommand pc = new ParsedCommand(CommandType.EDIT, title, start, end, description, tags, taskId, 0);
 			return pc;
 		}
 	}
@@ -155,7 +155,7 @@ public class ParsedCommand {
 		} else {
 			String inputArgs = input[INDEX_FOR_ARGS].trim();
 			int taskId = StringParser.getTaskIdFromString(inputArgs);
-			if (taskId <= 0) {
+			if (taskId < 0) {
 				return createParsedCommandError(ERROR_INVALID_TASKID);
 			} else {
 				ParsedCommand pc = new ParsedCommand(CommandType.DELETE, null,
@@ -187,7 +187,7 @@ public class ParsedCommand {
 		} else {
 			String inputArgs = input[INDEX_FOR_ARGS].trim();
 			int taskId = StringParser.getTaskIdFromString(inputArgs);
-			if (taskId == 0) {
+			if (taskId < 0) {
 				return createParsedCommandError(ERROR_INVALID_TASKID);
 			} else {
 				ParsedCommand pc = new ParsedCommand(CommandType.DONE, null,
@@ -275,16 +275,16 @@ public class ParsedCommand {
 	 * Returns start date and time of task in Calendar format, null if not applicable.
 	 * @return
 	 */
-	public Calendar getStart() {
-		return this.start;
+	public Calendar getFirstDate() {
+		return this.firstDate;
 	}
 	
 	/**
 	 * Returns end date and time of task in Calendar format, null if not applicable.
 	 * @return
 	 */
-	public Calendar getEnd() {
-		return this.end;
+	public Calendar getSecondDate() {
+		return this.secondDate;
 	}
 	
 	/**

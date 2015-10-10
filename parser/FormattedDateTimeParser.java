@@ -8,10 +8,14 @@ import java.util.regex.Pattern;
 public class FormattedDateTimeParser extends DateTimeParser{
 	private static SimpleDateFormat dateTimeFormat = new SimpleDateFormat("d/M/yy HHmm");
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("d/M/yy");
-
-	private static Pattern ddmmyy = Pattern.compile("(\\s(0?[1-9]|[12][0-9]|3[01])/(0?[1-9]|1[012])/(\\d\\d))\\s");
+    
+	private static final String DD = "(0?[1-9]|[12][0-9]|3[01])";
+	private static final String MM = "(0?[1-9]|1[012])";
+	private static final String YY = "(\\d\\d))";
+	private static final String DATE_DELIM = "([-/.])";
+	private static Pattern ddmmyy = Pattern.compile("(\\s" + DD + DATE_DELIM + MM + DATE_DELIM + YY + "\\s");
 	private static Pattern hhmm = Pattern.compile("@((0[0-9]|1[0-9]|2[0-3])([0-5][0-9]))(-((0[0-9]|1[0-9]|2[0-3])([0-5][0-9])))?");
-	
+	private static Pattern dateDelim = Pattern.compile(DATE_DELIM);
 	//private String userInput;
 	
 	public FormattedDateTimeParser() {
@@ -40,6 +44,7 @@ public class FormattedDateTimeParser extends DateTimeParser{
 		return ans;
 	}
 	
+	// Converts standard format dates and times array to Calendar array
 	// Default time: 2359
 	public static Calendar[] convertStringToCalendar(String[] dates,
 			String[] times) {
@@ -93,7 +98,7 @@ public class FormattedDateTimeParser extends DateTimeParser{
 		// Regex only detects date surrounded with whitespace
 		// Cannot make whitespace optional else cannot remove cases e.g. 32/3/12
 		// which are detected as 2/3/12
-		String input = " " + inputArgs;
+		String input = " " + inputArgs + " ";
 		String[] dates = getFormattedDates(input);
 		String[] times = getFormattedTimes(input);
 		Calendar[] cal = new Calendar[2];
@@ -101,9 +106,14 @@ public class FormattedDateTimeParser extends DateTimeParser{
 		return cal;
 	}
 	
+	private static String convertDateToStandardFormat(String date) {
+		date = dateDelim.matcher(date).replaceAll("/");
+		return date;
+	}
+	
 	/**
-	 * This method looks for dd/mm/yy substrings of userInput, single digit
-	 * inputs allowed for date and month.
+	 * This method looks for dd/mm/yy or dd.mm.yy or dd-mm-yy) substrings of userInput, single digit
+	 * inputs allowed for date and month and returns dates formated dd/MM/yy.
 	 *
 	 * @param userInput
 	 *            Unparsed command arguments input by user.
@@ -118,7 +128,7 @@ public class FormattedDateTimeParser extends DateTimeParser{
 		int i = 0;
 
 		while (m.find() & i < 2) {
-			ans[i] = m.group().trim();
+			ans[i] = convertDateToStandardFormat(m.group().trim());
 			i++;
 		}
 

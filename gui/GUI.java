@@ -27,7 +27,8 @@ public class GUI extends Application {
 	final static String TAG_SIDEBAR = "sidebar";
 	final static String TAG_SIDEBAR_TEXTBOX = "sidebar-textbox";
 	final static String TAG_TABPANE = "tabpane";
-	final static String ID_FANCYTEXT = "fancytext";
+	final static String STYLE_FANCYTEXT = "fancytext";
+	final static String STYLE_TRANSPARENT = "transparent";
 	
 	final static String MSG_PROMPT = "Type command here";
 	final static String CMD_CLEAR = "clear";
@@ -92,6 +93,8 @@ public class GUI extends Application {
 		// add Task tab
 		taskObject = new TaskTab();
 		tabPane.getTabs().get(TASK).setContent(taskObject.getNode());
+		taskObject.getNode().prefWidthProperty().bind(tabPane.prefWidthProperty());
+		taskObject.getNode().maxWidthProperty().bind(tabPane.maxWidthProperty());
 		// intialise tasks
 		taskObject.addAllTasks(Logic.initializeTaskList().getAllTasks());
 		taskObject.selectFirstNode();
@@ -124,7 +127,7 @@ public class GUI extends Application {
 		
 		Scene scene = new Scene(border, WINDOW_WIDTH+10, WINDOW_HEIGHT+10);//border.getPrefWidth(), border.getPrefHeight());
 		addHandlers(scene);
-		scene.getRoot().setStyle("-fx-background-image: url(\"" + BACKGROUND_NAME + "\");");
+		//scene.getRoot().setStyle("-fx-background-image: url(\"" + BACKGROUND_NAME + "\");");
 		userTextField.requestFocus();
 		primaryStage.setScene(scene);
 	    primaryStage.setTitle(APP_TITLE);
@@ -177,9 +180,8 @@ public class GUI extends Application {
 	 * 
 	 * @param text Sets this text to FancyText css style
 	 */
-	public static void setFancyText(Text text) {
-		text.setId(ID_FANCYTEXT);
-		text.setSmooth(true);
+	public static void setFancyText(Node text) {
+		text.getStyleClass().add(STYLE_FANCYTEXT);
 	}
 	
 	/**

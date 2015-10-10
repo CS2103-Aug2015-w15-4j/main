@@ -69,15 +69,15 @@ public class Add implements Command {
 			return false;
 		}
 		if (taskType == TASK) {
-			if (parsedInput.getEnd() != null) { // Error: Task Should have no End Field
+			if (parsedInput.getSecondDate() != null) { // Error: Task Should have no End Field
 				view.setConsoleMessage("Error: Task Should have no end field");
 				return false;
-			} else if (parsedInput.getStart() != null) { // Error: Task Should have no Start Field
+			} else if (parsedInput.getFirstDate() != null) { // Error: Task Should have no Start Field
 				view.setConsoleMessage("Error: Task Should have no start field");
 				return false;
 			}
 		} else if (taskType == DEADLINETASK) {
-			if (parsedInput.getStart() != null) { // Error: DeadlineTask Should have no Start Field
+			if (parsedInput.getFirstDate() != null) { // Error: DeadlineTask Should have no Start Field
 				view.setConsoleMessage("Error: DeadlineTask Should have no start field");
 				return false;
 			}
