@@ -67,8 +67,8 @@ public class Update implements Command {
 			if (parsedInput.getTags().size() != 0) {
 				toUpdate.setTags(parsedInput.getTags());
 			} 
-			if (parsedInput.getSecondDate() != null) {
-				((DeadlineTask) toUpdate).setEnd(parsedInput.getSecondDate());
+			if (parsedInput.getFirstDate() != null) {
+				((DeadlineTask) toUpdate).setEnd(parsedInput.getFirstDate());
 			}
 		} else if (taskType == EVENT) {
 			if (parsedInput.getTitle() != null) {
@@ -84,7 +84,7 @@ public class Update implements Command {
 				((DeadlineTask) toUpdate).setEnd(parsedInput.getSecondDate());
 			}
 			if (parsedInput.getFirstDate() != null) {
-				((Event) toUpdate).setStart(parsedInput.getSecondDate());
+				((Event) toUpdate).setStart(parsedInput.getFirstDate());
 			}
 		}
 
@@ -113,7 +113,7 @@ public class Update implements Command {
 				return false;
 			}
 		} else if (taskType == DEADLINETASK) {
-			if (parsedInput.getFirstDate() != null) { // Error: DeadlineTask Should
+			if (parsedInput.getSecondDate() != null) { // Error: DeadlineTask Should
 													// have no Start Field
 				view.setConsoleMessage("Error: DeadlineTask Should have no start field");
 				return false;

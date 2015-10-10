@@ -34,7 +34,6 @@ public class Storage {
 			try {
 				file.createNewFile();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -49,12 +48,15 @@ public class Storage {
 			writer.close();
 			
 			taskList.add(task);
-			Collections.sort(taskList);
-			rewriteFile();
+			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public void sort() {
+		Collections.sort(taskList);
+		rewriteFile();
 	}
 
 	public void delete(int taskID) {

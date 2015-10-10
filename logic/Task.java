@@ -19,7 +19,7 @@ public class Task implements Comparable<Task> {
 		isCompleted = false;
 		tags = null;
 	}
-	
+
 	public Task(String name, String details,int id,boolean isCompleted,ArrayList<String> tags,int taskType) {
 		setName(name);
 		setDetails(details);
@@ -28,7 +28,7 @@ public class Task implements Comparable<Task> {
 		setTags(tags);
 		setTaskType(taskType);
 	}
-	
+
 	public Task(Task newTask) {
 		this.name = newTask.getName();
 		this.details = newTask.getDetails();
@@ -46,32 +46,40 @@ public class Task implements Comparable<Task> {
 		this.tags = parsedInput.getTags();
 		this.taskType = parsedInput.getTaskType();
 	}
-/*
+	/*
 	public Task getTask(ParsedCommand parsedInput) {
 		Storage storage = new Storage();
 		List<Task> taskList = storage.getAllTasks();
 		return taskList.get(id);
 	}
-	*/
-	
-	public ArrayList<String[][]> getTaskDetails() {
-		ArrayList<String[][]> task = new ArrayList<String[][]>();
-		String[][] array = new String[6][2];
+	 */
+
+	public ArrayList<String[]> getTaskDetails() {
+		ArrayList<String[]> task = new ArrayList<String[]>();
+		String[] array = new String[2];
 		String tagList = "";
-		
-		array[0][0] = "name";
-		array[0][1] = name;
-		array[1][0] = "ID";
-		array[1][1] = "" + id;
-		array[2][0] = "Details";
-		array[2][1] = details;
-		array[4][0] = "tags";
-		for (int i = 0; i<tags.size(); i++) {
-			tagList += tags.get(i) + "\n";
-		}
-		array[4][1] = tagList;
-		
+
+		array[0] = "name";
+		array[1] = name;
 		task.add(array);
+		array = new String[2];
+		array[0] = "ID";
+		array[1] = "" + id;
+		task.add(array);
+		array = new String[2];
+		array[0] = "Details";
+		array[1] = details;
+		task.add(array);
+		array = new String[2];
+		array[0] = "tags";
+		if(tags != null) {	
+			for (int i = 0; i<tags.size(); i++) {
+				tagList += tags.get(i) + "\n";
+			}
+		}
+		array[1] = tagList;
+		task.add(array);
+
 		return task;	
 	}
 
@@ -94,7 +102,7 @@ public class Task implements Comparable<Task> {
 	public ArrayList<String> getTags() {
 		return tags;
 	}
-	
+
 	public int getTaskType() {
 		return taskType;
 	}
@@ -118,11 +126,11 @@ public class Task implements Comparable<Task> {
 	public void setTags(ArrayList<String> tags) {
 		this.tags = tags;
 	}
-	
+
 	public void setTaskType(int taskType) {
 		this.taskType = taskType;	
 	}
-	
+
 	@Override
 	public int compareTo(Task o) {
 		return ((Integer)id).compareTo(o.getId());

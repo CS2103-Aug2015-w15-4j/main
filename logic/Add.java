@@ -77,7 +77,7 @@ public class Add implements Command {
 				return false;
 			}
 		} else if (taskType == DEADLINETASK) {
-			if (parsedInput.getFirstDate() != null) { // Error: DeadlineTask Should have no Start Field
+			if (parsedInput.getSecondDate() != null) { // Error: DeadlineTask Should have no Start Field
 				view.setConsoleMessage("Error: DeadlineTask Should have no start field");
 				return false;
 			}

@@ -21,14 +21,15 @@ public class DeadlineTask extends Task {
 
 	public DeadlineTask(ParsedCommand parsedInput) {
 		super(parsedInput);
-		this.end = parsedInput.getEnd();
+		this.end = parsedInput.getFirstDate();
 	}
 	
-	public ArrayList<String[][]> getTaskDetails() {
-		ArrayList<String[][]> task = super.getTaskDetails();;
-		String[][] array = new String[0][0];
+	public ArrayList<String[]> getTaskDetails() {
+		ArrayList<String[]> task = super.getTaskDetails();;
+		String[] array = new String[2];
 		
-		array[0][0] = end.getTime().toString();
+		array[0] = "end";
+		array[1] = end.getTime().toString();
 		task.add(array);
 		
 		return task;

@@ -20,14 +20,15 @@ public class Event extends DeadlineTask {
 
 	public Event(ParsedCommand parsedInput) {
 		super(parsedInput);
-		this.start = parsedInput.getStart();
+		this.start = parsedInput.getFirstDate();
 	}
 	
-	public ArrayList<String[][]> getTaskDetails() {
-		ArrayList<String[][]> task = super.getTaskDetails();;
-		String[][] array = new String[0][0];
+	public ArrayList<String[]> getTaskDetails() {
+		ArrayList<String[]> task = super.getTaskDetails();;
+		String[] array = new String[2];
 		
-		array[0][0] = start.getTime().toString();
+		array[0] = "start";
+		array[1] = start.getTime().toString();
 		task.add(array);
 		
 		return task;
