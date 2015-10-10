@@ -20,7 +20,7 @@ public class DeadlineTask extends Task {
 
 	public DeadlineTask(ParsedCommand parsedInput) {
 		super();
-		this.end = parsedInput.getEnd();
+		this.end = parsedInput.getSecondDate();
 	}
 
 	public Calendar getEnd() {

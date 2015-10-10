@@ -20,7 +20,7 @@ public class Event extends DeadlineTask {
 
 	public Event(ParsedCommand parsedInput) {
 		super();
-		this.start = parsedInput.getStart();
+		this.start = parsedInput.getFirstDate();
 	}
 
 	public Calendar getStart() {
