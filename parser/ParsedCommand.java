@@ -10,8 +10,8 @@ public class ParsedCommand {
 
 	private CommandType cmdType;
 	private String title;
-	private Calendar start;
-	private Calendar end;
+	private Calendar firstDate;
+	private Calendar secondDate;
 	private String description;
 	private ArrayList<String> tags;
 	private int taskId;
@@ -51,8 +51,8 @@ public class ParsedCommand {
 			int taskId, int taskType) {
 		this.cmdType = cmdType;
 		this.title = title;
-		this.start = start;
-		this.end = end;
+		this.firstDate = start;
+		this.secondDate = end;
 		this.description = description;
 		this.tags = tags;
 		this.taskId = taskId;
@@ -275,16 +275,16 @@ public class ParsedCommand {
 	 * Returns start date and time of task in Calendar format, null if not applicable.
 	 * @return
 	 */
-	public Calendar getStart() {
-		return this.start;
+	public Calendar getFirstDate() {
+		return this.firstDate;
 	}
 	
 	/**
 	 * Returns end date and time of task in Calendar format, null if not applicable.
 	 * @return
 	 */
-	public Calendar getEnd() {
-		return this.end;
+	public Calendar getSecondDate() {
+		return this.secondDate;
 	}
 	
 	/**

@@ -48,8 +48,8 @@ public class ParsedCommandTest {
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
 		assertEquals("rmb to bring notes", pcAdd.getDescription());
-		assertEquals(null, pcAdd.getStart());
-		assertEquals(null, pcAdd.getEnd());
+		assertEquals(null, pcAdd.getFirstDate());
+		assertEquals(null, pcAdd.getSecondDate());
 		assertEquals(taskTags, pcAdd.getTags());
 		assertEquals(1, pcAdd.getTaskType());
 
@@ -58,8 +58,8 @@ public class ParsedCommandTest {
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
 		assertEquals(null, pcAdd.getDescription());
-		assertEquals(StringParser.parseStringToDate("Wed Apr 1 12:00:00 SGT 2015"), pcAdd.getStart().getTime());
-		assertEquals(null, pcAdd.getEnd());
+		assertEquals(StringParser.parseStringToDate("Wed Apr 1 12:00:00 SGT 2015"), pcAdd.getFirstDate().getTime());
+		assertEquals(null, pcAdd.getSecondDate());
 		assertEquals(emptyArrayList, pcAdd.getTags());
 		assertEquals(2, pcAdd.getTaskType());
 
@@ -68,8 +68,8 @@ public class ParsedCommandTest {
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
 		assertEquals(null, pcAdd.getDescription());
-		assertEquals(StringParser.parseStringToDate("Wed Apr 1 12:00:00 SGT 2015"), pcAdd.getStart().getTime());
-		assertEquals(null, pcAdd.getEnd());
+		assertEquals(StringParser.parseStringToDate("Wed Apr 1 12:00:00 SGT 2015"), pcAdd.getFirstDate().getTime());
+		assertEquals(null, pcAdd.getSecondDate());
 		assertEquals(emptyArrayList, pcAdd.getTags());
 		assertEquals(2, pcAdd.getTaskType());
 
@@ -78,8 +78,8 @@ public class ParsedCommandTest {
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
 		assertEquals(null, pcAdd.getDescription());
-		assertEquals(StringParser.parseStringToDate("Tue Nov 23 12:00:00 SGT 2010"), pcAdd.getStart().getTime());
-		assertEquals(StringParser.parseStringToDate("Tue Nov 23 13:30:00 SGT 2010"), pcAdd.getEnd().getTime());
+		assertEquals(StringParser.parseStringToDate("Tue Nov 23 12:00:00 SGT 2010"), pcAdd.getFirstDate().getTime());
+		assertEquals(StringParser.parseStringToDate("Tue Nov 23 13:30:00 SGT 2010"), pcAdd.getSecondDate().getTime());
 		assertEquals(3, pcAdd.getTaskType());
 
 		// Check invalid date returns invalid date error, where invalid date is in proper format
@@ -93,8 +93,8 @@ public class ParsedCommandTest {
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john 4", pcAdd.getTitle());
 		assertEquals(null, pcAdd.getDescription());
-		assertEquals(null, pcAdd.getStart());
-		assertEquals(null, pcAdd.getEnd());
+		assertEquals(null, pcAdd.getFirstDate());
+		assertEquals(null, pcAdd.getSecondDate());
 		assertEquals(1, pcAdd.getTaskType());
 		
 		// Check missing arguments returns no arguments error
@@ -160,8 +160,8 @@ public class ParsedCommandTest {
 		pcEdit = ParsedCommand.parseCommand("Edit 234 \"hello\" 23/11/10 @1300-1500 #tag");
 		assertEquals(CommandType.EDIT, pcEdit.getCommandType());
 		assertEquals("hello", pcEdit.getDescription());
-		assertEquals(StringParser.parseStringToDate("Tue Nov 23 13:00:00 SGT 2010"), pcEdit.getStart().getTime());
-		assertEquals(StringParser.parseStringToDate("Tue Nov 23 15:00:00 SGT 2010"), pcEdit.getEnd().getTime());
+		assertEquals(StringParser.parseStringToDate("Tue Nov 23 13:00:00 SGT 2010"), pcEdit.getFirstDate().getTime());
+		assertEquals(StringParser.parseStringToDate("Tue Nov 23 15:00:00 SGT 2010"), pcEdit.getSecondDate().getTime());
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("tag");
 		assertEquals(list, pcEdit.getTags());
