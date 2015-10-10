@@ -29,6 +29,7 @@ public class GUI extends Application {
 	final static String TAG_TABPANE = "tabpane";
 	final static String STYLE_FANCYTEXT = "fancytext";
 	final static String STYLE_TRANSPARENT = "transparent";
+	final static String STYLE_TEXT = "label";
 	
 	final static String MSG_PROMPT = "Type command here";
 	final static String CMD_CLEAR = "clear";

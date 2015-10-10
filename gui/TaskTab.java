@@ -10,42 +10,57 @@ import javafx.geometry.*;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import logic.Task;
 
 public class TaskTab {
-	public static final int TABNUM = GUI.TASK; // for the array check
-	public static final String TABNAME = GUI.tabNames[TABNUM]; 
-	public static final int PADDING = 8;
-	public static final int WIDTH = GUI.TABPANE_WIDTH;
-	public static final int WIDTH_SIDEBAR = GUI.TABPANE_SIDEBAR_WIDTH;
-	public static final int WIDTH_WINDOW = WIDTH-WIDTH_SIDEBAR-2*PADDING;
+	final static int TABNUM = GUI.TASK; // for the array check
+	final static String TABNAME = GUI.tabNames[TABNUM]; 
+	final static int PADDING = 8;
+	final static int WIDTH = GUI.TABPANE_WIDTH;
+	final static int WIDTH_SIDEBAR = GUI.TABPANE_SIDEBAR_WIDTH;
+	final static int WIDTH_WINDOW = WIDTH-WIDTH_SIDEBAR-2*PADDING;
 	
-	public static final ScrollBarPolicy V_POLICY = ScrollBarPolicy.AS_NEEDED;
-	public static final ScrollBarPolicy H_POLICY = ScrollBarPolicy.NEVER;
-	public static final Pos ALIGNMENT = Pos.TOP_LEFT;
+	final static ScrollBarPolicy V_POLICY = ScrollBarPolicy.AS_NEEDED;
+	final static ScrollBarPolicy H_POLICY = ScrollBarPolicy.NEVER;
+	final static Pos ALIGNMENT = Pos.TOP_LEFT;
 	
-	public static final String ID_GRID = "taskGrid";
+	final static String ID_GRID = "taskGrid";
+	final static String STYLE_TEXT = GUI.STYLE_TEXT;
 	
 	// grid locations
-	public static final int GRID_ROW_NAME = 0;
-	public static final int GRID_ROW_ID = 1;
-	public static final int GRID_ROW_DESCRIPTION = 2;
-	public static final int GRID_ROW_DATE = 3;
-	public static final int GRID_ROW_TAGS = 4;
-	public static final int GRID_COL_HEADER = 0;
-	public static final int GRID_COL_CONTENT = 1;
-	public static final VPos GRID_HEADER_VERT_ALIGNMENT = VPos.TOP;
-	public static final int GRID_COL_HEADER_FINAL_LENGTH = 90; // header col's fixed length
+	final static int SIDEBAR_COL_START = 0;
+	final static int SIDEBAR_COL_HEADER = 1;
+	final static int SIDEBAR_COL_CONTENT = 2;
+	final static int SIDEBAR_COL_SIZE = 3;
+	final static int GRID_ROW_NAME = 0;
+	final static int GRID_ROW_ID = 1;
+	final static int GRID_ROW_DESCRIPTION = 2;
+	final static int GRID_ROW_DATE = 3;
+	final static int GRID_ROW_TAGS = 4;
+	final static int GRID_COL_HEADER = 0;
+	final static int GRID_COL_CONTENT = 1;
+	final static int GRID_COL_SIZE = 2;
+	final static VPos GRID_HEADER_VERT_ALIGNMENT = VPos.TOP;
+	final static int GRID_COL_HEADER_FINAL_LENGTH = 90; // header col's fixed length
 	
-	public static final String HEADER_COLOR = "YELLOW";//"#0000FF";
-
+	final static String HEADER_COLOR = "YELLOW";//"#0000FF";
+	final static Color LABEL_COLOR = Color.BLACK;
+	
 	protected HBox master; // the overall TaskTab manager
 	protected GridPane main; // main window
 	protected ScrollPane sp; // a scrollpane managing the main window
 	protected ListView<Node> listView; // the sidebar
 	protected ObservableList<Node> items; // the items within the sidebar
 	protected List<Task> listOfTasks = new ArrayList<Task>(); // currently displayed tasks
+	
+	protected Image[] imageCompletion = new Image[2];
+	protected final String DONE = "Check.png";
+	protected final String NOT_DONE = "Delete.png";
+	protected final int DONE_SIZE = 16; 
 	
 	public TaskTab() {
 		master = new HBox();
@@ -69,7 +84,12 @@ public class TaskTab {
 		master.getChildren().add(sp);
 		sp.prefWidthProperty().bind(master.widthProperty().multiply(5).divide(6));
 		main.prefWidthProperty().bind(sp.prefWidthProperty());
+		main.setPadding(new Insets(PADDING));
 	    main.getColumnConstraints().add(new ColumnConstraints(GRID_COL_HEADER_FINAL_LENGTH)); 
+	    
+	    // define the images for done and not done
+	    imageCompletion[0] = new Image(TaskTab.class.getResourceAsStream(NOT_DONE),DONE_SIZE, DONE_SIZE, true, true);
+	    imageCompletion[1] = new Image(TaskTab.class.getResourceAsStream(DONE),DONE_SIZE, DONE_SIZE, true, true);
 		
 		// now add a listener for the sidebar
 		listView.getSelectionModel().selectedItemProperty().addListener(
@@ -132,11 +152,18 @@ public class TaskTab {
 		}
 	}
 	
+	/**
+	 * Refreshes the entire TaskTab display to the latest version
+	 */
 	public void refresh() {
 		listView.setItems(items);
 		refreshMainDisplay();
 	}
 	
+	/**
+	 * Takes in a list and adds them all to the display
+	 * @param tasks List of Tasks to be added
+	 */
 	public void addAllTasks(List<Task> tasks) {
 		if (tasks!=null) {
 			deleteAllTasks();
@@ -150,6 +177,9 @@ public class TaskTab {
 		}
 	}
 	
+	/**
+	 * Deletes all items from the display
+	 */
 	public void deleteAllTasks() {
 		items.clear();
 		listOfTasks.clear();
@@ -157,7 +187,7 @@ public class TaskTab {
 	}
 	
 	/**
-	 * 
+	 * Deletes a specific Task from the display
 	 * @param task
 	 * @return true if successful deletion
 	 */
@@ -181,45 +211,27 @@ public class TaskTab {
 	protected Node createSidebarDisplay(Task task) {
 		GridPane grid = new GridPane();
 		grid.prefWidthProperty().bind(listView.widthProperty());
-		return createDisplay(task, grid);
-	}
-	
-	/**
-	 * creates a label that is bounded by a Region
-	 * @param boundingBox Region item to be bounded to
-	 * @return a Label that has wrapText and width properties ready
-	 */
-	protected Label createLabel(Region boundingBox) {
-		Label label = new Label();
-		label.setWrapText(true);
-		label.prefWidthProperty().bind(boundingBox.prefWidthProperty());
-		return label;
-	}
-	
-	/**
-	 * Creates the main display
-	 * @param task The task details to add
-	 * @param grid The grid to be added to
-	 * @return grid after it is modified
-	 */
-	protected Node createDisplay(Task task, GridPane grid) {		
-		Label text = new Label();
+		
+		Label text = createLabel();
+		text.setWrapText(false);
 		// Name
 		if (!task.getName().isEmpty()) {
 			text.setText(task.getName());
 		} else {
 			task.setName("Task	" + items.size());
 		}
-		grid.add(text, GRID_COL_HEADER, GRID_ROW_NAME, 2, 1); // span 2 col and 1 row
+		grid.add(text, SIDEBAR_COL_START, GRID_ROW_NAME, SIDEBAR_COL_SIZE, 1); // span 2 col and 1 row
 		
 		// ID header
-		text = new Label("ID		: ");
+		text = createLabel(" ID : ");
 		GridPane.setValignment(text, GRID_HEADER_VERT_ALIGNMENT);
-		grid.add(text, GRID_COL_HEADER, GRID_ROW_ID);
+		grid.add(text, SIDEBAR_COL_HEADER, GRID_ROW_ID);
 		// ID content
-		text = new Label();
-		text.setText(""+ task.getId());
-		grid.add(text, GRID_COL_CONTENT, GRID_ROW_ID);
+		text = createLabel(""+ task.getId());
+		grid.add(text, SIDEBAR_COL_CONTENT, GRID_ROW_ID);
+		
+		// isDone
+		grid.add(getTaskCompletion(task.getIsCompleted()), SIDEBAR_COL_START, GRID_ROW_ID);
 		
 		return grid;
 	}
@@ -231,49 +243,32 @@ public class TaskTab {
 	 * @return grid after it is modified
 	 */
 	protected Node createMainDisplay(Task task, GridPane grid) {
-		grid = (GridPane) createDisplay(task, grid);
-		Label label = (Label) grid.getChildren().remove(0);
-		label.setWrapText(true);
+		ArrayList<String[]> details = task.getTaskDetails(); 
+		// Set name
+		Label label = createLabel(task.getName());
+		if (label.getText().isEmpty()) {
+			task.setName("Task	" + items.size());
+		}
 		GUI.setFancyText(label);
-		VBox header = new VBox();
+		HBox header = new HBox();
+		header.prefWidthProperty().bind(grid.widthProperty());
 		header.setStyle(String.format(GUI.STYLE_COLOR, HEADER_COLOR));
 		header.getChildren().add(label);
-		grid.add(header, GRID_COL_HEADER, GRID_ROW_NAME, 2, 1); // span 2 col and 1 row
+		grid.add(header, GRID_COL_HEADER, GRID_ROW_NAME, GRID_COL_SIZE, 1); // span 2 col and 1 row
 		
-		// headers
-		label = new Label("Details	: ");
-		grid.add(label, GRID_COL_HEADER, GRID_ROW_DESCRIPTION); 
-		GridPane.setValignment(label, GRID_HEADER_VERT_ALIGNMENT);
-		label = new Label("Tags		: ");
-		grid.add(label, GRID_COL_HEADER, GRID_ROW_TAGS); 
-		GridPane.setValignment(label, GRID_HEADER_VERT_ALIGNMENT);
-		
-		// details
-		label = new Label();
-		label.setWrapText(true);
-		if (task.getDetails()!=null&&!task.getDetails().isEmpty() ) {
-			label.setText(task.getDetails());
-		} else {
-			label.setText("None");
-		}
-		grid.add(label, GRID_COL_CONTENT, GRID_ROW_DESCRIPTION); // 1st col, 2nd row
-		//label.maxWidthProperty().bind();
-		
-		// tags
-		label = new Label();
-		label.setWrapText(true);
-		if (task.getTags()!=null&&!task.getTags().isEmpty() ) {
-			String temp = "";
-			for (String tag : task.getTags()) {
-				if (tag!=null) {
-					temp += tag + "\n";
-				}
+		String[] array;
+		for (int i=1;i<details.size();i++) { // skip name element
+			array = details.get(i);
+			label = createLabel(array[GRID_COL_HEADER]);
+			grid.add(label, GRID_COL_HEADER, i);
+			GridPane.setValignment(label, GRID_HEADER_VERT_ALIGNMENT);
+
+			label = createLabel(array[GRID_COL_CONTENT]);
+			if (label.getText().isEmpty()) {
+				label.setText("None");
 			}
-			label.setText(temp);
-		} else {
-			label.setText("None");
+			grid.add(label, GRID_COL_CONTENT, i);
 		}
-		grid.add(label, GRID_COL_CONTENT, GRID_ROW_TAGS); 
 		
 		return grid;
 	}
@@ -289,5 +284,38 @@ public class TaskTab {
 				main
 			);
 		}
+	}
+	
+	/**
+	 * Returns the tick or cross depending on whether task is done
+	 * @param isCompleted Whether the task is completed or not
+	 * @return ImageView of a tick or cross
+	 */
+	protected ImageView getTaskCompletion(boolean isCompleted) {
+		if (isCompleted) {
+			return new ImageView(imageCompletion[1]); 
+		} else {
+			return new ImageView(imageCompletion[0]);
+		}
+	}
+	
+	/**
+	 * Creates a label that has required settings built in
+	 * @return a Label that has wrapText and width properties ready
+	 */
+	protected Label createLabel() {
+		return createLabel("");
+	}
+	
+	/**
+	 * Creates a label has required settings built in with string Text inside
+	 * @param text Text to be added
+	 * @return a Label that has wrapText and width properties ready
+	 */
+	protected Label createLabel(String text) {
+		Label label = new Label(text);
+		label.setWrapText(true);
+		label.setTextFill(LABEL_COLOR);
+		return label;
 	}
 }
