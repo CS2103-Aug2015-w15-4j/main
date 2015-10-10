@@ -84,6 +84,7 @@ public class Logic {
 		} else {
 			return new View("Nothing to undo", storage.getAllTasks());
 		}
+		System.out.println(storage.getAllTasks().get(storage.getAllTasks().size()-1).getDetails());
 		return new View("Undo Successful", storage.getAllTasks());
 	}
 
@@ -155,8 +156,7 @@ public class Logic {
 			if (taskList.get(i).getId() == taskId) {
 				return taskList.get(i);
 			}
-		}
-		
+		}	
 		return null;
 	}
 

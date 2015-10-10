@@ -1,7 +1,6 @@
 package logic;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import parser.ParsedCommand;
 
@@ -19,7 +18,6 @@ public class Task implements Comparable<Task> {
 		id = 0;
 		isCompleted = false;
 		tags = null;
-		
 	}
 	
 	public Task(String name, String details,int id,boolean isCompleted,ArrayList<String> tags,int taskType) {
@@ -29,6 +27,15 @@ public class Task implements Comparable<Task> {
 		setIsCompleted(isCompleted);
 		setTags(tags);
 		setTaskType(taskType);
+	}
+	
+	public Task(Task newTask) {
+		this.name = newTask.getName();
+		this.details = newTask.getDetails();
+		this.id = newTask.getId();
+		this.isCompleted = newTask.getIsCompleted();
+		this.tags = newTask.getTags();
+		this.taskType = newTask.getTaskType();
 	}
 
 	public Task(ParsedCommand parsedInput) {
@@ -46,6 +53,27 @@ public class Task implements Comparable<Task> {
 		return taskList.get(id);
 	}
 	*/
+	
+	public ArrayList<String[][]> getTaskDetails() {
+		ArrayList<String[][]> task = new ArrayList<String[][]>();
+		String[][] array = new String[6][2];
+		String tagList = "";
+		
+		array[0][0] = "name";
+		array[0][1] = name;
+		array[1][0] = "ID";
+		array[1][1] = "" + id;
+		array[2][0] = "Details";
+		array[2][1] = details;
+		array[4][0] = "tags";
+		for (int i = 0; i<tags.size(); i++) {
+			tagList += tags.get(i) + "\n";
+		}
+		array[4][1] = tagList;
+		
+		task.add(array);
+		return task;	
+	}
 
 	public String getName() {
 		return name;

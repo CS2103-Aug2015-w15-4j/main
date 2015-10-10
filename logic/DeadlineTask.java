@@ -17,10 +17,21 @@ public class DeadlineTask extends Task {
 	public DeadlineTask() {
 		
 	}
+	
 
 	public DeadlineTask(ParsedCommand parsedInput) {
-		super();
+		super(parsedInput);
 		this.end = parsedInput.getEnd();
+	}
+	
+	public ArrayList<String[][]> getTaskDetails() {
+		ArrayList<String[][]> task = super.getTaskDetails();;
+		String[][] array = new String[0][0];
+		
+		array[0][0] = end.getTime().toString();
+		task.add(array);
+		
+		return task;
 	}
 
 	public Calendar getEnd() {

@@ -27,8 +27,9 @@ public class Update implements Command {
 	public void execute() {
 		List<Task> taskList = storage.getAllTasks();
 		toUpdate = Logic.searchList(taskList,specifications.getTaskId());
-		
-		updated = updateTask(specifications, toUpdate);
+		// Clone Task
+		updated = new Task(toUpdate);
+		updated = updateTask(specifications, updated);
 		storage.delete(toUpdate.getId());
 		storage.add(updated);
 	}
@@ -36,6 +37,7 @@ public class Update implements Command {
 	public void undo() {
 		storage.delete(updated.getId());
 		storage.add(toUpdate);
+		storage.sort();
 	}
 
 	/*

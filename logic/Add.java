@@ -27,15 +27,15 @@ public class Add implements Command {
 
 	@Override
 	public void execute() {
-		if (specifications.getTaskType() == 2) {
+		if (specifications.getTaskType() == 1) {
+			newTask = new Task(specifications);
+			newTask.setId(id);
+			storage.add(newTask);
+		} else if (specifications.getTaskType() == 2) {
 			DeadlineTask newDeadlineTask = new DeadlineTask(specifications);
 			newDeadlineTask.setId(id);
 			storage.add((Task) newDeadlineTask);
 			newTask = newDeadlineTask;
-		} else if (specifications.getTaskType() == 1) {
-			newTask = new Task(specifications);
-			newTask.setId(id);
-			storage.add(newTask);
 		} else if (specifications.getTaskType() == 3) {
 			Event newEvent = new Event(specifications);
 			newEvent.setId(id);
