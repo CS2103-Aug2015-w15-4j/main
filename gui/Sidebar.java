@@ -23,8 +23,8 @@ public class Sidebar {
 	
 	protected TextFlow textbox; // list of messages from application
 	protected VBox vbox;
-	protected Image image;
-	protected ImageView imageView;
+	protected Image avatar;
+	protected ImageView avatarView;
 
 	public Sidebar() {
 		textbox = new TextFlow();
@@ -38,12 +38,12 @@ public class Sidebar {
 		vbox.getStyleClass().add(TAG);
 		vbox.getChildren().add(textbox);
 		VBox.setVgrow(textbox, Priority.ALWAYS);
-		image = new Image(Sidebar.class.getResourceAsStream(AVATAR_IMAGE),
+		avatar = new Image(Sidebar.class.getResourceAsStream(AVATAR_IMAGE),
 				WIDTH, imageHeight, true, true);
-		if (image!=null) {
-			imageHeight = (int) image.getHeight();
-			imageView = new ImageView(image);
-			vbox.getChildren().add(imageView);
+		if (avatar!=null) {
+			imageHeight = (int) avatar.getHeight();
+			avatarView = new ImageView(avatar);
+			vbox.getChildren().add(avatarView);
 		}
 	}
 	

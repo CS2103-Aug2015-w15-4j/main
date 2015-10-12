@@ -14,6 +14,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import logic.Task;
 
 public class TaskTab {
@@ -47,7 +49,7 @@ public class TaskTab {
 	final static VPos GRID_HEADER_VERT_ALIGNMENT = VPos.TOP;
 	final static int GRID_COL_HEADER_FINAL_LENGTH = 90; // header col's fixed length
 	
-	final static String HEADER_COLOR = "YELLOW";//"#0000FF";
+	final static String HEADER_COLOR = "rgba(255, 255, 0, 0.9)";
 	final static Color LABEL_COLOR = Color.BLACK;
 	
 	protected HBox master; // the overall TaskTab manager
@@ -249,11 +251,16 @@ public class TaskTab {
 		if (label.getText().isEmpty()) {
 			task.setName("Task	" + items.size());
 		}
+		label.setWrapText(false);
 		GUI.setFancyText(label);
+		label.setStyle("-fx-font-weight: bold");
 		HBox header = new HBox();
+		label.prefWidthProperty().bind(header.widthProperty());
 		header.prefWidthProperty().bind(grid.widthProperty());
 		header.setStyle(String.format(GUI.STYLE_COLOR, HEADER_COLOR));
 		header.getChildren().add(label);
+		header.getChildren().add(getTaskCompletion(task.getIsCompleted()));
+		header.setAlignment(Pos.CENTER);
 		grid.add(header, GRID_COL_HEADER, GRID_ROW_NAME, GRID_COL_SIZE, 1); // span 2 col and 1 row
 		
 		String[] array;

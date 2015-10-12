@@ -21,7 +21,7 @@ public class GUI extends Application {
 	final static int TASK = 0;
 	final static int LOG = 1;
 	
-	final static String APP_TITLE = "Prototype";
+	final static String APP_TITLE = "OraCle";
 	final static String FILE_CSS = "application.css";
 	
 	final static String TAG_SIDEBAR = "sidebar";
@@ -48,7 +48,7 @@ public class GUI extends Application {
 	final static int SIDEBAR_MAX_HEIGHT = WINDOW_HEIGHT;
 	final static Pos SIDEBAR_ORIENTATION = Pos.BOTTOM_CENTER;//Pos.BOTTOM_LEFT;
 
-	public static String AVATAR_IMAGENAME = "avatar2.png";
+	public static String AVATAR_IMAGENAME = "avatar.png";
 	public static String BACKGROUND_NAME = "background.jpg";
 	
 	public TaskTab taskObject;
@@ -114,7 +114,7 @@ public class GUI extends Application {
 		userTextField.setMinWidth(TABPANE_WIDTH);
 		userTextField.setPromptText(MSG_PROMPT);
 		userTextField.setOnAction((ActionEvent event) -> 
-			processUserTextField(userTextField, TABPANE_HEIGHT));
+			processUserTextField(userTextField));
 		
 		// add them to the center
 		center = new AnchorPane();
@@ -155,13 +155,13 @@ public class GUI extends Application {
 		launch(args);
 	}
 	
-	public void processUserTextField(TextField userTextField, int height) {
+	public void processUserTextField(TextField userTextField) {
 		String temp = userTextField.getText();
     	userTextField.clear();
-		executeCommand(temp, height);
+		executeCommand(temp);
 	}
 	
-	public void executeCommand(String input, int height) {
+	protected void executeCommand(String input) {
 		if (input!= null && !input.isEmpty()) {
 			if (input.trim().equalsIgnoreCase(CMD_CLEAR)) {
 				//textbox.getChildren().clear();
