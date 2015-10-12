@@ -9,6 +9,7 @@ import logic.Logic;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.control.TabPane.*;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.*;
@@ -46,10 +47,11 @@ public class GUI extends Application {
 	final static int SIDEBAR_WIDTH = 3*WINDOW_WIDTH/16;
 	final static int SIDEBAR_MIN_HEIGHT = 0;
 	final static int SIDEBAR_MAX_HEIGHT = WINDOW_HEIGHT;
-	final static Pos SIDEBAR_ORIENTATION = Pos.BOTTOM_CENTER;//Pos.BOTTOM_LEFT;
+	final static Pos SIDEBAR_ORIENTATION = Pos.CENTER;//Pos.BOTTOM_LEFT;
 
 	public static String AVATAR_IMAGENAME = "avatar.png";
 	public static String BACKGROUND_NAME = "background.jpg";
+	public static String ICON_IMAGE = "icon.png";
 	
 	public TaskTab taskObject;
 	public Log logCommands;
@@ -133,6 +135,8 @@ public class GUI extends Application {
 		primaryStage.setScene(scene);
 	    primaryStage.setTitle(APP_TITLE);
 	    scene.getStylesheets().add(GUI.class.getResource(FILE_CSS).toExternalForm());
+	    primaryStage.getIcons().add(new Image(
+	    	      GUI.class.getResourceAsStream( ICON_IMAGE )));
 	    primaryStage.show();
 	}
 	
@@ -163,17 +167,11 @@ public class GUI extends Application {
 	
 	protected void executeCommand(String input) {
 		if (input!= null && !input.isEmpty()) {
-			if (input.trim().equalsIgnoreCase(CMD_CLEAR)) {
-				//textbox.getChildren().clear();
-				sidebarObject.textbox.getChildren().clear();
-			}
-			else {
-				logic.View view = controller.executeCommand(input.trim());
-				sidebarObject.addToTextbox(view.getConsoleMessage());
-				logCommands.addToTextbox(input);
-				logConsole.addToTextbox(view.getConsoleMessage());
-				taskObject.addAllTasks(view.getAllTasks());
-			}
+			logic.View view = controller.executeCommand(input.trim());
+			sidebarObject.addToTextbox(view.getConsoleMessage());
+			logCommands.addToTextbox(input);
+			logConsole.addToTextbox(view.getConsoleMessage());
+			taskObject.addAllTasks(view.getAllTasks());
 	    }
 	}
 	
