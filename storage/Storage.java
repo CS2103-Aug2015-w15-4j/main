@@ -65,7 +65,7 @@ public class Storage {
 				taskList.remove(i);
 			}
 		}
-		// Collections.sort(taskList);
+		Collections.sort(taskList);
 		rewriteFile();
 	}
 
