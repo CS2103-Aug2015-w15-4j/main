@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import parser.InvalidMethodForTaskTypeException;
 import parser.ParsedCommand;
 import storage.Storage;
 
@@ -50,8 +51,13 @@ public class Logic {
 			 * SEARCH: return search(removeFirstWord(userCommand));
 			 */
 		case ERROR:
-			return new View(parsedCommand.getErrorMessage(),
-					storage.getAllTasks());
+			try {
+				return new View(parsedCommand.getErrorMessage(),
+						storage.getAllTasks());
+			} catch (InvalidMethodForTaskTypeException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		case EXIT:
 			System.exit(0);
 		default:

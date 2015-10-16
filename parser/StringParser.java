@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,12 +12,12 @@ import com.sun.org.apache.xerces.internal.impl.xpath.regex.ParseException;
 
 public class StringParser {
 	protected static final String TASK_ID_REGEX = "(^[0-9]+)";
-	private static final String DD = "(0?[1-9]|[12][0-9]|3[01])";
+	private static final String DD = "(?<![0-9])(0?[1-9]|[12][0-9]|3[01])";
 	private static final String MM = "(0?[1-9]|1[012])";
 	private static final String YY = "(\\d\\d)";
 	private static final String DATE_DELIM = "([-/.])";
 	private static final String WHITESPACES = "\\s*";
-	private static final String TIME_REGEX = "(@((0[0-9]|1[0-9]|2[0-3])([0-5][0-9]))(-((0[0-9]|1[0-9]|2[0-3])([0-5][0-9])))?)";
+	private static final String TIME_REGEX = TimeParser.TWENTYFOUR_HR_REGEX + "|" + TimeParser.TWELVE_HR_REGEX;
 	protected static final String TAG_REGEX = "(#(\\w+))";
 	protected static final String DESCRIPTION_REGEX = "(\"[^\"]*?\")";
 	
@@ -25,7 +26,10 @@ public class StringParser {
 	protected static Pattern tags = Pattern.compile(TAG_REGEX);
 	
 	private static String notTitleRegex = "(" + WHITESPACES + "(" + DD + DATE_DELIM + MM + DATE_DELIM + YY + ")" + WHITESPACES + "|" +
-                                           TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|(on|by)([^\"#]*))";  	                                        
+                                           TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|(on|by)([^\"#]*))";  	
+
+	private static final Logger logger = Logger.getLogger(StringParser.class.getName() );
+	
 	public static Date parseStringToDate(String input) {
 		Date date = new Date();
 		try {
@@ -41,6 +45,7 @@ public class StringParser {
     // returns null if not found
 	public static String getTitleFromString(String inputArgs) {
 		String regex = notTitleRegex;
+		inputArgs = " " + inputArgs + " ";
 		inputArgs = inputArgs.replaceAll(regex, "");
 		if (inputArgs.equals("")) {
 			return null;
@@ -106,7 +111,7 @@ public class StringParser {
 	public static Calendar[] getDatesTimesFromString(String input) {
 		DateTimeParser dateTimeParserChain = getChainOfParsers();
 		String[] emptyArr = new String[4];
-		String dateSection = DateTimeParser.extractDateTimeSectionFromString(input);
+		String dateSection = " " + DateTimeParser.extractDateTimeSectionFromString(input) + " ";
 		Calendar[] datesTimes = dateTimeParserChain.getDatesTimes(dateSection, emptyArr, emptyArr);
 		return datesTimes;
 	}

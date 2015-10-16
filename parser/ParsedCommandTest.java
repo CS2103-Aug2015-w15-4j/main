@@ -2,8 +2,18 @@ package parser;
 
 import static org.junit.Assert.*;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import parser.ParsedCommand.CommandType;
@@ -17,10 +27,34 @@ public class ParsedCommandTest {
 	private ParsedCommand pcDone;
 	private ParsedCommand pcDisplay;
 	private ArrayList<String> emptyArrayList = new ArrayList<String>();
+	
+
+	private void initLogging(){
+		String config = "\nhandlers = java.util.logging.ConsoleHandler" + "\n.level = ALL"+"\n"+
+				"java.util.logging.ConsoleHandler.level = FINE" + "\n" +
+				"com.sun.level = INFO" + "\n" +
+				"javax.level = INFO" + "\n" +
+				"sun.level = INFO" + "\n";
+ 
+		InputStream ins = new ByteArrayInputStream(config.getBytes());
+ 
+		Logger logger = Logger.getLogger(ParsedCommandTest.class.getName());
+		try {
+			LogManager.getLogManager().readConfiguration(ins);
+		} catch (IOException e) {
+			logger.log(Level.WARNING, "Log manager configuration failed: " + e.getMessage(),e);
+		}
+		//logger.fine("Logger initialized");     
+	}
+	
+	@Before
+	public void setUp() throws Exception {
+	    initLogging();
+	}
 
 	@Test
-	public void testParsedCommand() {
-		// Check empty input returns no user input error
+	public void testParsedCommand() throws InvalidMethodForTaskTypeException {
+		// Check empty string returns no user input error
 		pc = ParsedCommand.parseCommand("");
 		assertEquals(CommandType.ERROR, pc.getCommandType());
 		assertEquals("Error: No user input", pc.getErrorMessage());
@@ -37,7 +71,7 @@ public class ParsedCommandTest {
 	}
 
 	@Test
-	public void testParseCommandAdd() {
+	public void testParseCommandAdd() throws InvalidMethodForTaskTypeException {
 		ArrayList<String> taskTags = new ArrayList<String>();
 		taskTags.add("cs2103");
 		taskTags.add("proj");
@@ -53,7 +87,30 @@ public class ParsedCommandTest {
 		assertEquals(taskTags, pcAdd.getTags());
 		assertEquals(1, pcAdd.getTaskType());
 
-		// Check support for deadline task
+        /* NOT SUPPORTED YET
+		// Check support for floating task containing keyword
+		pcAdd = ParsedCommand.parseCommand("Add meeting with john on software requirements #cs2103 #proj #cs2101");
+		assertEquals(CommandType.ADD, pcAdd.getCommandType());
+		assertEquals("meeting with john", pcAdd.getTitle());
+		assertEquals("", pcAdd.getDescription());
+		assertEquals(null, pcAdd.getFirstDate());
+		assertEquals(null, pcAdd.getSecondDate());
+		assertEquals(taskTags, pcAdd.getTags());
+		assertEquals(1, pcAdd.getTaskType());
+		
+		// Check support for floating task containing keyword
+		pcAdd = ParsedCommand.parseCommand("Add meeting with john on 3 software requirements #cs2103 #proj #cs2101");
+		assertEquals(CommandType.ADD, pcAdd.getCommandType());
+		assertEquals("meeting with john", pcAdd.getTitle());
+		assertEquals("", pcAdd.getDescription());
+		assertEquals(null, pcAdd.getFirstDate());
+		assertEquals(null, pcAdd.getSecondDate());
+		assertEquals(taskTags, pcAdd.getTags());
+		assertEquals(1, pcAdd.getTaskType());
+		
+		*/
+
+		// Check support for deadline task formatted date (no keyword)
 		pcAdd = ParsedCommand.parseCommand("Add meeting with john 1/4/15");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
@@ -63,23 +120,45 @@ public class ParsedCommandTest {
 		assertEquals(emptyArrayList, pcAdd.getTags());
 		assertEquals(2, pcAdd.getTaskType());
 
-		// Check support for deadline task natty
-		pcAdd = ParsedCommand.parseCommand("Add meeting with john on april 1 2015 at 12pm");
+		// Check support for deadline task formatted date (no keyword)
+		pcAdd = ParsedCommand.parseCommand("Add meeting with john 01/4/15 9am");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
 		assertEquals(null, pcAdd.getDescription());
-		assertEquals(StringParser.parseStringToDate("Wed Apr 1 12:00:00 SGT 2015"), pcAdd.getFirstDate().getTime());
+		assertEquals(StringParser.parseStringToDate("Wed Apr 1 09:00:00 SGT 2015"), pcAdd.getFirstDate().getTime());
+		assertEquals(null, pcAdd.getSecondDate());
+		assertEquals(emptyArrayList, pcAdd.getTags());
+		assertEquals(2, pcAdd.getTaskType());
+
+		// Check support for deadline task natty
+		pcAdd = ParsedCommand.parseCommand("Add meeting with john on tmr at 12pm");
+		assertEquals(CommandType.ADD, pcAdd.getCommandType());
+		assertEquals("meeting with john", pcAdd.getTitle());
+		assertEquals(null, pcAdd.getDescription());
+		LocalDateTime dt = LocalDateTime.now();
+		dt = LocalDateTime.from(dt.plusDays(1));
+		dt = dt.withHour(12).withMinute(0).withSecond(0);
+		assertEquals(Date.from(dt.atZone(ZoneId.systemDefault()).toInstant()).toString(), pcAdd.getFirstDate().getTime().toString());
 		assertEquals(null, pcAdd.getSecondDate());
 		assertEquals(emptyArrayList, pcAdd.getTags());
 		assertEquals(2, pcAdd.getTaskType());
 
 		// Check support for event
-		pcAdd = ParsedCommand.parseCommand("Add  23/11/10 @1200-1330 meeting with john #cs2103 #proj #cs2101");
+		pcAdd = ParsedCommand.parseCommand("Add  23/11/10 12:00-13:30 meeting with john #cs2103 #proj #cs2101");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
 		assertEquals(null, pcAdd.getDescription());
 		assertEquals(StringParser.parseStringToDate("Tue Nov 23 12:00:00 SGT 2010"), pcAdd.getFirstDate().getTime());
 		assertEquals(StringParser.parseStringToDate("Tue Nov 23 13:30:00 SGT 2010"), pcAdd.getSecondDate().getTime());
+		assertEquals(3, pcAdd.getTaskType());
+
+		// Check support for event spanning 2 days
+		pcAdd = ParsedCommand.parseCommand("Add meeting with john 23/11/10 12:00h to 24/11/10 13:30H  #cs2103 #proj #cs2101");
+		assertEquals(CommandType.ADD, pcAdd.getCommandType());
+		assertEquals("meeting with john to", pcAdd.getTitle());
+		assertEquals(null, pcAdd.getDescription());
+		assertEquals(StringParser.parseStringToDate("Tue Nov 23 12:00:00 SGT 2010"), pcAdd.getFirstDate().getTime());
+		assertEquals(StringParser.parseStringToDate("Wed Nov 24 13:30:00 SGT 2010"), pcAdd.getSecondDate().getTime());
 		assertEquals(3, pcAdd.getTaskType());
 
 		/*
@@ -96,13 +175,20 @@ public class ParsedCommandTest {
 		assertEquals(StringParser.parseStringToDate("Mon Nov 23 12:00:00 SGT 2015"), pcAdd.getFirstDate().getTime());
 		assertEquals(null, pcAdd.getSecondDate());
 		assertEquals(2, pcAdd.getTaskType());
-
 		
+		pcAdd = ParsedCommand.parseCommand("add finish homework on 23/11/15");
+		assertEquals(CommandType.ADD, pcAdd.getCommandType());
+		assertEquals("finish homework", pcAdd.getTitle());
+		assertEquals(null, pcAdd.getDescription());
+		assertEquals(StringParser.parseStringToDate("Mon Nov 23 23:59:00 SGT 2015"), pcAdd.getFirstDate().getTime());
+		assertEquals(null, pcAdd.getSecondDate());
+		assertEquals(2, pcAdd.getTaskType());
+
 		/**********CHECK! better to detect all xx/xx/xx formats when checking title?********/
 		// Check dates in improper format are ignored and assumed to be not date
-		pcAdd = ParsedCommand.parseCommand("Add meeting with john 41/4/10 @1200 #proj");
+		pcAdd = ParsedCommand.parseCommand("Add meeting with john 41/4/10 12:00 #proj");
 		//assertEquals(CommandType.ADD, pcAdd.getCommandType());
-		assertEquals("meeting with john 4", pcAdd.getTitle());
+		assertEquals("meeting with john 41/4/10", pcAdd.getTitle());
 		assertEquals(null, pcAdd.getDescription());
 		assertEquals(null, pcAdd.getFirstDate());
 		assertEquals(null, pcAdd.getSecondDate());
@@ -115,7 +201,7 @@ public class ParsedCommandTest {
 	}
 
 	@Test
-	public void testParseCommandDelete() {
+	public void testParseCommandDelete() throws InvalidMethodForTaskTypeException {
 		// Check delete
 		pcDelete = ParsedCommand.parseCommand("Delete 234");
 		assertEquals(CommandType.DELETE, pcDelete.getCommandType());
@@ -138,7 +224,7 @@ public class ParsedCommandTest {
 	}
 
 	@Test
-	public void testParseCommandDisplay() {
+	public void testParseCommandDisplay() throws InvalidMethodForTaskTypeException {
 		pcDisplay = ParsedCommand.parseCommand("show 234");
 		assertEquals(CommandType.DISPLAY, pcDisplay.getCommandType());
 		assertEquals(234, pcDisplay.getTaskId());
@@ -160,7 +246,7 @@ public class ParsedCommandTest {
 	}
 
 	@Test
-	public void testParseCommandEdit() {
+	public void testParseCommandEdit() throws InvalidMethodForTaskTypeException {
 		// Check support for edit title
 		pcEdit = ParsedCommand.parseCommand("Edit 234 meeting");
 		assertEquals(CommandType.EDIT, pcEdit.getCommandType());
@@ -168,7 +254,7 @@ public class ParsedCommandTest {
 		assertEquals(234, pcEdit.getTaskId());
 
 		// Check support for edit description, date, time, tag
-		pcEdit = ParsedCommand.parseCommand("Edit 234 \"hello\" 23/11/10 @1300-1500 #tag");
+		pcEdit = ParsedCommand.parseCommand("Edit 234 \"hello\" 23/11/10 13:00-15:00 #tag");
 		assertEquals(CommandType.EDIT, pcEdit.getCommandType());
 		assertEquals("hello", pcEdit.getDescription());
 		assertEquals(StringParser.parseStringToDate("Tue Nov 23 13:00:00 SGT 2010"), pcEdit.getFirstDate().getTime());
@@ -207,7 +293,7 @@ public class ParsedCommandTest {
 	}
 
 	@Test
-	public void testParseCommandDone() {
+	public void testParseCommandDone() throws InvalidMethodForTaskTypeException {
 		pcDone = ParsedCommand.parseCommand("Done 234");
 		assertEquals(CommandType.DONE, pcDone.getCommandType());
 		assertEquals(234, pcDone.getTaskId());
@@ -228,8 +314,8 @@ public class ParsedCommandTest {
 		assertEquals("Error: Invalid/Missing taskId", pcDone.getErrorMessage());
 	}
 	
-	@Test
-	public void testGetErrorMessage() {
+	@Test(expected = InvalidMethodForTaskTypeException.class)
+	public void testGetErrorMessage() throws InvalidMethodForTaskTypeException {
 		// Check not allowed to get errorMessage if not error
 		pcDone = ParsedCommand.parseCommand("Done 234");
 		assertEquals(CommandType.DONE, pcDone.getCommandType());

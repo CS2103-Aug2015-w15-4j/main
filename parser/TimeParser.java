@@ -1,18 +1,20 @@
 package parser;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TimeParser {
-	protected static final String TWELVE_HR_REGEX = "\\s(1[012]|0?[1-9])([.:][0-5][0-9])?\\s?(am|pm)?(\\s?[-]\\s?(1[012]|0?[1-9])([.:][0-5][0-9])?\\s?)?(am|pm)";
-	protected static final String TWENTYFOUR_HR_REGEX = "@((0[0-9]|1[0-9]|2[0-3])([0-5][0-9]))(-((0[0-9]|1[0-9]|2[0-3])([0-5][0-9])))?";
+	protected static final String TWELVE_HR_REGEX = "(?<![0-9])(1[012]|0?[1-9])([.:][0-5][0-9])?\\s?(am|pm)?(\\s?(?:-|to)\\s?(1[012]|0?[1-9])([.:][0-5][0-9])?\\s?)?(am|pm)(?=\\s|$)";
+	protected static final String TWENTYFOUR_HR_REGEX = "(?<![0-9])((0[0-9]|1[0-9]|2[0-3])[:]([0-5][0-9]))\\s?[?:h|H]?\\s?(-\\s?((0[0-9]|1[0-9]|2[0-3])[:]([0-5][0-9])))?\\s?[?:h|H]?(?=\\s|$)";
 	protected static final String TIME_REGEX = "(" + TWELVE_HR_REGEX + "|" + TWENTYFOUR_HR_REGEX + ")";
 	
 	protected static final Pattern HHMM = Pattern.compile(TWENTYFOUR_HR_REGEX);
 	protected static final Pattern HMMA = Pattern.compile(TWELVE_HR_REGEX);
 	
 	protected static final String TWELVE_HR_FORMAT = "h:mma";
-	protected static final String TWENTY_FOUR_HR_FORMAT = "HHmm";
+	protected static final String TWENTY_FOUR_HR_FORMAT = "HH:mm";
 
 	private static final int TIME_H1 = 1;
 	private static final int TIME_M1 = 2;
@@ -21,7 +23,8 @@ public class TimeParser {
 	private static final int TIME_M2 = 6;
 	private static final int TIME_APM2 = 7;
 	
-		
+	private static final Logger logger = Logger.getLogger(TimeParser.class.getName() );
+
 	public static String[] getTwentyfourHrTimesFromString(String input) {
 		Matcher m = HHMM.matcher(input);
 		String[] ans = new String[4];
@@ -57,7 +60,7 @@ public class TimeParser {
 			String apm2 = m.group(TIME_APM2);
 			String h2 = m.group(TIME_H2);
 			String m2 = m.group(TIME_M2);
-			
+		
 			if (min1 != null) {
 				time1 = time1 + ":" + min1.substring(1);
 			} else {
@@ -85,9 +88,11 @@ public class TimeParser {
 	
 	public static String[] getStandardTimesFromString(String input) {
 		String[] times = new String[4];
-		times = getTwentyfourHrTimesFromString(input);
+		times = getTwelveHrTimesFromString(input);
+		logger.log(Level.FINE, "12HR for " + input + " : " + times[0]);
 		if (times[0] == null) {
-			times = getTwelveHrTimesFromString(input);
+			times = getTwentyfourHrTimesFromString(input);
+			logger.log(Level.FINE, "24HR for " + input + " : " + times[0]);
 		} 
 		times[3] = removeTimesFromString(input);
 		//System.out.println(times[3]);

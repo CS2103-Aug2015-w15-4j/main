@@ -1,16 +1,18 @@
 package parser;
 
 import java.util.Calendar;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class FormattedDateTimeParser extends DateTimeParser{
 	
-	protected static final String DD = "(0?[1-9]|[12][0-9]|3[01])";
+	protected static final String DD = "(?<=^|[^0-9])(0?[1-9]|[12][0-9]|3[01])";
 	protected static final String MM = "(0?[1-9]|1[012])";
-	protected static final String YY = "(\\d\\d))";
+	protected static final String YY = "(\\d\\d))(?![0-9])";
 	protected static final String DATE_DELIM = "([-/.])";
-	protected static final String FORMATTED_DATE_REGEX = "(\\s" + DD + DATE_DELIM + MM + DATE_DELIM + YY + "\\s";
+	protected static final String FORMATTED_DATE_REGEX = "(" + DD + DATE_DELIM + MM + DATE_DELIM + YY;
 	protected static final String FORMATTED_DATE_FORMAT = "d/M/yy";
 	private static Pattern ddmmyy = Pattern.compile(FORMATTED_DATE_REGEX);
 	private static Pattern dateDelim = Pattern.compile(DATE_DELIM);
@@ -18,6 +20,8 @@ public class FormattedDateTimeParser extends DateTimeParser{
 	private String[] formattedTimes;
 	private String[] formattedDates;
 	private String unparsedInput;
+
+	private static final Logger logger = Logger.getLogger(FormattedDateTimeParser.class.getName() );
 
 	public static String convertDateToStandardFormat(String date) {
 		date = dateDelim.matcher(date).replaceAll("/");
@@ -35,7 +39,7 @@ public class FormattedDateTimeParser extends DateTimeParser{
 	 *         ans[1] = null and if only one date found, ans[1] = null.
 	 */
 	public static String[] getStandardFormattedDates(String userInput) {
-		Matcher m = ddmmyy.matcher(" " + userInput + " ");
+		Matcher m = ddmmyy.matcher(userInput);
 		String[] ans = new String[4];
 
 		int i = 0;
@@ -70,9 +74,12 @@ public class FormattedDateTimeParser extends DateTimeParser{
 	
 	@Override
 	protected Calendar[] parse(String input, String[] parsedDates, String[] parsedTimes) {
+		logger.log(Level.FINE, "TO FORM:" + input + ".");
 		formattedTimes = TimeParser.getStandardTimesFromString(input); // all time parsing done
 		formattedDates = getStandardFormattedDates(formattedTimes[3]);
+		logger.log(Level.FINE, "DATES:" + formattedDates[0] + ".");
 		unparsedInput = formattedDates[3];
+		logger.log(Level.FINE, "TO FLEX:" + unparsedInput + ".");
 		return convertStringToCalendar(formattedDates, formattedTimes);
 	}
 }

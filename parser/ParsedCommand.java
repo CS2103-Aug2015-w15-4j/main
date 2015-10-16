@@ -2,6 +2,7 @@ package parser;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.logging.Logger;
 
 public class ParsedCommand {
 	public enum CommandType {
@@ -33,6 +34,8 @@ public class ParsedCommand {
 	private static final String ERROR_INVALID_TASKID = "Error: Invalid/Missing taskId";
 	private static final int INDEX_FOR_TASKID = 0;
 	private static final int INDEX_FOR_FIELDS = 1;
+	
+	private static final Logger logger = Logger.getLogger(ParsedCommand.class.getName() );
 	
     /**
      * This method creates a ParsedCommand object (constructor).
@@ -307,11 +310,11 @@ public class ParsedCommand {
 	 * Returns error message if ParsedCommand is of type Error.
 	 * @return
 	 */
-	public String getErrorMessage() {
+	public String getErrorMessage() throws InvalidMethodForTaskTypeException {
 		if (this.cmdType == CommandType.ERROR) {
 			return this.title;
 		} else {
-			return ERROR_NOT_AN_ERROR;
+			throw new InvalidMethodForTaskTypeException("error");
 		}
 	}
 	

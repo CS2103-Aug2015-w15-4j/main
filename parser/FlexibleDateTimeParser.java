@@ -1,6 +1,7 @@
 package parser;
 
 import java.util.Calendar;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,7 +19,7 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 	private static final int MD_INDEX_FOR_YEAR = 3;
 	
 	private static final String MONTHS = "(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)";
-	private static final String DATES = "(\\d?\\d)(?:st|rd|nd|th)?";
+	private static final String DATES = "(?<![0-9])(\\d?\\d)(?:st|rd|nd|th)?";
 	private static final String YEARS = "(\\d{4})?";
 	private static final String DATE_MONTH_REGEX = "\\s" + DATES + "\\s" + MONTHS + ",?\\s?" + YEARS + "[\\s|,|.]";
 	private static final String MONTH_DATE_REGEX = "\\s" + MONTHS + "\\s" + DATES + ",?\\s?" + YEARS + "[\\s|,|.]";
@@ -31,7 +32,8 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 	private static final Pattern MMMD = Pattern.compile(MONTH_DATE_REGEX);
 	private static final String STANDARD_FLEXIBLE_DATE_FORMAT = "d MMM yyyy";
 
-	
+	private static final Logger logger = Logger.getLogger(FlexibleDateTimeParser.class.getName() );
+
 	/*public static void getMonthFromString(String input) {
 		Matcher m = DMMM.matcher(input);
 		while (m.find()) {
