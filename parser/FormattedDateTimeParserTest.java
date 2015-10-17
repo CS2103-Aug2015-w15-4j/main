@@ -8,11 +8,10 @@ public class FormattedDateTimeParserTest {
 	@Test
 	public void testGetFormattedDates() {
 		
-		
 		// Check supported formats
 		// Check support for / for date
-		assertEquals("12/2/13", FormattedDateTimeParser.getStandardFormattedDates("12/2/13 Meet John about proposal #cs2103 @1200-1330")[0]);
-		assertEquals(null, FormattedDateTimeParser.getStandardFormattedDates("12/2/13 Meet John about proposal #cs2103 @1200-1330")[1]);
+		assertEquals("12/2/13", FormattedDateTimeParser.getStandardFormattedDates("12/2/13 12:00-13:00")[0]);
+		assertEquals(null, FormattedDateTimeParser.getStandardFormattedDates("12/2/13 12:00-13:00")[1]);
 
 		// Check support for / for date
 		assertEquals("5/4/14", FormattedDateTimeParser.getStandardFormattedDates("Hello how 5/4/14 are you today?")[0]);
@@ -38,7 +37,7 @@ public class FormattedDateTimeParserTest {
 		assertEquals("2/02/14", FormattedDateTimeParser.getStandardFormattedDates("Hello how 2/02/14 are you today?")[0]);
 		assertEquals("2/2/14", FormattedDateTimeParser.getStandardFormattedDates("Hello how 2/2/14 are you today?")[0]);
 
-		// Check required to have whitespace
+		// Check not required to have whitespace
 		assertEquals("12/3/14", FormattedDateTimeParser.getStandardFormattedDates("Hello how 12/3/14are you1/10/12 today?")[0]);
 		assertEquals("1/10/12", FormattedDateTimeParser.getStandardFormattedDates("Hello how 12/3/14are you1/10/12 today?")[1]);
 		
@@ -48,9 +47,8 @@ public class FormattedDateTimeParserTest {
 
 		// Check no support for yyyy/MM/dd
 		assertEquals(null, FormattedDateTimeParser.getStandardFormattedDates("Hello how 2012/02/14 are you today?")[0]);
-		// assertEquals("2/2/14", FormattedDateTimeParser.getFormattedDates("Hello how 2/2/14 are you today?")[0]);
-
 		
+
 		// Check invalid inputs return null
 		
 		// Check invalid day returns null
@@ -72,7 +70,7 @@ public class FormattedDateTimeParserTest {
 		assertEquals("1/10/12", FormattedDateTimeParser.getStandardFormattedDates("Hello how are you 1/10/12 today 2/3/12 2/4/15?")[0]);
 		assertEquals("2/3/12", FormattedDateTimeParser.getStandardFormattedDates("Hello how are you 1/10/12 today 2/3/12 2/4/15?")[1]);
 		
-		// Check 2 valid dates are accepted - currently unnecessary
+		// Check 2 valid dates are accepted
 		assertEquals("23/12/14", FormattedDateTimeParser.getStandardFormattedDates("Hello how 23/12/14 are you 1/5/12 today?")[0]);
 		assertEquals("1/5/12", FormattedDateTimeParser.getStandardFormattedDates("Hello how 23/12/14 are you 1/5/12 today?")[1]);
 	}

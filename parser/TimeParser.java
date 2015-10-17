@@ -25,7 +25,7 @@ public class TimeParser {
 	
 	private static final Logger logger = Logger.getLogger(TimeParser.class.getName() );
 
-	public static String[] getTwentyfourHrTimesFromString(String input) {
+	private static String[] getTwentyfourHrTimesFromString(String input) {
 		Matcher m = HHMM.matcher(input);
 		String[] ans = new String[4];
 		ans[2] = TWENTY_FOUR_HR_FORMAT;
@@ -45,7 +45,7 @@ public class TimeParser {
 	}
 
 	//private static Pattern times = Pattern.compile("(0?[1-9]|1[012])([.:][0-5][0-9])?([ap]m)?(-((0?[1-9]|1[012])([.:][0-5][0-9])?([ap]m)))?");
-	public static String[] getTwelveHrTimesFromString(String input) {
+	private static String[] getTwelveHrTimesFromString(String input) {
 		Matcher m = HMMA.matcher(input);
 		String[] timeArr = new String[4];
 		timeArr[2] = TWELVE_HR_FORMAT;

@@ -36,6 +36,7 @@ public class ParsedCommand {
 	private static final int INDEX_FOR_FIELDS = 1;
 	
 	private static final Logger logger = Logger.getLogger(ParsedCommand.class.getName() );
+	private static final String ERROR_MISSING_TITLE = "Error: Missing task title";
 	
     /**
      * This method creates a ParsedCommand object (constructor).
@@ -206,6 +207,10 @@ public class ParsedCommand {
 		} else {
 			String inputArgs = input[INDEX_FOR_ARGS];
 			String title = StringParser.getTitleFromString(inputArgs);
+			System.out.println("TITLE: " + title + ".");
+			if (title == null) {
+				return createParsedCommandError(ERROR_MISSING_TITLE);
+			}
 			Calendar[] times = StringParser.getDatesTimesFromString(inputArgs);
 			if (times == null) {
 				return createParsedCommandError(ERROR_INVALID_DATE);

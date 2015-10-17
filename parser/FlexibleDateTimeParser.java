@@ -41,7 +41,7 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 		}
 	}*/
 	
-	public static String[] getDateMonthFromString(String input) {
+	private static String[] getDateMonthFromString(String input) {
 		input = " " + input.toLowerCase() + " ";
 		Matcher m = DMMM.matcher(input);
 		String[] dateArr = new String[4];
@@ -92,7 +92,7 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 		return dateArr;
 	}
 		
-	public static String[] getMonthDateFromString(String input) {
+	private static String[] getMonthDateFromString(String input) {
 		input = " " + input.toLowerCase() + " ";
 		Matcher m = MMMD.matcher(input);
 		String[] dateArr = new String[4];
@@ -180,7 +180,7 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 		return convertStringToCalendar(flexibleDates, flexibleTimes);
 	}
 
-	private String[] getStandardFlexibleDates(String input) {
+	public static String[] getStandardFlexibleDates(String input) {
 		String[] dates = new String[4];
 		dates = getMonthDateFromString(input);
 		if (dates[0] == null) { // no MMM d detected

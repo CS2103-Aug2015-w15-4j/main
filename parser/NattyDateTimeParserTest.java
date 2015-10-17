@@ -19,6 +19,11 @@ public class NattyDateTimeParserTest {
 			     NattyDateTimeParser.parseDateTimeWithNatty("meeting for proj (11 oct 3pm to 12 oct 4.30pm) #cs2101")[0].getTime());
 		assertEquals(StringParser.parseStringToDate("Mon Oct 12 16:30:00 SGT 2015"),
 			     NattyDateTimeParser.parseDateTimeWithNatty("meeting for proj (11 oct 3pm to 12 oct 4.30pm) #cs2101")[1].getTime());
+		assertEquals(null, NattyDateTimeParser.parseDateTimeWithNatty("meeting for proj")[0]);
+		assertEquals(null, NattyDateTimeParser.parseDateTimeWithNatty("meeting for proj")[1]);
+		
+		assertEquals(null, NattyDateTimeParser.parseDateTimeWithNatty("year")[0]);
+		assertEquals(null, NattyDateTimeParser.parseDateTimeWithNatty("year")[1]);
 		
 	}
 

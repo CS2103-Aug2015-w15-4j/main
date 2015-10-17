@@ -44,7 +44,6 @@ public class ParsedCommandTest {
 		} catch (IOException e) {
 			logger.log(Level.WARNING, "Log manager configuration failed: " + e.getMessage(),e);
 		}
-		//logger.fine("Logger initialized");     
 	}
 	
 	@Before
@@ -109,7 +108,7 @@ public class ParsedCommandTest {
 		assertEquals(1, pcAdd.getTaskType());
 		
 		*/
-
+/*
 		// Check support for deadline task formatted date (no keyword)
 		pcAdd = ParsedCommand.parseCommand("Add meeting with john 1/4/15");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
@@ -119,17 +118,7 @@ public class ParsedCommandTest {
 		assertEquals(null, pcAdd.getSecondDate());
 		assertEquals(emptyArrayList, pcAdd.getTags());
 		assertEquals(2, pcAdd.getTaskType());
-
-		// Check support for deadline task formatted date (no keyword)
-		pcAdd = ParsedCommand.parseCommand("Add meeting with john 01/4/15 9am");
-		assertEquals(CommandType.ADD, pcAdd.getCommandType());
-		assertEquals("meeting with john", pcAdd.getTitle());
-		assertEquals(null, pcAdd.getDescription());
-		assertEquals(StringParser.parseStringToDate("Wed Apr 1 09:00:00 SGT 2015"), pcAdd.getFirstDate().getTime());
-		assertEquals(null, pcAdd.getSecondDate());
-		assertEquals(emptyArrayList, pcAdd.getTags());
-		assertEquals(2, pcAdd.getTaskType());
-
+*/
 		// Check support for deadline task natty
 		pcAdd = ParsedCommand.parseCommand("Add meeting with john on tmr at 12pm");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
@@ -142,16 +131,8 @@ public class ParsedCommandTest {
 		assertEquals(null, pcAdd.getSecondDate());
 		assertEquals(emptyArrayList, pcAdd.getTags());
 		assertEquals(2, pcAdd.getTaskType());
-
-		// Check support for event
-		pcAdd = ParsedCommand.parseCommand("Add  23/11/10 12:00-13:30 meeting with john #cs2103 #proj #cs2101");
-		assertEquals(CommandType.ADD, pcAdd.getCommandType());
-		assertEquals("meeting with john", pcAdd.getTitle());
-		assertEquals(null, pcAdd.getDescription());
-		assertEquals(StringParser.parseStringToDate("Tue Nov 23 12:00:00 SGT 2010"), pcAdd.getFirstDate().getTime());
-		assertEquals(StringParser.parseStringToDate("Tue Nov 23 13:30:00 SGT 2010"), pcAdd.getSecondDate().getTime());
-		assertEquals(3, pcAdd.getTaskType());
-
+		
+		/**********************FIX THIS!***************************/
 		// Check support for event spanning 2 days
 		pcAdd = ParsedCommand.parseCommand("Add meeting with john 23/11/10 12:00h to 24/11/10 13:30H  #cs2103 #proj #cs2101");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
@@ -161,33 +142,17 @@ public class ParsedCommandTest {
 		assertEquals(StringParser.parseStringToDate("Wed Nov 24 13:30:00 SGT 2010"), pcAdd.getSecondDate().getTime());
 		assertEquals(3, pcAdd.getTaskType());
 
-		/*
+		
 		// Check invalid date returns invalid date error, where invalid date is in proper format
-		pcAdd = ParsedCommand.parseCommand("Add meeting with john 31/4/10 @1200 #proj");
+		pcAdd = ParsedCommand.parseCommand("Add meeting with john 31/4/10 12:00h #proj");
 		assertEquals(CommandType.ERROR, pcAdd.getCommandType());
 		assertEquals("Error: Invalid date(s) input", pcAdd.getErrorMessage());
-		*/
 		
-		pcAdd = ParsedCommand.parseCommand("add finish homework by 23 nov 12pm");
-		assertEquals(CommandType.ADD, pcAdd.getCommandType());
-		assertEquals("finish homework", pcAdd.getTitle());
-		assertEquals(null, pcAdd.getDescription());
-		assertEquals(StringParser.parseStringToDate("Mon Nov 23 12:00:00 SGT 2015"), pcAdd.getFirstDate().getTime());
-		assertEquals(null, pcAdd.getSecondDate());
-		assertEquals(2, pcAdd.getTaskType());
 		
-		pcAdd = ParsedCommand.parseCommand("add finish homework on 23/11/15");
-		assertEquals(CommandType.ADD, pcAdd.getCommandType());
-		assertEquals("finish homework", pcAdd.getTitle());
-		assertEquals(null, pcAdd.getDescription());
-		assertEquals(StringParser.parseStringToDate("Mon Nov 23 23:59:00 SGT 2015"), pcAdd.getFirstDate().getTime());
-		assertEquals(null, pcAdd.getSecondDate());
-		assertEquals(2, pcAdd.getTaskType());
-
 		/**********CHECK! better to detect all xx/xx/xx formats when checking title?********/
 		// Check dates in improper format are ignored and assumed to be not date
 		pcAdd = ParsedCommand.parseCommand("Add meeting with john 41/4/10 12:00 #proj");
-		//assertEquals(CommandType.ADD, pcAdd.getCommandType());
+		assertEquals(CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john 41/4/10", pcAdd.getTitle());
 		assertEquals(null, pcAdd.getDescription());
 		assertEquals(null, pcAdd.getFirstDate());
@@ -198,6 +163,16 @@ public class ParsedCommandTest {
 		pcAdd = ParsedCommand.parseCommand("Add");
 		assertEquals(CommandType.ERROR, pcAdd.getCommandType());
 		assertEquals("Error: No arguments entered", pcAdd.getErrorMessage());
+	
+		// Check missing title returns no title error
+		pcAdd = ParsedCommand.parseCommand("Add 2/3/15 3pm \"hello hello\" #tag1 #tag2");
+		assertEquals(CommandType.ERROR, pcAdd.getCommandType());
+		assertEquals("Error: Missing task title", pcAdd.getErrorMessage());
+
+		// Check missing title returns no title error
+		pcAdd = ParsedCommand.parseCommand("Add on tmr 3pm \"hello hello\" #tag1 #tag2");
+		assertEquals(CommandType.ERROR, pcAdd.getCommandType());
+		assertEquals("Error: Missing task title", pcAdd.getErrorMessage());
 	}
 
 	@Test
@@ -247,14 +222,8 @@ public class ParsedCommandTest {
 
 	@Test
 	public void testParseCommandEdit() throws InvalidMethodForTaskTypeException {
-		// Check support for edit title
-		pcEdit = ParsedCommand.parseCommand("Edit 234 meeting");
-		assertEquals(CommandType.EDIT, pcEdit.getCommandType());
-		assertEquals("meeting", pcEdit.getTitle());
-		assertEquals(234, pcEdit.getTaskId());
-
-		// Check support for edit description, date, time, tag
-		pcEdit = ParsedCommand.parseCommand("Edit 234 \"hello\" 23/11/10 13:00-15:00 #tag");
+		// Check support for edit title, description, date, time, tag
+		pcEdit = ParsedCommand.parseCommand("Edit 234 meeting \"hello\" 23/11/10 13:00-15:00 #tag");
 		assertEquals(CommandType.EDIT, pcEdit.getCommandType());
 		assertEquals("hello", pcEdit.getDescription());
 		assertEquals(StringParser.parseStringToDate("Tue Nov 23 13:00:00 SGT 2010"), pcEdit.getFirstDate().getTime());
@@ -262,7 +231,18 @@ public class ParsedCommandTest {
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("tag");
 		assertEquals(list, pcEdit.getTags());
-		assertEquals("", pcEdit.getTitle());
+		assertEquals("meeting", pcEdit.getTitle());
+		
+		// Check support for edit description, date, time, tag (flexible)
+		pcEdit = ParsedCommand.parseCommand("Edit 234 by nov 23 1-3pm \"hello\" #tag");
+		assertEquals(CommandType.EDIT, pcEdit.getCommandType());
+		assertEquals("hello", pcEdit.getDescription());
+		assertEquals(StringParser.parseStringToDate("Mon Nov 23 13:00:00 SGT 2015"), pcEdit.getFirstDate().getTime());
+		assertEquals(StringParser.parseStringToDate("Mon Nov 23 15:00:00 SGT 2015"), pcEdit.getSecondDate().getTime());
+		ArrayList<String> list1 = new ArrayList<String>();
+		list1.add("tag");
+		assertEquals(list1, pcEdit.getTags());
+		assertEquals(null, pcEdit.getTitle());
 		
 		// Check allow extra whitespace
 		pcEdit = ParsedCommand.parseCommand("Edit  234 test");

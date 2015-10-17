@@ -47,7 +47,7 @@ public class StringParser {
 		String regex = notTitleRegex;
 		inputArgs = " " + inputArgs + " ";
 		inputArgs = inputArgs.replaceAll(regex, "");
-		if (inputArgs.equals("")) {
+		if (inputArgs.trim().equals("")) {
 			return null;
 		}
 		

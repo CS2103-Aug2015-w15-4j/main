@@ -23,7 +23,7 @@ public class FormattedDateTimeParser extends DateTimeParser{
 
 	private static final Logger logger = Logger.getLogger(FormattedDateTimeParser.class.getName() );
 
-	public static String convertDateToStandardFormat(String date) {
+	private static String convertDateToStandardFormat(String date) {
 		date = dateDelim.matcher(date).replaceAll("/");
 		return date;
 	}
@@ -53,7 +53,7 @@ public class FormattedDateTimeParser extends DateTimeParser{
 		return ans;
 	}
 	
-	public static String removeFormattedDatesFromString(String input) {
+	private static String removeFormattedDatesFromString(String input) {
 		return StringParser.removeRegexPatternFromString(input, FORMATTED_DATE_REGEX);
 	}
 	
