@@ -9,12 +9,14 @@ import java.util.regex.Pattern;
 
 public abstract class DateTimeParser {
 	//private static Pattern parentheses = Pattern.compile("([(][a-zA-Z0-9\\s]+[)])");
-	private static Pattern DATE_KEYWORD_REGEX = Pattern.compile("(on|by)([^\"#]*)");
+	private static String DATE_KEYWORD_REGEX = "(on|by)([^\"#]*)";
+	private static Pattern DATE_KEYWORD_PATTERN = Pattern.compile(DATE_KEYWORD_REGEX);
 	
 	private static String TAG_OR_DESCRIPTION_REGEX = "(" + StringParser.TAG_REGEX + "|" + StringParser.DESCRIPTION_REGEX + ")";  	                                        
-	private static String DATE_TIME_REGEX = "(" + TimeParser.TIME_REGEX + "|" + FormattedDateTimeParser.FORMATTED_DATE_REGEX + ")";
-	private static Pattern DATE_OR_TIME_REGEX = Pattern.compile(DATE_TIME_REGEX);
-
+	private static String FORMATTED_DATE_TIME_REGEX = "(" + TimeParser.TIME_REGEX + "|" + FormattedDateTimeParser.FORMATTED_DATE_REGEX + ")";
+	private static Pattern FORMATTED_DATE_OR_TIME_PATTERN = Pattern.compile(FORMATTED_DATE_TIME_REGEX);
+	
+	protected static String DATE_TIME_REGEX = "(" + TimeParser.TIME_REGEX + "|" + FormattedDateTimeParser.FORMATTED_DATE_REGEX + "|" + FlexibleDateTimeParser.FLEXIBLE_DATE_REGEX + "|" + DATE_KEYWORD_REGEX + ")";
 	protected DateTimeParser nextParser;
 	
 	abstract protected String getUnparsedInput();
@@ -26,7 +28,7 @@ public abstract class DateTimeParser {
 	private static final Logger logger = Logger.getLogger(DateTimeParser.class.getName() );
 	
 	public static String extractDateTimeSectionFromString(String input) {
-		String extract = " " + removeTagsAndDescriptions(input) + " "; // for formatted input
+		String extract = removeTagsAndDescriptions(input); // for formatted input
 		String extractAfterKeyword = extractSectionAfterDateKeyword(extract); // returns "" if no keyword
 		if (extractAfterKeyword.equals("")) { // no keyword
 			String formattedExtract = getFormattedDateTimeSection(extract);
@@ -43,7 +45,7 @@ public abstract class DateTimeParser {
 	}
 	
 	private static String getFormattedDateTimeSection(String input) {
-		Matcher m = DATE_OR_TIME_REGEX.matcher(input);
+		Matcher m = FORMATTED_DATE_OR_TIME_PATTERN.matcher(input);
 		String dateSection = "";
 
 		while (m.find()) {
@@ -54,7 +56,7 @@ public abstract class DateTimeParser {
 	}
 	
 	private static String extractSectionAfterDateKeyword(String input) {
-		Matcher m = DATE_KEYWORD_REGEX.matcher(input);
+		Matcher m = DATE_KEYWORD_PATTERN.matcher(input);
 		String dateSection = "";
 
 		if (m.find()) {

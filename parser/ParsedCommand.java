@@ -260,7 +260,7 @@ public class ParsedCommand {
 		} else {
 			String inputArgs = input[INDEX_FOR_ARGS];
 			String title = StringParser.getTitleFromString(inputArgs);
-			System.out.println("TITLE: " + title + ".");
+			
 			if (title == null) {
 				return createParsedCommandError(ERROR_MISSING_TITLE);
 			}

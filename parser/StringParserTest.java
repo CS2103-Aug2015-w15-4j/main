@@ -15,7 +15,7 @@ public class StringParserTest {
 	public void testGetTitleFromString() {
 		assertEquals("hello this is my task", StringParser.getTitleFromString(" hello this is my task 12:00 \"description\" #tags #tag1"));
 		assertEquals("13:30hello this is my task", StringParser.getTitleFromString("13:30hello this is my task"));
-		assertEquals("hello this is my task", StringParser.getTitleFromString(" hello this is 12/12/12 5pm my task"));
+		assertEquals("hello this is   my task", StringParser.getTitleFromString(" hello this is 12/12/12 5pm my task"));
 		assertEquals("hello  task", StringParser.getTitleFromString(" hello \"this is my\" task 12:00"));
 		assertEquals("Meet John about proposal", StringParser.getTitleFromString("12.2-13 Meet John about proposal #cs2103 12:00"));
 		assertEquals("Meet John about proposal", StringParser.getTitleFromString("#cs2101 Meet John about proposal on 23 jan #cs2103 12:00 12/2/13"));

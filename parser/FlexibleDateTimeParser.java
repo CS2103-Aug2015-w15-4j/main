@@ -21,8 +21,8 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 	private static final String MONTHS = "(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)";
 	private static final String DATES = "(?<![0-9])(\\d?\\d)(?:st|rd|nd|th)?";
 	private static final String YEARS = "(\\d{4})?";
-	private static final String DATE_MONTH_REGEX = "\\s" + DATES + "\\s" + MONTHS + ",?\\s?" + YEARS + "[\\s|,|.]";
-	private static final String MONTH_DATE_REGEX = "\\s" + MONTHS + "\\s" + DATES + ",?\\s?" + YEARS + "[\\s|,|.]";
+	private static final String DATE_MONTH_REGEX = "(?<=\\s|^)" + DATES + "\\s" + MONTHS + ",?\\s?" + YEARS + "(?![0-9])";
+	private static final String MONTH_DATE_REGEX = "(?<=\\s|^)" + MONTHS + "\\s" + DATES + ",?\\s?" + YEARS + "(?![0-9])";
 	
 	private static final String DATE_MONTH_FORMAT = "d MMM yyyy";
 	
@@ -58,22 +58,21 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 			temp[i][1] = month.substring(0,3);
 			temp[i][2] = year;
 			
-			if (i == 1) { // end date
-				if (temp[i][2] != null) { // has year
-					if (temp[0][2] == null) { // start date has no year
-						temp[0][2] = temp[i][2]; // set start year = end year
-					}
-				} else { // end date has no year
-					temp[i][2] = currentYear;
-				}
-			}
+			setEndYear(temp, i, currentYear);
 			i++;
 		}
 		
-		if (temp[0][2] == null) { // start date has no year
-			temp[0][2] = currentYear; // set to current year
-		}
+		setStartYear(temp, currentYear);
 		
+		convertDateArrayToStdForm(dateArr, temp);
+		
+		dateArr[3] = removeDateMonthFromString(input);
+		// System.out.println(dateArr[0]);
+		// System.out.println(dateArr[1]);
+		return dateArr;
+	}
+
+	private static void convertDateArrayToStdForm(String[] dateArr, String[][] temp) {
 		if (temp[0][0] == null) { // has no start date
 			dateArr[0] = null; // no flexible date detected
 			dateArr[1] = null;
@@ -85,21 +84,37 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 				dateArr[1] = temp[1][0] + " " + temp[1][1] + " " + temp[1][2];		
 			}
 		}
-		
-		dateArr[3] = removeDateMonthFromString(input);
-		// System.out.println(dateArr[0]);
-		// System.out.println(dateArr[1]);
-		return dateArr;
+	}
+
+	private static void setStartYear(String[][] temp, String currentYear) {
+		if (temp[0][2] == null) { // start date has no year
+			temp[0][2] = currentYear; // set to current year
+		}
+	}
+
+	private static void setEndYear(String[][] temp, int i, String currentYear) {
+		if (i == 1) { // end date
+			if (temp[i][2] != null) { // has year
+				if (temp[0][2] == null) { // start date has no year
+					temp[0][2] = temp[i][2]; // set start year = end year
+				}
+			} else { // end date has no year
+				temp[i][2] = currentYear;
+			}
+		}
 	}
 		
 	private static String[] getMonthDateFromString(String input) {
-		input = " " + input.toLowerCase() + " ";
-		Matcher m = MMMD.matcher(input);
-		String[] dateArr = new String[4];
-		dateArr[2] = DATE_MONTH_FORMAT;
 		String[][] temp = new String[2][3];
+		String[] dateArr = new String[4];
 		int i = 0;
 		String currentYear = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
+		
+		input = input.toLowerCase();
+		Matcher m = MMMD.matcher(input);
+		dateArr[2] = DATE_MONTH_FORMAT;
+		
+		System.out.println(input);
 		
 		while (m.find() & i < 2) {
 			String date = m.group(MD_INDEX_FOR_DATE);
@@ -109,42 +124,17 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 			temp[i][1] = month.substring(0,3);
 			temp[i][2] = year;
 			
-			if (temp[0][2] == null) {
-				temp[0][2] = currentYear;
-			}
-			
-			if (i == 1) {
-				if (temp[i][2] != null) {
-					if (temp[0][2] == null) {
-						temp[0][2] = temp[i][2];
-					}
-				} else {
-					temp[i][2] = currentYear;
-				}
-			}
-			
-			if (temp[0][2] == null) {
-				temp[0][2] = currentYear;
-			}
+			setEndYear(temp, i, currentYear);
 			
 			i++;
 		}
 		
-		if (temp[0][0] == null) {
-			dateArr[0] = null;
-			dateArr[1] = null;
-		} else {
-			dateArr[0] = temp[0][0] + " " + temp[0][1] + " " + temp[0][2];
-			
-			if (temp[1][0] == null) {
-				dateArr[1] = null;
-			} else {
-				dateArr[1] = temp[1][0] + " " + temp[1][1] + " " + temp[1][2];
-			}
-		}
+		setStartYear(temp, currentYear);
+		
+		convertDateArrayToStdForm(dateArr, temp);
 		dateArr[3] = removeMonthDateFromString(input);
-		// System.out.println(dateArr[0]);
-		// System.out.println(dateArr[1]);
+		System.out.println(dateArr[0]);
+		System.out.println(dateArr[1]);
 		
 		return dateArr;
 	}

@@ -25,11 +25,11 @@ public class StringParser {
 	private static Pattern taskId = Pattern.compile(TASK_ID_REGEX);
 	protected static Pattern tags = Pattern.compile(TAG_REGEX);
 	
-	private static String notTitleRegex = "(" + WHITESPACES + "(" + DD + DATE_DELIM + MM + DATE_DELIM + YY + ")" + WHITESPACES + "|" +
-                                           TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|(on|by)([^\"#]*))";  	
-
+	private static final String notTitleRegex = "(" + DateTimeParser.DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + ")";  	
+	
 	private static final Logger logger = Logger.getLogger(StringParser.class.getName() );
 	
+	// Used for testing purposes
 	public static Date parseStringToDate(String input) {
 		Date date = new Date();
 		try {
@@ -45,7 +45,6 @@ public class StringParser {
     // returns null if not found
 	public static String getTitleFromString(String inputArgs) {
 		String regex = notTitleRegex;
-		inputArgs = " " + inputArgs + " ";
 		inputArgs = inputArgs.replaceAll(regex, "");
 		if (inputArgs.trim().equals("")) {
 			return null;

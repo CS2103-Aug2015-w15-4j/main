@@ -137,7 +137,7 @@ public class ParsedCommandTest {
 		// Check support for event spanning 2 days
 		pcAdd = ParsedCommand.parseCommand("Add meeting with john 23/11/10 12:00h to 24/11/10 13:30H  #cs2103 #proj #cs2101");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
-		assertEquals("meeting with john to", pcAdd.getTitle());
+		assertEquals("meeting with john   to", pcAdd.getTitle());
 		assertEquals(null, pcAdd.getDescription());
 		assertEquals(StringParser.parseStringToDate("Tue Nov 23 12:00:00 SGT 2010"), pcAdd.getFirstDate().getTime());
 		assertEquals(StringParser.parseStringToDate("Wed Nov 24 13:30:00 SGT 2010"), pcAdd.getSecondDate().getTime());
