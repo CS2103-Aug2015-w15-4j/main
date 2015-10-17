@@ -26,6 +26,7 @@ public class ParsedCommandTest {
 	private ParsedCommand pcDelete;
 	private ParsedCommand pcDone;
 	private ParsedCommand pcDisplay;
+	private ParsedCommand pcConfig;
 	private ArrayList<String> emptyArrayList = new ArrayList<String>();
 	
 
@@ -300,5 +301,46 @@ public class ParsedCommandTest {
 		pcDone = ParsedCommand.parseCommand("Done 234");
 		assertEquals(CommandType.DONE, pcDone.getCommandType());
 		assertEquals("Error: No error message as this is not an error", pcDone.getErrorMessage());
+	}
+	
+	@Test
+	public void testParseCommandConfig() throws InvalidMethodForTaskTypeException {
+		// Check missing config type
+		pcConfig = ParsedCommand.parseCommand("Set");
+		assertEquals(CommandType.ERROR, pcConfig.getCommandType());
+		assertEquals("Error: No arguments entered", pcConfig.getErrorMessage());
+		
+		// Check missing config type
+		pcConfig = ParsedCommand.parseCommand("Set  file");
+		assertEquals(CommandType.ERROR, pcConfig.getCommandType());
+		assertEquals("Error: Invalid command", pcConfig.getErrorMessage());
+		
+		// Check missing path
+		pcConfig = ParsedCommand.parseCommand("set file");
+		assertEquals(CommandType.ERROR, pcConfig.getCommandType());
+		assertEquals("Error: No arguments entered", pcConfig.getErrorMessage());
+		
+		// Check missing path
+		pcConfig = ParsedCommand.parseCommand("set background");
+		assertEquals(CommandType.ERROR, pcConfig.getCommandType());
+		assertEquals("Error: No arguments entered", pcConfig.getErrorMessage());
+				
+		// Check config data
+		pcConfig = ParsedCommand.parseCommand("set file filePath");
+		assertEquals(CommandType.CONFIG_DATA, pcConfig.getCommandType());
+		assertEquals("filePath", pcConfig.getConfigPath());
+		
+		// Check config img background
+		pcConfig = ParsedCommand.parseCommand("set background filePath");
+		assertEquals(CommandType.CONFIG_IMG, pcConfig.getCommandType());
+		assertEquals("background", pcConfig.getConfigType());
+		assertEquals("filePath", pcConfig.getConfigPath());
+						
+		// Check config img avatar
+		pcConfig = ParsedCommand.parseCommand("set avatar filePath");
+		assertEquals(CommandType.CONFIG_IMG, pcConfig.getCommandType());
+		assertEquals("avatar", pcConfig.getConfigType());
+		assertEquals("filePath", pcConfig.getConfigPath());
+		
 	}
 }

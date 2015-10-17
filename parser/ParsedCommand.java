@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 public class ParsedCommand {
 	public enum CommandType {
-		ADD, DELETE, EDIT, DISPLAY, ERROR, UNDO, DONE, INVALID, EXIT;
+		ADD, DELETE, EDIT, DISPLAY, ERROR, UNDO, DONE, INVALID, CONFIG_DATA, CONFIG_IMG, EXIT, CONFIG;
 	}
 
 	private CommandType cmdType;
@@ -96,7 +96,10 @@ public class ParsedCommand {
 
 			case INVALID:
 				return createParsedCommandError(ERROR_INVALID_COMMAND);
-
+			
+			case CONFIG:
+				return createParsedCommandConfig(input);
+				
 			case EXIT:
 				return createParsedCommandExit();
 
@@ -104,6 +107,56 @@ public class ParsedCommand {
 				// is never visited
 				throw new Error("ERROR");
 			}
+		}
+	}
+
+	private static ParsedCommand createParsedCommandConfig(String[] input) {
+		if (input.length < 2) {
+			return createParsedCommandError(ERROR_MISSING_ARGS);
+		} else {
+			String[] subInput = input[1].split(" ");
+			String subCommand = subInput[0];
+			if (subCommand.equalsIgnoreCase("file")) {
+				return createParsedCommandConfigData(subInput);
+			} else {
+				return createParsedCommandConfigImg(subInput);
+			}
+		}
+	}
+
+	private static ParsedCommand createParsedCommandConfigImg(String[] input) {
+		if (input.length < 2) {
+			return createParsedCommandError(ERROR_MISSING_ARGS);
+		} else {
+			String subCommand = input[0];
+			String fileName = input[1];
+			ParsedCommand pc;
+			if (subCommand.equalsIgnoreCase("background")) {
+				pc = new ParsedCommand(CommandType.CONFIG_IMG, "background",
+						null, null, fileName, null, 0, 0);
+			} else if (subCommand.equalsIgnoreCase("avatar")) {
+				pc = new ParsedCommand(CommandType.CONFIG_IMG, "avatar",
+						null, null, fileName, null, 0, 0);
+			} else {
+				pc = createParsedCommandError(ERROR_INVALID_COMMAND);
+			}
+			return pc;
+		}
+	}
+
+	private static ParsedCommand createParsedCommandConfigData(String[] input) {
+		if (input.length < 2) { // missing file name
+			return createParsedCommandError(ERROR_MISSING_ARGS);
+		} else {
+			ParsedCommand pc;
+			String fileName = input[INDEX_FOR_ARGS];
+			if (fileName.equals("")) {
+				return createParsedCommandError(ERROR_MISSING_ARGS);
+			} else {
+				pc = new ParsedCommand(CommandType.CONFIG_DATA, "file",
+						null, null, fileName, null, 0, 0);
+			}
+			return pc;
 		}
 	}
 
@@ -256,6 +309,8 @@ public class ParsedCommand {
 			return CommandType.UNDO;
 		} else if (commandTypeString.equalsIgnoreCase("done")) {
 			return CommandType.DONE;
+		} else if (commandTypeString.equalsIgnoreCase("set")) {
+			return CommandType.CONFIG;
 		} else if (commandTypeString.equalsIgnoreCase("exit")) {
 			return CommandType.EXIT;
 		} else {
@@ -341,5 +396,21 @@ public class ParsedCommand {
 	
 	public void setTaskType(int taskType) {
 		this.taskType = taskType;
+	}
+	
+	public String getConfigType() throws InvalidMethodForTaskTypeException {
+		if (this.cmdType == CommandType.CONFIG_IMG) {
+			return this.title;
+		} else {
+			throw new InvalidMethodForTaskTypeException("Not a CONFIG command");
+		}
+	}
+	
+	public String getConfigPath() throws InvalidMethodForTaskTypeException {
+		if (this.cmdType == CommandType.CONFIG_IMG || this.cmdType == CommandType.CONFIG_DATA) {
+			return this.description;
+		} else {
+			throw new InvalidMethodForTaskTypeException("Not a CONFIG command");
+		}
 	}
 }
