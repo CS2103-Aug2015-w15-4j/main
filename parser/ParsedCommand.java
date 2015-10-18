@@ -50,17 +50,15 @@ public class ParsedCommand {
      * @param taskId TaskId of task for edit, delete.
      * @param taskType Type of task, 1 for task, 2 for deadline task, 3 for event.
      */
-	public ParsedCommand(CommandType cmdType, String title, Calendar start,
-			Calendar end, String description, ArrayList<String> tags,
-			int taskId, int taskType) {
-		this.cmdType = cmdType;
-		this.title = title;
-		this.firstDate = start;
-		this.secondDate = end;
-		this.description = description;
-		this.tags = tags;
-		this.taskId = taskId;
-		this.taskType = taskType;
+	public ParsedCommand(Builder builder) {
+		this.cmdType = builder.cmdType;
+		this.title = builder.title;
+		this.firstDate = builder.firstDate;
+		this.secondDate = builder.secondDate;
+		this.description = builder.description;
+		this.tags = builder.tags;
+		this.taskId = builder.taskId;
+		this.taskType = builder.taskType;
 	}
 	
 	/**
@@ -132,11 +130,15 @@ public class ParsedCommand {
 			String fileName = input[1];
 			ParsedCommand pc;
 			if (subCommand.equalsIgnoreCase("background")) {
-				pc = new ParsedCommand(CommandType.CONFIG_IMG, "background",
-						null, null, fileName, null, 0, 0);
+				pc = new ParsedCommand.Builder(CommandType.CONFIG_IMG)
+									  .configType("background")
+									  .configPath(fileName)
+									  .build();
 			} else if (subCommand.equalsIgnoreCase("avatar")) {
-				pc = new ParsedCommand(CommandType.CONFIG_IMG, "avatar",
-						null, null, fileName, null, 0, 0);
+				pc = new ParsedCommand.Builder(CommandType.CONFIG_IMG)
+						  .configType("avatar")
+						  .configPath(fileName)
+						  .build();
 			} else {
 				pc = createParsedCommandError(ERROR_INVALID_COMMAND);
 			}
@@ -150,26 +152,27 @@ public class ParsedCommand {
 		} else {
 			ParsedCommand pc;
 			String fileName = input[INDEX_FOR_ARGS];
-			if (fileName.equals("")) {
+			if (isInvalidPath(fileName)) {
 				return createParsedCommandError(ERROR_MISSING_ARGS);
 			} else {
-				pc = new ParsedCommand(CommandType.CONFIG_DATA, "file",
-						null, null, fileName, null, 0, 0);
+				pc = new ParsedCommand.Builder(CommandType.CONFIG_DATA)
+						  			  .configPath(fileName)
+						  			  .build();
 			}
 			return pc;
 		}
 	}
 
+	private static boolean isInvalidPath(String fileName) {
+		return fileName.equals("");
+	}
+
 	private static ParsedCommand createParsedCommandUndo() {
-		ParsedCommand pc = new ParsedCommand(CommandType.UNDO, null, null,
-				null, null, null, 0, 0);
-		return pc;
+		return new ParsedCommand.Builder(CommandType.UNDO).build();
 	}
 
 	private static ParsedCommand createParsedCommandExit() {
-		ParsedCommand pc = new ParsedCommand(CommandType.EXIT, null, null,
-				null, null, null, 0, 0);
-		return pc;
+		return new ParsedCommand.Builder(CommandType.EXIT).build();
 	}
 
 	/*
@@ -201,7 +204,14 @@ public class ParsedCommand {
 					.getDescriptionFromString(fieldsInput);
 			ArrayList<String> tags = StringParser.getTagsFromString(fieldsInput);
 
-			ParsedCommand pc = new ParsedCommand(CommandType.EDIT, title, start, end, description, tags, taskId, 0);
+			ParsedCommand pc = new ParsedCommand.Builder(CommandType.EDIT)
+												.title(title)
+												.firstDate(start)
+												.secondDate(end)
+												.description(description)
+												.tags(tags)
+												.taskId(taskId)
+		  			  							.build();
 			return pc;
 		}
 	}
@@ -215,8 +225,9 @@ public class ParsedCommand {
 			if (taskId < 0) {
 				return createParsedCommandError(ERROR_INVALID_TASKID);
 			} else {
-				ParsedCommand pc = new ParsedCommand(CommandType.DELETE, null,
-						null, null, null, null, taskId, 0);
+				ParsedCommand pc = new ParsedCommand.Builder(CommandType.DELETE)
+						 							.taskId(taskId)
+						 							.build();
 				return pc;
 			}
 		}
@@ -231,8 +242,9 @@ public class ParsedCommand {
 			if (taskId <= 0) {
 				return createParsedCommandError(ERROR_INVALID_TASKID);
 			} else {
-				ParsedCommand pc = new ParsedCommand(CommandType.DISPLAY, null,
-						null, null, null, null, taskId, 0);
+				ParsedCommand pc = new ParsedCommand.Builder(CommandType.DISPLAY)
+													.taskId(taskId)
+													.build();
 				return pc;
 			}
 		}
@@ -247,8 +259,9 @@ public class ParsedCommand {
 			if (taskId < 0) {
 				return createParsedCommandError(ERROR_INVALID_TASKID);
 			} else {
-				ParsedCommand pc = new ParsedCommand(CommandType.DONE, null,
-						null, null, null, null, taskId, 0);
+				ParsedCommand pc = new ParsedCommand.Builder(CommandType.DONE)
+													.taskId(taskId)
+													.build();
 				return pc;
 			}
 		}
@@ -264,35 +277,49 @@ public class ParsedCommand {
 			if (title == null) {
 				return createParsedCommandError(ERROR_MISSING_TITLE);
 			}
+			
 			Calendar[] times = StringParser.getDatesTimesFromString(inputArgs);
 			if (times == null) {
 				return createParsedCommandError(ERROR_INVALID_DATE);
 			}
 			Calendar start = times[INDEX_FOR_START];
 			Calendar end = times[INDEX_FOR_END];
-			int taskType = 0;
-			if (end == null) {
-				if (start == null) {
-					taskType = TASK;
-				} else {
-					taskType = DEADLINE_TASK;
-				}
-			} else {
-				taskType = EVENT;
-			}
-			String description = StringParser
-					.getDescriptionFromString(inputArgs);
+			
+			int taskType = determineTaskType(start, end);
+			
+			String description = StringParser.getDescriptionFromString(inputArgs);
 			ArrayList<String> tags = StringParser.getTagsFromString(inputArgs);
 
-			ParsedCommand pc = new ParsedCommand(CommandType.ADD, title, start,
-					end, description, tags, 0, taskType);
+			ParsedCommand pc = new ParsedCommand.Builder(CommandType.ADD)
+												.title(title)
+												.firstDate(start)
+												.secondDate(end)
+												.description(description)
+												.tags(tags)
+												.taskType(taskType)
+												.build();			
 			return pc;
 		}
 	}
 
+	private static int determineTaskType(Calendar start, Calendar end) {
+		int taskType;
+		if (end == null) {
+			if (start == null) {
+				taskType = TASK;
+			} else {
+				taskType = DEADLINE_TASK;
+			}
+		} else {
+			taskType = EVENT;
+		}
+		return taskType;
+	}
+
 	private static ParsedCommand createParsedCommandError(String errorMsg) {
-		ParsedCommand pc = new ParsedCommand(CommandType.ERROR, errorMsg, null,
-				null, null, null, 0, 0);
+		ParsedCommand pc = new ParsedCommand.Builder(CommandType.ERROR)
+											.errorMessage(errorMsg)
+											.build();
 		return pc;
 	}
 
@@ -411,6 +438,78 @@ public class ParsedCommand {
 			return this.description;
 		} else {
 			throw new InvalidMethodForTaskTypeException("Not a CONFIG command");
+		}
+	}
+	
+	
+	
+	public static class Builder {
+		private ParsedCommand.CommandType cmdType;
+		
+		private String title = null;
+		private Calendar firstDate = null;
+		private Calendar secondDate = null;
+		private String description = null;
+		private ArrayList<String> tags = new ArrayList<String>();
+		private int taskId = 0;
+		private int taskType = 0;
+
+		public Builder(ParsedCommand.CommandType cmdType) {
+			this.cmdType = cmdType;
+		}
+		
+		public Builder title(String title) {
+			this.title = title;
+			return this;
+		}
+		
+		public Builder description(String description) {
+			this.description = description;
+			return this;
+		}
+		
+		public Builder firstDate(Calendar date) {
+			this.firstDate = date;
+			return this;
+		}
+		
+		public Builder secondDate(Calendar date) {
+			this.secondDate = date;
+			return this;
+		}
+		
+		public Builder tags(ArrayList<String> tags) {
+			this.tags = tags;
+			return this;
+		}
+		
+		public Builder taskId(int taskId) {
+			this.taskId = taskId;
+			return this;
+		}
+		
+		public Builder taskType(int taskType) {
+			this.taskType = taskType;
+			return this;
+		}
+		
+		public Builder errorMessage(String msg) {
+			this.title = msg;
+			return this;
+		}
+		
+		public Builder configType(String configType) {
+			this.title = configType;
+			return this;
+		}
+		
+		public Builder configPath(String path) {
+			this.description = path;
+			return this;
+		}
+		
+		public ParsedCommand build() {
+			return new ParsedCommand(this);
 		}
 	}
 }
