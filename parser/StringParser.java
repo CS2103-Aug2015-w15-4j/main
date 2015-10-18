@@ -10,7 +10,13 @@ import java.util.regex.Pattern;
 
 import com.sun.org.apache.xerces.internal.impl.xpath.regex.ParseException;
 
+import parser.StringParser.TaskStatus;
+
 public class StringParser {
+	public enum TaskStatus {
+		TODO, COMPLETED, OVERDUE;
+	}
+
 	protected static final String TASK_ID_REGEX = "(^[0-9]+)";
 	private static final String DD = "(?<![0-9])(0?[1-9]|[12][0-9]|3[01])";
 	private static final String MM = "(0?[1-9]|1[012])";
@@ -20,12 +26,14 @@ public class StringParser {
 	private static final String TIME_REGEX = TimeParser.TWENTYFOUR_HR_REGEX + "|" + TimeParser.TWELVE_HR_REGEX;
 	protected static final String TAG_REGEX = "(#(\\w+))";
 	protected static final String DESCRIPTION_REGEX = "(\"[^\"]*?\")";
+	protected static final String TASK_STATUS_REGEX = "(?<=[^//s])(todo|completed|overdue)(?=\\s|$)";
 	
 	private static Pattern description = Pattern.compile(DESCRIPTION_REGEX);
 	private static Pattern taskId = Pattern.compile(TASK_ID_REGEX);
 	protected static Pattern tags = Pattern.compile(TAG_REGEX);
+	protected static Pattern taskStatus = Pattern.compile(TASK_STATUS_REGEX);
 	
-	private static final String notTitleRegex = "(" + DateTimeParser.DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + ")";  	
+	private static final String notTitleRegex = "(" + DateTimeParser.DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|(" + TASK_STATUS_REGEX + "))";  	
 	
 	private static final Logger logger = Logger.getLogger(StringParser.class.getName() );
 	
@@ -128,6 +136,33 @@ public class StringParser {
 	public static String removeRegexPatternFromString(String input, String regex) {
 		input = input.replaceAll(regex, "");
 		return input.trim();
+	}
+
+	public static TaskStatus getTaskStatusFromString(String inputArgs) {
+		Matcher m = taskStatus.matcher(inputArgs);
+		String status = null;
+
+		if (m.find()) {
+			status = m.group();
+		}
+
+		if (status != null) {
+			return determineTaskStatus(status);
+		} else {
+			return null;
+		}
+	}
+
+	private static TaskStatus determineTaskStatus(String status) {
+		if (status.equalsIgnoreCase("todo")) {
+			return TaskStatus.TODO;
+		} else if (status.equalsIgnoreCase("completed")) {
+			return TaskStatus.COMPLETED;
+		} else if (status.equalsIgnoreCase("overdue")) {
+			return TaskStatus.OVERDUE;
+		} else {
+			return null;
+		}
 	}
 
 }

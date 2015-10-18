@@ -4,9 +4,13 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.logging.Logger;
 
+import com.sun.org.apache.xerces.internal.util.Status;
+
+import parser.StringParser.TaskStatus;
+
 public class ParsedCommand {
 	public enum CommandType {
-		ADD, DELETE, EDIT, DISPLAY, ERROR, UNDO, DONE, INVALID, CONFIG_DATA, CONFIG_IMG, EXIT, CONFIG;
+		ADD, DELETE, EDIT, DISPLAY, ERROR, UNDO, DONE, INVALID, CONFIG_DATA, CONFIG_IMG, EXIT, CONFIG, SEARCH;
 	}
 
 	private CommandType cmdType;
@@ -17,6 +21,7 @@ public class ParsedCommand {
 	private ArrayList<String> tags;
 	private int taskId;
 	private int taskType;
+	private StringParser.TaskStatus taskStatus;
 
 	private static final String ERROR_INVALID_COMMAND = "Error: Invalid command";
 	private static final String ERROR_NO_INPUT = "Error: No user input";
@@ -59,6 +64,7 @@ public class ParsedCommand {
 		this.tags = builder.tags;
 		this.taskId = builder.taskId;
 		this.taskType = builder.taskType;
+		this.taskStatus = builder.taskStatus;
 	}
 	
 	/**
@@ -186,6 +192,7 @@ public class ParsedCommand {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
 			String inputArgs[] = input[INDEX_FOR_ARGS].trim().split(" ", 2);
+			
 			int taskId = StringParser.getTaskIdFromString(inputArgs[INDEX_FOR_TASKID]);
 			if (isInvalidTaskId(taskId)) {
 				return createParsedCommandError(ERROR_INVALID_TASKID);
@@ -247,17 +254,46 @@ public class ParsedCommand {
 		if (isMissingArguments(input)) {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
-			String inputArgs = input[INDEX_FOR_ARGS].trim();
+			String inputArgs = input[INDEX_FOR_ARGS];
 			int taskId = StringParser.getTaskIdFromString(inputArgs);
-			if (taskId <= 0) {
-				return createParsedCommandError(ERROR_INVALID_TASKID);
-			} else {
+			if (isInvalidTaskId(taskId)) {
+				if (containsOnlyTaskId(inputArgs)) {
+					return createParsedCommandError(ERROR_INVALID_TASKID);
+				} else { // search
+					String searchKeywords = StringParser.getTitleFromString(inputArgs);
+					
+					Calendar[] times = StringParser.getDatesTimesFromString(inputArgs);
+					if (isInvalidDateTime(times)) {
+						return createParsedCommandError(ERROR_INVALID_DATE);
+					}
+					
+					Calendar start = times[INDEX_FOR_START];
+					Calendar end = times[INDEX_FOR_END];
+					
+					StringParser.TaskStatus status = StringParser.getTaskStatusFromString(inputArgs);
+					
+					ArrayList<String> tags = StringParser.getTagsFromString(inputArgs);
+					
+					ParsedCommand pc = new ParsedCommand.Builder(CommandType.SEARCH)
+														.searchKeywords(searchKeywords)
+														.firstDate(start)
+														.secondDate(end)
+														.tags(tags)
+														.taskStatus(status)
+														.build();			
+					return pc;
+				}
+			} else { // view task
 				ParsedCommand pc = new ParsedCommand.Builder(CommandType.DISPLAY)
 													.taskId(taskId)
 													.build();
 				return pc;
 			}
 		}
+	}
+
+	private static boolean containsOnlyTaskId(String inputArgs) {
+		return StringParser.removeRegexPatternFromString(inputArgs, StringParser.TASK_ID_REGEX).trim().equals("");
 	}
 
 	private static ParsedCommand createParsedCommandDone(String[] input) {
@@ -292,11 +328,11 @@ public class ParsedCommand {
 			if (isInvalidDateTime(times)) {
 				return createParsedCommandError(ERROR_INVALID_DATE);
 			}
+			
 			Calendar start = times[INDEX_FOR_START];
 			Calendar end = times[INDEX_FOR_END];
 			
 			int taskType = determineTaskType(start, end);
-			
 			String description = StringParser.getDescriptionFromString(inputArgs);
 			ArrayList<String> tags = StringParser.getTagsFromString(inputArgs);
 
@@ -459,6 +495,14 @@ public class ParsedCommand {
 		}
 	}
 	
+	public TaskStatus getTaskStatus() {
+		return this.taskStatus;
+	}
+	
+	public String getKeywords() {
+		return this.title;
+	}
+	
 	
 	
 	public static class Builder {
@@ -471,6 +515,7 @@ public class ParsedCommand {
 		private ArrayList<String> tags = new ArrayList<String>();
 		private int taskId = 0;
 		private int taskType = 0;
+		private TaskStatus taskStatus = null;
 
 		public Builder(ParsedCommand.CommandType cmdType) {
 			this.cmdType = cmdType;
@@ -523,6 +568,16 @@ public class ParsedCommand {
 		
 		public Builder configPath(String path) {
 			this.description = path;
+			return this;
+		}
+		
+		public Builder taskStatus(TaskStatus status) {
+			this.taskStatus = status;
+			return this;
+		}
+		
+		public Builder searchKeywords(String keywords) {
+			this.title = keywords;
 			return this;
 		}
 		

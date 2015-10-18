@@ -10,6 +10,7 @@ import java.util.Date;
 import org.junit.Test;
 
 import parser.StringParser;
+import parser.StringParser.TaskStatus;
 
 public class StringParserTest {
 	
@@ -21,7 +22,7 @@ public class StringParserTest {
 		assertEquals("hello  task", StringParser.getTitleFromString(" hello \"this is my\" task 12:00"));
 		assertEquals("Meet John about proposal", StringParser.getTitleFromString("12.2-13 Meet John about proposal #cs2103 12:00"));
 		assertEquals("Meet John about proposal", StringParser.getTitleFromString("#cs2101 Meet John about proposal on 23 jan #cs2103 12:00 12/2/13"));
-		assertEquals("Meet John about proposal", StringParser.getTitleFromString(" 12:00 12/2/13 Meet John about proposal #cs2103"));
+		assertEquals("Meet John about proposal", StringParser.getTitleFromString(" 12:00 12/2/13 Meet John about proposal #cs2103 todo"));
 		assertEquals(null, StringParser.getTitleFromString("23/1/15 2pm \"description\" #tag1 #tag2"));
 	}
 
@@ -99,5 +100,11 @@ public class StringParserTest {
 		assertEquals("cs2103", StringParser.getTagsFromString("Meet Task John about proposal #cs2103 @1200 #cs2101").get(0));
 		assertEquals("cs2101", StringParser.getTagsFromString("Meet Task John about proposal #cs2103 @1200 #cs2101").get(1));
 		assertEquals(new ArrayList<String>(), StringParser.getTagsFromString("Meet Task John about proposal @1200"));
+	}
+	
+	@Test
+	public void testGetTaskStatusFromString() {
+		assertEquals(TaskStatus.TODO, StringParser.getTaskStatusFromString("Meet Task John about proposal #cs2103 @1200 #cs2101 todo"));
+		assertEquals(TaskStatus.TODO, StringParser.getTaskStatusFromString("meeting 23/11/15 #tag todo"));
 	}
 }

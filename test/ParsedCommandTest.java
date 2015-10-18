@@ -20,6 +20,7 @@ import parser.InvalidMethodForTaskTypeException;
 import parser.ParsedCommand;
 import parser.ParsedCommand.CommandType;
 import parser.StringParser;
+import parser.StringParser.TaskStatus;
 
 public class ParsedCommandTest {
 	private ParsedCommand pc;
@@ -209,7 +210,7 @@ public class ParsedCommandTest {
 		assertEquals(234, pcDisplay.getTaskId());
 
 		// Check allow extra whitespace
-		pcDisplay = ParsedCommand.parseCommand("show  234");
+		pcDisplay = ParsedCommand.parseCommand("show 234");
 		assertEquals(CommandType.DISPLAY, pcDisplay.getCommandType());
 		assertEquals(234, pcDisplay.getTaskId());
 
@@ -217,11 +218,23 @@ public class ParsedCommandTest {
 		pcDisplay = ParsedCommand.parseCommand("show");
 		assertEquals(CommandType.ERROR, pcDisplay.getCommandType());
 		assertEquals("Error: No arguments entered", pcDisplay.getErrorMessage());
-
+		
+		// Check search function works
+		pcDisplay = ParsedCommand.parseCommand("show meeting 23/11/15 #tag todo");
+		assertEquals(CommandType.SEARCH, pcDisplay.getCommandType());
+		assertEquals("meeting", pcDisplay.getKeywords());
+		assertEquals(StringParser.parseStringToDate("Mon Nov 23 23:59:00 SGT 2015"), pcDisplay.getFirstDate().getTime());
+		assertEquals(null, pcDisplay.getSecondDate());
+		ArrayList<String> list = new ArrayList<String>();
+		list.add("tag");
+		assertEquals(list, pcDisplay.getTags());
+		assertEquals(TaskStatus.TODO, pcDisplay.getTaskStatus());
+		/*
 		// Check invalid/missing taskId returns error
 		pcDisplay = ParsedCommand.parseCommand("show abc");
 		assertEquals(CommandType.ERROR, pcDisplay.getCommandType());
 		assertEquals("Error: Invalid/Missing taskId", pcDisplay.getErrorMessage());
+		*/
 	}
 
 	@Test
