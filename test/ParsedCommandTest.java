@@ -1,4 +1,4 @@
-package parser;
+package test;
 
 import static org.junit.Assert.*;
 
@@ -16,7 +16,10 @@ import java.util.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
+import parser.InvalidMethodForTaskTypeException;
+import parser.ParsedCommand;
 import parser.ParsedCommand.CommandType;
+import parser.StringParser;
 
 public class ParsedCommandTest {
 	private ParsedCommand pc;
@@ -223,6 +226,10 @@ public class ParsedCommandTest {
 
 	@Test
 	public void testParseCommandEdit() throws InvalidMethodForTaskTypeException {
+		// Check support for invalid date
+		pcEdit = ParsedCommand.parseCommand("Edit 234 meeting 31/2/15 \"hello\" #tag");
+		assertEquals(CommandType.ERROR, pcEdit.getCommandType());
+						
 		// Check support for edit title, description, date, time, tag
 		pcEdit = ParsedCommand.parseCommand("Edit 234 meeting \"hello\" 23/11/10 13:00-15:00 #tag");
 		assertEquals(CommandType.EDIT, pcEdit.getCommandType());

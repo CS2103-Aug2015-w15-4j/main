@@ -1,8 +1,10 @@
-package parser;
+package test;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+
+import parser.FlexibleDateTimeParser;
 
 public class FlexibleDateTimeParserTest {
 

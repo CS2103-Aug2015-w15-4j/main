@@ -1,4 +1,4 @@
-package parser;
+package test;
 
 import static org.junit.Assert.*;
 
@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import org.junit.Test;
+
+import parser.StringParser;
 
 public class StringParserTest {
 	

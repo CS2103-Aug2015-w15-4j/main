@@ -1,8 +1,11 @@
-package parser;
+package test;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+
+import parser.NattyDateTimeParser;
+import parser.StringParser;
 
 public class NattyDateTimeParserTest {
 
