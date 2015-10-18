@@ -267,7 +267,7 @@ public class ParsedCommandTest {
 		assertEquals(null, pcEdit.getTitle());
 		
 		// Check allow extra whitespace
-		pcEdit = ParsedCommand.parseCommand("Edit  234 test");
+		pcEdit = ParsedCommand.parseCommand("Edit 234 test");
 		assertEquals(CommandType.EDIT, pcEdit.getCommandType());
 		assertEquals(234, pcEdit.getTaskId());
 		assertEquals("test", pcEdit.getTitle());
@@ -286,6 +286,11 @@ public class ParsedCommandTest {
 		pcEdit = ParsedCommand.parseCommand("edit abc #hello");
 		assertEquals(CommandType.ERROR, pcEdit.getCommandType());
 		assertEquals("Error: Invalid/Missing taskId", pcEdit.getErrorMessage());
+		
+		// Check invalid date returns error
+		pcEdit = ParsedCommand.parseCommand("edit 123 31/2/16 #hello");
+		assertEquals(CommandType.ERROR, pcEdit.getCommandType());
+		assertEquals("Error: Invalid date(s) input", pcEdit.getErrorMessage());
 	}
 
 	@Test

@@ -18,12 +18,6 @@ public class StringParser {
 	}
 
 	protected static final String TASK_ID_REGEX = "(^[0-9]+)";
-	private static final String DD = "(?<![0-9])(0?[1-9]|[12][0-9]|3[01])";
-	private static final String MM = "(0?[1-9]|1[012])";
-	private static final String YY = "(\\d\\d)";
-	private static final String DATE_DELIM = "([-/.])";
-	private static final String WHITESPACES = "\\s*";
-	private static final String TIME_REGEX = TimeParser.TWENTYFOUR_HR_REGEX + "|" + TimeParser.TWELVE_HR_REGEX;
 	protected static final String TAG_REGEX = "(#(\\w+))";
 	protected static final String DESCRIPTION_REGEX = "(\"[^\"]*?\")";
 	protected static final String TASK_STATUS_REGEX = "(?<=[^//s])(todo|completed|overdue)(?=\\s|$)";

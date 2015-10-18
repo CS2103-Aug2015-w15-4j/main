@@ -202,38 +202,68 @@ public class ParsedCommand {
 		if (isMissingArguments(input)) {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
-			String inputArgs[] = input[INDEX_FOR_ARGS].trim().split(" ", 2);
+			ParsedCommand pc;
+			String inputArgs[] = input[INDEX_FOR_ARGS].split(" ", 2);
 			
-			int taskId = StringParser.getTaskIdFromString(inputArgs[INDEX_FOR_TASKID]);
-			if (isInvalidTaskId(taskId)) {
-				return createParsedCommandError(ERROR_INVALID_TASKID);
-			}
+			try {
+				pc = initEditParsedCommand(inputArgs);
 			
-			if (isMissingArguments(inputArgs)) { //missing edit fields
-				return createParsedCommandError(ERROR_MISSING_FIELDS);
-			}
+				String fieldsInput = inputArgs[INDEX_FOR_FIELDS];
 			
-			String fieldsInput = inputArgs[INDEX_FOR_FIELDS];
-			String title = StringParser.getTitleFromString(fieldsInput);
-			Calendar[] times = StringParser.getDatesTimesFromString(fieldsInput);
-			if (isInvalidDateTime(times)) {
-				return createParsedCommandError(ERROR_INVALID_DATE);
+				pc.parseTitle(fieldsInput);
+				pc.parseTimes(fieldsInput);
+				pc.parseDescription(fieldsInput);
+				pc.parseTags(fieldsInput);
+			
+				return pc;
+			
+			} catch (InvalidArgumentsForParsedCommandException e) {
+				return createParsedCommandError(e.getMessage());
 			}
-			Calendar start = times[INDEX_FOR_START];
-			Calendar end = times[INDEX_FOR_END];
-			String description = StringParser.getDescriptionFromString(fieldsInput);
-			ArrayList<String> tags = StringParser.getTagsFromString(fieldsInput);
-
-			ParsedCommand pc = new ParsedCommand.Builder(CommandType.EDIT)
-												.title(title)
-												.firstDate(start)
-												.secondDate(end)
-												.description(description)
-												.tags(tags)
-												.taskId(taskId)
-		  			  							.build();
-			return pc;
 		}
+	}
+	
+	private void parseTags(String fieldsInput) {
+		ArrayList<String> tags = StringParser.getTagsFromString(fieldsInput);
+		this.tags = tags;
+	}
+
+	private void parseDescription(String fieldsInput) {
+		String description = StringParser.getDescriptionFromString(fieldsInput);
+		this.description = description;
+	}
+
+	private void parseTimes(String fieldsInput) throws InvalidArgumentsForParsedCommandException {
+		Calendar[] times = StringParser.getDatesTimesFromString(fieldsInput);
+		if (isInvalidDateTime(times)) {
+			throw new InvalidArgumentsForParsedCommandException(ERROR_INVALID_DATE);
+		}
+		Calendar start = times[INDEX_FOR_START];
+		Calendar end = times[INDEX_FOR_END];
+		this.firstDate = start;
+		this.secondDate = end;
+	}
+
+	private void parseTitle(String fieldsInput) {
+		String title = StringParser.getTitleFromString(fieldsInput);
+		this.title = title;
+	}
+
+	private static ParsedCommand initEditParsedCommand(String[] inputArgs) throws InvalidArgumentsForParsedCommandException {
+		int taskId = StringParser.getTaskIdFromString(inputArgs[INDEX_FOR_TASKID]);
+		if (isInvalidTaskId(taskId)) {
+			throw new InvalidArgumentsForParsedCommandException(ERROR_INVALID_TASKID);
+		}
+		
+		if (isMissingArguments(inputArgs)) { //missing edit fields
+			throw new InvalidArgumentsForParsedCommandException(ERROR_MISSING_FIELDS);
+		}
+		
+		ParsedCommand pc = new ParsedCommand.Builder(CommandType.EDIT)
+									   	    .taskId(taskId)
+									   	    .build();
+		return pc;
+		
 	}
 
 	private static boolean isInvalidTaskId(int taskId) {
@@ -270,29 +300,21 @@ public class ParsedCommand {
 			if (isInvalidTaskId(taskId)) {
 				if (containsOnlyTaskId(inputArgs)) {
 					return createParsedCommandError(ERROR_INVALID_TASKID);
-				} else { // search
-					String searchKeywords = StringParser.getTitleFromString(inputArgs);
+				} else { // search	
+					ParsedCommand pc;
+					try {
+						pc = initSearchParsedCommand(inputArgs);
 					
-					Calendar[] times = StringParser.getDatesTimesFromString(inputArgs);
-					if (isInvalidDateTime(times)) {
-						return createParsedCommandError(ERROR_INVALID_DATE);
+						pc.parseKeywords(inputArgs);
+						pc.parseTimes(inputArgs);
+						pc.parseTags(inputArgs);
+						pc.parseTaskStatus(inputArgs);
+					
+						return pc;
+				
+					} catch (InvalidArgumentsForParsedCommandException e) {
+						return createParsedCommandError(e.getMessage());
 					}
-					
-					Calendar start = times[INDEX_FOR_START];
-					Calendar end = times[INDEX_FOR_END];
-					
-					StringParser.TaskStatus status = StringParser.getTaskStatusFromString(inputArgs);
-					
-					ArrayList<String> tags = StringParser.getTagsFromString(inputArgs);
-					
-					ParsedCommand pc = new ParsedCommand.Builder(CommandType.SEARCH)
-														.searchKeywords(searchKeywords)
-														.firstDate(start)
-														.secondDate(end)
-														.tags(tags)
-														.taskStatus(status)
-														.build();			
-					return pc;
 				}
 			} else { // view task
 				ParsedCommand pc = new ParsedCommand.Builder(CommandType.DISPLAY)
@@ -301,6 +323,30 @@ public class ParsedCommand {
 				return pc;
 			}
 		}
+	}
+
+	private void parseTaskStatus(String inputArgs) {
+		TaskStatus status = StringParser.getTaskStatusFromString(inputArgs);
+		this.taskStatus = status;
+	}
+
+	private void parseKeywords(String inputArgs) {
+		String searchKeywords = StringParser.getTitleFromString(inputArgs);
+		this.setKeywords(searchKeywords);
+	}
+
+	private void setKeywords(String searchKeywords) {
+		this.title = searchKeywords;
+	}
+
+	private static ParsedCommand initSearchParsedCommand(String inputArgs) throws InvalidArgumentsForParsedCommandException {
+		String toSearch = StringParser.removeRegexPatternFromString(inputArgs, StringParser.DESCRIPTION_REGEX);
+		if (toSearch.trim().equals("")) {
+			throw new InvalidArgumentsForParsedCommandException(ERROR_MISSING_ARGS);
+		}
+		ParsedCommand pc = new ParsedCommand.Builder(CommandType.SEARCH)
+											.build();
+		return pc;
 	}
 
 	private static boolean containsOnlyTaskId(String inputArgs) {
@@ -329,34 +375,38 @@ public class ParsedCommand {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
 			String inputArgs = input[INDEX_FOR_ARGS];
-			String title = StringParser.getTitleFromString(inputArgs);
 			
-			if (isMissingTitle(title)) {
-				return createParsedCommandError(ERROR_MISSING_TITLE);
+			try {
+				ParsedCommand pc = initAddParsedCommand(inputArgs);
+				pc.parseTimes(inputArgs);
+				pc.parseDescription(inputArgs);
+				pc.parseTags(inputArgs);
+				pc.parseTaskType();
+			
+				return pc;
+			} catch (InvalidArgumentsForParsedCommandException e) {
+				return createParsedCommandError(e.getMessage());
 			}
-			
-			Calendar[] times = StringParser.getDatesTimesFromString(inputArgs);
-			if (isInvalidDateTime(times)) {
-				return createParsedCommandError(ERROR_INVALID_DATE);
-			}
-			
-			Calendar start = times[INDEX_FOR_START];
-			Calendar end = times[INDEX_FOR_END];
-			
-			int taskType = determineTaskType(start, end);
-			String description = StringParser.getDescriptionFromString(inputArgs);
-			ArrayList<String> tags = StringParser.getTagsFromString(inputArgs);
-
-			ParsedCommand pc = new ParsedCommand.Builder(CommandType.ADD)
-												.title(title)
-												.firstDate(start)
-												.secondDate(end)
-												.description(description)
-												.tags(tags)
-												.taskType(taskType)
-												.build();			
-			return pc;
 		}
+	}
+	
+	private void parseTaskType() {
+		int taskType = determineTaskType(this.firstDate, this.secondDate);
+		this.taskType = taskType;
+	}
+
+	private static ParsedCommand initAddParsedCommand(String inputArgs) throws InvalidArgumentsForParsedCommandException {
+		String title = StringParser.getTitleFromString(inputArgs);
+		
+		if (isMissingTitle(title)) {
+			throw new InvalidArgumentsForParsedCommandException(ERROR_MISSING_TITLE);
+		}
+		
+		ParsedCommand pc = new ParsedCommand.Builder(CommandType.ADD)
+											.title(title)
+											.build();
+		return pc;
+		
 	}
 
 	private static boolean isInvalidDateTime(Calendar[] times) {
