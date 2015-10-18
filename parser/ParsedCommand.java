@@ -519,7 +519,7 @@ public class ParsedCommand {
 		private Calendar secondDate = null;
 		private String description = null;
 		private ArrayList<String> tags = new ArrayList<String>();
-		private int taskId = 0;
+		private int taskId = -1;
 		private int taskType = 0;
 		private TaskStatus taskStatus = null;
 		private ConfigType configType = null;
