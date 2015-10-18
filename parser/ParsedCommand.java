@@ -12,6 +12,10 @@ public class ParsedCommand {
 	public enum CommandType {
 		ADD, DELETE, EDIT, DISPLAY, ERROR, UNDO, DONE, INVALID, CONFIG_DATA, CONFIG_IMG, EXIT, CONFIG, SEARCH;
 	}
+	
+	public enum ConfigType {
+		BACKGROUND, AVATAR, INVALID;
+	}
 
 	private CommandType cmdType;
 	private String title;
@@ -22,6 +26,7 @@ public class ParsedCommand {
 	private int taskId;
 	private int taskType;
 	private StringParser.TaskStatus taskStatus;
+	private ConfigType configType;
 
 	private static final String ERROR_INVALID_COMMAND = "Error: Invalid command";
 	private static final String ERROR_NO_INPUT = "Error: No user input";
@@ -65,6 +70,7 @@ public class ParsedCommand {
 		this.taskId = builder.taskId;
 		this.taskType = builder.taskType;
 		this.taskStatus = builder.taskStatus;
+		this.configType = builder.configType;
 	}
 	
 	/**
@@ -132,23 +138,28 @@ public class ParsedCommand {
 		if (isMissingArguments(input)) {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
-			String subCommand = input[0];
+			ConfigType configType = determineConfigImgType(input[0]);
 			String fileName = input[1];
 			ParsedCommand pc;
-			if (subCommand.equalsIgnoreCase("background")) {
+			if (configType != ConfigType.INVALID) {
 				pc = new ParsedCommand.Builder(CommandType.CONFIG_IMG)
-									  .configType("background")
+									  .configType(configType)
 									  .configPath(fileName)
 									  .build();
-			} else if (subCommand.equalsIgnoreCase("avatar")) {
-				pc = new ParsedCommand.Builder(CommandType.CONFIG_IMG)
-						  .configType("avatar")
-						  .configPath(fileName)
-						  .build();
 			} else {
 				pc = createParsedCommandError(ERROR_INVALID_COMMAND);
 			}
 			return pc;
+		}
+	}
+
+	private static ConfigType determineConfigImgType(String subCommand) {
+		if (subCommand.equalsIgnoreCase("background")) {
+			return ConfigType.BACKGROUND;
+		} else if (subCommand.equalsIgnoreCase("avatar")) {
+			return ConfigType.AVATAR;
+		} else {
+			return ConfigType.INVALID;
 		}
 	}
 
@@ -479,14 +490,24 @@ public class ParsedCommand {
 		this.taskType = taskType;
 	}
 	
-	public String getConfigType() throws InvalidMethodForTaskTypeException {
+	/**
+	 * Returns configuration type i.e. background or avatar for CONFIG_IMG, returns null if not applicable.
+	 * @return
+	 * @throws InvalidMethodForTaskTypeException
+	 */
+	public ConfigType getConfigType() throws InvalidMethodForTaskTypeException {
 		if (this.cmdType == CommandType.CONFIG_IMG) {
-			return this.title;
+			return this.configType;
 		} else {
 			throw new InvalidMethodForTaskTypeException("Not a CONFIG command");
 		}
 	}
 	
+	/**
+	 * Returns path for customisation for set file/background/avatar, returns null if not applicable.
+	 * @return
+	 * @throws InvalidMethodForTaskTypeException
+	 */
 	public String getConfigPath() throws InvalidMethodForTaskTypeException {
 		if (this.cmdType == CommandType.CONFIG_IMG || this.cmdType == CommandType.CONFIG_DATA) {
 			return this.description;
@@ -495,17 +516,27 @@ public class ParsedCommand {
 		}
 	}
 	
+	/**
+	 * Returns task status TODO, COMPLETED, OVERDUE or null if not applicable.
+	 * @return
+	 */
 	public TaskStatus getTaskStatus() {
 		return this.taskStatus;
 	}
 	
-	public String getKeywords() {
-		return this.title;
+	/**
+	 * Returns search keywords for show command, returns null if not applicable.
+	 * @return
+	 */
+	public String getKeywords() throws InvalidMethodForTaskTypeException {
+		if (this.cmdType == CommandType.SEARCH) {
+			return this.title;
+		} else {
+			throw new InvalidMethodForTaskTypeException("Not a SEARCH command, no search keywords.");
+		}
 	}
 	
-	
-	
-	public static class Builder {
+	private static class Builder {
 		private ParsedCommand.CommandType cmdType;
 		
 		private String title = null;
@@ -516,6 +547,7 @@ public class ParsedCommand {
 		private int taskId = 0;
 		private int taskType = 0;
 		private TaskStatus taskStatus = null;
+		private ConfigType configType = null;
 
 		public Builder(ParsedCommand.CommandType cmdType) {
 			this.cmdType = cmdType;
@@ -561,8 +593,8 @@ public class ParsedCommand {
 			return this;
 		}
 		
-		public Builder configType(String configType) {
-			this.title = configType;
+		public Builder configType(ConfigType configType) {
+			this.configType = configType;
 			return this;
 		}
 		

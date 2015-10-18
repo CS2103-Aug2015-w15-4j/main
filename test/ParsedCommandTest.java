@@ -19,6 +19,7 @@ import org.junit.Test;
 import parser.InvalidMethodForTaskTypeException;
 import parser.ParsedCommand;
 import parser.ParsedCommand.CommandType;
+import parser.ParsedCommand.ConfigType;
 import parser.StringParser;
 import parser.StringParser.TaskStatus;
 
@@ -353,13 +354,13 @@ public class ParsedCommandTest {
 		// Check config img background
 		pcConfig = ParsedCommand.parseCommand("set background filePath");
 		assertEquals(CommandType.CONFIG_IMG, pcConfig.getCommandType());
-		assertEquals("background", pcConfig.getConfigType());
+		assertEquals(ConfigType.BACKGROUND, pcConfig.getConfigType());
 		assertEquals("filePath", pcConfig.getConfigPath());
 						
 		// Check config img avatar
 		pcConfig = ParsedCommand.parseCommand("set avatar filePath");
 		assertEquals(CommandType.CONFIG_IMG, pcConfig.getCommandType());
-		assertEquals("avatar", pcConfig.getConfigType());
+		assertEquals(ConfigType.AVATAR, pcConfig.getConfigType());
 		assertEquals("filePath", pcConfig.getConfigPath());
 		
 	}
