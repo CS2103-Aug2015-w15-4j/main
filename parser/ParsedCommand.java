@@ -109,7 +109,7 @@ public class ParsedCommand {
 	}
 
 	private static ParsedCommand createParsedCommandConfig(String[] input) {
-		if (input.length < 2) {
+		if (isMissingArguments(input)) {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
 			String[] subInput = input[1].split(" ");
@@ -123,7 +123,7 @@ public class ParsedCommand {
 	}
 
 	private static ParsedCommand createParsedCommandConfigImg(String[] input) {
-		if (input.length < 2) {
+		if (isMissingArguments(input)) {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
 			String subCommand = input[0];
@@ -147,7 +147,7 @@ public class ParsedCommand {
 	}
 
 	private static ParsedCommand createParsedCommandConfigData(String[] input) {
-		if (input.length < 2) { // missing file name
+		if (isMissingArguments(input)) { // missing file name
 			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
 			ParsedCommand pc;
@@ -182,26 +182,28 @@ public class ParsedCommand {
 	 */
 	
 	private static ParsedCommand createParsedCommandEdit(String[] input) {
-		if (input.length < 2) {
+		if (isMissingArguments(input)) {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
 			String inputArgs[] = input[INDEX_FOR_ARGS].trim().split(" ", 2);
 			int taskId = StringParser.getTaskIdFromString(inputArgs[INDEX_FOR_TASKID]);
-			if (taskId < 0) {
+			if (isInvalidTaskId(taskId)) {
 				return createParsedCommandError(ERROR_INVALID_TASKID);
 			}
 			
-			if (inputArgs.length < 2) { //missing edit fields
+			if (isMissingArguments(inputArgs)) { //missing edit fields
 				return createParsedCommandError(ERROR_MISSING_FIELDS);
 			}
 			
 			String fieldsInput = inputArgs[INDEX_FOR_FIELDS];
 			String title = StringParser.getTitleFromString(fieldsInput);
 			Calendar[] times = StringParser.getDatesTimesFromString(fieldsInput);
+			if (isInvalidDateTime(times)) {
+				return createParsedCommandError(ERROR_INVALID_DATE);
+			}
 			Calendar start = times[INDEX_FOR_START];
 			Calendar end = times[INDEX_FOR_END];
-			String description = StringParser
-					.getDescriptionFromString(fieldsInput);
+			String description = StringParser.getDescriptionFromString(fieldsInput);
 			ArrayList<String> tags = StringParser.getTagsFromString(fieldsInput);
 
 			ParsedCommand pc = new ParsedCommand.Builder(CommandType.EDIT)
@@ -216,13 +218,21 @@ public class ParsedCommand {
 		}
 	}
 
+	private static boolean isInvalidTaskId(int taskId) {
+		return taskId < 0;
+	}
+
+	private static boolean isMissingArguments(String[] input) {
+		return input.length < 2;
+	}
+
 	private static ParsedCommand createParsedCommandDelete(String[] input) {
-		if (input.length < 2) {
+		if (isMissingArguments(input)) {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
 			String inputArgs = input[INDEX_FOR_ARGS].trim();
 			int taskId = StringParser.getTaskIdFromString(inputArgs);
-			if (taskId < 0) {
+			if (isInvalidTaskId(taskId)) {
 				return createParsedCommandError(ERROR_INVALID_TASKID);
 			} else {
 				ParsedCommand pc = new ParsedCommand.Builder(CommandType.DELETE)
@@ -234,7 +244,7 @@ public class ParsedCommand {
 	}
 	
 	private static ParsedCommand createParsedCommandDisplay(String[] input) {
-		if (input.length < 2) {
+		if (isMissingArguments(input)) {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
 			String inputArgs = input[INDEX_FOR_ARGS].trim();
@@ -251,12 +261,12 @@ public class ParsedCommand {
 	}
 
 	private static ParsedCommand createParsedCommandDone(String[] input) {
-		if (input.length < 2) {
+		if (isMissingArguments(input)) {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
 			String inputArgs = input[INDEX_FOR_ARGS].trim();
 			int taskId = StringParser.getTaskIdFromString(inputArgs);
-			if (taskId < 0) {
+			if (isInvalidTaskId(taskId)) {
 				return createParsedCommandError(ERROR_INVALID_TASKID);
 			} else {
 				ParsedCommand pc = new ParsedCommand.Builder(CommandType.DONE)
@@ -268,18 +278,18 @@ public class ParsedCommand {
 	}
 
 	private static ParsedCommand createParsedCommandAdd(String[] input) {
-		if (input.length < 2) {
+		if (isMissingArguments(input)) {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
 			String inputArgs = input[INDEX_FOR_ARGS];
 			String title = StringParser.getTitleFromString(inputArgs);
 			
-			if (title == null) {
+			if (isMissingTitle(title)) {
 				return createParsedCommandError(ERROR_MISSING_TITLE);
 			}
 			
 			Calendar[] times = StringParser.getDatesTimesFromString(inputArgs);
-			if (times == null) {
+			if (isInvalidDateTime(times)) {
 				return createParsedCommandError(ERROR_INVALID_DATE);
 			}
 			Calendar start = times[INDEX_FOR_START];
@@ -300,6 +310,14 @@ public class ParsedCommand {
 												.build();			
 			return pc;
 		}
+	}
+
+	private static boolean isInvalidDateTime(Calendar[] times) {
+		return times == null;
+	}
+
+	private static boolean isMissingTitle(String title) {
+		return title == null;
 	}
 
 	private static int determineTaskType(Calendar start, Calendar end) {
