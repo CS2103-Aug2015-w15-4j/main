@@ -1,4 +1,6 @@
 *.class
+.classpath
+.project
 Data.txt
 parser/ical4j-2.0-beta1/
 .settings/
