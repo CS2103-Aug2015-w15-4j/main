@@ -6,8 +6,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TimeParser {
-	protected static final String TWELVE_HR_REGEX = "(?<![0-9])(1[012]|0?[1-9])([.:][0-5][0-9])?\\s?(am|pm)?(\\s?(?:-|to)\\s?(1[012]|0?[1-9])([.:][0-5][0-9])?\\s?)?(am|pm)(?=\\s|$)";
-	protected static final String TWENTYFOUR_HR_REGEX = "(?<![0-9])((0[0-9]|1[0-9]|2[0-3])[:]([0-5][0-9]))\\s?[?:h|H]?\\s?(-\\s?((0[0-9]|1[0-9]|2[0-3])[:]([0-5][0-9])))?\\s?[?:h|H]?(?=\\s|$)";
+	// protected static final String TWELVE_HR_REGEX = "(?<=\\s|^)(1[012]|0?[1-9])([.:][0-5][0-9])?\\s?(am|pm)?(\\s?(?:-|to)\\s?(1[012]|0?[1-9])([.:][0-5][0-9])?\\s?)?(am|pm)(?=\\s|$)";
+	// protected static final String TWENTYFOUR_HR_REGEX = "(?<=\\s|^)((0?[0-9]|1[0-9]|2[0-3])[:]([0-5][0-9]))\\s?[?:h|H]?\\s?(-\\s?((0[0-9]|1[0-9]|2[0-3])[:]([0-5][0-9])))?\\s?[?:h|H]?(?=\\s|$)";
+	protected static final String TWELVE_HR_REGEX = "(?<=\\s|^)([0-9]?[0-9])([.:][0-9][0-9])?\\s?(am|pm)?(\\s?(?:-|to)\\s?([0-9]?[0-9])([.:][0-9][0-9])?\\s?)?(am|pm)(?=\\s|$)";
+	protected static final String TWENTYFOUR_HR_REGEX = "(?<=\\s|^)(([0-9]?[0-9])[:]([0-9][0-9]))\\s?[?:h|H]?\\s?(-\\s?(([0-9]?[0-9])[:]([0-9][0-9])))?\\s?[?:h|H]?(?=\\s|$)";
+		
+	
 	protected static final String TIME_REGEX = "(" + TWELVE_HR_REGEX + "|" + TWENTYFOUR_HR_REGEX + ")";
 	
 	protected static final Pattern HHMM = Pattern.compile(TWENTYFOUR_HR_REGEX);

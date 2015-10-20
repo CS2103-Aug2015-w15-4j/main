@@ -1,6 +1,13 @@
 package parser;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,10 +26,10 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 	private static final int MD_INDEX_FOR_YEAR = 3;
 	
 	private static final String MONTHS = "(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)";
-	private static final String DATES = "(?<![0-9])(\\d?\\d)(?:st|rd|nd|th)?";
+	private static final String DATES = "(\\d?\\d)(?:st|rd|nd|th)?";
 	private static final String YEARS = "(\\d{4})?";
-	private static final String DATE_MONTH_REGEX = "(?<=\\s|^)" + DATES + "\\s" + MONTHS + ",?\\s?" + YEARS + "(?![0-9])";
-	private static final String MONTH_DATE_REGEX = "(?<=\\s|^)" + MONTHS + "\\s" + DATES + ",?\\s?" + YEARS + "(?![0-9])";
+	private static final String DATE_MONTH_REGEX = "(?<=\\s|^)" + DATES + "\\s" + MONTHS + ",?\\s?" + YEARS + "(?=\\s|$)";
+	private static final String MONTH_DATE_REGEX = "(?<=\\s|^)" + MONTHS + "\\s" + DATES + ",?\\s?" + YEARS + "(?=\\s|$)";
 	
 	private static final String DATE_MONTH_FORMAT = "d MMM yyyy";
 	
@@ -33,6 +40,9 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 	private static final String STANDARD_FLEXIBLE_DATE_FORMAT = "d MMM yyyy";
 
 	private static final Logger logger = Logger.getLogger(FlexibleDateTimeParser.class.getName() );
+	private static final int INDEX_FOR_MONTH_ARR = 1;
+	private static final int INDEX_FOR_DATE_ARR = 0;
+	private static final int INDEX_FOR_YEAR_ARR = 2;
 
 	/*public static void getMonthFromString(String input) {
 		Matcher m = DMMM.matcher(input);
@@ -42,14 +52,13 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 	}*/
 	
 	private static String[] getDateMonthFromString(String input) {
-		input = " " + input.toLowerCase() + " ";
+		input = input.toLowerCase();
 		Matcher m = DMMM.matcher(input);
 		String[] dateArr = new String[4];
 		dateArr[2] = DATE_MONTH_FORMAT;
 		String[][] temp = new String[2][3];
 		int i = 0;
 		String currentYear = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
-		
 		while (m.find() & i < 2) {
 			String date = m.group(DM_INDEX_FOR_DATE);
 			String month = m.group(DM_INDEX_FOR_MONTH);
@@ -88,7 +97,26 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 
 	private static void setStartYear(String[][] temp, String currentYear) {
 		if (temp[0][2] == null) { // start date has no year
-			temp[0][2] = currentYear; // set to current year
+			setNextValidYear(temp[0]); // set to current year
+		}
+	}
+	
+	private static void setNextValidYear(String[] date) {
+		LocalDate today = LocalDate.now();
+		String currYear = String.valueOf(today.getYear());
+		String newDateString = currYear + "-" + date[INDEX_FOR_MONTH_ARR] + "-" + date[INDEX_FOR_DATE_ARR];
+		// System.out.println("Before formatting year: " + newDateString + ".");
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MMM-d"); //LocalDate.parse() MMM case sensitive??!
+	    try {
+			Date tempDate = format.parse(newDateString);
+		    LocalDate newDate = tempDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+			if (newDate.isAfter(today)) {
+				date[INDEX_FOR_YEAR_ARR] = currYear;
+			} else {
+				date[INDEX_FOR_YEAR_ARR] = String.valueOf(today.getYear() + 1);
+			}
+		} catch (ParseException e){
+			date = null;
 		}
 	}
 
@@ -99,7 +127,7 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 					temp[0][2] = temp[i][2]; // set start year = end year
 				}
 			} else { // end date has no year
-				temp[i][2] = currentYear;
+				setNextValidYear(temp[1]);
 			}
 		}
 	}
@@ -114,7 +142,7 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 		Matcher m = MMMD.matcher(input);
 		dateArr[2] = DATE_MONTH_FORMAT;
 		
-		System.out.println(input);
+		// System.out.println(input);
 		
 		while (m.find() & i < 2) {
 			String date = m.group(MD_INDEX_FOR_DATE);
@@ -133,8 +161,8 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 		
 		convertDateArrayToStdForm(dateArr, temp);
 		dateArr[3] = removeMonthDateFromString(input);
-		System.out.println(dateArr[0]);
-		System.out.println(dateArr[1]);
+		// System.out.println(dateArr[0]);
+		// System.out.println(dateArr[1]);
 		
 		return dateArr;
 	}

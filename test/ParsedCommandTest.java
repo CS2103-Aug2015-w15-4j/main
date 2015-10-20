@@ -158,12 +158,8 @@ public class ParsedCommandTest {
 		/**********CHECK! better to detect all xx/xx/xx formats when checking title?********/
 		// Check dates in improper format are ignored and assumed to be not date
 		pcAdd = ParsedCommand.parseCommand("Add meeting with john 41/4/10 12:00 #proj");
-		assertEquals(CommandType.ADD, pcAdd.getCommandType());
-		assertEquals("meeting with john 41/4/10", pcAdd.getTitle());
-		assertEquals(null, pcAdd.getDescription());
-		assertEquals(null, pcAdd.getFirstDate());
-		assertEquals(null, pcAdd.getSecondDate());
-		assertEquals(1, pcAdd.getTaskType());
+		assertEquals(CommandType.ERROR, pcAdd.getCommandType());
+		assertEquals("Error: Invalid date(s) input", pcAdd.getErrorMessage());
 		
 		// Check missing arguments returns no arguments error
 		pcAdd = ParsedCommand.parseCommand("Add");
