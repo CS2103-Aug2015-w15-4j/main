@@ -1,0 +1,11 @@
+diff a/.gitignore b/.gitignore	(rejected hunks)
+@@ -1,5 +1,7 @@
+ *.class
++.classpath
++.project
+ Data.txt
+ parser/ical4j-2.0-beta1/
+-.settings/org.eclipse.m2e.core.prefs
++.settings/
+ library/xercesImpl-2.6.2-jaxb-1.0.6.jar
+\ No newline at end of file
