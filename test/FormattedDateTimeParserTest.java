@@ -38,7 +38,7 @@ public class FormattedDateTimeParserTest {
 		assertEquals("2/02/2014", FormattedDateTimeParser.getStandardFormattedDates("Hello how 2/02/14 are you today?")[0]);
 		assertEquals("2/2/2014", FormattedDateTimeParser.getStandardFormattedDates("Hello how 2/2/14 are you today?")[0]);
 
-		// Check not required to have whitespace
+		// Check required to have whitespace
 		assertEquals(null, FormattedDateTimeParser.getStandardFormattedDates("Hello how 12/3/14are you1/10/12 today?")[0]);
 		assertEquals(null, FormattedDateTimeParser.getStandardFormattedDates("Hello how 12/3/14are you1/10/12 today?")[1]);
 		

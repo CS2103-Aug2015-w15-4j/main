@@ -1,5 +1,6 @@
 package parser;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -164,10 +165,35 @@ public class FormattedDateTimeParser extends DateTimeParser{
 	protected Calendar[] parse(String input, String[] parsedDates, String[] parsedTimes) {
 		logger.log(Level.FINE, "TO FORM:" + input + ".");
 		formattedTimes = TimeParser.getStandardTimesFromString(input); // all time parsing done
+		System.out.println("Start time: " + formattedTimes[0]);
+		if (invalidTimes(formattedTimes)) {
+			return null;
+		}
 		formattedDates = getStandardFormattedDates(formattedTimes[3]);
 		logger.log(Level.FINE, "DATES:" + formattedDates[0] + ".");
 		unparsedInput = formattedDates[3];
 		logger.log(Level.FINE, "TO FLEX:" + unparsedInput + ".");
 		return convertStringToCalendar(formattedDates, formattedTimes);
+	}
+
+	private boolean invalidTimes(String[] times) {
+		if (times[0] == null) {
+			return false;
+		}
+		String timeFormat = times[2];
+		SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd-mm-yy" + timeFormat);
+		try {
+			dateTimeFormat.setLenient(false);
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(dateTimeFormat.parse("1-1-15" + times[0]));
+			if (times[1] == null) {
+				return false;
+			}
+			cal.setTime(dateTimeFormat.parse("1-1-15" + times[1]));
+		} catch (java.text.ParseException e) {
+			e.printStackTrace();
+			return true; // failed to parse
+		}
+		return false;
 	}
 }

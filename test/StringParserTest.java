@@ -34,9 +34,8 @@ public class StringParserTest {
 		assertEquals(null, StringParser.getDatesTimesFromString("Meet John about proposal 1200 #cs2103 #cs2101")[0]);
 		assertEquals(null, StringParser.getDatesTimesFromString("Meet John about proposal 1200 #cs2103 #cs2101")[1]);
 		
-		// SHOULD BE 2016!
 		// Check support for flexible start date no time
-		assertEquals(StringParser.parseStringToDate("Wed Apr 1 23:59:00 SGT 2015"), StringParser.getDatesTimesFromString("Add meeting with john on 1st April")[0].getTime());
+		assertEquals(StringParser.parseStringToDate("Fri Apr 1 23:59:00 SGT 2016"), StringParser.getDatesTimesFromString("Add meeting with john on 1st April")[0].getTime());
 		assertEquals(null, StringParser.getDatesTimesFromString("Add meeting with john on 1st April")[1]);
 
 		// Check support for natty start date no time, keyword
@@ -45,7 +44,7 @@ public class StringParserTest {
 		dt = dt.withHour(23).withMinute(59).withSecond(0);
 		assertEquals(Date.from(dt.atZone(ZoneId.systemDefault()).toInstant()).toString(), StringParser.getDatesTimesFromString("finish homework by tmr")[0].getTime().toString());
 		assertEquals(null, StringParser.getDatesTimesFromString("finish homework by tmr")[1]);
-
+		
 		// Check support for formatted input (has start and end time) out of order
 		assertEquals(StringParser.parseStringToDate("Tue Feb 12 12:00:00 SGT 2013"),
 				StringParser.getDatesTimesFromString("12/2/13 Meet John about proposal #cs2103 12:00-13:30")[0].getTime());
@@ -56,9 +55,6 @@ public class StringParserTest {
 		assertEquals(StringParser.parseStringToDate("Tue Feb 12 12:00:00 SGT 2013"),
 				StringParser.getDatesTimesFromString("Meet John about proposal on feb 12 2013 12:00 #cs2103 #cs2101")[0].getTime());
 		assertEquals(null, StringParser.getDatesTimesFromString("Meet John about proposal on feb 12 2013 12:00 #cs2103 #cs2101")[1]);
-		
-		// Check support for formatted input invalid time
-		assertArrayEquals(null, StringParser.getDatesTimesFromString("12/2/13 Meet John about proposal #cs2103 52:00-13:30"));
 		
 		// Check support for flexible start date and time, keyword
 		assertEquals(StringParser.parseStringToDate("Tue Feb 12 12:00:00 SGT 2013"),
@@ -73,8 +69,15 @@ public class StringParserTest {
 		assertEquals(Date.from(dt.atZone(ZoneId.systemDefault()).toInstant()).toString(), StringParser.getDatesTimesFromString("Meet John about proposal by tmr 2pm #cs2103 #cs2101")[0].getTime().toString());
 		assertEquals(null, StringParser.getDatesTimesFromString("Meet John about proposal by tmr 2pm #cs2101")[1]);
 				
-		
-		
+		// Check invalid time for Natty input
+		assertArrayEquals(null, StringParser.getDatesTimesFromString("Meet John about proposal by tmr 32pm #cs2101"));
+				
+		// Check support for flexible invalid date
+		assertArrayEquals(null, StringParser.getDatesTimesFromString("Add meeting with john on 31st April"));
+
+		// Check support for formatted input invalid time
+		assertArrayEquals(null, StringParser.getDatesTimesFromString("12/2/13 Meet John about proposal #cs2103 52:00-13:30"));		
+				
 		// Auto-add date should be upcoming date, not current year
 		// Check invalid date detection
 		// Natty cannot handle events!!!
