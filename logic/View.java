@@ -3,6 +3,8 @@ package logic;
 import java.util.ArrayList;
 import java.util.List;
 
+import storage.Storage;
+
 public class View {
 
 	private static View instance = null;
@@ -23,6 +25,9 @@ public class View {
 		this.consoleMessage = consoleMessage;
 		this.tasksToDisplay = new ArrayList<Task>();
 		this.allTasks = allTasks;
+		Storage storage = new Storage();
+		avatarLocation = storage.getAvatarPath();
+		backgroundLocation = storage.getBackgroundPath();
 	}
 
 	public String getAvatarLocation() {
