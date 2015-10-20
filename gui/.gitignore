@@ -1,7 +1,8 @@
 *.class
 TaskTab_archive.java
 TaskTab_archive2.java
+GUI_archive.java
+GUI_old.java
 TaskTab_old.java
 Sidebar_old.java
 Log_old.java
-GUI_archive.java

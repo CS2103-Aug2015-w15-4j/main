@@ -1,7 +1,5 @@
 package gui;
 
-import javax.swing.event.ChangeListener;
-
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
