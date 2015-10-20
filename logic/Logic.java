@@ -83,9 +83,11 @@ public class Logic {
 			ParsedCommand.ConfigType type = parsedCommand.getConfigType();
 			if (type == ConfigType.BACKGROUND) {
 				storage.setBackground(parsedCommand.getConfigPath());
+				view.setBackgroundLocation(parsedCommand.getConfigPath());
 				consoleMessage = "Background switched";
 			} else if (type == ConfigType.AVATAR) {
 				storage.setAvatar(parsedCommand.getConfigPath());
+				view.setAvatarLocation(parsedCommand.getConfigPath());
 				consoleMessage = "Avatar switched";
 			}
 		} catch (InvalidMethodForTaskTypeException e) {
