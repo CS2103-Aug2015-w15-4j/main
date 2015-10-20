@@ -5,31 +5,46 @@ import java.util.List;
 
 public class View {
 
+	private static View instance = null;
 	private String consoleMessage;
 	private List<Task> tasksToDisplay;
 	private List<Task> allTasks;
+	private String avatarLocation;
+	private String backgroundLocation;
 
-	public View(String consoleMessage, List<Task> allTasks) {
+	public static View getInstance(String consoleMessage, List<Task> allTasks) {
+		if(instance == null) {
+			instance = new View(consoleMessage,allTasks);
+		}
+		return instance;
+	}
+
+	protected View(String consoleMessage, List<Task> allTasks) {
 		this.consoleMessage = consoleMessage;
 		this.tasksToDisplay = new ArrayList<Task>();
 		this.allTasks = allTasks;
 	}
 
-	/*
-	 * Used for getting completed/incomplete Task list tasksToDisplay contains
-	 * either completedTasks or incompleteTasks
-	 */
-	public View(String consoleMessage, List<Task> tasksToDisplay,
-			List<Task> allTasks) {
-		this.consoleMessage = consoleMessage;
-		this.tasksToDisplay = tasksToDisplay;
-		this.allTasks = allTasks;
-		System.out.println(allTasks.size());
+	public String getAvatarLocation() {
+		return avatarLocation;
+	}
+
+	public void setAvatarLocation(String newLocation) {
+		avatarLocation = newLocation;
+	}
+
+	public String getBackgroundLocation() {
+		return backgroundLocation;
+	}
+
+	public void setBackgroundLocation(String newLocation) {
+		backgroundLocation = newLocation;
 	}
 
 	public String getConsoleMessage() {
 		return consoleMessage;
 	}
+
 
 	public List<Task> getTasksToDisplay() {
 		return tasksToDisplay;
@@ -37,6 +52,20 @@ public class View {
 
 	public List<Task> getAllTasks() {
 		return allTasks;
+	}
+
+	public void updateView(String consoleMessage,List<Task> tasksToDisplay,
+			List<Task> allTasks) {
+		this.consoleMessage = consoleMessage;
+		this.tasksToDisplay = tasksToDisplay;
+		this.allTasks = allTasks;
+
+	}
+
+	public void updateView(String consoleMessage, List<Task> allTasks) {
+		this.consoleMessage = consoleMessage;
+		this.allTasks = allTasks;
+
 	}
 
 	public void setConsoleMessage(String consoleMessage) {

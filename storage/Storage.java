@@ -23,14 +23,21 @@ import file.SaveFile;
 
 public class Storage {
 
+	private static final String DEFAULT_BACKGROUND_FILEPATH = "background.jpg";
+	private static final String DEFAULT_AVATAR_FILEPATH = "avatar.png";
+	private static final String CONFIG_FILENAME = "config";
 	private static final boolean OVERWRITE = false;
 	private static final boolean APPEND = true;
-	private static final String DEFAULT_FILENAME = "Data.txt";
 	private List<Task> taskList;
+	
+	private String dataFilePath;
+	private String avatarFilePath;
+	private String backgroundFilePath;
+	
 	private static String fileName;
 	private static String oldFileName;
 
-	private static final String DEFAULT_FILEPATH = "Path.txt";
+	private static final String DEFAULT_FILEPATH = "Data.txt";
 	private static final String DEFAULT_CONFIG = "Config.txt";
 	private static final String DEFAULT_INNERIMAGEFILE = "InnerImagePath.txt";
 	private String oldLocation;
@@ -41,22 +48,26 @@ public class Storage {
 	}
 
 	public void add(Task task) {
-		System.out.println("fileName : " + fileName);
 		try {
 			Gson gson = new Gson();
-			FileWriter writer = new FileWriter(fileName, APPEND);
+			FileWriter writer = new FileWriter(dataFilePath, APPEND);
 			writer.write(gson.toJson(task));
 			writer.write('\n');
 			writer.close();
 
 			taskList.add(task);
-			System.out.println(taskList.size());
+
 			Collections.sort(taskList);
 			rewriteFile();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public void sort() {
+		Collections.sort(taskList);
+		rewriteFile();
 	}
 
 	public void delete(int taskID) {
@@ -72,7 +83,7 @@ public class Storage {
 	public void rewriteFile() {
 		try {
 			Gson gson = new Gson();
-			FileWriter writer = new FileWriter(fileName, OVERWRITE);
+			FileWriter writer = new FileWriter(dataFilePath, OVERWRITE);
 			for (int i = 0; i < taskList.size(); i++) {
 				writer.write(gson.toJson(taskList.get(i)));
 				writer.write('\n');
@@ -86,23 +97,92 @@ public class Storage {
 	public List<Task> getAllTasks() {
 		return taskList;
 	}
-
+	
+	public String getAvatarPath() {
+		return avatarFilePath;
+	}
+	
+	/*
+	 * TODO ? : Maybe copy file into storage folder instead
+	 */
+	public void setAvatar(String path) {
+		avatarFilePath = path;
+		writeConfigDetails();
+	}
+	
+	public void setBackground(String path) {
+		backgroundFilePath = path;
+		writeConfigDetails();
+	}
+	
+	public String getBackgroundPath() {
+		return backgroundFilePath;
+	}
+	
+	public void getConfigDetails() {
+		File configFile = new File(CONFIG_FILENAME);
+		
+		if(!configFile.exists()) {
+			createFile(CONFIG_FILENAME);
+			this.dataFilePath = DEFAULT_FILEPATH;
+			this.avatarFilePath = DEFAULT_AVATAR_FILEPATH;
+			this.backgroundFilePath = DEFAULT_BACKGROUND_FILEPATH;
+			writeConfigDetails();
+		} else {
+			try {
+			BufferedReader reader = new BufferedReader(new FileReader(CONFIG_FILENAME));
+			
+			this.dataFilePath = reader.readLine();
+			this.avatarFilePath = reader.readLine();
+			this.backgroundFilePath = reader.readLine();
+			
+			reader.close();
+			
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public void writeConfigDetails() {
+		try {
+		File configFile = new File(CONFIG_FILENAME);
+		
+		FileWriter writer = new FileWriter(configFile, OVERWRITE);
+		writer.write(dataFilePath);
+		writer.write('\n');
+		writer.write(avatarFilePath);
+		writer.write('\n');
+		writer.write(backgroundFilePath);
+		writer.write('\n');
+		
+		writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	public void setFileLocation(String filePath) {
+		File oldFile = new File(dataFilePath);
+		this.dataFilePath = filePath;
+		writeConfigDetails();
+		taskList.clear();
+		initializeStorage();
+		oldFile.delete();
+	}
+	
 	public void initializeStorage() {
 
-		if (checkPathFileExist()) {
-			oldFileName = getPath();
-			fileName = getPath();
-		} else {
-			createFile(DEFAULT_FILENAME);
-			fileName = DEFAULT_FILENAME;
-			oldFileName = getPath(DEFAULT_FILENAME);
-		}
+		getConfigDetails();
 
 		Gson gson = new Gson();
 		Task task = new Task();
 
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(fileName));
+			BufferedReader reader = new BufferedReader(new FileReader(dataFilePath));
 			String currentLine = reader.readLine();
 			while (currentLine != null) {
 				task = gson.fromJson(currentLine, Task.class);

@@ -1,30 +1,29 @@
 package logic;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.lucene.queryparser.classic.ParseException;
+
 import parser.InvalidMethodForTaskTypeException;
 import parser.ParsedCommand;
+import parser.ParsedCommand.ConfigType;
 import storage.Storage;
 
 public class Logic {
-
-	private static final int EVENT = 3;
-
-	private static final int DEADLINETASK = 2;
-
-	private static final int TASK = 1;
 
 	private static final String MESSAGE_INVALID_FORMAT = "invalid command format :%1$s";
 
 	private Storage storage;
 	private Invoker invoke;
 	private LinkedList<Invoker> commandHistory = new LinkedList<Invoker>();
-	private ArrayList<Task> taskList;
+	private View view;
 
 	public Logic() {
 		storage = new Storage();
+		view = View.getInstance("", storage.getAllTasks());
 	}
 	
 	public static View initializeTaskList() {
@@ -37,6 +36,7 @@ public class Logic {
 			return new View(MESSAGE_INVALID_FORMAT, storage.getAllTasks());
 
 		ParsedCommand parsedCommand = ParsedCommand.parseCommand(userCommand);
+		
 		switch (parsedCommand.getCommandType()) {
 		case ADD:
 			return executeAdd(parsedCommand);
@@ -44,12 +44,22 @@ public class Logic {
 			return executeUndo();
 		case DELETE:
 			return executeDelete(parsedCommand);
+//		 case CLEAR:
+//			 return clear(); 
+//		 case SORT:
+//			 return sort();
+		case CONFIG_DATA:
+			return executeSetData(parsedCommand);
+		case CONFIG_IMG:
+			return executeSet(parsedCommand);
+		case DONE:
+			return executeDone(parsedCommand);
 		case EDIT:
 			return executeUpdate(parsedCommand);
-			/*
-			 * case CLEAR: return clear(); case SORT: return sort(); case
-			 * SEARCH: return search(removeFirstWord(userCommand));
-			 */
+		case SEARCH: 
+			 return executeSearch(parsedCommand);
+//		case SET:
+//			return executeSetAvatar(parsedCommand);
 		case ERROR:
 			try {
 				return new View(parsedCommand.getErrorMessage(),
@@ -61,17 +71,88 @@ public class Logic {
 		case EXIT:
 			System.exit(0);
 		default:
+			// TODO: Change this line into ???
 			// throw an error if the command is not recognized
 			throw new Error("Unrecognized command type");
 		}
 	}
 
+	private View executeSet(ParsedCommand parsedCommand) {
+		String consoleMessage = "Failed to Set new Path";
+		try {
+			ParsedCommand.ConfigType type = parsedCommand.getConfigType();
+			if (type == ConfigType.BACKGROUND) {
+				storage.setBackground(parsedCommand.getConfigPath());
+				consoleMessage = "Background switched";
+			} else if (type == ConfigType.AVATAR) {
+				storage.setAvatar(parsedCommand.getConfigPath());
+				consoleMessage = "Avatar switched";
+			}
+		} catch (InvalidMethodForTaskTypeException e) {
+			consoleMessage = "Failed to Set new Path";
+			this.view.updateView(consoleMessage,storage.getAllTasks());
+			e.printStackTrace();
+			return view;
+		}
+		
+		view.updateView(consoleMessage, storage.getAllTasks());
+		return view;
+	}
+
+	private View executeDone(ParsedCommand parsedCommand) {
+		Task toUpdate = searchList(storage.getAllTasks(),parsedCommand.getTaskId());
+		
+		
+		
+		
+		return view;
+	}
+
+	private View executeSetData(ParsedCommand parsedCommand) {
+		
+		String consoleMessage = "Failed to Set new Path";
+		try {
+			storage.setFileLocation(parsedCommand.getConfigPath());
+			consoleMessage = "data file set to " + parsedCommand.getConfigPath();
+			this.view.updateView(consoleMessage,storage.getAllTasks());
+		} catch (InvalidMethodForTaskTypeException e) {
+			this.view.updateView(consoleMessage,storage.getAllTasks());
+			e.printStackTrace();
+			return view;
+		}
+		return view;
+	}
+
+	private View executeSearch(ParsedCommand parsedCommand) {
+		
+		List<Task> tasksToDisplay;
+		String consoleMessage = "Search failed";
+		try{
+			String query = parsedCommand.getKeywords(); // Stub, substitute with parsedCommand.getQuery
+			tasksToDisplay = Search.search(storage.getAllTasks(), query);
+			if (tasksToDisplay.size() == 0) {
+				consoleMessage = "No results found";
+			} else if (tasksToDisplay.size() == 1) {
+				consoleMessage = "Displaying 1 result for \"" + query + "\"";
+			} else {	
+				consoleMessage = "Displaying " + tasksToDisplay.size() + " results for \"" + query + "\"";
+			}
+			view.updateView(consoleMessage,tasksToDisplay, storage.getAllTasks());
+		} catch (IOException | ParseException e) {
+			e.printStackTrace();
+		} catch (InvalidMethodForTaskTypeException e) {
+			e.printStackTrace();
+		}
+		
+		return view;
+	}
+
 	private View executeUpdate(ParsedCommand userCommand) {
 
+		String taskName = searchList(storage.getAllTasks(),userCommand.getTaskId()).getName();
 		Command command = new Update(userCommand,storage);
-		String consoleMessage = "";
+		String consoleMessage = "Update Failed";
 		// Check if update id is correct
-		View view = new View(consoleMessage, storage.getAllTasks());
 		if (!Update.checkValid(userCommand, view)) {
 			return view;
 		} else {
@@ -80,41 +161,45 @@ public class Logic {
 			commandHistory.addFirst(invoke);
 		}
 
-		consoleMessage = "Update Successful";
-		return new View(consoleMessage, storage.getAllTasks());
+		consoleMessage = taskName + " updated";
+		view.updateView(consoleMessage, storage.getAllTasks());
+		return view;
 	}
 
 	private View executeUndo() {
 		if (commandHistory.size() != 0) {
 			commandHistory.poll().undo();
 		} else {
-			return new View("Nothing to undo", storage.getAllTasks());
+			view.updateView("Nothing to undo", storage.getAllTasks());
+			return view;
 		}
-		System.out.println(storage.getAllTasks().get(storage.getAllTasks().size()-1).getDetails());
-		return new View("Undo Successful", storage.getAllTasks());
+		view.updateView("Undo Successful", storage.getAllTasks());
+		return view;
 	}
 
 	private View executeDelete(ParsedCommand userCommand) {
 		
+		String taskName = searchList(storage.getAllTasks(),userCommand.getTaskId()).getName();
 		if (!Delete.checkValid(userCommand)) {
 			String consoleMessage = "Error: Invalid taskID";
-			return new View(consoleMessage, storage.getAllTasks());
+			view.updateView(consoleMessage, storage.getAllTasks());
+			return view;
 		} else {
 			Command command = new Delete(userCommand,storage);
 			invoke = new Invoker(command);
 			invoke.execute();
 			commandHistory.addFirst(invoke);
-
-			String consoleMessage = "Delete Successful";
-			return new View(consoleMessage, storage.getAllTasks());
+			
+			
+			String consoleMessage = taskName + " deleted";
+			view.updateView(consoleMessage, storage.getAllTasks());
+			return view;
 		}
 	}
 
 	private View executeAdd(ParsedCommand userCommand) {
-		String consoleMessage = "";
+		String consoleMessage = "Add failed";
 		int newId = getNewId();
-		View view = new View(consoleMessage, storage.getAllTasks());
-		int taskType = checkTaskType(userCommand);
 		
 	/*	if (!Add.checkValid(userCommand, view)) {
 			return view;
@@ -124,8 +209,9 @@ public class Logic {
 			invoke.execute();
 			commandHistory.addFirst(invoke);
 
-			consoleMessage = "Add Successful";
-			return new View(consoleMessage, storage.getAllTasks());
+			consoleMessage = userCommand.getTitle() + " added";
+			view.updateView(consoleMessage, storage.getAllTasks());
+			return view;
 			//}
 	}
 
@@ -143,18 +229,6 @@ public class Logic {
 		return userCommand.trim().equals("");
 	}
 	
-	private int checkTaskType(ParsedCommand userCommand) {
-		
-		if (userCommand.getFirstDate() == null && userCommand.getSecondDate() == null) {
-			return TASK;
-		} else if (userCommand.getSecondDate() == null && userCommand.getFirstDate() != null) {
-			return DEADLINETASK;
-		} else if (userCommand.getSecondDate() != null) {
-			return EVENT;
-		}
-		
-		return 0;
-	}
 	
 	public static Task searchList(List<Task> taskList, int taskId) {
 		
