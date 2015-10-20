@@ -1,4 +1,6 @@
 *.class
 TaskTab_archive.java
 TaskTab_archive2.java
+TaskTab_old.java
+Sidebar_old.java
 GUI_archive.java

@@ -1,5 +1,7 @@
 package gui;
 
+import javax.swing.event.ChangeListener;
+
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -14,7 +16,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.*;
 
-public class GUI extends Application {
+public class GUIController extends Application {
 	final static String[] tabNames = {
 		"Task",  
 		"Log" // command log 
@@ -58,7 +60,7 @@ public class GUI extends Application {
 	public Log logConsole;
 	public VBox logObject;
 	public Sidebar sidebarObject;
-	public AnchorPane center;
+	public BorderPane border;
 	
 	public static TextField userTextField;
 	public static TabPane tabPane;
@@ -67,26 +69,23 @@ public class GUI extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		// prevent resizing
-		primaryStage.setResizable(false);
+		//primaryStage.setResizable(false); // allow resizing?
 		
 		/**
 		 * main interface manager
 		 * Splits the different sections apart
 		 */
-		BorderPane border = new BorderPane();
-		border.setMaxSize(WINDOW_WIDTH, WINDOW_HEIGHT);	
+		border = new BorderPane();
+		//border.setMaxSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		// create the text
 		sidebarObject = new Sidebar();
 		border.setRight(sidebarObject.getNode()); // put the sidebar on the right side
 		
 		// Tab manager
-		tabPane = new TabPane();//*
-		tabPane.setMinWidth(TABPANE_WIDTH);
-		tabPane.setMaxWidth(TABPANE_WIDTH);
-		tabPane.setMinHeight(TABPANE_HEIGHT);
-		tabPane.setMaxHeight(TABPANE_HEIGHT);//*/
+		tabPane = new TabPane();
 		tabPane.setId(TAG_TABPANE);
 		tabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
+		tabPane.maxHeightProperty().bind(border.heightProperty());
 		// Create tabs
 		for (int i=0; i<tabNames.length;i++) {
 			Tab tab = new Tab(String.format("%-10s", tabNames[i]));
@@ -107,18 +106,32 @@ public class GUI extends Application {
 		logConsole = new Log();
 		logObject.getChildren().add(logCommands.getNode());
 		logObject.getChildren().add(logConsole.getNode());
+		logCommands.getNode().prefHeightProperty().bind(logObject.heightProperty().divide(2));
+		logCommands.getNode().prefWidthProperty().bind(logObject.widthProperty());
+		logConsole.getNode().prefHeightProperty().bind(logObject.heightProperty().divide(2));
+		logConsole.getNode().prefWidthProperty().bind(logObject.widthProperty());
+		logObject.prefWidthProperty().bind(tabPane.widthProperty());
+		logObject.maxWidthProperty().bind(tabPane.widthProperty());
+		logObject.prefHeightProperty().bind(tabPane.heightProperty());
+		logObject.maxHeightProperty().bind(tabPane.heightProperty());
+		VBox.setVgrow(logObject, Priority.ALWAYS);
 		VBox.setVgrow(logCommands.getNode(), Priority.ALWAYS);
 		VBox.setVgrow(logConsole.getNode(), Priority.ALWAYS);
 		tabPane.getTabs().get(LOG).setContent(logObject);
 		
 		// create input field
 		userTextField = new TextField();
-		userTextField.setMinWidth(TABPANE_WIDTH);
+		//userTextField.setMinWidth(TABPANE_WIDTH);
 		userTextField.setPromptText(MSG_PROMPT);
+		userTextField.prefWidthProperty().bind(tabPane.widthProperty());
+
+		//sidebarObject.bindWidth(userTextField.widthProperty());//border.widthProperty());
+		//tabPane.prefWidthProperty().bind(userTextField.widthProperty());
 		userTextField.setOnAction((ActionEvent event) -> 
 			processUserTextField(userTextField));
 		
 		// add them to the center
+		/*
 		center = new AnchorPane();
 		center.getChildren().addAll(tabPane, userTextField);
 		center.setMaxHeight(TABPANE_WIDTH);
@@ -126,9 +139,13 @@ public class GUI extends Application {
 		AnchorPane.setLeftAnchor(tabPane, 0.0);
 		AnchorPane.setBottomAnchor(userTextField, 0.0);
 		AnchorPane.setLeftAnchor(userTextField, 0.0);
-		border.setCenter(center);
+		AnchorPane.setRightAnchor(userTextField, 0.0);
+		border.setCenter(center);//*/
 		
-		Scene scene = new Scene(border, WINDOW_WIDTH+10, WINDOW_HEIGHT+10);//border.getPrefWidth(), border.getPrefHeight());
+		border.setCenter(tabPane);
+		border.setBottom(userTextField);
+		border.setMinWidth(600);
+		Scene scene = new Scene(border, border.getPrefWidth(), border.getPrefHeight()); //WINDOW_WIDTH+10, WINDOW_HEIGHT+10);
 		addHandlers(scene);
 		//scene.getRoot().setStyle("-fx-background-image: url(\"" + BACKGROUND_NAME + "\");");
 		userTextField.requestFocus();
@@ -138,6 +155,8 @@ public class GUI extends Application {
 	    primaryStage.getIcons().add(new Image(
 	    	      GUIController.class.getResourceAsStream( ICON_IMAGE )));
 	    primaryStage.show();
+	    primaryStage.setMinWidth(primaryStage.getWidth());
+	    primaryStage.setMinHeight(primaryStage.getHeight());
 	}
 	
 	/**

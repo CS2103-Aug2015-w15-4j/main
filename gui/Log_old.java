@@ -1,18 +1,17 @@
 package gui;
 
+import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.image.WritableImage;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
-public class Log {
+public class Log_old {
 	public static final int TABNUM = GUIController.LOG; // for the array check
 	public static final String TABNAME = GUIController.tabNames[TABNUM]; 
 	public static final int WIDTH = GUIController.TABPANE_WIDTH;
@@ -28,15 +27,15 @@ public class Log {
 	protected ScrollPane sp;
 	protected TextFlow textbox; // the storage for the log
 	
-	public Log() {
+	public Log_old() {
 		textbox = new TextFlow();
 		vbox = new VBox();
+		vbox.setMinWidth(WIDTH);
+		vbox.setMaxWidth(WIDTH);
 		vbox.setAlignment(ALIGNMENT);
 		vbox.setId(ID_VBOX);
 		vbox.getChildren().add(textbox);
 		sp = new ScrollPane(vbox);
-		vbox.prefWidthProperty().bind(sp.widthProperty());
-		vbox.prefHeightProperty().bind(sp.heightProperty());
 		sp.setPadding(new Insets(PADDING));
 		sp.setFitToHeight(true);
 		sp.setVbarPolicy(V_POLICY);
@@ -47,8 +46,23 @@ public class Log {
 	/**
 	 * @return the master/parent node for this object
 	 */
-	public ScrollPane getNode() { 
+	public Node getNode() { 
 		return sp;
+	}
+	/**
+	 * Binds object to the property given
+	 * @return
+	 */
+	public void bindWidth(ReadOnlyDoubleProperty readOnlyDoubleProperty) {
+		sp.prefWidthProperty().bind(readOnlyDoubleProperty);
+	}
+	
+	/**
+	 * Binds object to the property given
+	 * @return
+	 */
+	public void bindHeight(ReadOnlyDoubleProperty readOnlyDoubleProperty) {
+		sp.prefHeightProperty().bind(readOnlyDoubleProperty);
 	}
 	
 	public void refresh() {

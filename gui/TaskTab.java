@@ -14,16 +14,14 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import logic.Task;
 
 public class TaskTab {
-	final static int TABNUM = GUI.TASK; // for the array check
-	final static String TABNAME = GUI.tabNames[TABNUM]; 
+	final static int TABNUM = GUIController.TASK; // for the array check
+	final static String TABNAME = GUIController.tabNames[TABNUM]; 
 	final static int PADDING = 8;
-	final static int WIDTH = GUI.TABPANE_WIDTH;
-	final static int WIDTH_SIDEBAR = GUI.TABPANE_SIDEBAR_WIDTH;
+	final static int WIDTH = GUIController.TABPANE_WIDTH;
+	final static int WIDTH_SIDEBAR = GUIController.TABPANE_SIDEBAR_WIDTH;
 	final static int WIDTH_WINDOW = WIDTH-WIDTH_SIDEBAR-2*PADDING;
 	
 	final static ScrollBarPolicy V_POLICY = ScrollBarPolicy.AS_NEEDED;
@@ -31,7 +29,7 @@ public class TaskTab {
 	final static Pos ALIGNMENT = Pos.TOP_LEFT;
 	
 	final static String ID_GRID = "taskGrid";
-	final static String STYLE_TEXT = GUI.STYLE_TEXT;
+	final static String STYLE_TEXT = GUIController.STYLE_TEXT;
 	
 	// grid locations
 	final static int SIDEBAR_COL_START = 0;
@@ -70,10 +68,12 @@ public class TaskTab {
 		// sidebar
 		items = FXCollections.observableArrayList();
 		listView = new ListView<Node>();
-		listView.getStyleClass().add(GUI.STYLE_TRANSPARENT);
+		listView.getStyleClass().add(GUIController.STYLE_TRANSPARENT);
 		master.getChildren().add(listView);
-		listView.prefWidthProperty().bind(master.widthProperty().divide(6));
-		listView.maxWidthProperty().bind(master.maxWidthProperty().divide(6));
+		listView.prefWidthProperty().bind(master.widthProperty());
+		//listView.maxWidthProperty().bind(master.maxWidthProperty());
+		listView.setMinWidth(WIDTH_SIDEBAR);
+		listView.setMaxWidth(WIDTH_SIDEBAR);
 		
 		main = new GridPane();
 		main.setAlignment(ALIGNMENT);
@@ -82,9 +82,10 @@ public class TaskTab {
 		sp.setFitToHeight(true);
 		sp.setVbarPolicy(V_POLICY);
 		sp.setHbarPolicy(H_POLICY);
-		sp.getStyleClass().add(GUI.STYLE_TRANSPARENT);
+		sp.getStyleClass().add(GUIController.STYLE_TRANSPARENT);
 		master.getChildren().add(sp);
-		sp.prefWidthProperty().bind(master.widthProperty().multiply(5).divide(6));
+		sp.prefWidthProperty().bind(master.widthProperty().subtract(listView.widthProperty()));
+		sp.maxWidthProperty().bind(master.widthProperty().subtract(listView.widthProperty()));
 		main.prefWidthProperty().bind(sp.prefWidthProperty());
 		main.setPadding(new Insets(PADDING));
 	    main.getColumnConstraints().add(new ColumnConstraints(GRID_COL_HEADER_FINAL_LENGTH)); 
@@ -127,7 +128,7 @@ public class TaskTab {
 			listOfTasks.add(task);
 			items.add(createSidebarDisplay(task));
 			// then change focus to task tab
-			GUI.tabPane.getSelectionModel().select(TABNUM);
+			GUIController.tabPane.getSelectionModel().select(TABNUM);
 			
 			if (refresh) {
 				refresh();
@@ -252,12 +253,12 @@ public class TaskTab {
 			task.setName("Task	" + items.size());
 		}
 		label.setWrapText(false);
-		GUI.setFancyText(label);
+		GUIController.setFancyText(label);
 		label.setStyle("-fx-font-weight: bold");
 		HBox header = new HBox();
 		label.prefWidthProperty().bind(header.widthProperty());
 		header.prefWidthProperty().bind(grid.widthProperty());
-		header.setStyle(String.format(GUI.STYLE_COLOR, HEADER_COLOR));
+		header.setStyle(String.format(GUIController.STYLE_COLOR, HEADER_COLOR));
 		header.getChildren().add(label);
 		header.getChildren().add(getTaskCompletion(task.getIsCompleted()));
 		header.setAlignment(Pos.CENTER);
