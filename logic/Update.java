@@ -29,6 +29,7 @@ public class Update implements Command {
 		toUpdate = Logic.searchList(taskList,specifications.getTaskId());
 		// Clone Task
 		updated = new Task(toUpdate);
+		
 		updated = updateTask(specifications, updated);
 		storage.delete(toUpdate.getId());
 		storage.add(updated);
@@ -47,39 +48,20 @@ public class Update implements Command {
 	public Task updateTask(ParsedCommand parsedInput, Task toUpdate) {
 
 		int taskType = toUpdate.getTaskType();
-		if (taskType == TASK) {
-			if (parsedInput.getTitle() != null) {
-				toUpdate.setName(parsedInput.getTitle());
-			}
-			if (parsedInput.getDescription() != null) {
-				toUpdate.setDetails(parsedInput.getDescription());
-			}
-			if (parsedInput.getTags().size() != 0) {
-				toUpdate.setTags(parsedInput.getTags());
-			}
-		} else if (taskType == DEADLINETASK) {
-			if (parsedInput.getTitle() != null) {
-				toUpdate.setName(parsedInput.getTitle());
-			}
-			if (parsedInput.getDescription() != null) {
-				toUpdate.setDetails(parsedInput.getDescription());
-			}
-			if (parsedInput.getTags().size() != 0) {
-				toUpdate.setTags(parsedInput.getTags());
-			} 
+		if (parsedInput.getTitle() != null) {
+			toUpdate.setName(parsedInput.getTitle());
+		}
+		if (parsedInput.getDescription() != null) {
+			toUpdate.setDetails(parsedInput.getDescription());
+		}
+		if (parsedInput.getTags().size() != 0) {
+			toUpdate.setTags(parsedInput.getTags());
+		}
+		if (taskType == DEADLINETASK) {
 			if (parsedInput.getFirstDate() != null) {
 				((DeadlineTask) toUpdate).setEnd(parsedInput.getFirstDate());
 			}
 		} else if (taskType == EVENT) {
-			if (parsedInput.getTitle() != null) {
-				toUpdate.setName(parsedInput.getTitle());
-			} 
-			if (parsedInput.getDescription() != null) {
-				toUpdate.setDetails(parsedInput.getDescription());
-			} 
-			if (parsedInput.getTags().size() != 0) {
-				toUpdate.setTags(parsedInput.getTags());
-			}
 			if (parsedInput.getSecondDate() != null) {
 				((DeadlineTask) toUpdate).setEnd(parsedInput.getSecondDate());
 			}

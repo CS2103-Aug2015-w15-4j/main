@@ -11,9 +11,9 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 public class Log {
-	public static final int TABNUM = GUI.LOG; // for the array check
-	public static final String TABNAME = GUI.tabNames[TABNUM]; 
-	public static final int WIDTH = GUI.TABPANE_WIDTH;
+	public static final int TABNUM = GUIController.LOG; // for the array check
+	public static final String TABNAME = GUIController.tabNames[TABNUM]; 
+	public static final int WIDTH = GUIController.TABPANE_WIDTH;
 	public static final int PADDING = 8;
 	
 	public static final ScrollBarPolicy V_POLICY = ScrollBarPolicy.AS_NEEDED;
@@ -29,12 +29,12 @@ public class Log {
 	public Log() {
 		textbox = new TextFlow();
 		vbox = new VBox();
-		vbox.setMinWidth(WIDTH);
-		vbox.setMaxWidth(WIDTH);
 		vbox.setAlignment(ALIGNMENT);
 		vbox.setId(ID_VBOX);
 		vbox.getChildren().add(textbox);
 		sp = new ScrollPane(vbox);
+		vbox.prefWidthProperty().bind(sp.widthProperty());
+		vbox.prefHeightProperty().bind(sp.heightProperty());
 		sp.setPadding(new Insets(PADDING));
 		sp.setFitToHeight(true);
 		sp.setVbarPolicy(V_POLICY);
@@ -45,7 +45,7 @@ public class Log {
 	/**
 	 * @return the master/parent node for this object
 	 */
-	public Node getNode() { 
+	public ScrollPane getNode() { 
 		return sp;
 	}
 	
