@@ -5,6 +5,7 @@ import java.util.List;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.*;
 import javafx.scene.Node;
@@ -61,6 +62,9 @@ public class TaskTab {
 	protected final String DONE = "Check.png";
 	protected final String NOT_DONE = "Delete.png";
 	protected final int DONE_SIZE = 16; 
+	protected boolean isChanging = false;
+	protected boolean isExpand = false;
+	protected int previouslySelected = 0;
 	
 	public TaskTab() {
 		master = new HBox();
@@ -71,9 +75,7 @@ public class TaskTab {
 		listView.getStyleClass().add(GUIController.STYLE_TRANSPARENT);
 		master.getChildren().add(listView);
 		listView.prefWidthProperty().bind(master.widthProperty());
-		//listView.maxWidthProperty().bind(master.maxWidthProperty());
-		listView.setMinWidth(WIDTH_SIDEBAR);
-		listView.setMaxWidth(WIDTH_SIDEBAR);
+		listView.maxWidthProperty().bind(master.widthProperty());
 		
 		main = new GridPane();
 		main.setAlignment(ALIGNMENT);
@@ -84,21 +86,21 @@ public class TaskTab {
 		sp.setHbarPolicy(H_POLICY);
 		sp.getStyleClass().add(GUIController.STYLE_TRANSPARENT);
 		master.getChildren().add(sp);
-		sp.prefWidthProperty().bind(master.widthProperty().subtract(listView.widthProperty()));
-		sp.maxWidthProperty().bind(master.widthProperty().subtract(listView.widthProperty()));
-		main.prefWidthProperty().bind(sp.prefWidthProperty());
+		sp.prefWidthProperty().bind(master.widthProperty());
+		sp.maxWidthProperty().bind(master.widthProperty());
+		main.prefWidthProperty().bind(sp.widthProperty());
 		main.setPadding(new Insets(PADDING));
 	    main.getColumnConstraints().add(new ColumnConstraints(GRID_COL_HEADER_FINAL_LENGTH)); 
 	    
 	    // define the images for done and not done
 	    imageCompletion[0] = new Image(TaskTab.class.getResourceAsStream(NOT_DONE),DONE_SIZE, DONE_SIZE, true, true);
 	    imageCompletion[1] = new Image(TaskTab.class.getResourceAsStream(DONE),DONE_SIZE, DONE_SIZE, true, true);
-		
+
 		// now add a listener for the sidebar
 		listView.getSelectionModel().selectedItemProperty().addListener(
 				new ChangeListener<Node>() {
 					public void changed(ObservableValue<? extends Node> ov, Node old_val, Node new_val) {
-						refreshMainDisplay();
+						//highlightTaskList();
 					}
 				});
 	}
@@ -204,6 +206,69 @@ public class TaskTab {
 			}
 		}
 		return false;
+	}
+	
+	public void highlightTaskList() {
+		if (!isChanging) {
+			isChanging = true;
+			int selected = listView.getSelectionModel().getSelectedIndex();
+			listView.getSelectionModel().clearSelection();
+			items.remove(previouslySelected); 
+			items.add(previouslySelected,createSidebarDisplay(listOfTasks.get(previouslySelected)));
+			items.remove(selected);
+			items.add(selected, createDetailedDisplay(listOfTasks.get(selected)));
+			listView.getSelectionModel().select(selected);
+			refresh();
+			previouslySelected = selected;
+			isChanging = false;
+		}
+	}
+	
+	/**
+	 * 
+	 * @param task Task to take information from
+	 * @return VBox with Name and ID
+	 */
+	protected Node createDetailedDisplay(Task task) {
+		GridPane grid = new GridPane();
+		grid.prefWidthProperty().bind(listView.widthProperty());
+
+		grid.setPadding(new Insets(PADDING));
+	    grid.getColumnConstraints().add(new ColumnConstraints(GRID_COL_HEADER_FINAL_LENGTH)); 
+		//*
+		ArrayList<String[]> details = task.getTaskDetails(); 
+		// Set name
+		Label label = createLabel(task.getName());
+		if (label.getText().isEmpty()) {
+			task.setName("Task	" + items.size());
+		}
+		label.setWrapText(false);
+		GUIController.setFancyText(label);
+		label.setStyle("-fx-font-weight: bold");
+		HBox header = new HBox();
+		label.prefWidthProperty().bind(header.widthProperty());
+		header.prefWidthProperty().bind(grid.widthProperty());
+		header.setStyle(String.format(GUIController.STYLE_COLOR, HEADER_COLOR));
+		header.getChildren().add(label);
+		header.getChildren().add(getTaskCompletion(task.getIsCompleted()));
+		header.setAlignment(Pos.CENTER);
+		grid.add(header, GRID_COL_HEADER, GRID_ROW_NAME, GRID_COL_SIZE, 1); // span 2 col and 1 row
+		
+		String[] array;
+		for (int i=1;i<details.size();i++) { // skip name element
+			array = details.get(i);
+			label = createLabel(array[GRID_COL_HEADER]);
+			grid.add(label, GRID_COL_HEADER, i);
+			GridPane.setValignment(label, GRID_HEADER_VERT_ALIGNMENT);
+
+			label = createLabel(array[GRID_COL_CONTENT]);
+			if (label.getText()==null||label.getText().isEmpty()) {
+				label.setText("None");
+			}
+			grid.add(label, GRID_COL_CONTENT, i);
+		}//*/
+		
+		return grid;
 	}
 	
 	/**

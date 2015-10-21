@@ -10,6 +10,7 @@ import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.control.TabPane.*;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.*;
@@ -87,8 +88,10 @@ public class GUIController extends Application {
 		border = new BorderPane();
 		//border.setMaxSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		// create the text
+		/*
 		sidebarObject = new Sidebar();
 		border.setRight(sidebarObject.getNode()); // put the sidebar on the right side
+		//*/
 		
 		// Tab manager
 		tabPane = new TabPane();
@@ -154,6 +157,7 @@ public class GUIController extends Application {
 		border.setCenter(tabPane);
 		border.setBottom(userTextField);
 		border.setMinWidth(600);
+		border.setMinHeight(600);
 		Scene scene = new Scene(border, border.getPrefWidth(), border.getPrefHeight()); //WINDOW_WIDTH+10, WINDOW_HEIGHT+10);
 		addHandlers(scene);
 		//scene.getRoot().setStyle("-fx-background-image: url(\"" + BACKGROUND_NAME + "\");");
@@ -176,8 +180,13 @@ public class GUIController extends Application {
 		scene.setOnKeyPressed((new EventHandler<KeyEvent>() {
 	        @Override
 	        public void handle(KeyEvent keyEvent) {
-	            if(keyEvent.getCode().toString() == "`"){
+            	System.out.println(keyEvent.getCode().toString());
+	            if(keyEvent.getCode()==KeyCode.ESCAPE){
 	            	userTextField.requestFocus();
+	            }
+	            
+	            if(keyEvent.getCode()==KeyCode.BACK_SLASH) {
+	            	taskObject.highlightTaskList();
 	            }
 	        }
 	    }));//*/
