@@ -15,7 +15,7 @@ import javafx.scene.layout.*;
 import javafx.scene.text.*;
 
 public class GUIController extends Application {
-	 private static volatile GUIController gui;
+	 /*private static volatile GUIController gui;
 	 private GUIController(){};
 	 
 	 public static GUIController getInstance() {
@@ -23,7 +23,7 @@ public class GUIController extends Application {
 			 gui = new GUIController();
 		 }
 		 return gui;
-	 }
+	 }//*/
 	 
 	final static String[] tabNames = {
 		"Task",  
