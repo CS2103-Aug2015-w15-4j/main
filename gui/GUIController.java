@@ -15,6 +15,7 @@ import javafx.scene.layout.*;
 import javafx.scene.text.*;
 
 public class GUIController extends Application {
+	/*
 	 private static volatile GUIController gui;
 	 private GUIController(){};
 	 
@@ -23,7 +24,7 @@ public class GUIController extends Application {
 			 gui = new GUIController();
 		 }
 		 return gui;
-	 }
+	 }//*/
 	 
 	final static String[] tabNames = {
 		"Task",  
@@ -194,7 +195,7 @@ public class GUIController extends Application {
 	
 	protected void executeCommand(String input) {
 		if (input!= null && !input.isEmpty()) {
-			logic.View view = gui.executeCommand(input.trim());
+			logic.View view = controller.executeCommand(input.trim());
 			sidebarObject.addToTextbox(view.getConsoleMessage());
 			logCommands.addToTextbox(input);
 			logConsole.addToTextbox(view.getConsoleMessage());
