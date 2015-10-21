@@ -194,7 +194,7 @@ public class GUIController extends Application {
 	
 	protected void executeCommand(String input) {
 		if (input!= null && !input.isEmpty()) {
-			logic.View view = gui.executeCommand(input.trim());
+			logic.View view = controller.executeCommand(input.trim());
 			sidebarObject.addToTextbox(view.getConsoleMessage());
 			logCommands.addToTextbox(input);
 			logConsole.addToTextbox(view.getConsoleMessage());
