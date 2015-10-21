@@ -1,7 +1,9 @@
 package parser;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -11,10 +13,10 @@ import java.util.regex.Pattern;
 public class FormattedDateTimeParser extends DateTimeParser{
 	
 	private static final String DELIM = "-/.";
-	protected static final String DD = "(?<=^|[^0-9" + DELIM + "])(0?[1-9]|[12][0-9]|3[01])";
-	protected static final String MM = "(0?[1-9]|1[012])";
+	protected static final String DD = "(?<=^|\\s)([0-9]?[0-9])";
+	protected static final String MM = "([0-9]?[0-9])";
 	protected static final String DATE_DELIM = "[" + DELIM + "]";
-	protected static final String YY = "("+ DATE_DELIM + "(\\d{4}|\\d{2}))?(?![0-9" + DELIM + "])";
+	protected static final String YY = "("+ DATE_DELIM + "(\\d{4}|\\d{2}))?(?=\\s|$)";
 	protected static final String FORMATTED_DATE_REGEX = DD + DATE_DELIM + MM + YY;
 	protected static final String FORMATTED_DATE_FORMAT = "d/M/yy";
 	private static final int INDEX_FOR_DATE_INPUT = 1;
@@ -64,6 +66,7 @@ public class FormattedDateTimeParser extends DateTimeParser{
 	 *         ans[1] = null and if only one date found, ans[1] = null.
 	 */
 	public static String[] getStandardFormattedDates(String userInput) {
+		System.out.println(userInput);
 		Matcher m = ddmmyy.matcher(userInput);
 		String[] ans = new String[4];
 
@@ -76,11 +79,13 @@ public class FormattedDateTimeParser extends DateTimeParser{
 			if (m.groupCount() > 2) {
 				dateArr[INDEX_FOR_YEAR_ARR] = convertYearToStandardFormat(m.group(INDEX_FOR_YEAR_INPUT));
 			}
-			for (int a = 0; a < 3; a++) {
-				System.out.println(dateArr[a]);
-			}
 			tempDates[i] = dateArr;
 			i++;
+		}
+		for (int a = 0; a < 2; a++) {
+			for (int b = 0; b < 3; b++) {
+				System.out.println("TEMP[" + a + "]["+b+"]: " + tempDates[a][b]);
+			}
 		}
 		ans = standardizeDatesArray(tempDates);
 		ans[2] = FORMATTED_DATE_FORMAT;
@@ -123,13 +128,17 @@ public class FormattedDateTimeParser extends DateTimeParser{
 		LocalDate today = LocalDate.now();
 		String currYear = String.valueOf(today.getYear());
 		String newDateString = currYear + "-" + date[INDEX_FOR_MONTH_ARR] + "-" + date[INDEX_FOR_DATE_ARR];
+		System.out.println("Before formatting year: " + newDateString);
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-M-d");
-		LocalDate newDate = LocalDate.parse(newDateString, formatter);
-		 
-		if (newDate.isAfter(today)) {
-			date[INDEX_FOR_YEAR_ARR] = currYear;
-		} else {
-			date[INDEX_FOR_YEAR_ARR] = String.valueOf(today.getYear() + 1);
+		try {
+			LocalDate newDate = LocalDate.parse(newDateString, formatter);
+			if (newDate.isAfter(today)) {
+				date[INDEX_FOR_YEAR_ARR] = currYear;
+			} else {
+				date[INDEX_FOR_YEAR_ARR] = String.valueOf(today.getYear() + 1);
+			}
+		} catch (DateTimeParseException e){
+			date = null;
 		}
 	}
 
@@ -156,10 +165,35 @@ public class FormattedDateTimeParser extends DateTimeParser{
 	protected Calendar[] parse(String input, String[] parsedDates, String[] parsedTimes) {
 		logger.log(Level.FINE, "TO FORM:" + input + ".");
 		formattedTimes = TimeParser.getStandardTimesFromString(input); // all time parsing done
+		System.out.println("Start time: " + formattedTimes[0]);
+		if (invalidTimes(formattedTimes)) {
+			return null;
+		}
 		formattedDates = getStandardFormattedDates(formattedTimes[3]);
 		logger.log(Level.FINE, "DATES:" + formattedDates[0] + ".");
 		unparsedInput = formattedDates[3];
 		logger.log(Level.FINE, "TO FLEX:" + unparsedInput + ".");
 		return convertStringToCalendar(formattedDates, formattedTimes);
+	}
+
+	private boolean invalidTimes(String[] times) {
+		if (times[0] == null) {
+			return false;
+		}
+		String timeFormat = times[2];
+		SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd-mm-yy" + timeFormat);
+		try {
+			dateTimeFormat.setLenient(false);
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(dateTimeFormat.parse("1-1-15" + times[0]));
+			if (times[1] == null) {
+				return false;
+			}
+			cal.setTime(dateTimeFormat.parse("1-1-15" + times[1]));
+		} catch (java.text.ParseException e) {
+			e.printStackTrace();
+			return true; // failed to parse
+		}
+		return false;
 	}
 }

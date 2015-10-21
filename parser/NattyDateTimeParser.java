@@ -18,23 +18,6 @@ public class NattyDateTimeParser extends DateTimeParser{
 	
 	private static final Logger logger = Logger.getLogger(NattyDateTimeParser.class.getName() );
 
-	// For reference only, not in use
-    /*public static String parseDateTimeWithNatty(String input) {
-		Parser parser = new Parser();
-		//List<DateGroup> groups = parser.parse("the day before next wednesday 12pm");
-		List<DateGroup> groups = parser.parse("tmr 2pm to 3pm"); // returns empty list if parse fails
-		System.out.println(groups);
-		String parsedDateTime1 = "";
-		String parsedDateTime2 = "";
-		List<Date> dates = groups.get(0).getDates();
-		parsedDateTime1 = dates.get(0).toString();
-		System.out.println(parsedDateTime1);
-		//List<Date> dates2 = groups.get(1).getDates();
-		parsedDateTime2 = dates.get(1).toString();
-		System.out.println(parsedDateTime2);
-		return parsedDateTime1;
-	}*/
-	
 	public static Calendar[] parseDateTimeWithNatty(String input) {
 		
 		Calendar[] parsedDates = new Calendar[2];
@@ -42,8 +25,7 @@ public class NattyDateTimeParser extends DateTimeParser{
 		List<DateGroup> groups = parser.parse(input); // returns empty list if parse fails
 		
 		if (groups.isEmpty()) { // failed to parse
-			/*****************CHECK VALIDITY OF TIME MISSING***********************/
-			return parsedDates; // assume no dates. should never see this? forgot to check validity of time!
+			return parsedDates; // assume no dates. should never see this? 
 		}
 		
 		/**********NOTE NO NATTY SUPPORT FOR EVENTS!!!*************************/

@@ -112,7 +112,7 @@ public class StringParser {
 	public static Calendar[] getDatesTimesFromString(String input) {
 		DateTimeParser dateTimeParserChain = getChainOfParsers();
 		String[] emptyArr = new String[4];
-		String dateSection = " " + DateTimeParser.extractDateTimeSectionFromString(input) + " ";
+		String dateSection = DateTimeParser.extractDateTimeSectionFromString(input);
 		Calendar[] datesTimes = dateTimeParserChain.getDatesTimes(dateSection, emptyArr, emptyArr);
 		return datesTimes;
 	}

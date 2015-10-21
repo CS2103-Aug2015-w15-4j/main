@@ -272,7 +272,7 @@ public class TaskTab {
 			GridPane.setValignment(label, GRID_HEADER_VERT_ALIGNMENT);
 
 			label = createLabel(array[GRID_COL_CONTENT]);
-			if (label.getText().isEmpty()) {
+			if (label.getText()==null||label.getText().isEmpty()) {
 				label.setText("None");
 			}
 			grid.add(label, GRID_COL_CONTENT, i);
