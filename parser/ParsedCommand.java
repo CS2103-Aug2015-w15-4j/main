@@ -25,7 +25,7 @@ public class ParsedCommand {
 	private ArrayList<String> tags;
 	private int taskId;
 	private int taskType;
-	private StringParser.TaskStatus taskStatus;
+	private Boolean isCompleted;
 	private ConfigType configType;
 
 	private static final String ERROR_INVALID_COMMAND = "Error: Invalid command";
@@ -69,7 +69,7 @@ public class ParsedCommand {
 		this.tags = builder.tags;
 		this.taskId = builder.taskId;
 		this.taskType = builder.taskType;
-		this.taskStatus = builder.taskStatus;
+		this.isCompleted = builder.isCompleted;
 		this.configType = builder.configType;
 	}
 	
@@ -268,13 +268,13 @@ public class ParsedCommand {
 			String parsedKeywords = StringParser.getTitleFromString(inputArgs);
 			Calendar[] parsedTimes = StringParser.getDatesTimesFromString(inputArgs);
 			ArrayList<String> parsedTags = StringParser.getTagsFromString(inputArgs);
-			TaskStatus parsedStatus = StringParser.getTaskStatusFromString(inputArgs);
+			Boolean parsedStatus = StringParser.getTaskStatusFromString(inputArgs);
 			
 			pc = new ParsedCommand.Builder(CommandType.SEARCH)
 								  .searchKeywords(parsedKeywords)
 								  .times(parsedTimes)
 								  .tags(parsedTags)
-								  .taskStatus(parsedStatus)
+								  .isCompleted(parsedStatus)
 								  .build();
 			return pc;
 		
@@ -492,11 +492,11 @@ public class ParsedCommand {
 	}
 	
 	/**
-	 * Returns task status TODO, COMPLETED, OVERDUE or null if not applicable.
+	 * Returns true if completed, false if todo, null if irrelevant.
 	 * @return
 	 */
-	public TaskStatus getTaskStatus() {
-		return this.taskStatus;
+	public Boolean isCompleted() {
+		return this.isCompleted;
 	}
 	
 	/**
@@ -521,7 +521,7 @@ public class ParsedCommand {
 		private ArrayList<String> tags = new ArrayList<String>();
 		private int taskId = -1;
 		private int taskType = 0;
-		private TaskStatus taskStatus = null;
+		private Boolean isCompleted = null;
 		private ConfigType configType = null;
 
 		public Builder(ParsedCommand.CommandType cmdType) {
@@ -581,8 +581,8 @@ public class ParsedCommand {
 			return this;
 		}
 		
-		public Builder taskStatus(TaskStatus status) {
-			this.taskStatus = status;
+		public Builder isCompleted(Boolean status) {
+			this.isCompleted = status;
 			return this;
 		}
 		

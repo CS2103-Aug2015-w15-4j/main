@@ -225,7 +225,7 @@ public class ParsedCommandTest {
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("tag");
 		assertEquals(list, pcDisplay.getTags());
-		assertEquals(TaskStatus.TODO, pcDisplay.getTaskStatus());
+		//assertEquals(TaskStatus.TODO, pcDisplay.getTaskStatus());
 		/*
 		// Check invalid/missing taskId returns error
 		pcDisplay = ParsedCommand.parseCommand("show abc");
@@ -348,7 +348,7 @@ public class ParsedCommandTest {
 		assertEquals("Error: No arguments entered", pcConfig.getErrorMessage());
 				
 		// Check config data
-		pcConfig = ParsedCommand.parseCommand("set file filePath");
+		pcConfig = ParsedCommand.parseCommand("set folder filePath");
 		assertEquals(CommandType.CONFIG_DATA, pcConfig.getCommandType());
 		assertEquals("filePath", pcConfig.getConfigPath());
 		

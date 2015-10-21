@@ -132,7 +132,7 @@ public class StringParser {
 		return input.trim();
 	}
 
-	public static TaskStatus getTaskStatusFromString(String inputArgs) {
+	public static Boolean getTaskStatusFromString(String inputArgs) {
 		Matcher m = taskStatus.matcher(inputArgs);
 		String status = null;
 
@@ -147,13 +147,11 @@ public class StringParser {
 		}
 	}
 
-	private static TaskStatus determineTaskStatus(String status) {
+	private static Boolean determineTaskStatus(String status) {
 		if (status.equalsIgnoreCase("todo")) {
-			return TaskStatus.TODO;
+			return false;
 		} else if (status.equalsIgnoreCase("completed")) {
-			return TaskStatus.COMPLETED;
-		} else if (status.equalsIgnoreCase("overdue")) {
-			return TaskStatus.OVERDUE;
+			return true;
 		} else {
 			return null;
 		}
