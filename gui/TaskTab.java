@@ -101,6 +101,7 @@ public class TaskTab {
 				new ChangeListener<Node>() {
 					public void changed(ObservableValue<? extends Node> ov, Node old_val, Node new_val) {
 						//highlightTaskList();
+						refreshMainDisplay();
 					}
 				});
 	}
