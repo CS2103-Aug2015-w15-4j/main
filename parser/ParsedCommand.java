@@ -127,7 +127,7 @@ public class ParsedCommand {
 		} else {
 			String[] subInput = input[1].split(" ");
 			String subCommand = subInput[0];
-			if (subCommand.equalsIgnoreCase("file")) {
+			if (subCommand.equalsIgnoreCase("folder")) {
 				return createParsedCommandConfigData(subInput);
 			} else {
 				return createParsedCommandConfigImg(subInput);
