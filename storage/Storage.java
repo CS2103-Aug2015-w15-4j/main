@@ -29,17 +29,15 @@ public class Storage {
 	private static final boolean OVERWRITE = false;
 	private static final boolean APPEND = true;
 	private List<Task> taskList;
-	
+
 	private String dataFilePath;
 	private String avatarFilePath;
 	private String backgroundFilePath;
-	
+
 	private static String fileName;
 	private static String oldFileName;
 
 	private static final String DEFAULT_FILEPATH = "Data.txt";
-	private static final String DEFAULT_CONFIG = "Config.txt";
-	private static final String DEFAULT_INNERIMAGEFILE = "InnerImagePath.txt";
 	private String oldLocation;
 
 	public Storage() {
@@ -52,7 +50,7 @@ public class Storage {
 			Gson gson = new Gson();
 			FileWriter writer = new FileWriter(dataFilePath, APPEND);
 			writer.write(gson.toJson(task));
-			writer.write('\n');
+			writer.write("\r\n");
 			writer.close();
 
 			taskList.add(task);
@@ -64,7 +62,7 @@ public class Storage {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void sort() {
 		Collections.sort(taskList);
 		rewriteFile();
@@ -86,7 +84,7 @@ public class Storage {
 			FileWriter writer = new FileWriter(dataFilePath, OVERWRITE);
 			for (int i = 0; i < taskList.size(); i++) {
 				writer.write(gson.toJson(taskList.get(i)));
-				writer.write('\n');
+				writer.write("\r\n");
 			}
 			writer.close();
 		} catch (IOException e) {
@@ -97,11 +95,11 @@ public class Storage {
 	public List<Task> getAllTasks() {
 		return taskList;
 	}
-	
+
 	public String getAvatarPath() {
 		return avatarFilePath;
 	}
-	
+
 	/*
 	 * TODO ? : Maybe copy file into storage folder instead
 	 */
@@ -109,20 +107,20 @@ public class Storage {
 		avatarFilePath = path;
 		writeConfigDetails();
 	}
-	
+
 	public void setBackground(String path) {
 		backgroundFilePath = path;
 		writeConfigDetails();
 	}
-	
+
 	public String getBackgroundPath() {
 		return backgroundFilePath;
 	}
-	
+
 	public void getConfigDetails() {
 		File configFile = new File(CONFIG_FILENAME);
-		
-		if(!configFile.exists()) {
+
+		if (!configFile.exists()) {
 			createFile(CONFIG_FILENAME);
 			this.dataFilePath = DEFAULT_FILEPATH;
 			this.avatarFilePath = DEFAULT_AVATAR_FILEPATH;
@@ -130,14 +128,15 @@ public class Storage {
 			writeConfigDetails();
 		} else {
 			try {
-			BufferedReader reader = new BufferedReader(new FileReader(CONFIG_FILENAME));
-			
-			this.dataFilePath = reader.readLine();
-			this.avatarFilePath = reader.readLine();
-			this.backgroundFilePath = reader.readLine();
-			
-			reader.close();
-			
+				BufferedReader reader = new BufferedReader(new FileReader(
+						CONFIG_FILENAME));
+
+				this.dataFilePath = reader.readLine();
+				this.avatarFilePath = reader.readLine();
+				this.backgroundFilePath = reader.readLine();
+
+				reader.close();
+
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -145,26 +144,25 @@ public class Storage {
 			}
 		}
 	}
-	
+
 	public void writeConfigDetails() {
 		try {
-		File configFile = new File(CONFIG_FILENAME);
-		
-		FileWriter writer = new FileWriter(configFile, OVERWRITE);
-		writer.write(dataFilePath);
-		writer.write('\n');
-		writer.write(avatarFilePath);
-		writer.write('\n');
-		writer.write(backgroundFilePath);
-		writer.write('\n');
-		
-		writer.close();
+			File configFile = new File(CONFIG_FILENAME);
+
+			FileWriter writer = new FileWriter(configFile, OVERWRITE);
+			writer.write(dataFilePath);
+			writer.write("\r\n");
+			writer.write(avatarFilePath);
+			writer.write("\r\n");
+			writer.write(backgroundFilePath);
+			writer.write("\r\n");
+
+			writer.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
-	
+
 	public void setFileLocation(String filePath) {
 		File oldFile = new File(dataFilePath);
 		this.dataFilePath = filePath;
@@ -173,7 +171,7 @@ public class Storage {
 		initializeStorage();
 		oldFile.delete();
 	}
-	
+
 	public void initializeStorage() {
 
 		getConfigDetails();
@@ -181,8 +179,11 @@ public class Storage {
 		Gson gson = new Gson();
 		Task task = new Task();
 
+		createFile(dataFilePath);
+
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(dataFilePath));
+			BufferedReader reader = new BufferedReader(new FileReader(
+					dataFilePath));
 			String currentLine = reader.readLine();
 			while (currentLine != null) {
 				task = gson.fromJson(currentLine, Task.class);
@@ -197,8 +198,6 @@ public class Storage {
 			e.printStackTrace();
 		}
 	}
-
-	// ------------------------------------------------------------------------------------------------//
 
 	public String getPath() {
 		ReadFile rf = new ReadFile();
@@ -219,30 +218,6 @@ public class Storage {
 
 		sf.saveFile(DEFAULT_FILEPATH, newPath);
 		copyAndDelete(oldLocation, newPath);
-	}
-
-	public void addSetting(String input) {
-		createFile(DEFAULT_CONFIG);
-		SaveFile sf = new SaveFile();
-		sf.saveFile(DEFAULT_CONFIG, input);
-	}
-
-	public void addInnerImage() {
-		createFile(DEFAULT_INNERIMAGEFILE);
-		/*
-		 * Gson gson = new Gson();
-		 * 
-		 * ImagePath imagePath = new ImagePath();
-		 * 
-		 * try { BufferedReader reader = new BufferedReader(new
-		 * FileReader(DEFAULT_INNERIMAGEFILE)); String currentLine =
-		 * reader.readLine(); while (currentLine != null) { imagePath =
-		 * gson.fromJson(currentLine, ImagePath.class); currentLine =
-		 * reader.readLine(); } reader.close();
-		 * 
-		 * } catch (FileNotFoundException e) { e.printStackTrace(); } catch
-		 * (IOException e) { e.printStackTrace(); }
-		 */
 	}
 
 	// Copy and delete
