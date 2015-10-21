@@ -88,10 +88,8 @@ public class GUIController extends Application {
 		border = new BorderPane();
 		//border.setMaxSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		// create the text
-		/*
 		sidebarObject = new Sidebar();
-		border.setRight(sidebarObject.getNode()); // put the sidebar on the right side
-		//*/
+		//border.setRight(sidebarObject.getNode()); // put the sidebar on the right side
 		
 		// Tab manager
 		tabPane = new TabPane();
@@ -113,22 +111,7 @@ public class GUIController extends Application {
 		taskObject.addAllTasks(Logic.initializeTaskList().getAllTasks());
 		taskObject.selectFirstNode();
 		// add Log tab
-		logObject = new VBox();
-		logCommands = new Log();
-		logConsole = new Log();
-		logObject.getChildren().add(logCommands.getNode());
-		logObject.getChildren().add(logConsole.getNode());
-		logCommands.getNode().prefHeightProperty().bind(logObject.heightProperty().divide(2));
-		logCommands.getNode().prefWidthProperty().bind(logObject.widthProperty());
-		logConsole.getNode().prefHeightProperty().bind(logObject.heightProperty().divide(2));
-		logConsole.getNode().prefWidthProperty().bind(logObject.widthProperty());
-		logObject.prefWidthProperty().bind(tabPane.widthProperty());
-		logObject.maxWidthProperty().bind(tabPane.widthProperty());
-		logObject.prefHeightProperty().bind(tabPane.heightProperty());
-		logObject.maxHeightProperty().bind(tabPane.heightProperty());
-		VBox.setVgrow(logObject, Priority.ALWAYS);
-		VBox.setVgrow(logCommands.getNode(), Priority.ALWAYS);
-		VBox.setVgrow(logConsole.getNode(), Priority.ALWAYS);
+		logObject = createLogTab();
 		tabPane.getTabs().get(LOG).setContent(logObject);
 		
 		// create input field
@@ -170,6 +153,26 @@ public class GUIController extends Application {
 	    primaryStage.show();
 	    primaryStage.setMinWidth(primaryStage.getWidth());
 	    primaryStage.setMinHeight(primaryStage.getHeight());
+	}
+	
+	public VBox createLogTab() {
+		logObject = new VBox();
+		logCommands = new Log();
+		logConsole = new Log();
+		logObject.getChildren().add(logCommands.getNode());
+		logObject.getChildren().add(logConsole.getNode());
+		logCommands.getNode().prefHeightProperty().bind(logObject.heightProperty().divide(2));
+		logCommands.getNode().prefWidthProperty().bind(logObject.widthProperty());
+		logConsole.getNode().prefHeightProperty().bind(logObject.heightProperty().divide(2));
+		logConsole.getNode().prefWidthProperty().bind(logObject.widthProperty());
+		logObject.prefWidthProperty().bind(tabPane.widthProperty());
+		logObject.maxWidthProperty().bind(tabPane.widthProperty());
+		logObject.prefHeightProperty().bind(tabPane.heightProperty());
+		logObject.maxHeightProperty().bind(tabPane.heightProperty());
+		VBox.setVgrow(logObject, Priority.ALWAYS);
+		VBox.setVgrow(logCommands.getNode(), Priority.ALWAYS);
+		VBox.setVgrow(logConsole.getNode(), Priority.ALWAYS);
+		return logObject;
 	}
 	
 	/**
