@@ -24,6 +24,10 @@ public class StringParserTest {
 		assertEquals("Meet John about proposal", StringParser.getTitleFromString("#cs2101 Meet John about proposal on 23 jan #cs2103 12:00 12/2/13"));
 		assertEquals("Meet John about proposal", StringParser.getTitleFromString(" 12:00 12/2/13 Meet John about proposal #cs2103 todo"));
 		assertEquals(null, StringParser.getTitleFromString("23/1/15 2pm \"description\" #tag1 #tag2"));
+		assertEquals("Meet John about proposal", StringParser.getTitleFromString("#cs2101 Meet John about proposal 12:00 to 1:30pm 12/2/13"));
+		assertEquals("Meet John about proposal", StringParser.getTitleFromString("#cs2101 Meet John about proposal #cs2103 12:00 until 15:30 12/2/13"));
+		assertEquals("Meet John about proposal", StringParser.getTitleFromString("#cs2101 Meet John about proposal 23 jan #cs2103 from 12:00 to 12/2/13"));
+		assertEquals("Meet John about proposal", StringParser.getTitleFromString("#cs2101 Meet John about proposal 23 jan #cs2103 at 12:00 to 12/2/13"));	
 	}
 
 	@Test

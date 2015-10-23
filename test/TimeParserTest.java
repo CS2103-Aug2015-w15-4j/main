@@ -45,6 +45,10 @@ public class TimeParserTest {
 		assertEquals("12:00", TimeParser.getStandardTimesFromString("12:00 lalala 13:20 lala")[0]);
 		assertEquals("13:20", TimeParser.getStandardTimesFromString("12:00 lalala 13:20 lala")[1]);
 
+		// Test separated times, no am/pm/h, time in beginning
+		assertEquals("12:00", TimeParser.getStandardTimesFromString("12:00 until 13:20 lala")[0]);
+		assertEquals("13:20", TimeParser.getStandardTimesFromString("12:00 until 13:20 lala")[1]);
+
 		// Test with h, H, time at end
 		assertEquals("12:00", TimeParser.getStandardTimesFromString("12/2/13 Meet John about proposal #cs2103 12:00 h - 13:30H")[0]);
 		assertEquals("13:30", TimeParser.getStandardTimesFromString("12/2/13 Meet John about proposal #cs2103 12:00 - 13:30H")[1]);
@@ -95,5 +99,16 @@ public class TimeParserTest {
 		// Test empty string (NOTE: impossible to get null value)
 		assertEquals(null, TimeParser.getStandardTimesFromString("")[0]);
 		assertEquals(null, TimeParser.getStandardTimesFromString("")[1]);
+		
+		// Test empty string (NOTE: impossible to get null value)
+		assertArrayEquals(null, TimeParser.getStandardTimesFromString(null));
 	}
+	
+	@Test
+	public void testGetStandardTimesFromStringNatty() {
+		assertEquals("next monday  to next friday", TimeParser.getStandardTimesFromString("next monday 12.30pm to next friday 2.30pm")[3]);
+		assertEquals("next tuesday", TimeParser.getStandardTimesFromString("next tuesday 3 until 7pm")[3]);
+	}
+		
+		
 }

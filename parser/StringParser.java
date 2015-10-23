@@ -13,7 +13,7 @@ import com.sun.org.apache.xerces.internal.impl.xpath.regex.ParseException;
 import parser.ParsedCommand.TaskType;
 
 public class StringParser {
-
+	static final String TO_REGEX = "-|to|until|till";
 	protected static final String TASK_ID_REGEX = "(^[0-9]+)";
 	protected static final String TAG_REGEX = "(#(\\w+))";
 	protected static final String DESCRIPTION_REGEX = "(\"[^\"]*?\")";
@@ -26,7 +26,7 @@ public class StringParser {
 	protected static Pattern taskStatus = Pattern.compile(TASK_STATUS_REGEX);
 	private static final Pattern taskType = Pattern.compile(TASK_TYPE_REGEX);
 	
-	private static final String notTitleRegex = "(" + DateTimeParser.DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|(" + TASK_STATUS_REGEX + "))";  	
+	private static final String notTitleRegex = "(" + "( from | fr | at | to | til | until | by | on )?" + DateTimeParser.DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|(" + TASK_STATUS_REGEX + "))";  	
 	
 	private static final Logger logger = Logger.getLogger(StringParser.class.getName() );
 	private static final String NOT_KEYWORDS_REGEX = notTitleRegex + "|" + TASK_TYPE_REGEX;

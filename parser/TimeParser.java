@@ -8,8 +8,8 @@ import java.util.regex.Pattern;
 public class TimeParser {
 	// protected static final String TWELVE_HR_REGEX = "(?<=\\s|^)(1[012]|0?[1-9])([.:][0-5][0-9])?\\s?(am|pm)?(\\s?(?:-|to)\\s?(1[012]|0?[1-9])([.:][0-5][0-9])?\\s?)?(am|pm)(?=\\s|$)";
 	// protected static final String TWENTYFOUR_HR_REGEX = "(?<=\\s|^)((0?[0-9]|1[0-9]|2[0-3])[:]([0-5][0-9]))\\s?[?:h|H]?\\s?(-\\s?((0[0-9]|1[0-9]|2[0-3])[:]([0-5][0-9])))?\\s?[?:h|H]?(?=\\s|$)";
-	protected static final String TWELVE_HR_REGEX = "(?<=\\s|^)([0-9]?[0-9])([.:][0-9][0-9])?\\s?(am|pm)?(\\s?(?:-|to)\\s?([0-9]?[0-9])([.:][0-9][0-9])?\\s?)?(am|pm)(?=\\s|$)";
-	protected static final String TWENTYFOUR_HR_REGEX = "(?<=\\s|^)(([0-9]?[0-9])[:]([0-9][0-9]))\\s?[?:h|H]?\\s?(-\\s?(([0-9]?[0-9])[:]([0-9][0-9])))?\\s?[?:h|H]?(?=\\s|$)";
+	protected static final String TWELVE_HR_REGEX = "(?<=\\s|^)([0-9]?[0-9])([.:][0-9][0-9])?\\s?(am|pm)?(\\s?(?:-|to|until|til|till)\\s?([0-9]?[0-9])([.:][0-9][0-9])?\\s?)?(am|pm)(?=\\s|$)";
+	protected static final String TWENTYFOUR_HR_REGEX = "(?<=\\s|^)(([0-9]?[0-9])[:]([0-9][0-9]))\\s?[?:h|H]?\\s?((?:-|to|until|til|till)?\\s?(([0-9]?[0-9])[:]([0-9][0-9])))?\\s?[?:h|H]?(?=\\s|$)";
 		
 	
 	protected static final String TIME_REGEX = "(" + TWELVE_HR_REGEX + "|" + TWENTYFOUR_HR_REGEX + ")";
@@ -91,6 +91,9 @@ public class TimeParser {
 	}
 	
 	public static String[] getStandardTimesFromString(String input) {
+		if (input == null) {
+			return null;
+		}
 		String[] times = new String[4];
 		times = getTwelveHrTimesFromString(input);
 		logger.log(Level.FINE, "12HR for " + input + " : " + times[0]);
@@ -99,7 +102,7 @@ public class TimeParser {
 			logger.log(Level.FINE, "24HR for " + input + " : " + times[0]);
 		} 
 		times[3] = removeTimesFromString(input);
-		//System.out.println(times[3]);
+		// System.out.println(times[3]);
 		return times;
 	}
 	private static String removeTimesFromString(String input) {
