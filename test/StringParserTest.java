@@ -10,7 +10,7 @@ import java.util.Date;
 import org.junit.Test;
 
 import parser.StringParser;
-import parser.StringParser.TaskStatus;
+import parser.ParsedCommand.TaskType;
 
 public class StringParserTest {
 	
@@ -113,7 +113,33 @@ public class StringParserTest {
 	
 	@Test
 	public void testGetTaskStatusFromString() {
-		assertEquals(TaskStatus.TODO, StringParser.getTaskStatusFromString("Meet Task John about proposal #cs2103 @1200 #cs2101 todo"));
-		assertEquals(TaskStatus.TODO, StringParser.getTaskStatusFromString("meeting 23/11/15 #tag todo"));
+		assertEquals(false, StringParser.getTaskStatusFromString("Meet Task John about proposal #cs2103 @1200 #cs2101 todo"));
+		assertEquals(false, StringParser.getTaskStatusFromString("meeting 23/11/15 #tag todo"));
+	}
+	
+	@Test
+	public void testGetTaskTypeFromString() {
+		assertEquals(TaskType.FLOATING_TASK, StringParser.getTaskTypeFromString("floating task"));
+		assertEquals(TaskType.FLOATING_TASK, StringParser.getTaskTypeFromString("floating tasks"));
+		assertEquals(TaskType.FLOATING_TASK, StringParser.getTaskTypeFromString("lalala floating task lalala"));
+		assertEquals(null, StringParser.getTaskTypeFromString("lalafloating task lalala"));
+
+		assertEquals(TaskType.DEADLINE_TASK, StringParser.getTaskTypeFromString("deadline task"));
+		assertEquals(TaskType.DEADLINE_TASK, StringParser.getTaskTypeFromString("deadline tasks"));
+		assertEquals(TaskType.DEADLINE_TASK, StringParser.getTaskTypeFromString("deadlines"));
+		assertEquals(TaskType.DEADLINE_TASK, StringParser.getTaskTypeFromString("deadline"));
+		assertEquals(TaskType.DEADLINE_TASK, StringParser.getTaskTypeFromString("lalala deadline task lalala"));
+		assertEquals(null, StringParser.getTaskTypeFromString("lalaladeadline task lalala"));
+		assertEquals(TaskType.DEADLINE_TASK, StringParser.getTaskTypeFromString("lalala deadlines lalala"));
+		assertEquals(null, StringParser.getTaskTypeFromString("lalaladeadline lalala"));
+		assertEquals(null, StringParser.getTaskTypeFromString("deadlineself"));
+
+		assertEquals(TaskType.EVENT, StringParser.getTaskTypeFromString("event"));
+		assertEquals(TaskType.EVENT, StringParser.getTaskTypeFromString("events"));
+		assertEquals(TaskType.EVENT, StringParser.getTaskTypeFromString("lalala event lalala"));
+		assertEquals(TaskType.EVENT, StringParser.getTaskTypeFromString("lalala events lalala"));
+		assertEquals(null, StringParser.getTaskTypeFromString("lalaevent lalala"));
+		assertEquals(null, StringParser.getTaskTypeFromString("eventsal"));
+
 	}
 }

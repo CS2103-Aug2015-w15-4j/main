@@ -10,26 +10,26 @@ import java.util.regex.Pattern;
 
 import com.sun.org.apache.xerces.internal.impl.xpath.regex.ParseException;
 
-import parser.StringParser.TaskStatus;
+import parser.ParsedCommand.TaskType;
 
 public class StringParser {
-	public enum TaskStatus {
-		TODO, COMPLETED, OVERDUE;
-	}
 
 	protected static final String TASK_ID_REGEX = "(^[0-9]+)";
 	protected static final String TAG_REGEX = "(#(\\w+))";
 	protected static final String DESCRIPTION_REGEX = "(\"[^\"]*?\")";
 	protected static final String TASK_STATUS_REGEX = "(?<=[^//s])(todo|completed|overdue)(?=\\s|$)";
+	protected static final String TASK_TYPE_REGEX = "(?<=\\s|^)(floating(?:task)?|deadline(?:task)?|event(?:task)?)(?:s)?(?=\\s|$)";
 	
 	private static Pattern description = Pattern.compile(DESCRIPTION_REGEX);
 	private static Pattern taskId = Pattern.compile(TASK_ID_REGEX);
 	protected static Pattern tags = Pattern.compile(TAG_REGEX);
 	protected static Pattern taskStatus = Pattern.compile(TASK_STATUS_REGEX);
+	private static final Pattern taskType = Pattern.compile(TASK_TYPE_REGEX);
 	
 	private static final String notTitleRegex = "(" + DateTimeParser.DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|(" + TASK_STATUS_REGEX + "))";  	
 	
 	private static final Logger logger = Logger.getLogger(StringParser.class.getName() );
+	private static final String NOT_KEYWORDS_REGEX = notTitleRegex + "|" + TASK_TYPE_REGEX;
 	
 	// Used for testing purposes
 	public static Date parseStringToDate(String input) {
@@ -155,6 +155,36 @@ public class StringParser {
 		} else {
 			return null;
 		}
+	}
+
+	public static TaskType getTaskTypeFromString(String inputArgs) {
+		Matcher m = taskType.matcher(inputArgs);
+		String type = null;
+
+		if (m.find()) {
+			type = m.group(1);
+		}
+		System.out.println(type);
+
+		return taskTypeToEnum(type);
+	}
+
+	private static TaskType taskTypeToEnum(String type) {
+		if (type == null) {
+			return null; 
+		} else if (type.equals("floating")) {
+			return TaskType.FLOATING_TASK;
+		} else if (type.equals("deadline")) {
+			return TaskType.DEADLINE_TASK;
+		} else if (type.equals("event")) {
+			return TaskType.EVENT;
+		} else {
+			return null;
+		}
+	}
+
+	static String getKeywordsFromString(String input) {
+		return StringParser.removeRegexPatternFromString(input, NOT_KEYWORDS_REGEX);
 	}
 
 }

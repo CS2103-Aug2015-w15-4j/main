@@ -20,8 +20,8 @@ import parser.InvalidMethodForTaskTypeException;
 import parser.ParsedCommand;
 import parser.ParsedCommand.CommandType;
 import parser.ParsedCommand.ConfigType;
+import parser.ParsedCommand.TaskType;
 import parser.StringParser;
-import parser.StringParser.TaskStatus;
 
 public class ParsedCommandTest {
 	private ParsedCommand pc;
@@ -90,7 +90,7 @@ public class ParsedCommandTest {
 		assertEquals(null, pcAdd.getFirstDate());
 		assertEquals(null, pcAdd.getSecondDate());
 		assertEquals(taskTags, pcAdd.getTags());
-		assertEquals(1, pcAdd.getTaskType());
+		assertEquals(TaskType.FLOATING_TASK, pcAdd.getTaskType());
 
         /* NOT SUPPORTED YET
 		// Check support for floating task containing keyword
@@ -136,9 +136,22 @@ public class ParsedCommandTest {
 		assertEquals(Date.from(dt.atZone(ZoneId.systemDefault()).toInstant()).toString(), pcAdd.getFirstDate().getTime().toString());
 		assertEquals(null, pcAdd.getSecondDate());
 		assertEquals(emptyArrayList, pcAdd.getTags());
-		assertEquals(2, pcAdd.getTaskType());
+		assertEquals(TaskType.DEADLINE_TASK, pcAdd.getTaskType());
 		
-		/**********************FIX THIS!***************************/
+		// Check support for deadline task natty
+		pcAdd = ParsedCommand.parseCommand("Add meeting with john on tmr");
+		assertEquals(CommandType.ADD, pcAdd.getCommandType());
+		assertEquals("meeting with john", pcAdd.getTitle());
+		assertEquals(null, pcAdd.getDescription());
+		dt = LocalDateTime.now();
+		dt = LocalDateTime.from(dt.plusDays(1));
+		dt = dt.withHour(23).withMinute(59).withSecond(0);
+		assertEquals(Date.from(dt.atZone(ZoneId.systemDefault()).toInstant()).toString(), pcAdd.getFirstDate().getTime().toString());
+		assertEquals(null, pcAdd.getSecondDate());
+		assertEquals(emptyArrayList, pcAdd.getTags());
+		assertEquals(TaskType.DEADLINE_TASK, pcAdd.getTaskType());
+		
+				/**********************FIX THIS!***************************/
 		// Check support for event spanning 2 days
 		pcAdd = ParsedCommand.parseCommand("Add meeting with john 23/11/10 12:00h to 24/11/10 13:30H  #cs2103 #proj #cs2101");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
@@ -146,7 +159,7 @@ public class ParsedCommandTest {
 		assertEquals(null, pcAdd.getDescription());
 		assertEquals(StringParser.parseStringToDate("Tue Nov 23 12:00:00 SGT 2010"), pcAdd.getFirstDate().getTime());
 		assertEquals(StringParser.parseStringToDate("Wed Nov 24 13:30:00 SGT 2010"), pcAdd.getSecondDate().getTime());
-		assertEquals(3, pcAdd.getTaskType());
+		assertEquals(TaskType.EVENT, pcAdd.getTaskType());
 
 		
 		// Check invalid date returns invalid date error, where invalid date is in proper format
@@ -155,8 +168,7 @@ public class ParsedCommandTest {
 		assertEquals("Error: Invalid date(s) input", pcAdd.getErrorMessage());
 		
 		
-		/**********CHECK! better to detect all xx/xx/xx formats when checking title?********/
-		// Check dates in improper format are ignored and assumed to be not date
+		// Check obviously invalid dates return error
 		pcAdd = ParsedCommand.parseCommand("Add meeting with john 41/4/10 12:00 #proj");
 		assertEquals(CommandType.ERROR, pcAdd.getCommandType());
 		assertEquals("Error: Invalid date(s) input", pcAdd.getErrorMessage());
@@ -217,7 +229,7 @@ public class ParsedCommandTest {
 		assertEquals("Error: No arguments entered", pcDisplay.getErrorMessage());
 		
 		// Check search function works
-		pcDisplay = ParsedCommand.parseCommand("show meeting 23/11/15 #tag todo");
+		pcDisplay = ParsedCommand.parseCommand("show meeting 23/11/15 #tag todo deadline");
 		assertEquals(CommandType.SEARCH, pcDisplay.getCommandType());
 		assertEquals("meeting", pcDisplay.getKeywords());
 		assertEquals(StringParser.parseStringToDate("Mon Nov 23 23:59:00 SGT 2015"), pcDisplay.getFirstDate().getTime());
@@ -225,13 +237,20 @@ public class ParsedCommandTest {
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("tag");
 		assertEquals(list, pcDisplay.getTags());
-		//assertEquals(TaskStatus.TODO, pcDisplay.getTaskStatus());
-		/*
-		// Check invalid/missing taskId returns error
-		pcDisplay = ParsedCommand.parseCommand("show abc");
-		assertEquals(CommandType.ERROR, pcDisplay.getCommandType());
-		assertEquals("Error: Invalid/Missing taskId", pcDisplay.getErrorMessage());
-		*/
+		assertEquals(false, pcDisplay.isCompleted());
+		assertEquals(TaskType.DEADLINE_TASK, pcDisplay.getTaskType());
+		
+		// Check search function works
+		pcDisplay = ParsedCommand.parseCommand("show meeting 23/11/15 #tag todo");
+		assertEquals(CommandType.SEARCH, pcDisplay.getCommandType());
+		assertEquals("meeting", pcDisplay.getKeywords());
+		assertEquals(StringParser.parseStringToDate("Mon Nov 23 23:59:00 SGT 2015"), pcDisplay.getFirstDate().getTime());
+		assertEquals(null, pcDisplay.getSecondDate());
+		list = new ArrayList<String>();
+		list.add("tag");
+		assertEquals(list, pcDisplay.getTags());
+		assertEquals(false, pcDisplay.isCompleted());
+		assertEquals(null, pcDisplay.getTaskType());
 	}
 
 	@Test

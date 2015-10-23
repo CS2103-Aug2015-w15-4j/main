@@ -4,10 +4,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.logging.Logger;
 
-import com.sun.org.apache.xerces.internal.util.Status;
-
-import parser.StringParser.TaskStatus;
-
 public class ParsedCommand {
 	public enum CommandType {
 		ADD, DELETE, EDIT, DISPLAY, ERROR, UNDO, DONE, INVALID, CONFIG_DATA, CONFIG_IMG, EXIT, CONFIG, SEARCH, SHOW;
@@ -15,6 +11,10 @@ public class ParsedCommand {
 	
 	public enum ConfigType {
 		BACKGROUND, AVATAR, INVALID;
+	}
+	
+	public enum TaskType {
+		FLOATING_TASK, DEADLINE_TASK, EVENT;
 	}
 
 	private CommandType cmdType;
@@ -24,7 +24,7 @@ public class ParsedCommand {
 	private String description;
 	private ArrayList<String> tags;
 	private int taskId;
-	private int taskType;
+	private TaskType taskType;
 	private Boolean isCompleted;
 	private ConfigType configType;
 
@@ -37,9 +37,6 @@ public class ParsedCommand {
 	private static final int INDEX_FOR_END = 1;
 	private static final int INDEX_FOR_CMD = 0;
 	private static final int INDEX_FOR_ARGS = 1;
-	private static final int TASK = 1;
-	private static final int DEADLINE_TASK = 2;
-	private static final int EVENT = 3;
 	private static final String ERROR_INVALID_DATE = "Error: Invalid date(s) input";
 	private static final String ERROR_INVALID_TASKID = "Error: Invalid/Missing taskId";
 	private static final int INDEX_FOR_TASKID = 0;
@@ -265,16 +262,18 @@ public class ParsedCommand {
 	private static ParsedCommand createParsedCommandShowSearch(String inputArgs) {
 		ParsedCommand pc;
 		try {
-			String parsedKeywords = StringParser.getTitleFromString(inputArgs);
+			String parsedKeywords = StringParser.getKeywordsFromString(inputArgs);
 			Calendar[] parsedTimes = StringParser.getDatesTimesFromString(inputArgs);
 			ArrayList<String> parsedTags = StringParser.getTagsFromString(inputArgs);
 			Boolean parsedStatus = StringParser.getTaskStatusFromString(inputArgs);
+			TaskType taskType = StringParser.getTaskTypeFromString(inputArgs);
 			
 			pc = new ParsedCommand.Builder(CommandType.SEARCH)
 								  .searchKeywords(parsedKeywords)
 								  .times(parsedTimes)
 								  .tags(parsedTags)
 								  .isCompleted(parsedStatus)
+								  .taskType(taskType)
 								  .build();
 			return pc;
 		
@@ -342,16 +341,16 @@ public class ParsedCommand {
 		}
 	}
 
-	private static int determineTaskType(Calendar start, Calendar end) {
-		int taskType;
+	private static TaskType determineTaskType(Calendar start, Calendar end) {
+		TaskType taskType;
 		if (end == null) {
 			if (start == null) {
-				taskType = TASK;
+				taskType = TaskType.FLOATING_TASK;
 			} else {
-				taskType = DEADLINE_TASK;
+				taskType = TaskType.DEADLINE_TASK;
 			}
 		} else {
-			taskType = EVENT;
+			taskType = TaskType.EVENT;
 		}
 		return taskType;
 	}
@@ -454,14 +453,14 @@ public class ParsedCommand {
 	}
 	
 	/**
-	 * Returns 1 for task, 2 for deadline task, 3 for event, 0 if not applicable.
+	 * Returns TaskType.EVENT, TaskType.DEADLINE_TASK, TaskType.FLOATING_TASK or null.
 	 * @return
 	 */
-	public int getTaskType() {
+	public TaskType getTaskType() {
 		return this.taskType;
 	}
 	
-	public void setTaskType(int taskType) {
+	public void setTaskType(TaskType taskType) {
 		this.taskType = taskType;
 	}
 	
@@ -520,7 +519,7 @@ public class ParsedCommand {
 		private String description = null;
 		private ArrayList<String> tags = new ArrayList<String>();
 		private int taskId = -1;
-		private int taskType = 0;
+		private TaskType taskType = null;
 		private Boolean isCompleted = null;
 		private ConfigType configType = null;
 
@@ -591,9 +590,14 @@ public class ParsedCommand {
 			return this;
 		}
 		
+		public Builder taskType(TaskType type) {
+			this.taskType = type;
+			return this;
+		}
+		
 		public ParsedCommand build() {
 			if (this.cmdType == CommandType.ADD) {
-				int taskType = determineTaskType(this.firstDate, this.secondDate);
+				TaskType taskType = determineTaskType(this.firstDate, this.secondDate);
 				this.taskType = taskType;
 			}
 			return new ParsedCommand(this);
