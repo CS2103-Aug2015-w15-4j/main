@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
@@ -34,7 +35,16 @@ public class ParsedCommandTest {
 	private ParsedCommand pcConfig;
 	private ArrayList<String> emptyArrayList = new ArrayList<String>();
 	
-
+	public static Calendar nextDayOfWeek(int day) {
+        Calendar date = Calendar.getInstance();
+        int difference = day - date.get(Calendar.DAY_OF_WEEK);
+        if (difference < 0) {
+            difference += 7;
+        }
+        date.add(Calendar.DAY_OF_MONTH, difference);
+        return date;
+    }
+	
 	private void initLogging(){
 		String config = "\nhandlers = java.util.logging.ConsoleHandler" + "\n.level = ALL"+"\n"+
 				"java.util.logging.ConsoleHandler.level = FINE" + "\n" +
@@ -114,17 +124,19 @@ public class ParsedCommandTest {
 		assertEquals(1, pcAdd.getTaskType());
 		
 		*/
-/*
+
 		// Check support for deadline task formatted date (no keyword)
-		pcAdd = ParsedCommand.parseCommand("Add meeting with john 1/4/15");
+		pcAdd = ParsedCommand.parseCommand("Add meeting with john 1/4/15 from 3pm to 7.30pm");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
 		assertEquals(null, pcAdd.getDescription());
-		assertEquals(StringParser.parseStringToDate("Wed Apr 1 23:59:00 SGT 2015"), pcAdd.getFirstDate().getTime());
-		assertEquals(null, pcAdd.getSecondDate());
+		assertEquals(StringParser.parseStringToDate("Wed Apr 1 15:00:00 SGT 2015"), pcAdd.getFirstDate().getTime());
+		assertEquals(StringParser.parseStringToDate("Wed Apr 1 19:30:00 SGT 2015"), pcAdd.getSecondDate().getTime());
 		assertEquals(emptyArrayList, pcAdd.getTags());
-		assertEquals(2, pcAdd.getTaskType());
-*/
+		assertEquals(TaskType.EVENT, pcAdd.getTaskType());
+		
+		
+
 		// Check support for deadline task natty
 		pcAdd = ParsedCommand.parseCommand("Add meeting with john on tmr at 12pm");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
@@ -151,17 +163,34 @@ public class ParsedCommandTest {
 		assertEquals(emptyArrayList, pcAdd.getTags());
 		assertEquals(TaskType.DEADLINE_TASK, pcAdd.getTaskType());
 		
-				/**********************FIX THIS!***************************/
 		// Check support for event spanning 2 days
 		pcAdd = ParsedCommand.parseCommand("Add meeting with john 23/11/10 12:00h to 24/11/10 13:30H  #cs2103 #proj #cs2101");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
-		assertEquals("meeting with john   to", pcAdd.getTitle());
+		assertEquals("meeting with john", pcAdd.getTitle());
 		assertEquals(null, pcAdd.getDescription());
 		assertEquals(StringParser.parseStringToDate("Tue Nov 23 12:00:00 SGT 2010"), pcAdd.getFirstDate().getTime());
 		assertEquals(StringParser.parseStringToDate("Wed Nov 24 13:30:00 SGT 2010"), pcAdd.getSecondDate().getTime());
 		assertEquals(TaskType.EVENT, pcAdd.getTaskType());
 
-		
+		// Check support for event spanning 2 days
+		pcAdd = ParsedCommand.parseCommand("Add meeting with john on next tues 2pm until next thurs 3pm  #cs2103 #proj #cs2101");
+		assertEquals(CommandType.ADD, pcAdd.getCommandType());
+		assertEquals("meeting with john", pcAdd.getTitle());
+		assertEquals(null, pcAdd.getDescription());
+		Calendar firstDate = nextDayOfWeek(Calendar.TUESDAY);
+		Calendar secondDate = nextDayOfWeek(Calendar.THURSDAY);
+		firstDate.set(Calendar.HOUR_OF_DAY, 14);
+		firstDate.set(Calendar.MINUTE, 0);
+		firstDate.set(Calendar.SECOND, 0);
+		firstDate.set(Calendar.MILLISECOND, 0);
+		secondDate.set(Calendar.HOUR_OF_DAY, 15);
+		secondDate.set(Calendar.MINUTE, 0);
+		secondDate.set(Calendar.SECOND, 0);
+		secondDate.set(Calendar.MILLISECOND, 0);
+		assertEquals(firstDate.getTime(), pcAdd.getFirstDate().getTime());
+		assertEquals(secondDate.getTime(), pcAdd.getSecondDate().getTime());
+		assertEquals(TaskType.EVENT, pcAdd.getTaskType());
+
 		// Check invalid date returns invalid date error, where invalid date is in proper format
 		pcAdd = ParsedCommand.parseCommand("Add meeting with john 31/4/10 12:00h #proj");
 		assertEquals(CommandType.ERROR, pcAdd.getCommandType());

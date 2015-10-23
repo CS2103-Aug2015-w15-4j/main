@@ -16,6 +16,7 @@ public class NattyDateTimeParser extends DateTimeParser{
 	private String[] nattyTimes;
 	private String[] nattyDates;
 	
+	
 	private static final Logger logger = Logger.getLogger(NattyDateTimeParser.class.getName() );
 
 	public static Calendar[] parseDateTimeWithNatty(String input) {
@@ -57,30 +58,37 @@ public class NattyDateTimeParser extends DateTimeParser{
 		}
 	}
     
-    private static String convertToStandardNattyForm(String input) {
-    	String regex = "(from|to)";
-    	input = StringParser.removeRegexPatternFromString(input, regex);
-    	return input;
-    }
-
-    
     @Override
     protected Calendar[] parse(String input, String[] parsedDates, String[] parsedTimes) {
     	assert(parsedDates != null);
     	assert(parsedTimes != null);
     	logger.log(Level.FINE, "INPUT TO NATTY: " + input);
     	// Times parsed by now, only dates left
-    	if (parsedTimes[0] == null) {
-    		parsedTimes[0] = "23:59";
-    		if (parsedTimes[1] == null) {
-    			parsedTimes[1] = "";
-    		}
-    	} else if (parsedTimes[1] == null) {
-    		parsedTimes[1] = "";
-    	}
-    	input = convertToStandardNattyForm(input);
+    	
     	if (canParseWithNatty(input)) { // can parse without time, ie has date
-    		String dateWithTime = input + " " + parsedTimes[0] + " to " + parsedTimes[1];
+    		String[] startAndEndDates = input.split(" to | until | til | till | - ");
+    		String dateWithTime;
+    		if (startAndEndDates.length < 2) { // only has 1 Natty date
+    			if (parsedTimes[0] == null) {
+    	    		parsedTimes[0] = "23:59";
+    	    		if (parsedTimes[1] == null) {
+    	    			parsedTimes[1] = "";
+    	    		}
+    	    	} else if (parsedTimes[1] == null) {
+    	    		parsedTimes[1] = "";
+    	    	}
+    			dateWithTime = input + " " + parsedTimes[0] + " to " + parsedTimes[1];    			
+    		} else {
+    			if (parsedTimes[0] == null) {
+    	    		parsedTimes[0] = "23:59";
+    	    		if (parsedTimes[1] == null) {
+    	    			parsedTimes[1] = "23:59";
+    	    		}
+    	    	} else if (parsedTimes[1] == null) {
+    	    		parsedTimes[1] = "23:59";
+    	    	}
+    			dateWithTime = startAndEndDates[0] + " " + parsedTimes[0] + " to " + startAndEndDates[1] + " " + parsedTimes[1];  
+    		}
     		logger.log(Level.FINE, "Parse with Natty: " + dateWithTime);
     		return parseDateTimeWithNatty(dateWithTime);
     	} else { // invalid input - assume no date/time ie is floating
