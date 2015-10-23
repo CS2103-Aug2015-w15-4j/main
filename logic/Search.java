@@ -17,11 +17,14 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
+import org.apache.lucene.util.Version;
 
 import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class Search {
@@ -69,6 +72,25 @@ public class Search {
 		return hitList;
 	}
 	
+	/*
+	 * A search involving fields with dates
+	 */
+	public static List<Task> searchDate(List<Task> taskList, Calendar date) {
+		
+		
+		ArrayList<Task> hitList = new ArrayList<Task>();
+		Event event = new Event("Task1","",1,false,null,3,Calendar.getInstance(),Calendar.getInstance());
+		hitList.add(event);
+		hitList.add(new Event("Task2","",2,false,null,3,Calendar.getInstance(),Calendar.getInstance()));
+		hitList.add(new Event("Task3","",3,false,null,3,Calendar.getInstance(),Calendar.getInstance()));
+		hitList.add(new Event("Task4","",4,false,null,3,Calendar.getInstance(),Calendar.getInstance()));
+		hitList.add(new Event("Task5","",5,false,null,3,Calendar.getInstance(),Calendar.getInstance()));
+		
+		
+		
+		return hitList;
+	}
+	
 	  private static void addDoc(IndexWriter w, Task task) throws IOException {
 		    Document doc = new Document();
 		    Gson gson = new Gson();
@@ -83,7 +105,9 @@ public class Search {
 		    }
 		    doc.add(new TextField("tags",tagString, Field.Store.YES));
 		    doc.add(new TextField("taskType",new Integer(task.getTaskType()).toString(), Field.Store.YES));
-		    doc.add(new TextField("details",task.getDetails(), Field.Store.YES));
+		    if (task.getDetails() != null) {
+		    	doc.add(new TextField("details",task.getDetails(), Field.Store.YES));
+		    }
 
 		    doc.add(new StringField("json",jsonString,Field.Store.YES));
 		    w.addDocument(doc);
