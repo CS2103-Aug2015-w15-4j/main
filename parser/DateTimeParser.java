@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 public abstract class DateTimeParser {
 	//private static Pattern parentheses = Pattern.compile("([(][a-zA-Z0-9\\s]+[)])");
-	private static String DATE_KEYWORD_REGEX = "(on|by)([^\"#]*)";
+	private static String DATE_KEYWORD_REGEX = "(?<=\\s|^)(on|by)\\s([^\"#]*)";
 	private static Pattern DATE_KEYWORD_PATTERN = Pattern.compile(DATE_KEYWORD_REGEX);
 	
 	private static String TAG_OR_DESCRIPTION_REGEX = "(" + StringParser.TAG_REGEX + "|" + StringParser.DESCRIPTION_REGEX + ")";  	                                        
