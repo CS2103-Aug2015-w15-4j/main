@@ -53,7 +53,7 @@ public class ParsedCommand {
 	private static final String[] SHOW_CHOICES = {"show", "search", "find"};
 	private static final String[] EXIT_CHOICES = {"exit"};
 	private static final String[] UNDO_CHOICES = {"undo"};
-	private static final String[] DONE_CHOICES = {"done"};
+	private static final String[] DONE_CHOICES = {"done", "finished", "completed", "v"};
 	private static final String[] FLAG_CHOICES = {"flag", "mark"};
 	private static final String[] TODO_CHOICES = {"todo"};
 	private static final String[] CONFIG_CHOICES = {"set"};
@@ -115,9 +115,14 @@ public class ParsedCommand {
 			case UNDO:
 				return createParsedCommandUndo();
 
+			case FLAG:
+				return createParsedCommandFlag(input);
+				
 			case DONE:
-				return createParsedCommandDone(input);
+				return createParsedCommandFlagDone(input);
 
+			case TODO:
+				return createParsedCommandFlagTodo(input);
 			case INVALID:
 				return createParsedCommandError(ERROR_INVALID_COMMAND);
 			
@@ -133,9 +138,50 @@ public class ParsedCommand {
 			}
 		}
 	}
+	
+	private static ParsedCommand createParsedCommandFlagDone(String[] input) {
+		return createParsedCommandFlagTaskStatus(input, true);
+	}
+
+	private static ParsedCommand createParsedCommandFlagTaskStatus(String[] input, Boolean status) {
+		if (isMissingArguments(input)) {
+			return createParsedCommandError(ERROR_MISSING_ARGS);
+		} else {
+			String inputArgs = input[INDEX_FOR_ARGS].trim();
+			try {
+				int taskId = StringParser.getTaskIdFromString(inputArgs);
+				ParsedCommand pc = new ParsedCommand.Builder(CommandType.FLAG)
+													.taskId(taskId)
+													.isCompleted(status)
+													.build();
+				return pc;
+			} catch (InvalidArgumentsForParsedCommandException e) {
+				return createParsedCommandError(e.getMessage());
+			}
+		}
+	}
+	
+	private static ParsedCommand createParsedCommandFlagTodo(String[] input) {
+		return createParsedCommandFlagTaskStatus(input, false);
+	}
+
+	private static ParsedCommand createParsedCommandFlag(String[] input) {
+		if (isMissingArguments(input)) {
+			return createParsedCommandError(ERROR_MISSING_ARGS);
+		} else {
+			String[] subInput = input[1].split(" ");
+			String subCommand = subInput[0];
+			if (subCommand.equalsIgnoreCase("todo")) {
+				return createParsedCommandFlagTodo(subInput);
+			} else if (subCommand.equalsIgnoreCase("done") || subCommand.equalsIgnoreCase("completed")) {
+				return createParsedCommandFlagDone(subInput);
+			} else {
+				return createParsedCommandError(ERROR_INVALID_COMMAND);
+			}
+		}
+	}
 
 	private static ParsedCommand createParsedCommandConfig(String[] input) {
-		System.out.println(input[0]);
 		if (isMissingArguments(input)) {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
@@ -314,22 +360,7 @@ public class ParsedCommand {
 		return StringParser.removeRegexPatternFromString(inputArgs, StringParser.TASK_ID_REGEX).trim().equals("");
 	}
 
-	private static ParsedCommand createParsedCommandDone(String[] input) {
-		if (isMissingArguments(input)) {
-			return createParsedCommandError(ERROR_MISSING_ARGS);
-		} else {
-			String inputArgs = input[INDEX_FOR_ARGS].trim();
-			try {
-				int taskId = StringParser.getTaskIdFromString(inputArgs);
-				ParsedCommand pc = new ParsedCommand.Builder(CommandType.DONE)
-													.taskId(taskId)
-													.build();
-				return pc;
-			} catch (InvalidArgumentsForParsedCommandException e) {
-				return createParsedCommandError(e.getMessage());
-			}
-		}
-	}
+
 
 	private static ParsedCommand createParsedCommandAdd(String[] input) {
 		if (isMissingArguments(input)) {

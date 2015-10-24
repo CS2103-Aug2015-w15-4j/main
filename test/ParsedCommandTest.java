@@ -350,14 +350,32 @@ public class ParsedCommandTest {
 	}
 
 	@Test
-	public void testParseCommandDone() throws InvalidMethodForTaskTypeException {
+	public void testParseCommandFlag() throws InvalidMethodForTaskTypeException {
+		// Partition 1: FLAG
+		// Check flag command for done
+		pcDone = ParsedCommand.parseCommand("Flag completed 234");
+		assertEquals(CommandType.FLAG, pcDone.getCommandType());
+		assertEquals(true, pcDone.isCompleted());
+		assertEquals(234, pcDone.getTaskId());
+		
+		// Check flag for todo
+		pcDone = ParsedCommand.parseCommand("flag   TODO  234");
+		assertEquals(CommandType.FLAG, pcDone.getCommandType());
+		assertEquals(false, pcDone.isCompleted());
+		assertEquals(234, pcDone.getTaskId());
+
+		
+		// Partition 2: DONE
+		// Check standard input
 		pcDone = ParsedCommand.parseCommand("Done 234");
-		assertEquals(CommandType.DONE, pcDone.getCommandType());
+		assertEquals(CommandType.FLAG, pcDone.getCommandType());
+		assertEquals(true, pcDone.isCompleted());
 		assertEquals(234, pcDone.getTaskId());
 
 		// Check allow extra whitespace
-		pcDone = ParsedCommand.parseCommand("Done  234");
-		assertEquals(CommandType.DONE, pcDone.getCommandType());
+		pcDone = ParsedCommand.parseCommand("finished  234");
+		assertEquals(CommandType.FLAG, pcDone.getCommandType());
+		assertEquals(true, pcDone.isCompleted());
 		assertEquals(234, pcDone.getTaskId());
 
 		// Check missing arguments returns error
@@ -366,16 +384,23 @@ public class ParsedCommandTest {
 		assertEquals("Error: No arguments entered", pcDone.getErrorMessage());
 
 		// Check invalid/missing taskId returns error
-		pcDone = ParsedCommand.parseCommand("delete abc");
+		pcDone = ParsedCommand.parseCommand("done abc");
 		assertEquals(CommandType.ERROR, pcDone.getCommandType());
 		assertEquals("Error: Invalid/Missing taskId", pcDone.getErrorMessage());
+		
+		
+		// Partition 3: TODO (similar pathway as DONE)
+		pcDone = ParsedCommand.parseCommand("todo 234");
+		assertEquals(CommandType.FLAG, pcDone.getCommandType());
+		assertEquals(false, pcDone.isCompleted());
+		assertEquals(234, pcDone.getTaskId());
 	}
 	
 	@Test(expected = InvalidMethodForTaskTypeException.class)
 	public void testGetErrorMessage() throws InvalidMethodForTaskTypeException {
 		// Check not allowed to get errorMessage if not error
 		pcDone = ParsedCommand.parseCommand("Done 234");
-		assertEquals(CommandType.DONE, pcDone.getCommandType());
+		assertEquals(CommandType.FLAG, pcDone.getCommandType());
 		assertEquals("Error: No error message as this is not an error", pcDone.getErrorMessage());
 	}
 	
