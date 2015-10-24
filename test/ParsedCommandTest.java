@@ -17,7 +17,6 @@ import java.util.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
-import parser.InvalidMethodForTaskTypeException;
 import parser.ParsedCommand;
 import parser.ParsedCommand.CommandType;
 import parser.ParsedCommand.ConfigType;
@@ -69,7 +68,7 @@ public class ParsedCommandTest {
 	}
 
 	@Test
-	public void testParsedCommand() throws InvalidMethodForTaskTypeException {
+	public void testParsedCommand() {
 		// Check null input returns no user input error
 		pc = ParsedCommand.parseCommand(null);
 		assertEquals(CommandType.ERROR, pc.getCommandType());
@@ -92,7 +91,7 @@ public class ParsedCommandTest {
 	}
 
 	@Test
-	public void testParseCommandAdd() throws InvalidMethodForTaskTypeException {
+	public void testParseCommandAdd() {
 		ArrayList<String> taskTags = new ArrayList<String>();
 		taskTags.add("cs2103");
 		taskTags.add("proj");
@@ -225,7 +224,7 @@ public class ParsedCommandTest {
 	}
 
 	@Test
-	public void testParseCommandDelete() throws InvalidMethodForTaskTypeException {
+	public void testParseCommandDelete() {
 		// Check delete
 		pcDelete = ParsedCommand.parseCommand("Delete 234");
 		assertEquals(CommandType.DELETE, pcDelete.getCommandType());
@@ -248,7 +247,7 @@ public class ParsedCommandTest {
 	}
 
 	@Test
-	public void testParseCommandDisplay() throws InvalidMethodForTaskTypeException {
+	public void testParseCommandDisplay() {
 		pcDisplay = ParsedCommand.parseCommand("show 234");
 		assertEquals(CommandType.DISPLAY, pcDisplay.getCommandType());
 		assertEquals(234, pcDisplay.getTaskId());
@@ -289,7 +288,7 @@ public class ParsedCommandTest {
 	}
 
 	@Test
-	public void testParseCommandEdit() throws InvalidMethodForTaskTypeException {
+	public void testParseCommandEdit() {
 		// Check support for invalid date
 		pcEdit = ParsedCommand.parseCommand("Edit   234 meeting 31/2/15 \"hello\" #tag");
 		assertEquals(CommandType.ERROR, pcEdit.getCommandType());
@@ -350,7 +349,7 @@ public class ParsedCommandTest {
 	}
 
 	@Test
-	public void testParseCommandFlag() throws InvalidMethodForTaskTypeException {
+	public void testParseCommandFlag() {
 		// Partition 1: FLAG
 		// Check flag command for done
 		pcDone = ParsedCommand.parseCommand("Flag completed 234");
@@ -396,16 +395,16 @@ public class ParsedCommandTest {
 		assertEquals(234, pcDone.getTaskId());
 	}
 	
-	@Test(expected = InvalidMethodForTaskTypeException.class)
-	public void testGetErrorMessage() throws InvalidMethodForTaskTypeException {
-		// Check not allowed to get errorMessage if not error
+	@Test
+	public void testGetErrorMessage() {
+		// Check returns null if irrelevant (not an error)
 		pcDone = ParsedCommand.parseCommand("Done 234");
 		assertEquals(CommandType.FLAG, pcDone.getCommandType());
-		assertEquals("Error: No error message as this is not an error", pcDone.getErrorMessage());
+		assertEquals(null, pcDone.getErrorMessage());
 	}
 	
 	@Test
-	public void testParseCommandConfig() throws InvalidMethodForTaskTypeException {
+	public void testParseCommandConfig() {
 		// Check missing config type
 		pcConfig = ParsedCommand.parseCommand("Set");
 		assertEquals(CommandType.ERROR, pcConfig.getCommandType());

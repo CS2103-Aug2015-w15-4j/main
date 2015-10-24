@@ -20,6 +20,9 @@ public class ParsedCommand {
 
 	private CommandType cmdType;
 	private String title;
+	private String errorMessage;
+	private String searchKeywords;
+	private String path;
 	private Calendar firstDate;
 	private Calendar secondDate;
 	private String description;
@@ -75,6 +78,9 @@ public class ParsedCommand {
 	public ParsedCommand(Builder builder) {
 		this.cmdType = builder.cmdType;
 		this.title = builder.title;
+		this.errorMessage = builder.errorMessage;
+		this.searchKeywords = builder.searchKeywords;
+		this.path = builder.path;
 		this.firstDate = builder.firstDate;
 		this.secondDate = builder.secondDate;
 		this.description = builder.description;
@@ -498,12 +504,8 @@ public class ParsedCommand {
 	 * Returns error message if ParsedCommand is of type Error.
 	 * @return
 	 */
-	public String getErrorMessage() throws InvalidMethodForTaskTypeException {
-		if (this.cmdType == CommandType.ERROR) {
-			return this.title;
-		} else {
-			throw new InvalidMethodForTaskTypeException("error");
-		}
+	public String getErrorMessage() {
+		return this.errorMessage;
 	}
 	
 	/**
@@ -531,12 +533,8 @@ public class ParsedCommand {
 	 * @return
 	 * @throws InvalidMethodForTaskTypeException
 	 */
-	public ConfigType getConfigType() throws InvalidMethodForTaskTypeException {
-		if (this.cmdType == CommandType.CONFIG_IMG) {
-			return this.configType;
-		} else {
-			throw new InvalidMethodForTaskTypeException("Not a CONFIG command");
-		}
+	public ConfigType getConfigType() {
+		return this.configType;
 	}
 	
 	/**
@@ -544,12 +542,8 @@ public class ParsedCommand {
 	 * @return
 	 * @throws InvalidMethodForTaskTypeException
 	 */
-	public String getConfigPath() throws InvalidMethodForTaskTypeException {
-		if (this.cmdType == CommandType.CONFIG_IMG || this.cmdType == CommandType.CONFIG_DATA) {
-			return this.description;
-		} else {
-			throw new InvalidMethodForTaskTypeException("Not a CONFIG command");
-		}
+	public String getConfigPath() {
+		return this.path;
 	}
 	
 	/**
@@ -564,12 +558,8 @@ public class ParsedCommand {
 	 * Returns search keywords for show command, returns null if not applicable.
 	 * @return
 	 */
-	public String getKeywords() throws InvalidMethodForTaskTypeException {
-		if (this.cmdType == CommandType.SEARCH) {
-			return this.title;
-		} else {
-			throw new InvalidMethodForTaskTypeException("Not a SEARCH command, no search keywords.");
-		}
+	public String getKeywords() {
+		return this.searchKeywords;
 	}
 	
 	public static void initParser() {
@@ -587,6 +577,9 @@ public class ParsedCommand {
 		private ParsedCommand.CommandType cmdType;
 		
 		private String title = null;
+		private String searchKeywords = null;
+		private String errorMessage = null;
+		private String path = null;
 		private Calendar firstDate = null;
 		private Calendar secondDate = null;
 		private String description = null;
@@ -636,7 +629,7 @@ public class ParsedCommand {
 		}
 		
 		public Builder errorMessage(String msg) {
-			this.title = msg;
+			this.errorMessage = msg;
 			return this;
 		}
 		
@@ -649,7 +642,7 @@ public class ParsedCommand {
 			if (path.equals("")) {
 				throw new InvalidArgumentsForParsedCommandException(ERROR_MISSING_ARGS);
 			}
-			this.description = path;
+			this.path = path;
 			return this;
 		}
 		
@@ -659,7 +652,7 @@ public class ParsedCommand {
 		}
 		
 		public Builder searchKeywords(String keywords) {
-			this.title = keywords;
+			this.searchKeywords = keywords;
 			return this;
 		}
 		
