@@ -32,6 +32,8 @@ public class ParsedCommandTest {
 	private ParsedCommand pcDone;
 	private ParsedCommand pcDisplay;
 	private ParsedCommand pcConfig;
+	private ParsedCommand pcHelp;
+	
 	private ArrayList<String> emptyArrayList = new ArrayList<String>();
 	
 	public static Calendar nextDayOfWeek(int day) {
@@ -345,6 +347,12 @@ public class ParsedCommandTest {
 	public void testParseCommandUndo() {
 		pcUndo = ParsedCommand.parseCommand("Undo");
 		assertEquals(CommandType.UNDO, pcUndo.getCommandType());
+	}
+	
+	@Test
+	public void testParseCommandHelp() {
+		pcHelp = ParsedCommand.parseCommand("help");
+		assertEquals(CommandType.HELP, pcHelp.getCommandType());
 	}
 
 	@Test
