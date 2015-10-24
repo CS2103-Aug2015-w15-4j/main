@@ -64,7 +64,6 @@ public class ParsedCommandTest {
 	@Before
 	public void setUp() throws Exception {
 	    initLogging();
-	    ParsedCommand.initParser();
 	}
 
 	@Test

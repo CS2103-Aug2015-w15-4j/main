@@ -62,7 +62,11 @@ public class ParsedCommand {
 	private static final String[] CONFIG_CHOICES = {"set"};
 	private static final String[] HELP_CHOICES = {"help", "?"};
 	private static final String[][] COMMAND_CHOICES = {ADD_CHOICES, DELETE_CHOICES, EDIT_CHOICES, SHOW_CHOICES, EXIT_CHOICES, UNDO_CHOICES, DONE_CHOICES, FLAG_CHOICES, TODO_CHOICES, CONFIG_CHOICES, HELP_CHOICES};
-
+	
+	static {
+		setupCommandChoicesHashMap();
+	}
+	
     /**
      * This method creates a ParsedCommand object (constructor).
      * 
@@ -562,7 +566,7 @@ public class ParsedCommand {
 		return this.searchKeywords;
 	}
 	
-	public static void initParser() {
+	public static void setupCommandChoicesHashMap() {
 		commandChoicesHashMap = new HashMap<String, CommandType>();
 		for (int i = 0; i < COMMAND_CHOICES.length; i++) {
 		    String[] cmdChoiceList = COMMAND_CHOICES[i];
