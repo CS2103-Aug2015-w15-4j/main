@@ -46,11 +46,11 @@ public class ParsedCommandTest {
     }
 	
 	private void initLogging(){
-		String config = "\nhandlers = java.util.logging.ConsoleHandler" + "\n.level = ALL"+"\n"+
-				"java.util.logging.ConsoleHandler.level = FINE" + "\n" +
-				"com.sun.level = INFO" + "\n" +
-				"javax.level = INFO" + "\n" +
-				"sun.level = INFO" + "\n";
+		String config = "\nhandlers = java.util.logging.ConsoleHandler\n.level = ALL\n" +
+						"java.util.logging.ConsoleHandler.level = FINE\n" +
+						"com.sun.level = INFO\n" +
+						"javax.level = INFO\n" +
+						"sun.level = INFO\n";
  
 		InputStream ins = new ByteArrayInputStream(config.getBytes());
  
@@ -65,10 +65,16 @@ public class ParsedCommandTest {
 	@Before
 	public void setUp() throws Exception {
 	    initLogging();
+	    ParsedCommand.initParser();
 	}
 
 	@Test
 	public void testParsedCommand() throws InvalidMethodForTaskTypeException {
+		// Check null input returns no user input error
+		pc = ParsedCommand.parseCommand(null);
+		assertEquals(CommandType.ERROR, pc.getCommandType());
+		assertEquals("Error: No user input", pc.getErrorMessage());
+
 		// Check empty string returns no user input error
 		pc = ParsedCommand.parseCommand("");
 		assertEquals(CommandType.ERROR, pc.getCommandType());
@@ -126,7 +132,7 @@ public class ParsedCommandTest {
 		*/
 
 		// Check support for deadline task formatted date (no keyword)
-		pcAdd = ParsedCommand.parseCommand("Add meeting with john 1/4/15 from 3pm to 7.30pm");
+		pcAdd = ParsedCommand.parseCommand("INSERT meeting with john 1/4/15 from 3pm to 7.30pm");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
 		assertEquals(null, pcAdd.getDescription());
@@ -138,7 +144,7 @@ public class ParsedCommandTest {
 		
 
 		// Check support for deadline task natty
-		pcAdd = ParsedCommand.parseCommand("Add meeting with john on tmr at 12pm");
+		pcAdd = ParsedCommand.parseCommand("+ meeting with john on tmr at 12pm");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
 		assertEquals(null, pcAdd.getDescription());
@@ -164,7 +170,7 @@ public class ParsedCommandTest {
 		assertEquals(TaskType.DEADLINE_TASK, pcAdd.getTaskType());
 		
 		// Check support for event spanning 2 days
-		pcAdd = ParsedCommand.parseCommand("Add meeting with john 23/11/10 12:00h to 24/11/10 13:30H  #cs2103 #proj #cs2101");
+		pcAdd = ParsedCommand.parseCommand("add meeting with john 23/11/10 12:00h to 24/11/10 13:30H  #cs2103 #proj #cs2101");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
 		assertEquals(null, pcAdd.getDescription());
@@ -248,7 +254,7 @@ public class ParsedCommandTest {
 		assertEquals(234, pcDisplay.getTaskId());
 
 		// Check allow extra whitespace
-		pcDisplay = ParsedCommand.parseCommand("show 234");
+		pcDisplay = ParsedCommand.parseCommand("show  	234");
 		assertEquals(CommandType.DISPLAY, pcDisplay.getCommandType());
 		assertEquals(234, pcDisplay.getTaskId());
 
@@ -285,7 +291,7 @@ public class ParsedCommandTest {
 	@Test
 	public void testParseCommandEdit() throws InvalidMethodForTaskTypeException {
 		// Check support for invalid date
-		pcEdit = ParsedCommand.parseCommand("Edit 234 meeting 31/2/15 \"hello\" #tag");
+		pcEdit = ParsedCommand.parseCommand("Edit   234 meeting 31/2/15 \"hello\" #tag");
 		assertEquals(CommandType.ERROR, pcEdit.getCommandType());
 						
 		// Check support for edit title, description, date, time, tag
@@ -380,13 +386,13 @@ public class ParsedCommandTest {
 		assertEquals(CommandType.ERROR, pcConfig.getCommandType());
 		assertEquals("Error: No arguments entered", pcConfig.getErrorMessage());
 		
-		// Check missing config type
-		pcConfig = ParsedCommand.parseCommand("Set  file");
+		// Check invalid config type
+		pcConfig = ParsedCommand.parseCommand("Set file");
 		assertEquals(CommandType.ERROR, pcConfig.getCommandType());
 		assertEquals("Error: Invalid command", pcConfig.getErrorMessage());
 		
 		// Check missing path
-		pcConfig = ParsedCommand.parseCommand("set file");
+		pcConfig = ParsedCommand.parseCommand("set folder");
 		assertEquals(CommandType.ERROR, pcConfig.getCommandType());
 		assertEquals("Error: No arguments entered", pcConfig.getErrorMessage());
 		

@@ -2,11 +2,12 @@ package parser;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.logging.Logger;
 
 public class ParsedCommand {
 	public enum CommandType {
-		ADD, DELETE, EDIT, DISPLAY, ERROR, UNDO, DONE, INVALID, CONFIG_DATA, CONFIG_IMG, EXIT, CONFIG, SEARCH, SHOW;
+		ADD, DELETE, EDIT, DISPLAY, ERROR, UNDO, FLAG, DONE, TODO, HELP, INVALID, CONFIG_DATA, CONFIG_IMG, EXIT, CONFIG, SEARCH, SHOW;
 	}
 	
 	public enum ConfigType {
@@ -27,6 +28,7 @@ public class ParsedCommand {
 	private TaskType taskType;
 	private Boolean isCompleted;
 	private ConfigType configType;
+	private static HashMap<String, CommandType> commandChoicesHashMap;
 
 	private static final String ERROR_INVALID_COMMAND = "Error: Invalid command";
 	private static final String ERROR_NO_INPUT = "Error: No user input";
@@ -45,6 +47,19 @@ public class ParsedCommand {
 	private static final Logger logger = Logger.getLogger(ParsedCommand.class.getName() );
 	private static final String ERROR_MISSING_TITLE = "Error: Missing task title";
 	
+	private static final String[] ADD_CHOICES = {"add", "insert", "+"};
+	private static final String[] DELETE_CHOICES = {"delete", "del", "remove", "cancel", "x"};
+	private static final String[] EDIT_CHOICES = {"edit", "change"};
+	private static final String[] SHOW_CHOICES = {"show", "search", "find"};
+	private static final String[] EXIT_CHOICES = {"exit"};
+	private static final String[] UNDO_CHOICES = {"undo"};
+	private static final String[] DONE_CHOICES = {"done"};
+	private static final String[] FLAG_CHOICES = {"flag", "mark"};
+	private static final String[] TODO_CHOICES = {"todo"};
+	private static final String[] CONFIG_CHOICES = {"set"};
+	private static final String[] HELP_CHOICES = {"help", "?"};
+	private static final String[][] COMMAND_CHOICES = {ADD_CHOICES, DELETE_CHOICES, EDIT_CHOICES, SHOW_CHOICES, EXIT_CHOICES, UNDO_CHOICES, DONE_CHOICES, FLAG_CHOICES, TODO_CHOICES, CONFIG_CHOICES, HELP_CHOICES};
+
     /**
      * This method creates a ParsedCommand object (constructor).
      * 
@@ -76,12 +91,13 @@ public class ParsedCommand {
 	 * @return ParsedCommand object, with type error if userInput is invalid.
 	 */
 	public static ParsedCommand parseCommand(String userInput) {
-		if (userInput.trim().length() == 0) {
+		if (userInput == null || userInput.trim().length() == 0) {
 			return createParsedCommandError(ERROR_NO_INPUT);
 		} else {
+			userInput = userInput.trim().replaceAll("\\s+", " ");
 			String input[] = userInput.trim().split(" ", 2);
 			String userCommand = input[INDEX_FOR_CMD];
-			CommandType command = determineCommandType(userCommand);
+			CommandType command = getStandardCommandType(userCommand.toLowerCase());
 
 			switch (command) {
 			case ADD:
@@ -119,6 +135,7 @@ public class ParsedCommand {
 	}
 
 	private static ParsedCommand createParsedCommandConfig(String[] input) {
+		System.out.println(input[0]);
 		if (isMissingArguments(input)) {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
@@ -133,24 +150,23 @@ public class ParsedCommand {
 	}
 
 	private static ParsedCommand createParsedCommandConfigImg(String[] input) {
-		if (isMissingArguments(input)) {
-			return createParsedCommandError(ERROR_MISSING_ARGS);
-		} else {
-			ConfigType configType = determineConfigImgType(input[0]);
-			if (configType != ConfigType.INVALID) {
-				try {
-					String fileName = input[1];
-					ParsedCommand pc = new ParsedCommand.Builder(CommandType.CONFIG_IMG)
-														.configType(configType)
-														.configPath(fileName)
-														.build();
-					return pc;
-				} catch (InvalidArgumentsForParsedCommandException e) {
-					return createParsedCommandError(e.getMessage());
-				}
-			} else {
-				return createParsedCommandError(ERROR_INVALID_COMMAND);
+		ConfigType configType = determineConfigImgType(input[0]);
+		if (configType != ConfigType.INVALID) {
+			if (isMissingArguments(input)) {
+				return createParsedCommandError(ERROR_MISSING_ARGS);
 			}
+			try {
+				String fileName = input[1];
+				ParsedCommand pc = new ParsedCommand.Builder(CommandType.CONFIG_IMG)
+													.configType(configType)
+													.configPath(fileName)
+													.build();
+				return pc;
+			} catch (InvalidArgumentsForParsedCommandException e) {
+				return createParsedCommandError(e.getMessage());
+			}
+		} else {
+			return createParsedCommandError(ERROR_INVALID_COMMAND);
 		}
 	}
 
@@ -361,6 +377,15 @@ public class ParsedCommand {
 											.build();
 		return pc;
 	}
+	
+	private static CommandType getStandardCommandType(String input) {
+		CommandType cmd = commandChoicesHashMap.get(input);
+		if (cmd != null) {
+			return cmd;
+		} else {
+			return CommandType.INVALID;
+		}
+	}
 
 	private static CommandType determineCommandType(String commandTypeString) {
 		if (commandTypeString.equalsIgnoreCase("add")) {
@@ -373,10 +398,16 @@ public class ParsedCommand {
 			return CommandType.EDIT;
 		} else if (commandTypeString.equalsIgnoreCase("undo")) {
 			return CommandType.UNDO;
+		} else if (commandTypeString.equalsIgnoreCase("flag")) {
+			return CommandType.FLAG;
 		} else if (commandTypeString.equalsIgnoreCase("done")) {
 			return CommandType.DONE;
+		} else if (commandTypeString.equalsIgnoreCase("todo")) {
+			return CommandType.TODO;
 		} else if (commandTypeString.equalsIgnoreCase("set")) {
 			return CommandType.CONFIG;
+		} else if (commandTypeString.equalsIgnoreCase("help")) {
+			return CommandType.HELP;
 		} else if (commandTypeString.equalsIgnoreCase("exit")) {
 			return CommandType.EXIT;
 		} else {
@@ -507,6 +538,17 @@ public class ParsedCommand {
 			return this.title;
 		} else {
 			throw new InvalidMethodForTaskTypeException("Not a SEARCH command, no search keywords.");
+		}
+	}
+	
+	public static void initParser() {
+		commandChoicesHashMap = new HashMap<String, CommandType>();
+		for (int i = 0; i < COMMAND_CHOICES.length; i++) {
+		    String[] cmdChoiceList = COMMAND_CHOICES[i];
+		    CommandType cmd = determineCommandType(cmdChoiceList[0]);
+		    for (int j = 0; j < cmdChoiceList.length; j++) {
+		    	commandChoicesHashMap.put(cmdChoiceList[j], cmd);
+		    }
 		}
 	}
 	
