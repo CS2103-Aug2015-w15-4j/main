@@ -51,6 +51,7 @@ public class GUIController extends Application {
 	final static String STYLE_TEXT = "label";
 	
 	final static String MSG_PROMPT = "Type command here";
+	final static String MSG_WINDOWSWITCH = "Switch"; // name for button
 	
 	// gui commands 
 	final static String CMD_CLEAR = "clear"; // clears all log
@@ -58,7 +59,7 @@ public class GUIController extends Application {
 	final static String CMD_OPEN = "open"; // open XXX: opens a selected task list
 	final static String CMD_CLOSE = "close"; // close XXX: closes a selected task list
 	final static String CMD_CLOSEALL = "close all"; // closes all open task lists
-	final static String CMD_SHOW = "show"; // highlights a selected task in the main view
+	final static String CMD_SHOW = "show"; // focuses on a selected task in the main view
 	final static String CMD_UNDO = "undo"; // undoes the last operation
 	final static String CMD_SWITCH = "switch"; // switches between the log and the main window
 	final static String CMD_LOG = "log"; // switches to the log
@@ -87,7 +88,9 @@ public class GUIController extends Application {
 	protected boolean isMainWindow = true; // true = main pane window, false = logObject
 	public logic.View view;
 	
+	public static HBox bottomBar; // bottomMost bar
 	public static TextField userTextField;
+	public static Button windowSwitch;
 	//public static TabPane tabPane;
 	public static Logic controller = new Logic();
 	
@@ -123,13 +126,23 @@ public class GUIController extends Application {
 		pinWindow(taskLists.get(TASKLIST_ALL));
 		
 		// create the Log tab
-		logObject = createLogTab();
-				
+		logObject = createLogTab();		
+
+		// create the button to switch windows with
+		windowSwitch = new Button(MSG_WINDOWSWITCH);
+		
 		// create input field
 		userTextField = new TextField();
 		//userTextField.setMinWidth(TABPANE_WIDTH);
 		userTextField.setPromptText(MSG_PROMPT);
-		userTextField.prefWidthProperty().bind(window.widthProperty());
+		//userTextField.prefWidthProperty().bind(window.widthProperty());
+		
+		// create the bottom bar
+		bottomBar = new HBox();
+		bottomBar.getChildren().add(userTextField);
+		bottomBar.getChildren().add(windowSwitch);
+		bottomBar.prefWidthProperty().bind(window.widthProperty());
+		HBox.setHgrow(userTextField, Priority.ALWAYS);
 
 		// add all other lists to to the center
 		center = new MainWindow();
@@ -149,7 +162,7 @@ public class GUIController extends Application {
 		window.setMinHeight(MINIMUM_WINDOW_SIZE);
 		
 	    window.getChildren().add(pane);
-	    window.getChildren().add(userTextField);
+	    window.getChildren().add(bottomBar);
 		Scene scene = new Scene(window, window.getPrefWidth(), window.getPrefHeight()); //WINDOW_WIDTH+10, WINDOW_HEIGHT+10);
 		addHandlers(scene);
 		//scene.getRoot().setStyle("-fx-background-image: url(\"" + BACKGROUND_NAME + "\");");
@@ -229,6 +242,14 @@ public class GUIController extends Application {
 		
 		// event handler for userTextField
 	    userTextField.setOnAction((ActionEvent event) -> processUserTextField(userTextField));
+	    
+	    // event handler for button
+	    windowSwitch.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				switchWindow();
+			}
+	    });
 		
 		ChangeListener<Number> listener = new ChangeListener<Number>() {
 			@Override
@@ -285,7 +306,7 @@ public class GUIController extends Application {
 			window.getChildren().add(logObject);
 			logObject.requestFocus();
 		}
-		window.getChildren().add(userTextField);
+		window.getChildren().add(bottomBar);
 		isMainWindow = !isMainWindow;
 	}
 	
@@ -304,7 +325,12 @@ public class GUIController extends Application {
 			}
 			return true;
 		} else if (command.trim().equalsIgnoreCase(CMD_SHOW)) {
-			taskLists.get(TASKLIST_ALL).focusTask();
+			TaskList list = taskLists.get(TASKLIST_ALL);
+			if (list.isListOpen) {
+				list.focusTask();
+			} else {
+				list.openList();
+			}
 			return true;
 		} else if (command.trim().equalsIgnoreCase(CMD_SWITCH)|| // if switch command
 				// else if it is the log command and is the main window currently

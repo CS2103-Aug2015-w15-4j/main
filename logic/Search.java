@@ -108,6 +108,9 @@ public class Search {
 		    	tagString = tagString + tags + " ";
 		    }
 		    doc.add(new TextField("tags",tagString, Field.Store.YES));
+		    if (task.getTaskType()==null) {
+		    	task.setTaskType(TASK);
+		    } 
 		    doc.add(new TextField("taskType",task.getTaskType().toString(), Field.Store.YES));
 		    if (task.getDetails() != null) {
 		    	doc.add(new TextField("details",task.getDetails(), Field.Store.YES));

@@ -76,6 +76,11 @@
 	-fx-background-color: rgba(0, 0, 0, 0.5);
 }
 
+.button {
+	-fx-background-insets: 0,1,4,5;
+    -fx-background-radius: 9,8,5,4;
+}
+
 .heading {
     -fx-font-family: Helvetica;
 	-fx-color:#4E443C;

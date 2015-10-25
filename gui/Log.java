@@ -3,6 +3,7 @@ package gui;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.*;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
@@ -25,7 +26,7 @@ public class Log {
 	protected ScrollPane sp;
 	protected TextFlow textbox; // the storage for the log
 	protected VBox master;
-	protected Label name;
+	protected Button name;
 	
 	public Log() {
 		textbox = new TextFlow();
@@ -44,7 +45,8 @@ public class Log {
 		
 		master = new VBox();
 		master.setPadding(new Insets(PADDING));
-		name = new Label();
+		name = new Button();
+		name.setFocusTraversable(false);
 		name.setAlignment(Pos.CENTER);
 		master.getChildren().add(sp);
 		sp.prefWidthProperty().bind(master.widthProperty());
