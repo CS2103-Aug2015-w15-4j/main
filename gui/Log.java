@@ -3,17 +3,16 @@ package gui;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.*;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.image.WritableImage;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 public class Log {
-	public static final int TABNUM = GUIController.LOG; // for the array check
-	public static final String TABNAME = GUIController.tabNames[TABNUM]; 
-	public static final int WIDTH = GUIController.TABPANE_WIDTH;
 	public static final int PADDING = 8;
 	
 	public static final ScrollBarPolicy V_POLICY = ScrollBarPolicy.AS_NEEDED;
@@ -25,6 +24,8 @@ public class Log {
 	protected VBox vbox;
 	protected ScrollPane sp;
 	protected TextFlow textbox; // the storage for the log
+	protected VBox master;
+	protected Label name;
 	
 	public Log() {
 		textbox = new TextFlow();
@@ -35,18 +36,46 @@ public class Log {
 		sp = new ScrollPane(vbox);
 		vbox.prefWidthProperty().bind(sp.widthProperty());
 		vbox.prefHeightProperty().bind(sp.heightProperty());
-		sp.setPadding(new Insets(PADDING));
+		
 		sp.setFitToHeight(true);
 		sp.setVbarPolicy(V_POLICY);
 		sp.setHbarPolicy(H_POLICY);
 		sp.setId(ID_SCROLL);
+		
+		master = new VBox();
+		master.setPadding(new Insets(PADDING));
+		name = new Label();
+		name.setAlignment(Pos.CENTER);
+		master.getChildren().add(sp);
+		sp.prefWidthProperty().bind(master.widthProperty());
+		name.prefWidthProperty().bind(master.widthProperty());
+		VBox.setVgrow(sp, Priority.ALWAYS);
+	}
+	
+	/**
+	 * Creates a log with a name
+	 * @param str Name of the tab
+	 */
+	public Log(String _name) {
+		this();
+		setName(_name);
 	}
 	
 	/**
 	 * @return the master/parent node for this object
 	 */
-	public ScrollPane getNode() { 
-		return sp;
+	public VBox getNode() { 
+		return master;
+	}
+	
+	/**
+	 * Set name of the log tab
+	 */
+	public void setName(String _name) {
+		name.setText(_name);
+		if (master.getChildren().size()==1) {
+			master.getChildren().add(0,name);
+		}
 	}
 	
 	public void refresh() {

@@ -71,24 +71,8 @@ public class Sidebar {
 	/**
 	 * @return the master/parent node for this object
 	 */
-	public Node getNode() {
+	public VBox getNode() {
 		return vbox;
-	}
-	
-	/**
-	 * Binds object to the property given
-	 * @return
-	 */
-	public void bindWidth(ReadOnlyDoubleProperty readOnlyDoubleProperty) {
-		vbox.prefWidthProperty().bind(readOnlyDoubleProperty);
-	}
-	
-	/**
-	 * Binds object to the property given
-	 * @return
-	 */
-	public void bindHeight(ReadOnlyDoubleProperty readOnlyDoubleProperty) {
-		vbox.prefHeightProperty().bind(readOnlyDoubleProperty);
 	}
 	
 	public void addToTextbox(String input) {
