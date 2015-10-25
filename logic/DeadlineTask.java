@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import parser.ParsedCommand;
+import parser.ParsedCommand.TaskType;
 
 public class DeadlineTask extends Task {
 
 	protected Calendar end;
 
-	public DeadlineTask(String name, String details,int id,boolean isCompleted,ArrayList<String> tags,int taskType, Calendar end) {
+	public DeadlineTask(String name, String details,int id,boolean isCompleted,ArrayList<String> tags,
+			TaskType taskType, Calendar end) {
 		super(name, details,id,isCompleted,tags,taskType);
 		setEnd(end);
 	}

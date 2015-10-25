@@ -11,9 +11,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import parser.ParsedCommand;
+import parser.ParsedCommand.TaskType;
 import file.ReadFile;
 
 public class StorageTest {
+	private static final TaskType TASK = TaskType.FLOATING_TASK;
+	private static final TaskType DEADLINETASK = TaskType.DEADLINE_TASK;
+	private static final TaskType EVENT = TaskType.EVENT;
 
 	private static final String DEFAULT_BACKGROUND_FILEPATH = "background.jpg";
 	private static final String DEFAULT_AVATAR_FILEPATH = "avatar.png";
@@ -35,7 +39,7 @@ public class StorageTest {
 	@Test
 	public void testAddToFile() throws Exception {
 		Task task = new Task("dinner with friends", "at centrepoint", 1, false,
-				null, 0);
+				null, TASK);
 		storage.add(task);
 
 		ReadFile rf = new ReadFile();

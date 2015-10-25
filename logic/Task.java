@@ -11,7 +11,7 @@ public class Task implements Comparable<Task> {
 	private int id;
 	private boolean isCompleted;
 	private ArrayList<String> tags;
-	private int taskType;
+	private ParsedCommand.TaskType taskType;
 
 	public Task() {
 		name = details = "";
@@ -20,7 +20,7 @@ public class Task implements Comparable<Task> {
 		tags = null;
 	}
 
-	public Task(String name, String details,int id,boolean isCompleted,ArrayList<String> tags,int taskType) {
+	public Task(String name, String details,int id,boolean isCompleted,ArrayList<String> tags,ParsedCommand.TaskType taskType) {
 		setName(name);
 		setDetails(details);
 		setId(id);
@@ -103,7 +103,7 @@ public class Task implements Comparable<Task> {
 		return tags;
 	}
 
-	public int getTaskType() {
+	public ParsedCommand.TaskType getTaskType() {
 		return taskType;
 	}
 
@@ -127,7 +127,7 @@ public class Task implements Comparable<Task> {
 		this.tags = tags;
 	}
 
-	public void setTaskType(int taskType) {
+	public void setTaskType(ParsedCommand.TaskType taskType) {
 		this.taskType = taskType;	
 	}
 

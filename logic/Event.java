@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import parser.ParsedCommand;
+import parser.ParsedCommand.TaskType;
 
 public class Event extends DeadlineTask {
 
@@ -13,7 +14,8 @@ public class Event extends DeadlineTask {
 
 	}
 	
-	public Event(String name, String details,int id,boolean isCompleted,ArrayList<String> tags,int taskType, Calendar end, Calendar start) {
+	public Event(String name, String details,int id,boolean isCompleted,ArrayList<String> tags,
+			TaskType taskType, Calendar end, Calendar start) {
 		super(name, details,id,isCompleted,tags,taskType,end);
 		setStart(start);
 	}

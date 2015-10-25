@@ -4,12 +4,13 @@ import java.util.List;
 
 import storage.Storage;
 import parser.ParsedCommand;
+import parser.ParsedCommand.TaskType;
 
 public class Update implements Command {
 
-	private static final int EVENT = 3;
-	private static final int DEADLINETASK = 2;
-	private static final int TASK = 1;
+	private static final TaskType TASK = TaskType.FLOATING_TASK;
+	private static final TaskType DEADLINETASK = TaskType.DEADLINE_TASK;
+	private static final TaskType EVENT = TaskType.EVENT;
 	private ParsedCommand specifications;
 	private Task toUpdate;
 	private Task updated;
@@ -47,7 +48,7 @@ public class Update implements Command {
 	 */
 	public Task updateTask(ParsedCommand parsedInput, Task toUpdate) {
 
-		int taskType = toUpdate.getTaskType();
+		TaskType taskType = toUpdate.getTaskType();
 		if (parsedInput.getTitle() != null) {
 			toUpdate.setName(parsedInput.getTitle());
 		}
@@ -74,13 +75,13 @@ public class Update implements Command {
 	}
 
 	public static boolean checkValid(ParsedCommand parsedInput, View view) {
-		int taskType = parsedInput.getTaskType();
+		TaskType taskType = parsedInput.getTaskType();
 
 		if (parsedInput.getTaskId() >= Logic.getNewId()) {
 			view.setConsoleMessage("Error: Invalid TaskID");
 			return false;
 		}
-		if (taskType != 0 || taskType != 1 || taskType != 2) {
+		if (taskType==null) {
 			view.setConsoleMessage("Logic Error: task type missing");
 		}
 		if (taskType == TASK) {

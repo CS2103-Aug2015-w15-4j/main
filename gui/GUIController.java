@@ -54,9 +54,15 @@ public class GUIController extends Application {
 	
 	// gui commands 
 	final static String CMD_CLEAR = "clear"; // clears all log
+	final static String CMD_PIN = "pin"; // pin XXX: pins a selected task list
+	final static String CMD_OPEN = "open"; // open XXX: opens a selected task list
+	final static String CMD_CLOSE = "close"; // close XXX: closes a selected task list
 	final static String CMD_CLOSEALL = "close all"; // closes all open task lists
-	final static String CMD_PIN_WINDOW = "pin"; // pin XXX: pins a selected task list
 	final static String CMD_SHOW = "show"; // highlights a selected task in the main view
+	final static String CMD_UNDO = "undo"; // undoes the last operation
+	final static String CMD_SWITCH = "switch"; // switches between the log and the main window
+	final static String CMD_LOG = "log"; // switches to the log
+	final static String CMD_MAIN = "main"; // switches to the main window
 	
 	final static String STYLE_COLOR = "-fx-background-color: %1$s;";
 
@@ -243,18 +249,9 @@ public class GUIController extends Application {
 	            if(keyEvent.getCode()==KeyCode.T) {
 	            	if (keyEvent.isControlDown()){
 	            		userTextField.requestFocus();
-	            	} else {//if (keyEvent.isAltDown()) {
+	            	} else if (keyEvent.isAltDown()) {
 	            		// switch
-	            		window.getChildren().clear();
-	            		if (isMainWindow) {
-	            			window.getChildren().add(pane);
-	            			pane.requestFocus();
-	            		} else {
-	            			window.getChildren().add(logObject);
-	            			logObject.requestFocus();
-	            		}
-	            		window.getChildren().add(userTextField);
-	            		isMainWindow = !isMainWindow;
+	            		switchWindow();
 	            	}
 	            }
 	            
@@ -267,12 +264,29 @@ public class GUIController extends Application {
 	            	taskLists.get(TASKLIST_ALL).openList();
 	            }
 	            
+	            if (keyEvent.getCode()==KeyCode.Z&&
+	            	(keyEvent.isControlDown()||keyEvent.isAltDown())) { // undo the last command
+	            	executeCommand(CMD_UNDO);
+	            }
 	        }
 	    }));//*/
 	}
 	
 	public static void main(String[] args) {
 		launch(args);
+	}
+	
+	protected void switchWindow() {
+		window.getChildren().clear();
+		if (!isMainWindow) {
+			window.getChildren().add(pane);
+			pane.requestFocus();
+		} else {
+			window.getChildren().add(logObject);
+			logObject.requestFocus();
+		}
+		window.getChildren().add(userTextField);
+		isMainWindow = !isMainWindow;
 	}
 	
 	public void processUserTextField(TextField userTextField) {
@@ -282,15 +296,7 @@ public class GUIController extends Application {
 	}
 	
 	protected boolean checkForGuiCommand(String command) {
-		if (getFirstWord(command).equalsIgnoreCase(CMD_PIN_WINDOW)) {
-			String input = removeFirstWord(command);
-			for (int i=0;i<taskListNames.length;i++) {
-				if (input.equalsIgnoreCase(taskListNames[i])) {
-					pinWindow(taskLists.get(i));
-					return true;
-				}
-			}
-		} else if (command.trim().equalsIgnoreCase(CMD_CLOSEALL)) {
+		if (command.trim().equalsIgnoreCase(CMD_CLOSEALL)) {
 			for (TaskList list : taskLists) {
 				if (list.listNumber!=TASKLIST_PINNED) {
 					list.closeList();
@@ -299,10 +305,39 @@ public class GUIController extends Application {
 			return true;
 		} else if (command.trim().equalsIgnoreCase(CMD_SHOW)) {
 			taskLists.get(TASKLIST_ALL).focusTask();
+			return true;
+		} else if (command.trim().equalsIgnoreCase(CMD_SWITCH)|| // if switch command
+				// else if it is the log command and is the main window currently
+				(command.trim().equalsIgnoreCase(CMD_LOG)&&isMainWindow)|| 
+				(command.trim().equalsIgnoreCase(CMD_MAIN)&&!isMainWindow)) {
+			switchWindow();
+			return true;
+		} else {
+			String input = getFirstWord(command).toLowerCase();
+			if (input.equalsIgnoreCase(CMD_PIN)||
+				input.equalsIgnoreCase(CMD_OPEN)||
+				input.equalsIgnoreCase(CMD_CLOSE)) {
+				String listName = removeFirstWord(command);
+				for (int i=0;i<taskListNames.length;i++) {
+					if (listName.equalsIgnoreCase(taskListNames[i])) {
+						input = input.toLowerCase();
+						switch(input) {
+						case CMD_PIN: pinWindow(taskLists.get(i)); break;
+						case CMD_OPEN: taskLists.get(i).openList();; break;
+						case CMD_CLOSE: taskLists.get(i).closeList(); break;
+						}
+						return true;
+					}
+				}
+			}
 		}
 		return false;
 	}
 	
+	/**
+	 * Runs the command input. 
+	 * @param input 
+	 */
 	protected void executeCommand(String input) {
 		if (input!= null && !input.isEmpty()) {
 			if (!checkForGuiCommand(input)) { 
@@ -313,7 +348,7 @@ public class GUIController extends Application {
 				taskLists.get(TASKLIST_ALL).addAllTasks(view.getAllTasks());
 				taskLists.get(TASKLIST_SEARCH).addAllTasks(view.getTasksToDisplay());
 			}
-	    }
+		}
 	}
 	
 	/**

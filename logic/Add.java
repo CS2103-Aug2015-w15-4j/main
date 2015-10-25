@@ -1,13 +1,14 @@
 package logic;
 
 import parser.ParsedCommand;
+import parser.ParsedCommand.TaskType;
 import storage.Storage;
 
 public class Add implements Command {
 
-	private static final int TASK = 1;
-	private static final int DEADLINETASK = 2;
-	private static final int EVENT = 3;
+	private static final TaskType TASK = TaskType.FLOATING_TASK;
+	private static final TaskType DEADLINETASK = TaskType.DEADLINE_TASK;
+	private static final TaskType EVENT = TaskType.EVENT;
 
 	private Task newTask;
 	private ParsedCommand specifications;
@@ -27,16 +28,16 @@ public class Add implements Command {
 
 	@Override
 	public void execute() {
-		if (specifications.getTaskType() == 1) {
+		if (specifications.getTaskType() == ParsedCommand.TaskType.FLOATING_TASK) {
 			newTask = new Task(specifications);
 			newTask.setId(id);
 			storage.add(newTask);
-		} else if (specifications.getTaskType() == 2) {
+		} else if (specifications.getTaskType() == ParsedCommand.TaskType.DEADLINE_TASK) {
 			DeadlineTask newDeadlineTask = new DeadlineTask(specifications);
 			newDeadlineTask.setId(id);
 			storage.add((Task) newDeadlineTask);
 			newTask = newDeadlineTask;
-		} else if (specifications.getTaskType() == 3) {
+		} else if (specifications.getTaskType() == ParsedCommand.TaskType.EVENT) {
 			Event newEvent = new Event(specifications);
 			newEvent.setId(id);
 			storage.add((Task) newEvent);
@@ -53,7 +54,7 @@ public class Add implements Command {
 	 * Checks whether the parsedInput is valid. Does not check task ID
 	 */
 	public static boolean checkValid(ParsedCommand parsedInput, View view) {
-		int taskType = parsedInput.getTaskType();
+		ParsedCommand.TaskType taskType = parsedInput.getTaskType();
 
 		// Check if Task fields are present
 		if (parsedInput.getTitle() == null) {
@@ -64,7 +65,7 @@ public class Add implements Command {
 			return false;
 		} */
 
-		if (taskType != 0 && taskType != 1 && taskType != 2) {
+		if (taskType==null) {
 			view.setConsoleMessage("Logic Error: task type missing"); 
 			return false;
 		}

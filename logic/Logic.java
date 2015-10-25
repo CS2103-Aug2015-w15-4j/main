@@ -7,13 +7,17 @@ import java.util.List;
 
 import org.apache.lucene.queryparser.classic.ParseException;
 
-import parser.InvalidMethodForTaskTypeException;
 import parser.ParsedCommand;
 import parser.ParsedCommand.ConfigType;
+import parser.ParsedCommand.TaskType;
 import storage.Storage;
 
 public class Logic {
-
+	private static final TaskType TASK = TaskType.FLOATING_TASK;
+	private static final TaskType DEADLINETASK = TaskType.DEADLINE_TASK;
+	private static final TaskType EVENT = TaskType.EVENT;
+	
+	
 	private static final String MESSAGE_INVALID_FORMAT = "invalid command format :%1$s";
 
 	private Storage storage;
@@ -64,7 +68,7 @@ public class Logic {
 			try {
 				return new View(parsedCommand.getErrorMessage(),
 						storage.getAllTasks());
-			} catch (InvalidMethodForTaskTypeException e) {
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -90,7 +94,7 @@ public class Logic {
 				view.setAvatarLocation(parsedCommand.getConfigPath());
 				consoleMessage = "Avatar switched";
 			}
-		} catch (InvalidMethodForTaskTypeException e) {
+		} catch (Exception e) {
 			consoleMessage = "Failed to Set new Path";
 			this.view.updateView(consoleMessage,storage.getAllTasks());
 			e.printStackTrace();
@@ -117,7 +121,7 @@ public class Logic {
 			storage.setFileLocation(parsedCommand.getConfigPath());
 			consoleMessage = "data file set to " + parsedCommand.getConfigPath();
 			this.view.updateView(consoleMessage,storage.getAllTasks());
-		} catch (InvalidMethodForTaskTypeException e) {
+		} catch (Exception e) {
 			this.view.updateView(consoleMessage,storage.getAllTasks());
 			e.printStackTrace();
 			return view;
@@ -142,7 +146,7 @@ public class Logic {
 			view.updateView(consoleMessage,tasksToDisplay, storage.getAllTasks());
 		} catch (IOException | ParseException e) {
 			e.printStackTrace();
-		} catch (InvalidMethodForTaskTypeException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
