@@ -62,6 +62,9 @@ public class ParsedCommand {
 	private static final String[] CONFIG_CHOICES = {"set"};
 	private static final String[] HELP_CHOICES = {"help", "?"};
 	private static final String[][] COMMAND_CHOICES = {ADD_CHOICES, DELETE_CHOICES, EDIT_CHOICES, SHOW_CHOICES, EXIT_CHOICES, UNDO_CHOICES, DONE_CHOICES, FLAG_CHOICES, TODO_CHOICES, CONFIG_CHOICES, HELP_CHOICES};
+	public static final String ERROR_INVALID_TASK_STATUS = null;
+	public static final String ERROR_INVALID_CONFIG_TYPE = null;
+	public static final String ERROR_INVALID_PATH = null;
 	
 	static {
 		setupCommandChoicesHashMap();
@@ -110,45 +113,45 @@ public class ParsedCommand {
 			CommandType command = getStandardCommandType(userCommand.toLowerCase());
 
 			switch (command) {
-			case ADD:
-				return createParsedCommandAdd(input);
+				case ADD:
+					return createParsedCommandAdd(input);
 
-			case DELETE:
-				return createParsedCommandDelete(input);
+				case DELETE:
+					return createParsedCommandDelete(input);
 
-			case EDIT:
-				return createParsedCommandEdit(input);
+				case EDIT:
+					return createParsedCommandEdit(input);
 
-			case SHOW: 
-				return createParsedCommandShow(input);
+				case SHOW: 
+					return createParsedCommandShow(input);
 			
-			case UNDO:
-				return createParsedCommandUndo();
+				case UNDO:
+					return createParsedCommandUndo();
 
-			case FLAG:
-				return createParsedCommandFlag(input);
+				case FLAG:
+					return createParsedCommandFlag(input);
 				
-			case DONE:
-				return createParsedCommandFlagDone(input);
+				case DONE:
+					return createParsedCommandFlagDone(input);
 
-			case TODO:
-				return createParsedCommandFlagTodo(input);
+				case TODO:
+					return createParsedCommandFlagTodo(input);
 				
-			case INVALID:
-				return createParsedCommandError(ERROR_INVALID_COMMAND);
+				case INVALID:
+					return createParsedCommandError(ERROR_INVALID_COMMAND);
 			
-			case CONFIG:
-				return createParsedCommandConfig(input);
+				case CONFIG:
+					return createParsedCommandConfig(input);
 			
-			case HELP:
-				return createParsedCommandHelp();
+				case HELP:
+					return createParsedCommandHelp();
 				
-			case EXIT:
-				return createParsedCommandExit();
+				case EXIT:
+					return createParsedCommandExit();
 
-			default:
-				// is never visited
-				throw new Error("ERROR");
+				default:
+					// is never visited
+					throw new Error("ERROR");
 			}
 		}
 	}
@@ -367,8 +370,8 @@ public class ParsedCommand {
 			try {
 				String fileName = input[INDEX_FOR_ARGS];
 				ParsedCommand pc = new ParsedCommand.Builder(CommandType.CONFIG_DATA)
-						  			  .configPath(fileName)
-						  			  .build();
+						  			  				.configPath(fileName)
+						  			  				.build();
 				return pc;
 			} catch (InvalidArgumentsForParsedCommandException e){
 				return createParsedCommandError(e.getMessage());
@@ -378,24 +381,41 @@ public class ParsedCommand {
 
 	
 	private static ParsedCommand createParsedCommandUndo() {
-		return new ParsedCommand.Builder(CommandType.UNDO).build();
+		try {
+			return new ParsedCommand.Builder(CommandType.UNDO).build();
+		} catch (InvalidArgumentsForParsedCommandException e) {
+			return createParsedCommandError(e.getMessage());
+		}
 	}
 
 	
 	private static ParsedCommand createParsedCommandExit() {
-		return new ParsedCommand.Builder(CommandType.EXIT).build();
+		try {
+			return new ParsedCommand.Builder(CommandType.EXIT).build();
+		} catch (InvalidArgumentsForParsedCommandException e) {
+			return createParsedCommandError(e.getMessage());
+		}
 	}
 	
 	
 	private static ParsedCommand createParsedCommandHelp() {
-		return new ParsedCommand.Builder(CommandType.HELP).build();
+		try {
+			return new ParsedCommand.Builder(CommandType.HELP).build();
+		} catch (InvalidArgumentsForParsedCommandException e) {
+			return createParsedCommandError(e.getMessage());
+		}
 	}
 		
 	private static ParsedCommand createParsedCommandError(String errorMsg) {
-		ParsedCommand pc = new ParsedCommand.Builder(CommandType.ERROR)
-											.errorMessage(errorMsg)
-											.build();
-		return pc;
+		ParsedCommand pc;
+		try {
+			pc = new ParsedCommand.Builder(CommandType.ERROR)
+						 		  .errorMessage(errorMsg)
+						 		  .build();
+			return pc;
+		} catch (InvalidArgumentsForParsedCommandException e) {
+			return createParsedCommandError(e.getMessage());
+		}
 	}
 
 	
@@ -616,10 +636,7 @@ public class ParsedCommand {
 			this.cmdType = cmdType;
 		}
 		
-		public Builder title(String title) throws InvalidArgumentsForParsedCommandException {
-			if (this.cmdType == CommandType.ADD && title == null) {
-				throw new InvalidArgumentsForParsedCommandException(ERROR_MISSING_TITLE);
-			}
+		public Builder title(String title) {
 			this.title = title;
 			return this;
 		}
@@ -684,12 +701,55 @@ public class ParsedCommand {
 			return this;
 		}
 		
-		public ParsedCommand build() {
-			if (this.cmdType == CommandType.ADD) {
-				TaskType taskType = determineTaskType(this.firstDate, this.secondDate);
-				this.taskType = taskType;
+		public ParsedCommand build() throws InvalidArgumentsForParsedCommandException {
+			CommandType command = this.cmdType;
+			if (command == CommandType.ADD) {
+				validateTitle();
+				setTaskType();
+			} else if (command == CommandType.EDIT || command == CommandType.FLAG || command == CommandType.DELETE) {
+				validateTaskId();
+				if (command == CommandType.FLAG) {
+					validateTaskStatus();
+				}
+			} else if (command == CommandType.CONFIG_IMG) {
+				validateConfigType();
+				validatePath();
 			}
 			return new ParsedCommand(this);
+		}
+
+		private void validateTaskId() throws InvalidArgumentsForParsedCommandException {
+			if (this.taskId < 0) {
+				throw new InvalidArgumentsForParsedCommandException(ERROR_INVALID_TASKID);
+			}
+		}
+
+		private void validateTitle() throws InvalidArgumentsForParsedCommandException {
+			if (this.title == null || this.title.equals("")) {
+				throw new InvalidArgumentsForParsedCommandException(ERROR_MISSING_TITLE);
+			}
+		}
+		
+		private void validateTaskStatus() throws InvalidArgumentsForParsedCommandException {
+			if (this.isCompleted == null) {
+				throw new InvalidArgumentsForParsedCommandException(ERROR_INVALID_TASK_STATUS);
+			}
+		}
+		
+		private void validateConfigType() throws InvalidArgumentsForParsedCommandException {
+			if (this.configType == ConfigType.INVALID || this.configType == null) {
+				throw new InvalidArgumentsForParsedCommandException(ERROR_INVALID_CONFIG_TYPE);
+			}
+		}
+		
+		private void validatePath() throws InvalidArgumentsForParsedCommandException {
+			if (this.path == null || this.path.isEmpty()){
+				throw new InvalidArgumentsForParsedCommandException(ERROR_INVALID_PATH);
+			}
+		}
+
+		private void setTaskType() {
+			this.taskType = determineTaskType(this.firstDate, this.secondDate);
 		}
 	}
 }
