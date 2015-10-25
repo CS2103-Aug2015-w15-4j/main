@@ -100,11 +100,7 @@ public abstract class DateTimeParser {
 				dateTimeFormat.setLenient(false);
 				if (times[0] == null) { // no start time, assume deadline 2359h
 					String startDate = dates[0] + " ";
-					if (timeFormat.equals(TimeParser.TWELVE_HR_FORMAT)) {
-						startDate = startDate + "11:59pm";
-					} else {
-						startDate = startDate + "23:59";
-					}
+					startDate = addDefaultTime(timeFormat, startDate);
 					startCal.setTime(dateTimeFormat.parse(startDate));
 				} else { // has start date and time
 					String startDateTime = dates[0] + " " + times[0];
@@ -114,11 +110,7 @@ public abstract class DateTimeParser {
 				if (dates[1] != null) { // has end date
 					if (times[1] == null) { // no end time, assume deadline 2359h
 						String endDate = dates[1] + " ";
-						if (timeFormat.equals(TimeParser.TWELVE_HR_FORMAT)) {
-							endDate = endDate + "11:59pm";
-						} else {
-							endDate = endDate + "23:59";
-						}
+						endDate = addDefaultTime(timeFormat, endDate);
 						endCal.setTime(dateTimeFormat.parse(endDate));
 					} else { // has end date and time
 						String endDateTime = dates[1] + " " + times[1];
@@ -141,5 +133,13 @@ public abstract class DateTimeParser {
 		calTimes[1] = endCal;
 
 		return calTimes;
+	}
+	private static String addDefaultTime(String timeFormat, String endDate) {
+		if (timeFormat.equals(TimeParser.TWELVE_HR_FORMAT)) {
+			endDate = endDate + "11:59pm";
+		} else {
+			endDate = endDate + "23:59";
+		}
+		return endDate;
 	}
 }
