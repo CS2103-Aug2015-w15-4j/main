@@ -204,6 +204,9 @@ public class TaskList {
 	 */
 	public void refresh() {
 		listView.setItems(items);
+		if (isPinnedWindow) {
+			focusTask();
+		}
 	}
 	
 	/**
@@ -244,8 +247,8 @@ public class TaskList {
 				addTask(task, false);
 			}
 			
-			refresh();
 			selectFirstNode();
+			refresh();
 		}
 	}
 	
