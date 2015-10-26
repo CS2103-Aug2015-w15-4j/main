@@ -143,11 +143,12 @@ public class GUIController extends Application {
 		}
 		
 		// intialise the floating tasks tab
-		/*
+		//*
 		try {
-			List<Task> floating = logic.Search.search(view.getAllTasks(), "taskType:FLOATING");
+			List<Task> floating = logic.Search.search(view.getAllTasks(), "taskType:FLOATING_TASK");
+			floating = logic.Search.search(floating, "isCompleted:false");
 			if (floating!=null) {
-				taskLists.get(TASKLIST_COMPLETED).addAllTasks(floating);
+				taskLists.get(TASKLIST_FLOATING).addAllTasks(floating);
 			}
 		} catch (Exception e) { 
 			// if unable to load, too bad, don't do anything
