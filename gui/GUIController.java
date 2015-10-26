@@ -50,11 +50,16 @@ public class GUIController extends Application {
 	final static String STYLE_HEADING = "heading";
 	final static String STYLE_TRANSPARENT = "transparent";
 	final static String STYLE_TEXT = "label";
+
+	final static String STYLE_COLOR = "-fx-background-color: %1$s;";
 	
 	final static String MSG_PROMPT = "Type command here";
 	final static String MSG_WINDOWSWITCH = "Switch"; // name for button
 	
 	// gui commands 
+	public enum GUICommandType {
+		CLEAR, PIN, OPEN, CLOSE, CLOSEALL, SHOW, SWITCH 
+	}
 	final static String CMD_CLEAR = "clear"; // clears all log
 	final static String CMD_PIN = "pin"; // pin XXX: pins a selected task list
 	final static String CMD_OPEN = "open"; // open XXX: opens a selected task list
@@ -64,12 +69,11 @@ public class GUIController extends Application {
 	final static String CMD_SWITCH = "switch"; // switches between the log and the main window
 	final static String CMD_LOG = "log"; // switches to the log
 	final static String CMD_MAIN = "main"; // switches to the main window
-	
-	final static String STYLE_COLOR = "-fx-background-color: %1$s;";
 
 	public static String AVATAR_IMAGENAME;
 	public static String BACKGROUND_NAME;
 	public static String ICON_IMAGE = "icon.png";
+	public boolean isMainWindow = true; // true = main pane window, false = logObject
 	
 	final static int MINIMUM_WINDOW_SIZE = 600;
 	
@@ -85,7 +89,6 @@ public class GUIController extends Application {
 	public Textbox textboxObject;
 	public BorderPane pane;
 	public MainWindow center;
-	protected boolean isMainWindow = true; // true = main pane window, false = logObject
 	public logic.View view;
 	
 	public static HBox bottomBar; // bottomMost bar
@@ -326,7 +329,8 @@ public class GUIController extends Application {
 				}
 			}
 			return true;
-		} else if (command.trim().equalsIgnoreCase(CMD_SHOW)) {
+		} else if (command.trim().equalsIgnoreCase(CMD_SHOW)) { 
+			// if it is only a single show, without any arguments
 			TaskList list = taskLists.get(TASKLIST_ALL);
 			if (list.isListOpen) {
 				list.focusTask();
@@ -342,20 +346,17 @@ public class GUIController extends Application {
 			return true;
 		} else {
 			String input = getFirstWord(command).toLowerCase();
-			if (input.equalsIgnoreCase(CMD_PIN)||
-				input.equalsIgnoreCase(CMD_OPEN)||
-				input.equalsIgnoreCase(CMD_CLOSE)) {
-				String listName = removeFirstWord(command);
-				for (int i=0;i<taskListNames.length;i++) {
-					if (listName.equalsIgnoreCase(taskListNames[i])) {
-						input = input.toLowerCase();
-						switch(input) {
-						case CMD_PIN: pinWindow(taskLists.get(i)); break;
-						case CMD_OPEN: taskLists.get(i).openList();; break;
-						case CMD_CLOSE: taskLists.get(i).closeList(); break;
-						}
-						return true;
+			String listName = removeFirstWord(command);
+			for (int i=0;i<taskListNames.length;i++) {
+				if (listName.equalsIgnoreCase(taskListNames[i])) {
+					input = input.toLowerCase();
+					switch(input) {
+					case CMD_PIN: pinWindow(taskLists.get(i)); break;
+					case CMD_OPEN: taskLists.get(i).openList();; break;
+					case CMD_CLOSE: taskLists.get(i).closeList(); break;
+					default: return false; // if it is a tab name, but is not a valid command
 					}
+					return true;
 				}
 			}
 		}
@@ -387,9 +388,8 @@ public class GUIController extends Application {
 				break;
 			} else if (ParsedCommand.SHOW_CHOICES.length>i&&
 					command.trim().equalsIgnoreCase(ParsedCommand.SHOW_CHOICES[i])) {
-				TaskList search = taskLists.get(TASKLIST_SEARCH);
-				executeCommand(CMD_CLOSEALL);
-				search.openList();
+				// executeCommand(CMD_CLOSEALL); // don't need to close
+				taskLists.get(TASKLIST_SEARCH).openList();
 				break;
 			} else if (ParsedCommand.CONFIG_CHOICES.length>i&&
 					command.trim().equalsIgnoreCase(ParsedCommand.CONFIG_CHOICES[i])) {
