@@ -17,7 +17,6 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
-import org.apache.lucene.util.Version;
 
 import com.google.gson.Gson;
 
@@ -108,14 +107,10 @@ public class Search {
 		    	tagString = tagString + tags + " ";
 		    }
 		    doc.add(new TextField("tags",tagString, Field.Store.YES));
-		    if (task.getTaskType()==null) {
-		    	task.setTaskType(TASK);
-		    } 
 		    doc.add(new TextField("taskType",task.getTaskType().toString(), Field.Store.YES));
 		    if (task.getDetails() != null) {
 		    	doc.add(new TextField("details",task.getDetails(), Field.Store.YES));
 		    }
-
 		    doc.add(new StringField("json",jsonString,Field.Store.YES));
 		    w.addDocument(doc);
 		  }

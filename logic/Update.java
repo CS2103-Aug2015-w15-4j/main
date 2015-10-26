@@ -58,6 +58,9 @@ public class Update implements Command {
 		if (parsedInput.getTags().size() != 0) {
 			toUpdate.setTags(parsedInput.getTags());
 		}
+		if (parsedInput.isCompleted() != null) {
+			toUpdate.setIsCompleted(parsedInput.isCompleted());
+		}
 		if (taskType == DEADLINETASK) {
 			if (parsedInput.getFirstDate() != null) {
 				((DeadlineTask) toUpdate).setEnd(parsedInput.getFirstDate());

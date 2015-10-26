@@ -56,8 +56,8 @@ public class Logic {
 			return executeSetData(parsedCommand);
 		case CONFIG_IMG:
 			return executeSet(parsedCommand);
-		case DONE:
-			return executeDone(parsedCommand);
+		case FLAG:
+			// Fall Over
 		case EDIT:
 			return executeUpdate(parsedCommand);
 		case SEARCH: 
@@ -69,7 +69,6 @@ public class Logic {
 				return new View(parsedCommand.getErrorMessage(),
 						storage.getAllTasks());
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		case EXIT:
@@ -102,15 +101,6 @@ public class Logic {
 		}
 		
 		view.updateView(consoleMessage, storage.getAllTasks());
-		return view;
-	}
-
-	private View executeDone(ParsedCommand parsedCommand) {
-		Task toUpdate = searchList(storage.getAllTasks(),parsedCommand.getTaskId());
-		
-		
-		
-		
 		return view;
 	}
 
