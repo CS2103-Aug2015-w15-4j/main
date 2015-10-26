@@ -1,7 +1,6 @@
 package logic;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -9,13 +8,9 @@ import org.apache.lucene.queryparser.classic.ParseException;
 
 import parser.ParsedCommand;
 import parser.ParsedCommand.ConfigType;
-import parser.ParsedCommand.TaskType;
 import storage.Storage;
 
 public class Logic {
-	private static final TaskType TASK = TaskType.FLOATING_TASK;
-	private static final TaskType DEADLINETASK = TaskType.DEADLINE_TASK;
-	private static final TaskType EVENT = TaskType.EVENT;
 	
 	
 	private static final String MESSAGE_INVALID_FORMAT = "invalid command format :%1$s";
