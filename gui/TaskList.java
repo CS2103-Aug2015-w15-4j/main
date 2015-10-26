@@ -50,7 +50,7 @@ public class TaskList {
 	protected Image[] imageCompletion = new Image[2];
 	protected final String DONE = "Check.png";
 	protected final String NOT_DONE = "Delete.png";
-	protected final int DONE_SIZE = 16; 
+	protected final int DONE_IMAGE_SIZE = 16; 
 	protected boolean isChanging = false;
 	public boolean isPinnedWindow = false; // by default assume that it is not pinned 
 	public boolean isListOpen = true; // open by default
@@ -69,8 +69,8 @@ public class TaskList {
 		listView.prefWidthProperty().bind(master.widthProperty());
 		listView.prefHeight(0);
 	    // define the images for done and not done
-	    imageCompletion[0] = new Image(TaskList.class.getResourceAsStream(NOT_DONE),DONE_SIZE, DONE_SIZE, true, true);
-	    imageCompletion[1] = new Image(TaskList.class.getResourceAsStream(DONE),DONE_SIZE, DONE_SIZE, true, true);
+	    imageCompletion[0] = new Image(TaskList.class.getResourceAsStream(NOT_DONE),DONE_IMAGE_SIZE, DONE_IMAGE_SIZE, true, true);
+	    imageCompletion[1] = new Image(TaskList.class.getResourceAsStream(DONE),DONE_IMAGE_SIZE, DONE_IMAGE_SIZE, true, true);
 	    
 	    // scrollpane
 	    detailedView = new ScrollPane();
@@ -240,14 +240,16 @@ public class TaskList {
 	 * @param tasks List of Tasks to be added
 	 */
 	public void addAllTasks(List<Task> tasks) {
-		if (tasks!=null) {                                     
+		if (tasks!=null) {
+			int selected = listView.getSelectionModel().getSelectedIndex();
 			deleteAllTasks();
 			
 			for(Task task : tasks) {
 				addTask(task, false);
 			}
 			
-			selectFirstNode();
+			listView.getSelectionModel().select(selected);
+			//selectFirstNode();
 			refresh();
 		}
 	}

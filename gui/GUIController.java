@@ -9,6 +9,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.stage.Stage;
 import logic.Logic;
+import parser.ParsedCommand;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -60,7 +61,6 @@ public class GUIController extends Application {
 	final static String CMD_CLOSE = "close"; // close XXX: closes a selected task list
 	final static String CMD_CLOSEALL = "close all"; // closes all open task lists
 	final static String CMD_SHOW = "show"; // focuses on a selected task in the main view
-	final static String CMD_UNDO = "undo"; // undoes the last operation
 	final static String CMD_SWITCH = "switch"; // switches between the log and the main window
 	final static String CMD_LOG = "log"; // switches to the log
 	final static String CMD_MAIN = "main"; // switches to the main window
@@ -287,7 +287,7 @@ public class GUIController extends Application {
 	            
 	            if (keyEvent.getCode()==KeyCode.Z&&
 	            	(keyEvent.isControlDown()||keyEvent.isAltDown())) { // undo the last command
-	            	executeCommand(CMD_UNDO);
+	            	executeCommand(ParsedCommand.UNDO_CHOICES[0]);
 	            }
 	        }
 	    }));//*/
@@ -361,18 +361,46 @@ public class GUIController extends Application {
 	}
 	
 	/**
+	 * Checks for what kind of command it was, so that it can be used to focus on the correct object
+	 * @param command The first word of the command
+	 */
+	protected void checkCommandType(String command) {
+		for (int i=0;i<5;i++) {
+			if (ParsedCommand.ADD_CHOICES.length>i&&
+					command.trim().equalsIgnoreCase(ParsedCommand.ADD_CHOICES[i])) {
+				TaskList list = taskLists.get(TASKLIST_ALL);
+				if (list.isPinnedWindow) {
+					list.selectNode(list.listOfTasks.size()-1);
+					list.focusTask();
+				}
+				break;
+			} else if (ParsedCommand.HELP_CHOICES.length>i&&
+					command.trim().equalsIgnoreCase(ParsedCommand.HELP_CHOICES[i])) {
+				// help menu?
+				break;
+			} else if (ParsedCommand.SHOW_CHOICES.length>i&&
+					command.trim().equalsIgnoreCase(ParsedCommand.SHOW_CHOICES[i])) {
+				TaskList search = taskLists.get(TASKLIST_SEARCH);
+				executeCommand(CMD_CLOSEALL);
+				search.openList();
+				break;
+			}
+		}
+	}
+	/**
 	 * Runs the command input. 
 	 * @param input 
 	 */
 	protected void executeCommand(String input) {
 		if (input!= null && !input.isEmpty()) {
-			if (!checkForGuiCommand(input)) { 
+			if (!checkForGuiCommand(input)) {
 				view = controller.executeCommand(input.trim());
 				textboxObject.addToTextbox(view.getConsoleMessage());
 				logCommands.addToTextbox(input);
 				logConsole.addToTextbox(view.getConsoleMessage());
 				taskLists.get(TASKLIST_ALL).addAllTasks(view.getAllTasks());
 				taskLists.get(TASKLIST_SEARCH).addAllTasks(view.getTasksToDisplay());
+				checkCommandType(getFirstWord(input));
 			}
 		}
 	}
