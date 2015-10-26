@@ -45,22 +45,9 @@ public class Textbox {
 
 	public Textbox() {
 		hbox = new HBox();
+		
 		clock = new Label();
-		// time
-        final Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), new EventHandler<ActionEvent>() {  
-        	@Override  
-        	public void handle(ActionEvent event) {
-        		time = LocalDateTime.now();
-				clock.setText(
-					time.getDayOfWeek() + "\n" +
-					time.toLocalDate().toString() + "\n" + 
-					time.getHour() + ":" + time.getMinute()
-				);
-        	}
-        }));  
-        timeline.setCycleCount(Animation.INDEFINITE);
-        timeline.play();
-
+		updateTime();
 		clock.prefWidthProperty().bind(hbox.widthProperty());
 		clock.setMaxWidth(350);
 		clock.setTextAlignment(TextAlignment.CENTER);
@@ -89,6 +76,25 @@ public class Textbox {
 		hbox.getStyleClass().add(TAG);
 		hbox.getChildren().add(label);
 		hbox.getChildren().add(clock);
+		
+		// time
+        final Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), new EventHandler<ActionEvent>() {  
+        	@Override  
+        	public void handle(ActionEvent event) {
+        		updateTime();
+        	}
+        }));  
+        timeline.setCycleCount(Animation.INDEFINITE);
+        timeline.play();
+	}
+	
+	public void updateTime() {
+		time = LocalDateTime.now();
+		clock.setText(
+			time.getDayOfWeek() + "\n" +
+			time.toLocalDate().toString() + "\n" + 
+			time.getHour() + ":" + time.getMinute()
+		);
 	}
 	
 	/**
