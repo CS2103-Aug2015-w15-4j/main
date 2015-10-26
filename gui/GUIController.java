@@ -67,8 +67,8 @@ public class GUIController extends Application {
 	
 	final static String STYLE_COLOR = "-fx-background-color: %1$s;";
 
-	public static String AVATAR_IMAGENAME = "avatar.png";
-	public static String BACKGROUND_NAME = "background.jpg";
+	public static String AVATAR_IMAGENAME;
+	public static String BACKGROUND_NAME;
 	public static String ICON_IMAGE = "icon.png";
 	
 	final static int MINIMUM_WINDOW_SIZE = 600;
@@ -97,6 +97,8 @@ public class GUIController extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		view = controller.executeCommand("");
+		AVATAR_IMAGENAME = view.getAvatarLocation();
+		BACKGROUND_NAME = view.getBackgroundLocation();
 		for (int i=0; i<taskListNames.length;i++) {
 			taskLists.add(new TaskList(i));
 		}
@@ -389,6 +391,12 @@ public class GUIController extends Application {
 				executeCommand(CMD_CLOSEALL);
 				search.openList();
 				break;
+			} else if (ParsedCommand.CONFIG_CHOICES.length>i&&
+					command.trim().equalsIgnoreCase(ParsedCommand.CONFIG_CHOICES[i])) {
+				// if it had been a Set function, it might have been an avatar or background, so reload them
+				AVATAR_IMAGENAME = view.getAvatarLocation();
+				BACKGROUND_NAME = view.getBackgroundLocation(); 
+				textboxObject.loadAvatar();
 			}
 		}
 	}

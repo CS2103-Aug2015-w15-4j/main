@@ -21,7 +21,7 @@ import javafx.util.Duration;
 public class Textbox {
 	public final static String TAG = GUIController.TAG_SIDEBAR;
 	public final static String TAG_TEXTBOX = GUIController.TAG_SIDEBAR_TEXTBOX;
-	public final static String AVATAR_IMAGE = GUIController.AVATAR_IMAGENAME;
+	public static String AVATAR_IMAGE = GUIController.AVATAR_IMAGENAME;
 	public final static String WELCOME_MESSAGE = "Welcome!";
 	
 	public final static int WIDTH = 100;//GUIController.MINIMUM_WINDOW_SIZE/GUIController.TEXTBOX_RATIO;
@@ -53,14 +53,11 @@ public class Textbox {
 		clock.setTextAlignment(TextAlignment.CENTER);
 		clock.setAlignment(Pos.CENTER);
 		HBox.setHgrow(clock, Priority.NEVER);
-		
-		//*
-		avatar = new Image(Textbox.class.getResourceAsStream(AVATAR_IMAGE),WIDTH, WIDTH, true,true);
-		if (avatar!=null) {
-			avatarView = new ImageView(avatar);
-			avatarView.setEffect(new DropShadow());
-			hbox.getChildren().add(avatarView);
-		}//*/
+
+		avatarView = new ImageView();
+		avatarView.setEffect(new DropShadow());
+		hbox.getChildren().add(avatarView);
+		loadAvatar(); // loads an image from file into avatarView
 		label = new Label(WELCOME_MESSAGE);
 		label.prefWidthProperty().bind(hbox.widthProperty());
 		label.prefHeightProperty().bind(hbox.heightProperty());
@@ -86,6 +83,15 @@ public class Textbox {
         }));  
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
+	}
+	
+	public void loadAvatar() {
+		AVATAR_IMAGE = GUIController.AVATAR_IMAGENAME;
+		Image image = new Image(Textbox.class.getResourceAsStream(AVATAR_IMAGE),WIDTH, WIDTH, true,true);
+		if (image!=null) {
+			avatar = image;
+			avatarView.setImage(avatar);
+		}
 	}
 	
 	public void updateTime() {
