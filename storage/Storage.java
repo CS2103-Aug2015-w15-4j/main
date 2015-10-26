@@ -18,9 +18,6 @@ import logic.Task;
 
 import com.google.gson.Gson;
 
-import file.ReadFile;
-import file.SaveFile;
-
 public class Storage {
 
 	private static final String DEFAULT_BACKGROUND_FILEPATH = "background.jpg";
@@ -35,10 +32,8 @@ public class Storage {
 	private String backgroundFilePath;
 
 	private static String fileName;
-	private static String oldFileName;
 
 	private static final String DEFAULT_FILEPATH = "Data.txt";
-	private String oldLocation;
 
 	public Storage() {
 		taskList = new ArrayList<Task>();
@@ -165,11 +160,42 @@ public class Storage {
 
 	public void setFileLocation(String filePath) {
 		File oldFile = new File(dataFilePath);
+
+		File newFile = new java.io.File(filePath);
+
+		if (!newFile.exists()) {
+			newFile.mkdirs();
+			String path = newFile.getPath();
+			String finalPath = path + "/" + DEFAULT_FILEPATH;
+			File newPath = new File(finalPath);
+			try {
+				createFile(finalPath);
+				filePath = (newPath.toPath()).toString();
+				copyAndDelete(dataFilePath, finalPath);
+			} catch (SecurityException se) {
+				se.printStackTrace();
+			}
+		} else {
+			if (newFile.isDirectory()) {
+				String path = newFile.getPath();
+				String finalPath = path + "/" + DEFAULT_FILEPATH;
+				try {
+					createFile(finalPath);
+					copyAndDelete(dataFilePath, finalPath);
+					filePath = finalPath;
+				} catch (SecurityException se) {
+					se.printStackTrace();
+				}
+			} else if (newFile.isFile()) {
+				copyAndDelete(dataFilePath, filePath);
+			}
+		}
+
 		this.dataFilePath = filePath;
 		writeConfigDetails();
-		taskList.clear();
-		initializeStorage();
-		oldFile.delete();
+		// taskList.clear();
+		// initializeStorage();
+		// oldFile.delete();
 	}
 
 	public void initializeStorage() {
@@ -197,27 +223,6 @@ public class Storage {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-
-	public String getPath() {
-		ReadFile rf = new ReadFile();
-		String path = rf.readFile(DEFAULT_FILEPATH);
-		return path;
-	}
-
-	public void addPath(String newPath) {
-		SaveFile sf = new SaveFile();
-		createFile(DEFAULT_FILEPATH);
-		File file = new File(DEFAULT_FILEPATH);
-		if (checkPathFileExist() && file.length() > 0) {
-			oldLocation = getPath();
-			oldFileName = oldLocation;
-		} else {
-			oldLocation = "Data.txt";
-		}
-
-		sf.saveFile(DEFAULT_FILEPATH, newPath);
-		copyAndDelete(oldLocation, newPath);
 	}
 
 	// Copy and delete
@@ -263,19 +268,6 @@ public class Storage {
 				e.printStackTrace();
 			}
 		}
-	}
-
-	public boolean checkPathFileExist() {
-		File file = new File(DEFAULT_FILEPATH);
-		if (file.exists()) {
-			return true;
-		}
-		return false;
-	}
-
-	private String getPath(String name) {
-		File f = new File(name);
-		return f.getAbsolutePath();
 	}
 
 }
