@@ -1,6 +1,7 @@
 package gui;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
@@ -9,6 +10,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.stage.Stage;
 import logic.Logic;
+import logic.Task;
 import parser.ParsedCommand;
 import javafx.scene.*;
 import javafx.scene.control.*;
@@ -31,12 +33,14 @@ public class GUIController extends Application {
 	 
 	final static String[] taskListNames = {
 		"All Tasks",  
-		"Search list",
-		"Temp 2",
-		"Temp 3"
+		"Floating Tasks",
+		"Completed Tasks",
+		"Search list"
 	};
 	final static int TASKLIST_ALL = 0;
-	final static int TASKLIST_SEARCH = 1;
+	final static int TASKLIST_FLOATING = 1;
+	final static int TASKLIST_COMPLETED = 2;
+	final static int TASKLIST_SEARCH = 3;
 	
 	public static int TASKLIST_PINNED = -1;
 	
@@ -99,13 +103,6 @@ public class GUIController extends Application {
 	
 	@Override
 	public void start(Stage primaryStage) {
-		view = controller.executeCommand("");
-		AVATAR_IMAGENAME = view.getAvatarLocation();
-		BACKGROUND_NAME = view.getBackgroundLocation();
-		for (int i=0; i<taskListNames.length;i++) {
-			taskLists.add(new TaskList(i));
-		}
-		
 		// prevent resizing?
 		//primaryStage.setResizable(false); // allow resizing?
 		
@@ -115,13 +112,17 @@ public class GUIController extends Application {
 		 */
 		pane = new BorderPane();
 		
-		// create the text
-		textboxObject = new Textbox();
-		textboxObject.getNode().prefWidthProperty().bind(pane.widthProperty());
-		textboxObject.getNode().maxWidthProperty().bind(pane.widthProperty());
-		textboxObject.getNode().maxHeightProperty().bind(pane.heightProperty().divide(TEXTBOX_RATIO));
-		textboxObject.getNode().prefHeightProperty().bind(pane.heightProperty().divide(TEXTBOX_RATIO));
-		pane.setBottom(textboxObject.getNode());
+		
+		/**
+		 * Initialise the View
+		 */
+		view = controller.executeCommand("");
+		AVATAR_IMAGENAME = view.getAvatarLocation();
+		BACKGROUND_NAME = view.getBackgroundLocation();
+		
+		for (int i=0; i<taskListNames.length;i++) {
+			taskLists.add(new TaskList(i));
+		}		
 		
 		// intialise the all tasks tab
 		taskLists.get(TASKLIST_ALL).addAllTasks(view.getAllTasks());
@@ -129,6 +130,36 @@ public class GUIController extends Application {
 
 		// then pin it as the first task window
 		pinWindow(taskLists.get(TASKLIST_ALL));
+		
+
+		// intialise the completed tasks tab
+		try {
+			List<Task> tasks = logic.Search.search(view.getAllTasks(), "isCompleted:true");
+			if (tasks!=null) {
+				taskLists.get(TASKLIST_COMPLETED).addAllTasks(tasks);
+			}
+		} catch (Exception e) { 
+			// if unable to load, too bad, don't do anything
+		}
+		
+		// intialise the floating tasks tab
+		/*
+		try {
+			List<Task> floating = logic.Search.search(view.getAllTasks(), "taskType:FLOATING");
+			if (floating!=null) {
+				taskLists.get(TASKLIST_COMPLETED).addAllTasks(floating);
+			}
+		} catch (Exception e) { 
+			// if unable to load, too bad, don't do anything
+		}//*/
+		
+		// create the text
+		textboxObject = new Textbox();
+		textboxObject.getNode().prefWidthProperty().bind(pane.widthProperty());
+		textboxObject.getNode().maxWidthProperty().bind(pane.widthProperty());
+		textboxObject.getNode().maxHeightProperty().bind(pane.heightProperty().divide(TEXTBOX_RATIO));
+		textboxObject.getNode().prefHeightProperty().bind(pane.heightProperty().divide(TEXTBOX_RATIO));
+		pane.setBottom(textboxObject.getNode());
 		
 		// create the Log tab
 		logObject = createLogTab();		

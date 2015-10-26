@@ -205,7 +205,11 @@ public class TaskList {
 	public void refresh() {
 		listView.setItems(items);
 		if (isPinnedWindow) {
+			boolean open = isListOpen;
 			focusTask();
+			if (open) { // if it was supposed to be open, make sure it ends opened
+				openList();
+			}
 		}
 	}
 	
