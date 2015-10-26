@@ -374,6 +374,11 @@ public class GUIController extends Application {
 					list.focusTask();
 				}
 				break;
+			} else if (ParsedCommand.DELETE_CHOICES.length>i&&
+					command.trim().equalsIgnoreCase(ParsedCommand.DELETE_CHOICES[i])) {
+				taskLists.get(TASKLIST_PINNED).openList(); 
+				// open the list to prevent focus on an item that may not exist anymore
+				break;
 			} else if (ParsedCommand.HELP_CHOICES.length>i&&
 					command.trim().equalsIgnoreCase(ParsedCommand.HELP_CHOICES[i])) {
 				// help menu?
