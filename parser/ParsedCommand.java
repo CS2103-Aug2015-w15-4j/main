@@ -436,7 +436,7 @@ public class ParsedCommand {
 		if (isMissingArguments(input)) {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
-			String[] subInput = input[1].split(" ");
+			String[] subInput = input[1].split(" ", 2);
 			String subCommand = subInput[0];
 			if (subCommand.equalsIgnoreCase("folder")) {
 				return createParsedCommandConfigData(subInput);

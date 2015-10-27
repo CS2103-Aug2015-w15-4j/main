@@ -13,7 +13,7 @@ import parser.ParsedCommand.TaskType;
 
 public class StringParser {
 	static final String TO_REGEX = "-|to|until|till";
-	protected static final String TASK_ID_REGEX = "(^[0-9]+)";
+	protected static final String TASK_ID_REGEX = "(^[0-9]+(?=\\s|$))";
 	protected static final String TAG_REGEX = "(#(\\w+))";
 	protected static final String DESCRIPTION_REGEX = "(\"[^\"]*?\")";
 	protected static final String TASK_STATUS_REGEX = "(?<=[^//s])(todo|completed|overdue)(?=\\s|$)";

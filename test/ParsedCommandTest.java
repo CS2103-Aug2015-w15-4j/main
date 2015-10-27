@@ -265,6 +265,12 @@ public class ParsedCommandTest {
 		pcDisplay = ParsedCommand.parseCommand("show");
 		assertEquals(CommandType.GUI_SHOW, pcDisplay.getCommandType());
 		
+		pcDisplay = ParsedCommand.parseCommand("search 23/11/15");
+		assertEquals(CommandType.SEARCH, pcDisplay.getCommandType());
+		//assertEquals("meeting", pcDisplay.getKeywords());
+		assertEquals(StringParser.parseStringToDate("Mon Nov 23 23:59:00 SGT 2015"), pcDisplay.getFirstDate().getTime());
+		assertEquals(null, pcDisplay.getSecondDate());
+		
 		// Check search function works
 		pcDisplay = ParsedCommand.parseCommand("show meeting 23/11/15 #tag todo deadline");
 		assertEquals(CommandType.SEARCH, pcDisplay.getCommandType());
@@ -435,9 +441,9 @@ public class ParsedCommandTest {
 		assertEquals("Error: No arguments entered", pcConfig.getErrorMessage());
 				
 		// Check config data
-		pcConfig = ParsedCommand.parseCommand("set folder filePath");
+		pcConfig = ParsedCommand.parseCommand("set folder C:\\file name\\folder");
 		assertEquals(CommandType.CONFIG_DATA, pcConfig.getCommandType());
-		assertEquals("filePath", pcConfig.getConfigPath());
+		assertEquals("C:\\file name\\folder", pcConfig.getConfigPath());
 		
 		// Check config img background
 		pcConfig = ParsedCommand.parseCommand("set background filePath");
