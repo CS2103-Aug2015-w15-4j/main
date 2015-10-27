@@ -161,6 +161,9 @@ public class TaskList {
 			}
 			master.getChildren().add(listView);
 			isListOpen = true;
+
+			System.out.println("Grid " + ((GridPane)items.get(0)).getPrefWidth());
+			System.out.println("ListView " + listView.getWidth());
 		}
 	}
 	
@@ -309,8 +312,8 @@ public class TaskList {
 	 */
 	protected GridPane createDetailedDisplay(Task task) {
 		GridPane grid = new GridPane();
-	    //grid.getColumnConstraints().add(new ColumnConstraints(GRID_COL_HEADER_FINAL_LENGTH)); 
-		//grid.setPadding(new Insets(0, 9, 0, 0));
+	    grid.getColumnConstraints().add(new ColumnConstraints(GRID_COL_HEADER_FINAL_LENGTH)); 
+		grid.setPadding(new Insets(0, 9, 0, 0));
 
 		ArrayList<String[]> details = task.getTaskDetails(); 
 		// Set name
@@ -356,9 +359,7 @@ public class TaskList {
 	 */
 	protected GridPane createSidebarDisplay(Task task) {
 		GridPane grid = new GridPane();
-		grid.prefWidthProperty().bind(listView.widthProperty());
 		grid.getColumnConstraints().add(new ColumnConstraints(GRID_COL_HEADER_FINAL_LENGTH));
-		grid.setPadding(new Insets(0, 9, 0, 0));
 		
 		// ID content
 		Label id = createLabel(""+ task.getId());
@@ -380,11 +381,6 @@ public class TaskList {
 		HBox.setHgrow(label, Priority.ALWAYS);
 		header.setAlignment(Pos.CENTER_LEFT);
 		grid.add(header, COL_CONTENT, ROW_NAME, COL_SIZE, 1); // span 2 col and 1 row
-		/*
-		// ID
-		label = createLabel("ID : ");
-		GridPane.setValignment(label, GRID_HEADER_VERT_ALIGNMENT);
-		grid.add(label, SIDEBAR_COL_HEADER1, GRID_ROW_ID);//*/
 		
 		return grid;
 	}

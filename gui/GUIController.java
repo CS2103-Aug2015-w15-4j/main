@@ -130,7 +130,6 @@ public class GUIController extends Application {
 
 		// then pin it as the first task window
 		pinWindow(taskLists.get(TASKLIST_ALL));
-		
 
 		// intialise the completed tasks tab
 		try {

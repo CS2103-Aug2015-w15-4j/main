@@ -95,12 +95,14 @@ public class Textbox {
 		InputStream stream;
 		try {
 			stream = new FileInputStream(new File(AVATAR_IMAGE));
-			Image image = new Image(stream,WIDTH, WIDTH, true,true);
-			if (image!=null) {
-				avatar = image;
-				avatarView.setImage(avatar);
+			if (stream!=null) {
+				Image image = new Image(stream,WIDTH, WIDTH, true,true);
+				if (image!=null) {
+					avatar = image;
+					avatarView.setImage(avatar);
+				}
+				return true;
 			}
-			return true;
 		} catch (FileNotFoundException e) {
 			// do nothing
 		}
