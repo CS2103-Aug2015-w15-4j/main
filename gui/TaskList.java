@@ -161,9 +161,6 @@ public class TaskList {
 			}
 			master.getChildren().add(listView);
 			isListOpen = true;
-
-			System.out.println("Grid " + ((GridPane)items.get(0)).getPrefWidth());
-			System.out.println("ListView " + listView.getWidth());
 		}
 	}
 	
@@ -342,8 +339,8 @@ public class TaskList {
 			grid.add(label, COL_HEADER, i);
 			GridPane.setValignment(label, GRID_HEADER_VERT_ALIGNMENT);
 
-			label = createLabel(array[COL_CONTENT]);
-			if (label.getText()==null||label.getText().isEmpty()) {
+			label = createLabel(array[COL_CONTENT] + " ");
+			if (label.getText()==null||label.getText().trim().isEmpty()) {
 				label.setText("None");
 			}
 			grid.add(label, COL_CONTENT, i);
@@ -359,10 +356,11 @@ public class TaskList {
 	 */
 	protected GridPane createSidebarDisplay(Task task) {
 		GridPane grid = new GridPane();
+		grid.prefWidthProperty().bind(listView.widthProperty().subtract(100));
 		grid.getColumnConstraints().add(new ColumnConstraints(GRID_COL_HEADER_FINAL_LENGTH));
 		
 		// ID content
-		Label id = createLabel(""+ task.getId());
+		Label id = createLabel(task.getId() + " ");
 		grid.add(id, COL_HEADER, ROW_NAME);
 
 		// Set name
