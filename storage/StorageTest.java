@@ -105,7 +105,6 @@ public class StorageTest {
 	}
 
 	public void getConfigDetails() {
-		File configFile = new File(CONFIG_FILENAME);
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(
 					CONFIG_FILENAME));

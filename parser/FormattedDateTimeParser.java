@@ -27,7 +27,7 @@ public class FormattedDateTimeParser extends DateTimeParser{
 	private static final int INDEX_FOR_YEAR_ARR = 2;
 	
 	private static Pattern ddmmyy = Pattern.compile(FORMATTED_DATE_REGEX);
-	private static Pattern dateDelim = Pattern.compile(DATE_DELIM);
+	// private static Pattern dateDelim = Pattern.compile(DATE_DELIM);
 	
 	private String[] formattedTimes;
 	private String[] formattedDates;
@@ -51,6 +51,8 @@ public class FormattedDateTimeParser extends DateTimeParser{
 			return null;
 		} else if (year.length() < 4) {
 			year = "20" + year.substring(1);
+		} else {
+			return year.substring(1);
 		}
 		return year;
 	}
@@ -66,7 +68,7 @@ public class FormattedDateTimeParser extends DateTimeParser{
 	 *         ans[1] = null and if only one date found, ans[1] = null.
 	 */
 	public static String[] getStandardFormattedDates(String userInput) {
-		System.out.println(userInput);
+		// System.out.println(userInput);
 		Matcher m = ddmmyy.matcher(userInput);
 		String[] ans = new String[4];
 
@@ -76,21 +78,23 @@ public class FormattedDateTimeParser extends DateTimeParser{
 			String[] dateArr = new String[3];
 			dateArr[INDEX_FOR_DATE_ARR] = m.group(INDEX_FOR_DATE_INPUT);
 			dateArr[INDEX_FOR_MONTH_ARR] = m.group(INDEX_FOR_MONTH_INPUT);
-			if (m.groupCount() > 2) {
-				dateArr[INDEX_FOR_YEAR_ARR] = convertYearToStandardFormat(m.group(INDEX_FOR_YEAR_INPUT));
-			}
+			dateArr[INDEX_FOR_YEAR_ARR] = convertYearToStandardFormat(m.group(INDEX_FOR_YEAR_INPUT));
 			tempDates[i] = dateArr;
 			i++;
 		}
-		for (int a = 0; a < 2; a++) {
-			for (int b = 0; b < 3; b++) {
-				System.out.println("TEMP[" + a + "]["+b+"]: " + tempDates[a][b]);
-			}
-		}
+		logDatesRead(tempDates);
 		ans = standardizeDatesArray(tempDates);
 		ans[2] = FORMATTED_DATE_FORMAT;
 		ans[3] = removeFormattedDatesFromString(userInput);
 		return ans;
+	}
+
+	private static void logDatesRead(String[][] tempDates) {
+		/*for (int a = 0; a < 2; a++) {
+			for (int b = 0; b < 3; b++) {
+				System.out.println("TEMP[" + a + "]["+b+"]: " + tempDates[a][b]);
+			}
+		}*/
 	}
 	
 	private static String[] standardizeDatesArray(String[][] tempDates) {
@@ -128,7 +132,6 @@ public class FormattedDateTimeParser extends DateTimeParser{
 		LocalDate today = LocalDate.now();
 		String currYear = String.valueOf(today.getYear());
 		String newDateString = currYear + "-" + date[INDEX_FOR_MONTH_ARR] + "-" + date[INDEX_FOR_DATE_ARR];
-		System.out.println("Before formatting year: " + newDateString);
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-M-d");
 		try {
 			LocalDate newDate = LocalDate.parse(newDateString, formatter);
@@ -165,7 +168,6 @@ public class FormattedDateTimeParser extends DateTimeParser{
 	protected Calendar[] parse(String input, String[] parsedDates, String[] parsedTimes) {
 		logger.log(Level.FINE, "TO FORM:" + input + ".");
 		formattedTimes = TimeParser.getStandardTimesFromString(input); // all time parsing done
-		System.out.println("Start time: " + formattedTimes[0]);
 		if (invalidTimes(formattedTimes)) {
 			return null;
 		}

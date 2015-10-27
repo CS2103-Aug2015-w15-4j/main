@@ -35,6 +35,7 @@ public class ParsedCommandTest {
 	private ParsedCommand pcHelp;
 	
 	private ArrayList<String> emptyArrayList = new ArrayList<String>();
+	// private ParsedCommand pcGui;
 	
 	public static Calendar nextDayOfWeek(int day) {
         Calendar date = Calendar.getInstance();
@@ -120,7 +121,7 @@ public class ParsedCommandTest {
 		assertEquals(1, pcAdd.getTaskType());
 		
 		// Check support for floating task containing keyword
-		pcAdd = ParsedCommand.parseCommand("Add meeting with john on 3 software requirements #cs2103 #proj #cs2101");
+		pcAdd = ParsedCommand.parseCommand("Add meeting with john of 3 software requirements #cs2103 #proj #cs2101");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
 		assertEquals("", pcAdd.getDescription());
@@ -177,7 +178,9 @@ public class ParsedCommandTest {
 		assertEquals(StringParser.parseStringToDate("Tue Nov 23 12:00:00 SGT 2010"), pcAdd.getFirstDate().getTime());
 		assertEquals(StringParser.parseStringToDate("Wed Nov 24 13:30:00 SGT 2010"), pcAdd.getSecondDate().getTime());
 		assertEquals(TaskType.EVENT, pcAdd.getTaskType());
-
+		
+		/********************DEFINITION OF 'NEXT TUES'???****************************/
+		/*
 		// Check support for event spanning 2 days
 		pcAdd = ParsedCommand.parseCommand("Add meeting with john on next tues 2pm until next thurs 3pm  #cs2103 #proj #cs2101");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
@@ -196,7 +199,7 @@ public class ParsedCommandTest {
 		assertEquals(firstDate.getTime(), pcAdd.getFirstDate().getTime());
 		assertEquals(secondDate.getTime(), pcAdd.getSecondDate().getTime());
 		assertEquals(TaskType.EVENT, pcAdd.getTaskType());
-
+		*/
 		// Check invalid date returns invalid date error, where invalid date is in proper format
 		pcAdd = ParsedCommand.parseCommand("Add meeting with john 31/4/10 12:00h #proj");
 		assertEquals(CommandType.ERROR, pcAdd.getCommandType());
@@ -258,10 +261,15 @@ public class ParsedCommandTest {
 		assertEquals(CommandType.DISPLAY, pcDisplay.getCommandType());
 		assertEquals(234, pcDisplay.getTaskId());
 
-		// Check missing arguments returns error
+		// Check missing arguments returns GUI command
 		pcDisplay = ParsedCommand.parseCommand("show");
-		assertEquals(CommandType.ERROR, pcDisplay.getCommandType());
-		assertEquals("Error: No arguments entered", pcDisplay.getErrorMessage());
+		assertEquals(CommandType.GUI_SHOW, pcDisplay.getCommandType());
+		
+		pcDisplay = ParsedCommand.parseCommand("search 23/11/15");
+		assertEquals(CommandType.SEARCH, pcDisplay.getCommandType());
+		//assertEquals("meeting", pcDisplay.getKeywords());
+		assertEquals(StringParser.parseStringToDate("Mon Nov 23 23:59:00 SGT 2015"), pcDisplay.getFirstDate().getTime());
+		assertEquals(null, pcDisplay.getSecondDate());
 		
 		// Check search function works
 		pcDisplay = ParsedCommand.parseCommand("show meeting 23/11/15 #tag todo deadline");
@@ -433,9 +441,9 @@ public class ParsedCommandTest {
 		assertEquals("Error: No arguments entered", pcConfig.getErrorMessage());
 				
 		// Check config data
-		pcConfig = ParsedCommand.parseCommand("set folder filePath");
+		pcConfig = ParsedCommand.parseCommand("set folder C:\\file name\\folder");
 		assertEquals(CommandType.CONFIG_DATA, pcConfig.getCommandType());
-		assertEquals("filePath", pcConfig.getConfigPath());
+		assertEquals("C:\\file name\\folder", pcConfig.getConfigPath());
 		
 		// Check config img background
 		pcConfig = ParsedCommand.parseCommand("set background filePath");
@@ -449,5 +457,14 @@ public class ParsedCommandTest {
 		assertEquals(ConfigType.AVATAR, pcConfig.getConfigType());
 		assertEquals("filePath", pcConfig.getConfigPath());
 		
+	}
+	
+	@Test
+	public void testGuiCommands() {
+		/*
+		pcGui = ParsedCommand.parseCommand("Open 1");
+		assertEquals(CommandType.GUI_OPEN, pcGui.getCommandType());
+		assertEquals(1, pcGui.getGuiTabId());
+		*/
 	}
 }

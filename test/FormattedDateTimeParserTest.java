@@ -14,9 +14,9 @@ public class FormattedDateTimeParserTest {
 		assertEquals("12/2/2013", FormattedDateTimeParser.getStandardFormattedDates("12/2/13 12:00-13:00")[0]);
 		assertEquals(null, FormattedDateTimeParser.getStandardFormattedDates("12/2/13 12:00-13:00")[1]);
 
-		// Check support for / for date
-		assertEquals("5/4/2014", FormattedDateTimeParser.getStandardFormattedDates("Hello how 5/4/14 are you today?")[0]);
-		assertEquals("02/12/2014", FormattedDateTimeParser.getStandardFormattedDates("Hello how 02/12/14 are you today?")[0]);
+		// Check support for / for date & 4 digit year
+		assertEquals("5/4/2014", FormattedDateTimeParser.getStandardFormattedDates("Hello how 5/4/2014 are you today?")[0]);
+		assertEquals("02/12/2014", FormattedDateTimeParser.getStandardFormattedDates("Hello how 02/12/2014 are you today?")[0]);
 
 		// Check support for . for date (and returns in standard format dd/MM/yy)
 		assertEquals("2/12/2014", FormattedDateTimeParser.getStandardFormattedDates("Hello how 2.12.14 are you today?")[0]);
