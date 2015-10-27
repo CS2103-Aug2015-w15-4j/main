@@ -14,7 +14,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import parser.ParsedCommand;
 import logic.Task;
+import logic.DeadlineTask;
+import logic.Event;
 
 import com.google.gson.Gson;
 
@@ -159,8 +162,6 @@ public class Storage {
 	}
 
 	public void setFileLocation(String filePath) {
-		File oldFile = new File(dataFilePath);
-
 		File newFile = new java.io.File(filePath);
 
 		if (!newFile.exists()) {
@@ -213,6 +214,12 @@ public class Storage {
 			String currentLine = reader.readLine();
 			while (currentLine != null) {
 				task = gson.fromJson(currentLine, Task.class);
+				
+				if (task.getTaskType().equals(ParsedCommand.TaskType.DEADLINE_TASK)) {
+					task = (Task) gson.fromJson(currentLine, DeadlineTask.class);
+				} else if (task.getTaskType().equals(ParsedCommand.TaskType.EVENT)) {
+					task = (Task) gson.fromJson(currentLine, Event.class);
+				}
 				taskList.add(task);
 				currentLine = reader.readLine();
 			}
