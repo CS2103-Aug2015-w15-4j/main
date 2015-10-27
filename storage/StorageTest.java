@@ -10,6 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 import logic.DeadlineTask;
@@ -31,6 +32,11 @@ public class StorageTest {
 	private static final String DEFAULT_AVATAR_FILEPATH = "avatar.png";
 	private static final String CONFIG_FILENAME = "config";
 	private static final String DEFAULT_FILEPATH = "Data.txt";
+
+	private static final boolean OVERWRITE = false;
+	private static final boolean APPEND = true;
+
+	private List<Task> taskList;
 
 	private String dataFilePath;
 	private String avatarFilePath;
@@ -95,12 +101,49 @@ public class StorageTest {
 
 		storage.delete(1);
 
-		String output = readFile(DEFAULT_FILEPATH);
+		getConfigDetails();
+		String output = readFile(dataFilePath);
 
 		String expected = "{\"[start\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"end\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"name\":\"dinner with friends\",\"details\":\"at centrepoint\",\"id\":2,\"isCompleted\":false,\"taskType\":\"EVENT]\"}";
 		expected = "\r\n";
 		expected = "{\"end\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"name\":\"meeting Luxola\",\"details\":\"at centrepoint\",\"id\":3,\"isCompleted\":false,\"taskType\":\"DEADLINE_TASK\"}";
 		assertEquals(expected, output);
+
+		storage.delete(4);
+		expected = "{\"[start\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"end\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"name\":\"dinner with friends\",\"details\":\"at centrepoint\",\"id\":2,\"isCompleted\":false,\"taskType\":\"EVENT]\"}";
+		expected = "\r\n";
+		expected = "{\"end\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"name\":\"meeting Luxola\",\"details\":\"at centrepoint\",\"id\":3,\"isCompleted\":false,\"taskType\":\"DEADLINE_TASK\"}";
+		assertEquals(expected, output);
+
+	}
+
+	@Test
+	public void testSetFolder() throws Exception {
+		boolean output = storage.setFileLocation("c:\\");
+		assertEquals(false, output);
+
+		output = storage.setFileLocation("\\");
+		assertEquals(false, output);
+
+		// folder is not exist
+		output = storage
+				.setFileLocation("C:\\Users\\jiaminn\\Desktop\\Eclipse\\MyWorkspace\\main\\temp");
+		assertEquals(true, output);
+
+		getConfigDetails();
+		System.out.println(dataFilePath);
+		String path = readFile(dataFilePath);
+		String expected = "{\"[start\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"end\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"name\":\"dinner with friends\",\"details\":\"at centrepoint\",\"id\":2,\"isCompleted\":false,\"taskType\":\"EVENT]\"}";
+		expected = "\r\n";
+		expected = "{\"end\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"name\":\"meeting Luxola\",\"details\":\"at centrepoint\",\"id\":3,\"isCompleted\":false,\"taskType\":\"DEADLINE_TASK\"}";
+		assertEquals(expected, path);
+
+		output = storage.setFileLocation(".//");
+		assertEquals(true, output);
+
+		// folder exists
+		output = storage.setFileLocation("C:\\Users\\jiaminn\\Desktop");
+		assertEquals(true, output);
 
 	}
 
