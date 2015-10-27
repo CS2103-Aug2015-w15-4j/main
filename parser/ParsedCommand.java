@@ -3,11 +3,11 @@ package parser;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.logging.Logger;
 
 public class ParsedCommand {
 	public enum CommandType {
-		ADD, DELETE, EDIT, DISPLAY, ERROR, UNDO, FLAG, DONE, TODO, HELP, INVALID, CONFIG_DATA, CONFIG_IMG, EXIT, CONFIG, SEARCH, SHOW;
+		ADD, DELETE, EDIT, DISPLAY, ERROR, UNDO, FLAG, DONE, TODO, HELP, INVALID, CONFIG_DATA, CONFIG_IMG, 
+		EXIT, CONFIG, SEARCH, SHOW, GUI_OPEN, GUI_CLOSE, GUI_PIN, GUI_SHOW, GUI_SWITCH, GUI_LOG, GUI_MAIN, GUI_CLOSE_ALL;
 	}
 	
 	public enum ConfigType {
@@ -28,6 +28,7 @@ public class ParsedCommand {
 	private String description;
 	private ArrayList<String> tags;
 	private int taskId;
+	private int guiTabId;
 	private TaskType taskType;
 	private Boolean isCompleted;
 	private ConfigType configType;
@@ -36,7 +37,6 @@ public class ParsedCommand {
 	private static final String ERROR_INVALID_COMMAND = "Error: Invalid command";
 	private static final String ERROR_NO_INPUT = "Error: No user input";
 	private static final String ERROR_MISSING_ARGS = "Error: No arguments entered";
-	private static final String ERROR_NOT_AN_ERROR = "Error: No error message as this is not an error";
 	private static final String ERROR_MISSING_FIELDS = "Error: No fields were entered for editing";
 	private static final int INDEX_FOR_START = 0;
 	private static final int INDEX_FOR_END = 1;
@@ -44,10 +44,10 @@ public class ParsedCommand {
 	private static final int INDEX_FOR_ARGS = 1;
 	private static final String ERROR_INVALID_DATE = "Error: Invalid date(s) input";
 	private static final String ERROR_INVALID_TASKID = "Error: Invalid/Missing taskId";
-	private static final int INDEX_FOR_TASKID = 0;
-	private static final int INDEX_FOR_FIELDS = 1;
+	// private static final int INDEX_FOR_TASKID = 0;
+	// private static final int INDEX_FOR_FIELDS = 1;
 	
-	private static final Logger logger = Logger.getLogger(ParsedCommand.class.getName() );
+	// private static final Logger logger = Logger.getLogger(ParsedCommand.class.getName() );
 	private static final String ERROR_MISSING_TITLE = "Error: Missing task title";
 	
 	public static final String[] ADD_CHOICES = {"add", "insert", "+"};
@@ -61,10 +61,21 @@ public class ParsedCommand {
 	public static final String[] TODO_CHOICES = {"todo"};
 	public static final String[] CONFIG_CHOICES = {"set"};
 	public static final String[] HELP_CHOICES = {"help", "?"};
-	private static final String[][] COMMAND_CHOICES = {ADD_CHOICES, DELETE_CHOICES, EDIT_CHOICES, SHOW_CHOICES, EXIT_CHOICES, UNDO_CHOICES, DONE_CHOICES, FLAG_CHOICES, TODO_CHOICES, CONFIG_CHOICES, HELP_CHOICES};
+	public static final String[] OPEN_CHOICES = {"open"};
+	public static final String[] CLOSE_CHOICES = {"close"};
+	public static final String[] PIN_CHOICES = {"pin"};
+	public static final String[] SWITCH_CHOICES = {"switch"};
+	public static final String[] LOG_CHOICES = {"log"};
+	public static final String[] MAIN_CHOICES = {"main"};
+	private static final String[][] COMMAND_CHOICES = {ADD_CHOICES, DELETE_CHOICES, EDIT_CHOICES, SHOW_CHOICES, 
+													   EXIT_CHOICES, UNDO_CHOICES, DONE_CHOICES, FLAG_CHOICES, 
+													   TODO_CHOICES, CONFIG_CHOICES, HELP_CHOICES, OPEN_CHOICES,
+													   CLOSE_CHOICES, PIN_CHOICES, SWITCH_CHOICES, LOG_CHOICES,
+													   MAIN_CHOICES};
 	public static final String ERROR_INVALID_TASK_STATUS = null;
 	public static final String ERROR_INVALID_CONFIG_TYPE = null;
 	public static final String ERROR_INVALID_PATH = null;
+	public static final String ERROR_INVALID_GUI_TAB_ID = null;
 	
 	static {
 		setupCommandChoicesHashMap();
@@ -93,6 +104,7 @@ public class ParsedCommand {
 		this.description = builder.description;
 		this.tags = builder.tags;
 		this.taskId = builder.taskId;
+		this.guiTabId = builder.guiTabId;
 		this.taskType = builder.taskType;
 		this.isCompleted = builder.isCompleted;
 		this.configType = builder.configType;
@@ -137,6 +149,24 @@ public class ParsedCommand {
 				case TODO:
 					return createParsedCommandFlagTodo(input);
 				
+				case GUI_OPEN:
+					return createParsedCommandGuiOpen(input);
+					
+				case GUI_CLOSE:
+					return createParsedCommandGuiClose(input);
+					
+				case GUI_PIN:
+					return createParsedCommandGuiPin(input);
+					
+				case GUI_SWITCH:
+					return createParsedCommandGuiSwitch();
+					
+				case GUI_LOG:
+					return createParsedCommandGuiSwitchLog();
+					
+				case GUI_MAIN:
+					return createParsedCommandGuiSwitchMain();
+				
 				case INVALID:
 					return createParsedCommandError(ERROR_INVALID_COMMAND);
 			
@@ -156,6 +186,76 @@ public class ParsedCommand {
 		}
 	}
 	
+	// weird to check in parser. should check be done in gui instead?
+	private static ParsedCommand createParsedCommandGuiSwitchMain() {
+		try {
+			ParsedCommand pc = new ParsedCommand.Builder(CommandType.GUI_MAIN)
+												.build();
+			return pc;
+		} catch (InvalidArgumentsForParsedCommandException e) {
+			return createParsedCommandError(e.getMessage());
+		}
+	}
+
+	private static ParsedCommand createParsedCommandGuiSwitchLog() {
+		try {
+			ParsedCommand pc = new ParsedCommand.Builder(CommandType.GUI_LOG)
+												.build();
+			return pc;
+		} catch (InvalidArgumentsForParsedCommandException e) {
+			return createParsedCommandError(e.getMessage());
+		}
+	}
+
+	private static ParsedCommand createParsedCommandGuiSwitch() {
+		return null;
+		// cannot access isMainWindow. am i supposed to be handling this check?
+	}
+
+	private static ParsedCommand createParsedCommandGuiPin(String[] input) {
+		return createParsedCommandGuiEditTab(input, CommandType.GUI_PIN);
+	}
+
+	private static ParsedCommand createParsedCommandGuiClose(String[] input) {
+		if (isMissingArguments(input)) {
+			return createParsedCommandError(ERROR_MISSING_ARGS);
+		} else {
+			String inputArgs = input[INDEX_FOR_ARGS].trim();
+			if (inputArgs.equalsIgnoreCase("all")) {
+				ParsedCommand pc;
+				try {
+					pc = new ParsedCommand.Builder(CommandType.GUI_CLOSE_ALL)
+														.build();
+				} catch (InvalidArgumentsForParsedCommandException e) {
+					return createParsedCommandError(e.getMessage());
+				}
+				return pc;
+			} else {
+				return createParsedCommandGuiEditTab(input, CommandType.GUI_CLOSE);
+			}
+		}
+	}
+
+	private static ParsedCommand createParsedCommandGuiOpen(String[] input) {
+		return createParsedCommandGuiEditTab(input, CommandType.GUI_OPEN);
+	}
+	
+	private static ParsedCommand createParsedCommandGuiEditTab(String[] input, CommandType cmd) {
+		if (isMissingArguments(input)) {
+			return createParsedCommandError(ERROR_MISSING_ARGS);
+		} else {
+			try {
+				String inputArgs = input[INDEX_FOR_ARGS].trim();
+				int tabId = StringParser.getTaskIdFromString(inputArgs);
+				ParsedCommand pc = new ParsedCommand.Builder(cmd)
+													.guiTabId(tabId)
+													.build();
+				return pc;
+			} catch (InvalidArgumentsForParsedCommandException e) {
+				return createParsedCommandError(e.getMessage());
+			}
+		}
+	}
 	
 	private static ParsedCommand createParsedCommandAdd(String[] input) {
 		if (isMissingArguments(input)) {
@@ -235,7 +335,7 @@ public class ParsedCommand {
 	
 	private static ParsedCommand createParsedCommandShow(String[] input) {
 		if (isMissingArguments(input)) {
-			return createParsedCommandError(ERROR_MISSING_ARGS);
+			return createParsedCommandGuiShow();
 		} else {
 			String inputArgs = input[INDEX_FOR_ARGS];
 			int taskId = StringParser.getTaskIdFromString(inputArgs);
@@ -249,6 +349,10 @@ public class ParsedCommand {
 		}
 	}
 	
+	private static ParsedCommand createParsedCommandGuiShow() {
+		return createParsedCommandNoArgs(CommandType.GUI_SHOW);
+	}
+
 	private static ParsedCommand createParsedCommandShowSearch(String inputArgs) {
 		ParsedCommand pc;
 		try {
@@ -381,29 +485,25 @@ public class ParsedCommand {
 
 	
 	private static ParsedCommand createParsedCommandUndo() {
+		return createParsedCommandNoArgs(CommandType.UNDO);
+	}
+
+	
+	private static ParsedCommand createParsedCommandExit() {
+		return createParsedCommandNoArgs(CommandType.EXIT);
+	}
+	
+	
+	private static ParsedCommand createParsedCommandNoArgs(CommandType cmd) {
 		try {
-			return new ParsedCommand.Builder(CommandType.UNDO).build();
+			return new ParsedCommand.Builder(cmd).build();
 		} catch (InvalidArgumentsForParsedCommandException e) {
 			return createParsedCommandError(e.getMessage());
 		}
 	}
 
-	
-	private static ParsedCommand createParsedCommandExit() {
-		try {
-			return new ParsedCommand.Builder(CommandType.EXIT).build();
-		} catch (InvalidArgumentsForParsedCommandException e) {
-			return createParsedCommandError(e.getMessage());
-		}
-	}
-	
-	
 	private static ParsedCommand createParsedCommandHelp() {
-		try {
-			return new ParsedCommand.Builder(CommandType.HELP).build();
-		} catch (InvalidArgumentsForParsedCommandException e) {
-			return createParsedCommandError(e.getMessage());
-		}
+		return createParsedCommandNoArgs(CommandType.HELP);
 	}
 		
 	private static ParsedCommand createParsedCommandError(String errorMsg) {
@@ -473,6 +573,18 @@ public class ParsedCommand {
 			return CommandType.TODO;
 		} else if (commandTypeString.equalsIgnoreCase("set")) {
 			return CommandType.CONFIG;
+		} else if (commandTypeString.equalsIgnoreCase("open")) {
+			return CommandType.GUI_OPEN;
+		} else if (commandTypeString.equalsIgnoreCase("close")) {
+			return CommandType.GUI_CLOSE;
+		} else if (commandTypeString.equalsIgnoreCase("pin")) {
+			return CommandType.GUI_PIN;
+		} else if (commandTypeString.equalsIgnoreCase("switch")) {
+			return CommandType.GUI_SWITCH;
+		} else if (commandTypeString.equalsIgnoreCase("log")) {
+			return CommandType.GUI_LOG;
+		} else if (commandTypeString.equalsIgnoreCase("main")) {
+			return CommandType.GUI_MAIN;
 		} else if (commandTypeString.equalsIgnoreCase("help")) {
 			return CommandType.HELP;
 		} else if (commandTypeString.equalsIgnoreCase("exit")) {
@@ -552,11 +664,19 @@ public class ParsedCommand {
 	}
 	
 	/**
-	 * Returns taskId of task, 0 if not applicable.
+	 * Returns taskId of task, -1 if not applicable.
 	 * @return
 	 */
 	public int getTaskId() {
 		return this.taskId;
+	}
+	
+	/**
+	 * Returns guiTabId of task, -1 if not applicable.
+	 * @return
+	 */
+	public int getGuiTabId() {
+		return this.guiTabId;
 	}
 	
 	/**
@@ -628,6 +748,7 @@ public class ParsedCommand {
 		private String description = null;
 		private ArrayList<String> tags = new ArrayList<String>();
 		private int taskId = -1;
+		private int guiTabId = -1;
 		private TaskType taskType = null;
 		private Boolean isCompleted = null;
 		private ConfigType configType = null;
@@ -665,6 +786,11 @@ public class ParsedCommand {
 				throw new InvalidArgumentsForParsedCommandException(ERROR_INVALID_TASKID);
 			}
 			this.taskId = taskId;
+			return this;
+		}
+		
+		public Builder guiTabId(int tabId) {
+			this.guiTabId = tabId;
 			return this;
 		}
 		
@@ -714,6 +840,9 @@ public class ParsedCommand {
 			} else if (command == CommandType.CONFIG_IMG) {
 				validateConfigType();
 				validatePath();
+			} else if (command == CommandType.GUI_OPEN || command == CommandType.GUI_CLOSE 
+					|| command == CommandType.GUI_PIN) {
+				validateGuiTabId();
 			}
 			return new ParsedCommand(this);
 		}
@@ -722,6 +851,12 @@ public class ParsedCommand {
 			if (this.taskId < 0) {
 				throw new InvalidArgumentsForParsedCommandException(ERROR_INVALID_TASKID);
 			}
+		}
+		
+		private void validateGuiTabId() throws InvalidArgumentsForParsedCommandException {
+			/*if (this.taskId < 0 || this.taskId > GUIController.taskListNames.length) {
+				throw new InvalidArgumentsForParsedCommandException(ERROR_INVALID_GUI_TAB_ID);
+			}*/
 		}
 
 		private void validateTitle() throws InvalidArgumentsForParsedCommandException {

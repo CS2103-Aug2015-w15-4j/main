@@ -29,7 +29,6 @@ public class NattyDateTimeParser extends DateTimeParser{
 			return parsedDates; // assume no dates. should never see this? 
 		}
 		
-		/**********NOTE NO NATTY SUPPORT FOR EVENTS!!!*************************/
 		List<Date> dates = groups.get(0).getDates();
 		parsedDates[0] = convertDateToCalendar(dates.get(0));
 		if (dates.size() < 2) {
@@ -48,6 +47,7 @@ public class NattyDateTimeParser extends DateTimeParser{
 
     private static boolean canParseWithNatty(String input) {
 		Parser parser = new Parser();
+		System.out.println(input);
 		List<DateGroup> groups = parser.parse(input); // returns empty list if parse fails
 		if (groups.isEmpty()) {
 			logger.log(Level.FINE, "Parse " + input + " with Natty fail");

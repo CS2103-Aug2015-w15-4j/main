@@ -4,7 +4,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,7 +27,7 @@ public class StringParser {
 	
 	private static final String notTitleRegex = "(" + "( from | fr | at | to | til | until | by | on )?" + DateTimeParser.DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|(" + TASK_STATUS_REGEX + "))";  	
 	
-	private static final Logger logger = Logger.getLogger(StringParser.class.getName() );
+	// private static final Logger logger = Logger.getLogger(StringParser.class.getName() );
 	private static final String NOT_KEYWORDS_REGEX = notTitleRegex + "|" + TASK_TYPE_REGEX;
 	
 	// Used for testing purposes
