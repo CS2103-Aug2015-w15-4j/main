@@ -338,10 +338,8 @@ public class GUIController extends Application {
 		window.getChildren().clear();
 		if (!isMainWindow) {
 			window.getChildren().add(pane);
-			pane.requestFocus();
 		} else {
 			window.getChildren().add(logObject);
-			logObject.requestFocus();
 		}
 		window.getChildren().add(bottomBar);
 		isMainWindow = !isMainWindow;
@@ -429,6 +427,10 @@ public class GUIController extends Application {
 				AVATAR_IMAGENAME = view.getAvatarLocation();
 				BACKGROUND_NAME = view.getBackgroundLocation(); 
 				textboxObject.loadAvatar();
+			} else if (ParsedCommand.UNDO_CHOICES.length>i&&
+					command.trim().equalsIgnoreCase(ParsedCommand.UNDO_CHOICES[i])) {
+				// if it had been a Set function, it might have been an avatar or background, so reload them
+				taskLists.get(TASKLIST_PINNED).openList();
 			}
 		}
 	}

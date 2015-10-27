@@ -309,8 +309,8 @@ public class TaskList {
 	 */
 	protected GridPane createDetailedDisplay(Task task) {
 		GridPane grid = new GridPane();
-	    grid.getColumnConstraints().add(new ColumnConstraints(GRID_COL_HEADER_FINAL_LENGTH)); 
-		grid.setPadding(new Insets(0, 9, 0, 0));
+	    //grid.getColumnConstraints().add(new ColumnConstraints(GRID_COL_HEADER_FINAL_LENGTH)); 
+		//grid.setPadding(new Insets(0, 9, 0, 0));
 
 		ArrayList<String[]> details = task.getTaskDetails(); 
 		// Set name

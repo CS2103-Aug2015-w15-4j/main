@@ -1,5 +1,9 @@
 package gui;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -27,9 +31,6 @@ public class Textbox {
 	public final static int WIDTH = 100;//GUIController.MINIMUM_WINDOW_SIZE/GUIController.TEXTBOX_RATIO;
 	public final static int PADDING = 10;
 	public final static Pos ORIENTATION = Pos.CENTER_RIGHT;
-
-	//public int imageHeight = WIDTH;
-	//public int textboxHeight = HEIGHT - imageHeight - 20;
 	
 	protected TextFlow textflow; // list of messages from application
 	protected Label label;
@@ -85,13 +86,25 @@ public class Textbox {
         timeline.play();
 	}
 	
-	public void loadAvatar() {
+	/**
+	 * Loads avatar
+	 * @return true if successful
+	 */
+	public boolean loadAvatar() {
 		AVATAR_IMAGE = GUIController.AVATAR_IMAGENAME;
-		Image image = new Image(Textbox.class.getResourceAsStream(AVATAR_IMAGE),WIDTH, WIDTH, true,true);
-		if (image!=null) {
-			avatar = image;
-			avatarView.setImage(avatar);
+		InputStream stream;
+		try {
+			stream = new FileInputStream(new File(AVATAR_IMAGE));
+			Image image = new Image(stream,WIDTH, WIDTH, true,true);
+			if (image!=null) {
+				avatar = image;
+				avatarView.setImage(avatar);
+			}
+			return true;
+		} catch (FileNotFoundException e) {
+			// do nothing
 		}
+		return false;
 	}
 	
 	public void updateTime() {
