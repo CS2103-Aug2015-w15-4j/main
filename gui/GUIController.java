@@ -94,6 +94,7 @@ public class GUIController extends Application {
 	public BorderPane pane;
 	public MainWindow center;
 	public logic.View view;
+	public VBox pinnedWindow;
 	
 	public static HBox bottomBar; // bottomMost bar
 	public static TextField userTextField;
@@ -112,7 +113,6 @@ public class GUIController extends Application {
 		 */
 		pane = new BorderPane();
 		
-		
 		/**
 		 * Initialise the View
 		 */
@@ -129,6 +129,11 @@ public class GUIController extends Application {
 		taskLists.get(TASKLIST_ALL).selectFirstNode();
 
 		// then pin it as the first task window
+		pinnedWindow = new VBox();
+		pinnedWindow.prefWidthProperty().bind(pane.widthProperty());
+		pinnedWindow.prefHeightProperty().bind(pane.heightProperty().divide(PINNED_WINDOW_RATIO));
+		pinnedWindow.setStyle("-fx-border-color: #4E443C;\n-fx-border-width: 3;");
+		pane.setTop(pinnedWindow);
 		pinWindow(taskLists.get(TASKLIST_ALL));
 
 		// intialise the completed tasks tab
@@ -158,6 +163,7 @@ public class GUIController extends Application {
 		textboxObject.getNode().prefWidthProperty().bind(pane.widthProperty());
 		textboxObject.getNode().maxWidthProperty().bind(pane.widthProperty());
 		textboxObject.getNode().maxHeightProperty().bind(pane.heightProperty().divide(TEXTBOX_RATIO));
+		//textboxObject.getNode().minHeightProperty().bind(pane.heightProperty().divide(TEXTBOX_RATIO));
 		textboxObject.getNode().prefHeightProperty().bind(pane.heightProperty().divide(TEXTBOX_RATIO));
 		pane.setBottom(textboxObject.getNode());
 		
@@ -214,7 +220,7 @@ public class GUIController extends Application {
 	}
 	
 	protected void pinWindow(TaskList list) {
-		if (pane.getTop()!=null) {
+		if (pinnedWindow.getChildren().size()>0) {
 			// unpin the top
 			Region node = taskLists.get(TASKLIST_PINNED).getNode();
 			node.prefWidthProperty().unbind();
@@ -238,9 +244,10 @@ public class GUIController extends Application {
 		Region node = list.getNode();
 		node.prefWidthProperty().unbind();
 		node.prefHeightProperty().unbind();
-		node.prefWidthProperty().bind(pane.widthProperty());
-		node.prefHeightProperty().bind(pane.heightProperty().divide(PINNED_WINDOW_RATIO));
-		pane.setTop(node);
+		node.prefWidthProperty().bind(pinnedWindow.widthProperty());
+		node.prefHeightProperty().bind(pinnedWindow.heightProperty());
+		pinnedWindow.getChildren().clear();
+		pinnedWindow.getChildren().add(node);
 	}
 	
 	public VBox createLogTab() {

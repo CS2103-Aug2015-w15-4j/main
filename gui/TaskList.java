@@ -2,6 +2,8 @@ package gui;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -35,10 +37,12 @@ public class TaskList {
 	final static int ROW_NAME = 0;
 	final static int ROW_ID = 1;
 	final static VPos GRID_HEADER_VERT_ALIGNMENT = VPos.TOP;
-	final static int GRID_COL_HEADER_FINAL_LENGTH = 60; // header col's fixed length
+	final static int GRID_COL_HEADER_FINAL_LENGTH = 70; // header col's fixed length
 	
 	final static String HEADER_COLOR = "rgba(255, 255, 0, 0.9)";
 	final static Color LABEL_COLOR = Color.BLACK;
+	final double ROW_CELL_HEIGHT = 33.3;
+	final double BORDER_HEIGHT = 2.0;
 	
 	protected VBox master; // the overall TaskList manager
 	protected Button name; // button to press;
@@ -64,10 +68,11 @@ public class TaskList {
 		// sidebar
 		items = FXCollections.observableArrayList();
 		listView = new ListView<Node>();
+		listView.setPlaceholder(new Label("No Content"));
 		listView.getStyleClass().add(GUIController.STYLE_TRANSPARENT);
 		master.getChildren().add(listView);
 		listView.prefWidthProperty().bind(master.widthProperty());
-		listView.prefHeight(0);
+		listView.prefHeightProperty().bind(Bindings.size(items).multiply(ROW_CELL_HEIGHT).add(BORDER_HEIGHT));
 	    // define the images for done and not done
 	    imageCompletion[0] = new Image(TaskList.class.getResourceAsStream(NOT_DONE),DONE_IMAGE_SIZE, DONE_IMAGE_SIZE, true, true);
 	    imageCompletion[1] = new Image(TaskList.class.getResourceAsStream(DONE),DONE_IMAGE_SIZE, DONE_IMAGE_SIZE, true, true);
