@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 import logic.Logic;
 import logic.Task;
 import parser.ParsedCommand;
+import parser.ParsedCommand.CommandType;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -31,7 +32,7 @@ public class GUIController extends Application {
 		 return gui;
 	 }//*/
 	 
-	final static String[] taskListNames = {
+	final public static String[] taskListNames = {
 		"All Tasks",  
 		"Floating Tasks",
 		"Completed Tasks",
@@ -66,8 +67,10 @@ public class GUIController extends Application {
 	}
 	final static String CMD_CLEAR = "clear"; // clears all log
 	final static String CMD_PIN = "pin"; // pin XXX: pins a selected task list
+	final static String CMD_UNPIN = "unpin"; // pin XXX: pins a selected task list
 	final static String CMD_OPEN = "open"; // open XXX: opens a selected task list
 	final static String CMD_CLOSE = "close"; // close XXX: closes a selected task list
+	final static String CMD_OPENALL = "open all"; // opens all task lists
 	final static String CMD_CLOSEALL = "close all"; // closes all open task lists
 	final static String CMD_SHOW = "show"; // focuses on a selected task in the main view
 	final static String CMD_SWITCH = "switch"; // switches between the log and the main window
@@ -77,7 +80,7 @@ public class GUIController extends Application {
 	public static String AVATAR_IMAGENAME;
 	public static String BACKGROUND_NAME;
 	public static String ICON_IMAGE = "icon.png";
-	public boolean isMainWindow = true; // true = main pane window, false = logObject
+	public static boolean isMainWindow = true; // true = main pane window, false = logObject
 	
 	final static int MINIMUM_WINDOW_SIZE = 600;
 	
@@ -93,7 +96,7 @@ public class GUIController extends Application {
 	public Textbox textboxObject;
 	public BorderPane pane;
 	public MainWindow center;
-	public logic.View view;
+	public logic.Model model;
 	public VBox pinnedWindow;
 	
 	public static HBox bottomBar; // bottomMost bar
@@ -114,31 +117,31 @@ public class GUIController extends Application {
 		pane = new BorderPane();
 		
 		/**
-		 * Initialise the View
+		 * Initialise the Model
 		 */
-		view = controller.executeCommand("");
-		AVATAR_IMAGENAME = view.getAvatarLocation();
-		BACKGROUND_NAME = view.getBackgroundLocation();
+		model = controller.executeCommand(null);
+		AVATAR_IMAGENAME = model.getAvatarLocation();
+		BACKGROUND_NAME = model.getBackgroundLocation();
 		
 		for (int i=0; i<taskListNames.length;i++) {
 			taskLists.add(new TaskList(i));
 		}		
 		
 		// intialise the all tasks tab
-		taskLists.get(TASKLIST_ALL).addAllTasks(view.getAllTasks());
+		taskLists.get(TASKLIST_ALL).addAllTasks(model.getAllTasks());
 		taskLists.get(TASKLIST_ALL).selectFirstNode();
 
 		// then pin it as the first task window
 		pinnedWindow = new VBox();
 		pinnedWindow.prefWidthProperty().bind(pane.widthProperty());
 		pinnedWindow.prefHeightProperty().bind(pane.heightProperty().divide(PINNED_WINDOW_RATIO));
-		pinnedWindow.setStyle("-fx-border-color: #4E443C;\n-fx-border-width: 3;");
-		pane.setTop(pinnedWindow);
-		pinWindow(taskLists.get(TASKLIST_ALL));
+		pinnedWindow.setId("vbox-curved");
+		//pane.setTop(pinnedWindow);
+		//pinWindow(taskLists.get(TASKLIST_ALL));
 
 		// intialise the completed tasks tab
 		try {
-			List<Task> tasks = logic.Search.search(view.getAllTasks(), "isCompleted:true");
+			List<Task> tasks = logic.Search.search(model.getAllTasks(), "isCompleted:true");
 			if (tasks!=null) {
 				taskLists.get(TASKLIST_COMPLETED).addAllTasks(tasks);
 			}
@@ -149,7 +152,7 @@ public class GUIController extends Application {
 		// intialise the floating tasks tab
 		//*
 		try {
-			List<Task> floating = logic.Search.search(view.getAllTasks(), "taskType:FLOATING_TASK");
+			List<Task> floating = logic.Search.search(model.getAllTasks(), "taskType:FLOATING_TASK");
 			floating = logic.Search.search(floating, "isCompleted:false");
 			if (floating!=null) {
 				taskLists.get(TASKLIST_FLOATING).addAllTasks(floating);
@@ -186,13 +189,11 @@ public class GUIController extends Application {
 		bottomBar.prefWidthProperty().bind(window.widthProperty());
 		HBox.setHgrow(userTextField, Priority.ALWAYS);
 
-		// add all other lists to to the center
+		// add all lists to to the center
 		center = new MainWindow();
-		taskLists.get(TASKLIST_SEARCH).addAllTasks(view.getTasksToDisplay());
+		taskLists.get(TASKLIST_SEARCH).addAllTasks(model.getTasksToDisplay());
 		for (int i=0; i<taskLists.size();i++) {
-			if (i!=TASKLIST_ALL) {
-				center.addToList(taskLists.get(i));
-			}
+			center.addToList(taskLists.get(i));
 		}
 		center.getNode().prefWidthProperty().bind(pane.widthProperty());
 		center.getNode().maxWidthProperty().bind(pane.widthProperty());
@@ -220,21 +221,8 @@ public class GUIController extends Application {
 	}
 	
 	protected void pinWindow(TaskList list) {
-		if (pinnedWindow.getChildren().size()>0) {
-			// unpin the top
-			Region node = taskLists.get(TASKLIST_PINNED).getNode();
-			node.prefWidthProperty().unbind();
-			node.prefHeightProperty().unbind();
-			node.setPrefHeight(Region.USE_COMPUTED_SIZE);
-			
-			// then update the center's list
-			center.removeAllFromList();
-			for (int i=0; i<taskLists.size();i++) {
-				if (i!=list.listNumber) {
-					center.addToList(taskLists.get(i));
-				}
-			}
-		}
+		unpinWindow(list);
+		pane.setTop(pinnedWindow);
 		
 		TASKLIST_PINNED = list.listNumber;
 		list.isPinnedWindow = true;
@@ -248,6 +236,40 @@ public class GUIController extends Application {
 		node.prefHeightProperty().bind(pinnedWindow.heightProperty());
 		pinnedWindow.getChildren().clear();
 		pinnedWindow.getChildren().add(node);
+	}
+	
+	/**
+	 * Unpins all windows from the pinnedWindow
+	 */
+	protected void unpinWindow() { // list will be left out of unpinned
+		unpinWindow(null);
+	}
+	
+	/**
+	 * Unpins all windows from the pinnedWindow
+	 * @param list List to not unpin
+	 */
+	protected void unpinWindow(TaskList list) { // list will be left out of unpinned
+		pane.setTop(null);
+		if (pinnedWindow.getChildren().size()>0) {
+			// unpin the top
+			Region node = taskLists.get(TASKLIST_PINNED).getNode();
+			node.prefWidthProperty().unbind();
+			node.prefHeightProperty().unbind();
+			node.setPrefHeight(Region.USE_COMPUTED_SIZE);
+			
+			if (list!=null) {
+				list.isPinnedWindow = false;
+			}
+			
+			// then update the center's list
+			center.removeAllFromList();
+			for (int i=0; i<taskLists.size();i++) {
+				if (list==null||i!=list.listNumber) {
+					center.addToList(taskLists.get(i));
+				}
+			}
+		}
 	}
 	
 	public VBox createLogTab() {
@@ -320,17 +342,17 @@ public class GUIController extends Application {
 	            }
 	            
 	            if(keyEvent.getCode()==KeyCode.BACK_SLASH) { // zoom in on a task
-	            	taskLists.get(TASKLIST_ALL).focusTask();
+	            	taskLists.get(TASKLIST_PINNED).focusTask();
 	            }
 	            
 	            if ((keyEvent.getCode()==KeyCode.BACK_SLASH&&keyEvent.isShiftDown())||
 	            		keyEvent.getCode()==KeyCode.BACK_SPACE) { // see the main list again
-	            	taskLists.get(TASKLIST_ALL).openList();
+	            	taskLists.get(TASKLIST_PINNED).openList();
 	            }
 	            
 	            if (keyEvent.getCode()==KeyCode.Z&&
 	            	(keyEvent.isControlDown()||keyEvent.isAltDown())) { // undo the last command
-	            	executeCommand(ParsedCommand.UNDO_CHOICES[0]);
+	            	executeCommand("undo");
 	            }
 	        }
 	    }));//*/
@@ -357,16 +379,17 @@ public class GUIController extends Application {
 		executeCommand(temp);
 	}
 	
-	protected boolean checkForGuiCommand(String command) {
-		if (command.trim().equalsIgnoreCase(CMD_CLOSEALL)) {
+	protected boolean checkForGuiActions(ParsedCommand parsedCommand) {
+		CommandType command = parsedCommand.getCommandType();
+		switch (command) {
+		case GUI_CLOSE_ALL:
 			for (TaskList list : taskLists) {
 				if (list.listNumber!=TASKLIST_PINNED) {
 					list.closeList();
 				}
 			}
 			return true;
-		} else if (command.trim().equalsIgnoreCase(CMD_SHOW)) { 
-			// if it is only a single show, without any arguments
+		case GUI_SHOW:
 			TaskList list = taskLists.get(TASKLIST_ALL);
 			if (list.isListOpen) {
 				list.focusTask();
@@ -374,39 +397,67 @@ public class GUIController extends Application {
 				list.openList();
 			}
 			return true;
-		} else if (command.trim().equalsIgnoreCase(CMD_SWITCH)|| // if switch command
-				// else if it is the log command and is the main window currently
-				(command.trim().equalsIgnoreCase(CMD_LOG)&&isMainWindow)|| 
-				(command.trim().equalsIgnoreCase(CMD_MAIN)&&!isMainWindow)) {
+		case GUI_SWITCH:
 			switchWindow();
 			return true;
-		} else {
-			String input = getFirstWord(command).toLowerCase();
-			String listName = removeFirstWord(command);
-			for (int i=0;i<taskListNames.length;i++) {
-				if (listName.equalsIgnoreCase(taskListNames[i])) {
-					input = input.toLowerCase();
-					switch(input) {
-					case CMD_PIN: pinWindow(taskLists.get(i)); break;
-					case CMD_OPEN: taskLists.get(i).openList();; break;
-					case CMD_CLOSE: taskLists.get(i).closeList(); break;
-					default: return false; // if it is a tab name, but is not a valid command
-					}
-					return true;
-				}
+		case GUI_LOG:
+			if (isMainWindow) {
+				switchWindow();
+				return true;
 			}
+			break;
+		case GUI_MAIN:
+			if (!isMainWindow) {
+				switchWindow();
+				return true;
+			}
+			break;
+		case GUI_UNPIN:
+			unpinWindow();
+			return true;
+		case GUI_PIN:
+			try {
+				int inputNumber = Integer.parseInt(parsedCommand.getGuiType());
+				pinWindow(taskLists.get(inputNumber));
+				return true;
+			} catch (NumberFormatException e) {
+				// do nothing
+			}
+			break;
+		case GUI_OPEN: 
+			try {
+				int inputNumber = Integer.parseInt(parsedCommand.getGuiType());
+				taskLists.get(inputNumber).openList();
+				return true;
+			} catch (NumberFormatException e) {
+				// do nothing
+			}
+			break;
+		case GUI_CLOSE: 
+			try {
+				int inputNumber = Integer.parseInt(parsedCommand.getGuiType());
+				taskLists.get(inputNumber).closeList();
+				return true;
+			} catch (NumberFormatException e) {
+				// do nothing
+			}
+			break;
+		default:
+			break;
 		}
-		return false;
+		return false; // if not valid, return false
 	}
 	
 	/**
 	 * Checks for what kind of command it was, so that it can be used to focus on the correct object
 	 * @param command The first word of the command
 	 */
+	/*
 	protected void checkCommandType(String command) {
 		for (int i=0;i<5;i++) {
 			if (ParsedCommand.ADD_CHOICES.length>i&&
 					command.trim().equalsIgnoreCase(ParsedCommand.ADD_CHOICES[i])) {
+					// REFRESH ALL LISTS
 				TaskList list = taskLists.get(TASKLIST_ALL);
 				if (list.isPinnedWindow) {
 					list.selectNode(list.listOfTasks.size()-1);
@@ -430,8 +481,8 @@ public class GUIController extends Application {
 			} else if (ParsedCommand.CONFIG_CHOICES.length>i&&
 					command.trim().equalsIgnoreCase(ParsedCommand.CONFIG_CHOICES[i])) {
 				// if it had been a Set function, it might have been an avatar or background, so reload them
-				AVATAR_IMAGENAME = view.getAvatarLocation();
-				BACKGROUND_NAME = view.getBackgroundLocation(); 
+				AVATAR_IMAGENAME = model.getAvatarLocation();
+				BACKGROUND_NAME = model.getBackgroundLocation(); 
 				textboxObject.loadAvatar();
 			} else if (ParsedCommand.UNDO_CHOICES.length>i&&
 					command.trim().equalsIgnoreCase(ParsedCommand.UNDO_CHOICES[i])) {
@@ -439,21 +490,22 @@ public class GUIController extends Application {
 				taskLists.get(TASKLIST_PINNED).openList();
 			}
 		}
-	}
+	}//*/
 	/**
 	 * Runs the command input. 
 	 * @param input 
 	 */
 	protected void executeCommand(String input) {
 		if (input!= null && !input.isEmpty()) {
-			if (!checkForGuiCommand(input)) {
-				view = controller.executeCommand(input.trim());
-				textboxObject.addToTextbox(view.getConsoleMessage());
+			ParsedCommand parsedCommand = ParsedCommand.parseCommand(input.trim());
+			if (!checkForGuiActions(parsedCommand)) {
+				model = controller.executeCommand(parsedCommand);
+				textboxObject.addToTextbox(model.getConsoleMessage());
 				logCommands.addToTextbox(input);
-				logConsole.addToTextbox(view.getConsoleMessage());
-				taskLists.get(TASKLIST_ALL).addAllTasks(view.getAllTasks());
-				taskLists.get(TASKLIST_SEARCH).addAllTasks(view.getTasksToDisplay());
-				checkCommandType(getFirstWord(input));
+				logConsole.addToTextbox(model.getConsoleMessage());
+				taskLists.get(TASKLIST_ALL).addAllTasks(model.getAllTasks());
+				taskLists.get(TASKLIST_SEARCH).addAllTasks(model.getTasksToDisplay());
+				//checkCommandType(getFirstWord(input));
 			}
 		}
 	}
@@ -472,13 +524,5 @@ public class GUIController extends Application {
 	 */
 	public static void setHeading(Label text) {
 		text.getStyleClass().add(STYLE_HEADING);
-	}
-	
-	private static String removeFirstWord(String userCommand) {
-		return userCommand.replaceFirst(getFirstWord(userCommand), "").trim();
-	}
-	
-	private static String getFirstWord(String userCommand) {
-		return userCommand.trim().split("\\s+")[0];
 	}
 }

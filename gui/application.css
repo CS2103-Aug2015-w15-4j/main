@@ -87,7 +87,20 @@
 	-fx-font-weight: bold; 
 }
 
+#label-curved {
+	-fx-background-color: white;
+	-fx-border-color: #4E443C;
+	-fx-border-width: 3;
+	-fx-border-radius: 9,8,5,4;
+    -fx-background-radius: 13,9,6,5;
+}
 
+#vbox-curved {
+	-fx-border-color: #4E443C;
+	-fx-border-width: 3;
+	-fx-border-radius: 9,8,5,4;
+    -fx-background-radius: 11,9,6,5;
+}
 
 
 

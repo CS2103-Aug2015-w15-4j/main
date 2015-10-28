@@ -18,24 +18,22 @@ public class Logic {
 	private Storage storage;
 	private Invoker invoke;
 	private LinkedList<Invoker> commandHistory = new LinkedList<Invoker>();
-	private View view;
+	private Model model;
 
 	public Logic() {
 		storage = new Storage();
-		view = View.getInstance("", storage.getAllTasks());
+		model = Model.getInstance("", storage.getAllTasks());
 	}
 	
-	public static View initializeTaskList() {
+	public static Model initializeTaskList() {
 		Storage storage = new Storage();
-		return new View("",storage.getAllTasks());
+		return new Model("",storage.getAllTasks());
 	}
 
-	public View executeCommand(String userCommand) {
-		if (checkIfEmptyString(userCommand))
-			return new View(MESSAGE_INVALID_FORMAT, storage.getAllTasks());
+	public Model executeCommand(ParsedCommand parsedCommand) {
+		if (parsedCommand==null)
+			return new Model(MESSAGE_INVALID_FORMAT, storage.getAllTasks());
 
-		ParsedCommand parsedCommand = ParsedCommand.parseCommand(userCommand);
-		
 		switch (parsedCommand.getCommandType()) {
 		case ADD:
 			return executeAdd(parsedCommand);
@@ -61,7 +59,7 @@ public class Logic {
 //			return executeSetAvatar(parsedCommand);
 		case ERROR:
 			try {
-				return new View(parsedCommand.getErrorMessage(),
+				return new Model(parsedCommand.getErrorMessage(),
 						storage.getAllTasks());
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -69,52 +67,51 @@ public class Logic {
 		case EXIT:
 			System.exit(0);
 		default:
-			// TODO: Change this line into ???
-			// throw an error if the command is not recognized
-			throw new Error("Unrecognized command type");
+			// return invalid
+			return new Model(MESSAGE_INVALID_FORMAT, storage.getAllTasks());
 		}
 	}
 
-	private View executeSet(ParsedCommand parsedCommand) {
+	private Model executeSet(ParsedCommand parsedCommand) {
 		String consoleMessage = "Failed to Set new Path";
 		try {
 			ParsedCommand.ConfigType type = parsedCommand.getConfigType();
 			if (type == ConfigType.BACKGROUND) {
 				storage.setBackground(parsedCommand.getConfigPath());
-				view.setBackgroundLocation(parsedCommand.getConfigPath());
+				model.setBackgroundLocation(parsedCommand.getConfigPath());
 				consoleMessage = "Background switched";
 			} else if (type == ConfigType.AVATAR) {
 				storage.setAvatar(parsedCommand.getConfigPath());
-				view.setAvatarLocation(parsedCommand.getConfigPath());
+				model.setAvatarLocation(parsedCommand.getConfigPath());
 				consoleMessage = "Avatar switched";
 			}
 		} catch (Exception e) {
 			consoleMessage = "Failed to Set new Path";
-			this.view.updateView(consoleMessage,storage.getAllTasks());
+			this.model.updateModel(consoleMessage,storage.getAllTasks());
 			e.printStackTrace();
-			return view;
+			return model;
 		}
 		
-		view.updateView(consoleMessage, storage.getAllTasks());
-		return view;
+		model.updateModel(consoleMessage, storage.getAllTasks());
+		return model;
 	}
 
-	private View executeSetData(ParsedCommand parsedCommand) {
+	private Model executeSetData(ParsedCommand parsedCommand) {
 		
 		String consoleMessage = "Failed to Set new Path";
 		try {
 			storage.setFileLocation(parsedCommand.getConfigPath());
 			consoleMessage = "data file set to " + parsedCommand.getConfigPath();
-			this.view.updateView(consoleMessage,storage.getAllTasks());
+			this.model.updateModel(consoleMessage,storage.getAllTasks());
 		} catch (Exception e) {
-			this.view.updateView(consoleMessage,storage.getAllTasks());
+			this.model.updateModel(consoleMessage,storage.getAllTasks());
 			e.printStackTrace();
-			return view;
+			return model;
 		}
-		return view;
+		return model;
 	}
 
-	private View executeSearch(ParsedCommand parsedCommand) {
+	private Model executeSearch(ParsedCommand parsedCommand) {
 		
 		List<Task> tasksToDisplay;
 		String consoleMessage = "Search failed";
@@ -128,24 +125,24 @@ public class Logic {
 			} else {	
 				consoleMessage = "Displaying " + tasksToDisplay.size() + " results for \"" + query + "\"";
 			}
-			view.updateView(consoleMessage,tasksToDisplay, storage.getAllTasks());
+			model.updateModel(consoleMessage,tasksToDisplay, storage.getAllTasks());
 		} catch (IOException | ParseException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
-		return view;
+		return model;
 	}
 
-	private View executeUpdate(ParsedCommand userCommand) {
+	private Model executeUpdate(ParsedCommand userCommand) {
 
 		String taskName = searchList(storage.getAllTasks(),userCommand.getTaskId()).getName();
 		Command command = new Update(userCommand,storage);
 		String consoleMessage = "Update Failed";
 		// Check if update id is correct
-		if (!Update.checkValid(userCommand, view)) {
-			return view;
+		if (!Update.checkValid(userCommand, model)) {
+			return model;
 		} else {
 			invoke = new Invoker(command);
 			invoke.execute();
@@ -153,28 +150,28 @@ public class Logic {
 		}
 
 		consoleMessage = taskName + " updated";
-		view.updateView(consoleMessage, storage.getAllTasks());
-		return view;
+		model.updateModel(consoleMessage, storage.getAllTasks());
+		return model;
 	}
 
-	private View executeUndo() {
+	private Model executeUndo() {
 		if (commandHistory.size() != 0) {
 			commandHistory.poll().undo();
 		} else {
-			view.updateView("Nothing to undo", storage.getAllTasks());
-			return view;
+			model.updateModel("Nothing to undo", storage.getAllTasks());
+			return model;
 		}
-		view.updateView("Undo Successful", storage.getAllTasks());
-		return view;
+		model.updateModel("Undo Successful", storage.getAllTasks());
+		return model;
 	}
 
-	private View executeDelete(ParsedCommand userCommand) {
+	private Model executeDelete(ParsedCommand userCommand) {
 		
 		String taskName = searchList(storage.getAllTasks(),userCommand.getTaskId()).getName();
 		if (!Delete.checkValid(userCommand)) {
 			String consoleMessage = "Error: Invalid taskID";
-			view.updateView(consoleMessage, storage.getAllTasks());
-			return view;
+			model.updateModel(consoleMessage, storage.getAllTasks());
+			return model;
 		} else {
 			Command command = new Delete(userCommand,storage);
 			invoke = new Invoker(command);
@@ -183,12 +180,12 @@ public class Logic {
 			
 			
 			String consoleMessage = taskName + " deleted";
-			view.updateView(consoleMessage, storage.getAllTasks());
-			return view;
+			model.updateModel(consoleMessage, storage.getAllTasks());
+			return model;
 		}
 	}
 
-	private View executeAdd(ParsedCommand userCommand) {
+	private Model executeAdd(ParsedCommand userCommand) {
 		String consoleMessage = "Add failed";
 		int newId = getNewId();
 		
@@ -201,8 +198,8 @@ public class Logic {
 			commandHistory.addFirst(invoke);
 
 			consoleMessage = userCommand.getTitle() + " added";
-			view.updateView(consoleMessage, storage.getAllTasks());
-			return view;
+			model.updateModel(consoleMessage, storage.getAllTasks());
+			return model;
 			//}
 	}
 
@@ -215,11 +212,6 @@ public class Logic {
 			return taskList.get(taskList.size() - 1).getId() + 1;
 		}
 	}
-
-	private static boolean checkIfEmptyString(String userCommand) {
-		return userCommand.trim().equals("");
-	}
-	
 	
 	public static Task searchList(List<Task> taskList, int taskId) {
 		

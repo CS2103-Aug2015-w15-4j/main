@@ -40,7 +40,7 @@ public class Textbox {
 	protected Image quote = null;
 	protected ImageView quoteView;
 	
-	protected Label clock = new Label(); 
+	protected Label clock; 
 	LocalDateTime time;
 	DateTimeFormatter formatter;
 
@@ -48,6 +48,7 @@ public class Textbox {
 		hbox = new HBox();
 		
 		clock = new Label();
+		clock.setId("label-curved");
 		updateTime();
 		clock.prefWidthProperty().bind(hbox.widthProperty());
 		clock.setMaxWidth(350);
@@ -77,7 +78,7 @@ public class Textbox {
 		
 		// time
         final Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), new EventHandler<ActionEvent>() {  
-        	@Override  
+        	@Override
         	public void handle(ActionEvent event) {
         		updateTime();
         	}

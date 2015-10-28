@@ -53,7 +53,7 @@ public class Add implements Command {
 	/*
 	 * Checks whether the parsedInput is valid. Does not check task ID
 	 */
-	public static boolean checkValid(ParsedCommand parsedInput, View view) {
+	public static boolean checkValid(ParsedCommand parsedInput, Model view) {
 		ParsedCommand.TaskType taskType = parsedInput.getTaskType();
 
 		// Check if Task fields are present

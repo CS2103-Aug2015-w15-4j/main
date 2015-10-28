@@ -72,7 +72,8 @@ public class TaskList {
 		listView.getStyleClass().add(GUIController.STYLE_TRANSPARENT);
 		master.getChildren().add(listView);
 		listView.prefWidthProperty().bind(master.widthProperty());
-		listView.prefHeightProperty().bind(Bindings.size(items).multiply(ROW_CELL_HEIGHT).add(BORDER_HEIGHT));
+		listView.prefHeightProperty().bind(
+				Bindings.size(items).multiply(ROW_CELL_HEIGHT).add(BORDER_HEIGHT));
 	    // define the images for done and not done
 	    imageCompletion[0] = new Image(TaskList.class.getResourceAsStream(NOT_DONE),DONE_IMAGE_SIZE, DONE_IMAGE_SIZE, true, true);
 	    imageCompletion[1] = new Image(TaskList.class.getResourceAsStream(DONE),DONE_IMAGE_SIZE, DONE_IMAGE_SIZE, true, true);
@@ -98,6 +99,42 @@ public class TaskList {
 				}
 			}
 	    });
+	    
+	    name.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				if (isListOpen) {
+					focusTask();
+					closeList();
+				} else {
+					openList();
+				}
+			}
+	    });
+	    /*
+	    name.addEventHandler(MouseEvent.MOUSE_ENTERED, 
+	    		new EventHandler<MouseEvent>() {
+	    	@Override public void handle(MouseEvent e) {
+	    		// change to close/open list
+	    		if (isListOpen) {
+	    			if (isPinnedWindow) {
+						name.setText("Focus on highlighted task!");
+					} else {
+						name.setText("Close list!");
+					}
+				} else {
+					name.setText("Open list!");
+				}
+	    	}
+	    });
+	    //Removing the shadow when the mouse cursor is off
+	    name.addEventHandler(MouseEvent.MOUSE_EXITED, 
+	    		new EventHandler<MouseEvent>() {
+	    	@Override public void handle(MouseEvent e) {
+	    		// change back to default
+	    		name.setText(GUIController.taskListNames[listNumber]);
+	    	}
+	    });//*/
 	}
 	
 	/**

@@ -77,7 +77,7 @@ public class Update implements Command {
 		return toUpdate;
 	}
 
-	public static boolean checkValid(ParsedCommand parsedInput, View view) {
+	public static boolean checkValid(ParsedCommand parsedInput, Model view) {
 		TaskType taskType = parsedInput.getTaskType();
 
 		if (parsedInput.getTaskId() >= Logic.getNewId()) {
