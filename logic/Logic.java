@@ -33,7 +33,6 @@ public class Logic {
 		if (checkIfEmptyCommand(parsedCommand))
 			return new Model(MESSAGE_INVALID_FORMAT, storage.getAllTasks());
 
-
 		switch (parsedCommand.getCommandType()) {
 		case ADD:
 			return executeAdd(parsedCommand);
@@ -78,13 +77,15 @@ public class Logic {
 		try {
 			ParsedCommand.ConfigType type = parsedCommand.getConfigType();
 			if (type == ConfigType.BACKGROUND) {
-				storage.setBackground(parsedCommand.getConfigPath());
-				model.setBackgroundLocation(parsedCommand.getConfigPath());
-				consoleMessage = "Background switched";
+				if (storage.setBackground(parsedCommand.getConfigPath())) {
+					model.setBackgroundLocation(parsedCommand.getConfigPath());
+					consoleMessage = "Background switched";
+				}
 			} else if (type == ConfigType.AVATAR) {
-				storage.setAvatar(parsedCommand.getConfigPath());
-				model.setAvatarLocation(parsedCommand.getConfigPath());
-				consoleMessage = "Avatar switched";
+				if (storage.setAvatar(parsedCommand.getConfigPath())) {
+					model.setAvatarLocation(parsedCommand.getConfigPath());
+					consoleMessage = "Avatar switched";
+				}
 			}
 		} catch (Exception e) {
 			consoleMessage = "Failed to Set new Path";
@@ -221,7 +222,7 @@ public class Logic {
 	}
 
 	private static boolean checkIfEmptyCommand(ParsedCommand parsedCommand) {
-		return parsedCommand==null;
+		return parsedCommand == null;
 	}
 
 	public static Task searchList(List<Task> taskList, int taskId) {

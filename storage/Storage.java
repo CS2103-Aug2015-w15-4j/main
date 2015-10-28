@@ -10,6 +10,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.FileNameMap;
+import java.net.URLConnection;
 import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,6 +32,7 @@ public class Storage {
 	private static final String DEFAULT_BACKGROUND_FILEPATH = "background.jpg";
 	private static final String DEFAULT_AVATAR_FILEPATH = "avatar.png";
 	private static final String CONFIG_FILENAME = "config";
+	private static final String DATA_FILENAME = "Data.txt";
 	private static final boolean OVERWRITE = false;
 	private static final boolean APPEND = true;
 	private List<Task> taskList;
@@ -39,8 +42,6 @@ public class Storage {
 	private String backgroundFilePath;
 
 	private static String fileName;
-
-	private static final String DEFAULT_FILEPATH = "Data.txt";
 
 	public Storage() {
 		taskList = new ArrayList<Task>();
@@ -105,14 +106,28 @@ public class Storage {
 	/*
 	 * TODO ? : Maybe copy file into storage folder instead
 	 */
-	public void setAvatar(String path) {
-		avatarFilePath = path;
-		writeConfigDetails();
+	public boolean setAvatar(String path) {
+		File file = new File(path);
+		if (file.exists()) {
+			if (isImageFile(path)) {
+				avatarFilePath = path;
+				writeConfigDetails();
+				return true;
+			}
+		}
+		return false;
 	}
 
-	public void setBackground(String path) {
-		backgroundFilePath = path;
-		writeConfigDetails();
+	public boolean setBackground(String path) {
+		File file = new File(path);
+		if (file.exists()) {
+			if (isImageFile(path)) {
+				backgroundFilePath = path;
+				writeConfigDetails();
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public String getBackgroundPath() {
@@ -124,7 +139,7 @@ public class Storage {
 
 		if (!configFile.exists()) {
 			if (createFile(CONFIG_FILENAME)) {
-				this.dataFilePath = DEFAULT_FILEPATH;
+				this.dataFilePath = DATA_FILENAME;
 				this.avatarFilePath = DEFAULT_AVATAR_FILEPATH;
 				this.backgroundFilePath = DEFAULT_BACKGROUND_FILEPATH;
 				writeConfigDetails();
@@ -174,8 +189,8 @@ public class Storage {
 		if (!newFile.exists()) {
 			newFile.mkdirs();
 			path = newFile.getPath();
-			finalPath = path + separator + DEFAULT_FILEPATH;
-			File newPath = new File(path + separator + DEFAULT_FILEPATH);
+			finalPath = path + separator + DATA_FILENAME;
+			File newPath = new File(path + separator + DATA_FILENAME);
 			try {
 				if (createFile(finalPath)) {
 					if (newPath.canWrite()) {
@@ -193,7 +208,7 @@ public class Storage {
 		} else {
 			if (newFile.isDirectory()) {
 				path = newFile.getPath();
-				finalPath = path + separator + DEFAULT_FILEPATH;
+				finalPath = path + separator + DATA_FILENAME;
 				try {
 					if (newFile.canWrite()) {
 						if (createFile(finalPath)) {
@@ -309,4 +324,19 @@ public class Storage {
 		return true;
 	}
 
+	private boolean isImageFile(String fileName) {
+		File f = new File(fileName);
+		FileNameMap fileNameMap = URLConnection.getFileNameMap();
+		try {
+			String mimetype = fileNameMap.getContentTypeFor(fileName);
+			String type = mimetype.split("/")[0];
+			if (type.equals("image")) {
+				return true;
+			} else {
+				return false;
+			}
+		} catch (NullPointerException e) {
+			return false;
+		}
+	}
 }

@@ -1,4 +1,4 @@
-package storage;
+package test;
 
 import static org.junit.Assert.assertEquals;
 
@@ -22,6 +22,7 @@ import org.junit.Test;
 
 import parser.ParsedCommand;
 import parser.ParsedCommand.TaskType;
+import storage.Storage;
 
 public class StorageTest {
 	private static final TaskType TASK = TaskType.FLOATING_TASK;
@@ -131,7 +132,6 @@ public class StorageTest {
 		assertEquals(true, output);
 
 		getConfigDetails();
-		System.out.println(dataFilePath);
 		String path = readFile(dataFilePath);
 		String expected = "{\"[start\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"end\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"name\":\"dinner with friends\",\"details\":\"at centrepoint\",\"id\":2,\"isCompleted\":false,\"taskType\":\"EVENT]\"}";
 		expected = "\r\n";
@@ -142,7 +142,30 @@ public class StorageTest {
 		assertEquals(true, output);
 
 		// folder exists
-		output = storage.setFileLocation("C:\\Users\\jiaminn\\Desktop");
+		output = storage.setFileLocation("C:\\Users\\jiaminn\\Desktop\\temp");
+		assertEquals(true, output);
+
+	}
+
+	@Test
+	public void testSetAvatar() throws Exception {
+		boolean output = storage.setAvatar("c:\\");
+		assertEquals(false, output);
+
+		output = storage
+				.setAvatar("C:\\Users\\jiaminn\\Desktop\\Eclipse\\MyWorkspace\\main\\gui\\Log.java");
+		assertEquals(false, output);
+
+		output = storage
+				.setAvatar("C:\\Users\\jiaminn\\Desktop\\Eclipse\\MyWorkspace\\main\\gui\\testing.jpg");
+		assertEquals(false, output);
+
+		output = storage
+				.setAvatar("C:\\Users\\jiaminn\\Desktop\\Eclipse\\MyWorkspace\\main\\gui\\avatar2.png");
+		assertEquals(true, output);
+
+		output = storage
+				.setAvatar("C:\\Users\\jiaminn\\Desktop\\Eclipse\\MyWorkspace\\main\\gui\\avatar.jpg");
 		assertEquals(true, output);
 
 	}
