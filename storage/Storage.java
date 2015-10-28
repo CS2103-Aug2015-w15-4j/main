@@ -10,14 +10,18 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.FileSystemException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import parser.ParsedCommand;
-import logic.Task;
 import logic.DeadlineTask;
 import logic.Event;
+import logic.Task;
+import parser.ParsedCommand;
 
 import com.google.gson.Gson;
 
@@ -119,11 +123,12 @@ public class Storage {
 		File configFile = new File(CONFIG_FILENAME);
 
 		if (!configFile.exists()) {
-			createFile(CONFIG_FILENAME);
-			this.dataFilePath = DEFAULT_FILEPATH;
-			this.avatarFilePath = DEFAULT_AVATAR_FILEPATH;
-			this.backgroundFilePath = DEFAULT_BACKGROUND_FILEPATH;
-			writeConfigDetails();
+			if (createFile(CONFIG_FILENAME)) {
+				this.dataFilePath = DEFAULT_FILEPATH;
+				this.avatarFilePath = DEFAULT_AVATAR_FILEPATH;
+				this.backgroundFilePath = DEFAULT_BACKGROUND_FILEPATH;
+				writeConfigDetails();
+			}
 		} else {
 			try {
 				BufferedReader reader = new BufferedReader(new FileReader(
@@ -161,42 +166,55 @@ public class Storage {
 		}
 	}
 
-	public void setFileLocation(String filePath) {
+	public boolean setFileLocation(String filePath) throws IOException {
 		File newFile = new java.io.File(filePath);
+		String separator = File.separator;
+		String path = null, finalPath = null;
 
 		if (!newFile.exists()) {
 			newFile.mkdirs();
-			String path = newFile.getPath();
-			String finalPath = path + "/" + DEFAULT_FILEPATH;
-			File newPath = new File(finalPath);
+			path = newFile.getPath();
+			finalPath = path + separator + DEFAULT_FILEPATH;
+			File newPath = new File(path + separator + DEFAULT_FILEPATH);
 			try {
-				createFile(finalPath);
-				filePath = (newPath.toPath()).toString();
-				copyAndDelete(dataFilePath, finalPath);
+				if (createFile(finalPath)) {
+					if (newPath.canWrite()) {
+						filePath = (newPath.toPath()).toString();
+						copyAndDelete(dataFilePath, finalPath);
+
+						this.dataFilePath = filePath;
+						writeConfigDetails();
+						return true;
+					}
+				}
 			} catch (SecurityException se) {
 				se.printStackTrace();
 			}
 		} else {
 			if (newFile.isDirectory()) {
-				String path = newFile.getPath();
-				String finalPath = path + "/" + DEFAULT_FILEPATH;
+				path = newFile.getPath();
+				finalPath = path + separator + DEFAULT_FILEPATH;
 				try {
-					createFile(finalPath);
-					copyAndDelete(dataFilePath, finalPath);
-					filePath = finalPath;
+					if (newFile.canWrite()) {
+						if (createFile(finalPath)) {
+							createFile(finalPath);
+							copyAndDelete(dataFilePath, finalPath);
+							filePath = finalPath;
+
+							this.dataFilePath = filePath;
+							writeConfigDetails();
+							return true;
+						}
+					}
 				} catch (SecurityException se) {
 					se.printStackTrace();
 				}
 			} else if (newFile.isFile()) {
 				copyAndDelete(dataFilePath, filePath);
+				return true;
 			}
 		}
-
-		this.dataFilePath = filePath;
-		writeConfigDetails();
-		// taskList.clear();
-		// initializeStorage();
-		// oldFile.delete();
+		return false;
 	}
 
 	public void initializeStorage() {
@@ -206,34 +224,38 @@ public class Storage {
 		Gson gson = new Gson();
 		Task task = new Task();
 
-		createFile(dataFilePath);
+		if (createFile(dataFilePath)) {
+			try {
+				BufferedReader reader = new BufferedReader(new FileReader(
+						dataFilePath));
+				String currentLine = reader.readLine();
+				while (currentLine != null) {
+					task = gson.fromJson(currentLine, Task.class);
 
-		try {
-			BufferedReader reader = new BufferedReader(new FileReader(
-					dataFilePath));
-			String currentLine = reader.readLine();
-			while (currentLine != null) {
-				task = gson.fromJson(currentLine, Task.class);
-				
-				if (task.getTaskType().equals(ParsedCommand.TaskType.DEADLINE_TASK)) {
-					task = (Task) gson.fromJson(currentLine, DeadlineTask.class);
-				} else if (task.getTaskType().equals(ParsedCommand.TaskType.EVENT)) {
-					task = (Task) gson.fromJson(currentLine, Event.class);
+					if (task.getTaskType().equals(
+							ParsedCommand.TaskType.DEADLINE_TASK)) {
+						task = (Task) gson.fromJson(currentLine,
+								DeadlineTask.class);
+					} else if (task.getTaskType().equals(
+							ParsedCommand.TaskType.EVENT)) {
+						task = (Task) gson.fromJson(currentLine, Event.class);
+					}
+					taskList.add(task);
+					currentLine = reader.readLine();
 				}
-				taskList.add(task);
-				currentLine = reader.readLine();
-			}
-			reader.close();
+				reader.close();
 
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
+
 	}
 
-	// Copy and delete
-	public static void copyAndDelete(String oldPath, String newFilePath) {
+	// Copy and delete text file
+	private static void copyAndDelete(String oldPath, String newFilePath) {
 		InputStream inStream = null;
 		OutputStream outStream = null;
 
@@ -258,6 +280,16 @@ public class Storage {
 			// delete the original file
 			afile.delete();
 
+			try {
+				// delete folder
+				String absolutePath = afile.getAbsolutePath();
+				String filePath = absolutePath.substring(0,
+						absolutePath.lastIndexOf(File.separator));
+				Path paths = Paths.get(filePath);
+				Files.delete(paths);
+			} catch (FileSystemException e) {
+			}
+
 			fileName = newFilePath;
 
 		} catch (IOException e) {
@@ -265,16 +297,16 @@ public class Storage {
 		}
 	}
 
-	public void createFile(String fileName) {
+	private boolean createFile(String fileName) {
 		File file = new File(fileName);
 		if (!file.exists()) {
 			try {
 				file.createNewFile();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				return false;
 			}
 		}
+		return true;
 	}
 
 }
