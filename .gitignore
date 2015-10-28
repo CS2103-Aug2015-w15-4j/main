@@ -6,3 +6,4 @@ parser/ical4j-2.0-beta1/
 .settings/
 library/xercesImpl-2.6.2-jaxb-1.0.6.jar
 config
+bin/
