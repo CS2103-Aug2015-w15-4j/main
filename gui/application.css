@@ -12,7 +12,7 @@
    -fx-background-color: transparent;
 }
 
-.sidebar {
+.bottombar {
 	-fx-background-color: #336699;
 	/**/ -fx-opacity: 0.92; /**/
 }
@@ -44,11 +44,6 @@
     -fx-opacity: 0;
     -fx-padding: -7;
 }*/
-
-#sidebar-textbox {
-    /*-fx-font: 12px Tahoma;*/
-    -fx-orientation: left;
-}
 
 .transparent {
     -fx-font-family: "Sans Serif";
@@ -87,7 +82,7 @@
 	-fx-font-weight: bold; 
 }
 
-#label-curved {
+.label-curved {
 	-fx-background-color: white;
 	-fx-border-color: #4E443C;
 	-fx-border-width: 3;
@@ -95,7 +90,7 @@
     -fx-background-radius: 13,9,6,5;
 }
 
-#vbox-curved {
+.vbox-curved {
 	-fx-border-color: #4E443C;
 	-fx-border-width: 3;
 	-fx-border-radius: 9,8,5,4;

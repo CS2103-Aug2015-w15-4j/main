@@ -208,38 +208,36 @@ public class ParsedCommand {
 	}
 	
 	private static ParsedCommand createParsedCommandGuiTabValidate(String[] input, CommandType commandType) {
-		String inputArgs = "";
+		String inputArgs = input[INDEX_FOR_ARGS];
 		if (isMissingArguments(input)) {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
-		} else if (input[INDEX_FOR_ARGS].trim()=="all"&&commandType==CommandType.GUI_OPEN) { // if all, return the all_version
+		} else if (inputArgs.trim().equalsIgnoreCase("all")&&commandType==CommandType.GUI_OPEN) { // if all, return the all_version
 			commandType = CommandType.GUI_OPEN_ALL;
-		} else if (input[INDEX_FOR_ARGS].trim()=="all"&&commandType==CommandType.GUI_CLOSE) {
+		} else if (inputArgs.trim().equalsIgnoreCase("all")&&commandType==CommandType.GUI_CLOSE) {
 			commandType = CommandType.GUI_CLOSE_ALL;
 		} else { // else it is a unique case
 			boolean valid = false;
 			
-			for (int i=0; i<input.length;i++) {
-				 inputArgs += input[i].trim();
-			}
-			
 			try {
-				int tabNumber = Integer.parseInt(inputArgs);
+				int tabNumber = Integer.parseInt(inputArgs.trim());
 				if (tabNumber<GUIController.taskListNames.length&&tabNumber>=0) {
 					valid = true;
 				}
 			} catch (NumberFormatException e) {
 				// do nothing
 			}
-			
-			for (int i=0; i<GUIController.taskListNames.length;i++) {
-				if (inputArgs==GUIController.taskListNames[i]) {
-					inputArgs = Integer.toString(i);
-					valid = true;
-					break;
+
+			if (!valid) {
+				for (int i=0; i<GUIController.taskListNames.length;i++) {
+					if (inputArgs.trim().equalsIgnoreCase(GUIController.taskListNames[i])) {
+						inputArgs = i + " " + GUIController.taskListNames[i]; // for processing purposes
+						valid = true;
+						break;
+					}
 				}
 			}
-			
-			// else return empty
+
+			// if still invalid
 			if (!valid) {
 				inputArgs = "";
 			}

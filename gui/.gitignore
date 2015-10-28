@@ -11,3 +11,4 @@ GUIController_borderPane_ver.java
 Sidebar.java
 MainWindow_listView.java
 TaskList_expand_inside_box_version.java
+TaskList_pinned_window_core.java

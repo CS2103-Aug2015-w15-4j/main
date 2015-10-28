@@ -19,18 +19,22 @@ public class MainWindow {
 	
 	public MainWindow() {
 		master = new VBox();
+		/*
 		sp = new ScrollPane(master);
 		sp.setVbarPolicy(V_POLICY);
 		sp.setHbarPolicy(H_POLICY);
-		master.prefWidthProperty().bind(sp.widthProperty());
+		master.prefWidthProperty().bind(sp.widthProperty());//*/
 	}
 	
 	/**
 	 * @return the master/parent node for this object
 	 */
+	public VBox getNode() { 
+		return master;
+	}/*
 	public ScrollPane getNode() { 
 		return sp;
-	}
+	}//*/
 	
 	/**
 	 * Adds a node to the list

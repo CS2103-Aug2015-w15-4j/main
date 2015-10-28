@@ -68,7 +68,7 @@ public class Logic {
 		default:
 			// TODO: Change this line into ???
 			// throw an error if the command is not recognized
-			throw new Error("Unrecognized command type");
+			throw new Error("Unrecognized command type: " + parsedCommand.getCommandType());
 		}
 	}
 
