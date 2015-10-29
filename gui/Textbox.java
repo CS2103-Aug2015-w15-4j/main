@@ -18,13 +18,14 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.image.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
 
 public class Textbox {
-	public final static String TAG = GUIController.TAG_SIDEBAR;
-	public final static String TAG_TEXTBOX = GUIController.TAG_SIDEBAR_TEXTBOX;
+	public final static String TAG = GUIController.TAG_BOTTOMBAR;
+	public final static String TAG_TEXTBOX = GUIController.TAG_TEXTBOX;
 	public static String AVATAR_IMAGE = GUIController.AVATAR_IMAGENAME;
 	public final static String WELCOME_MESSAGE = "Welcome!";
 	
@@ -48,7 +49,7 @@ public class Textbox {
 		hbox = new HBox();
 		
 		clock = new Label();
-		clock.setId("label-curved");
+		clock.getStyleClass().add(GUIController.STYLE_CURVED_LABEL);
 		updateTime();
 		clock.prefWidthProperty().bind(hbox.widthProperty());
 		clock.setMaxWidth(350);
@@ -63,7 +64,8 @@ public class Textbox {
 		label = new Label(WELCOME_MESSAGE);
 		label.prefWidthProperty().bind(hbox.widthProperty());
 		label.prefHeightProperty().bind(hbox.heightProperty());
-		label.setId(TAG_TEXTBOX);
+		label.setTextFill(Color.WHITE);
+		label.setEffect(new DropShadow());
 		label.setTextAlignment(TextAlignment.LEFT);
 		//label.setStyle("-fx-border-color: #4E443C;");
 		label.setPadding(new Insets(PADDING));
