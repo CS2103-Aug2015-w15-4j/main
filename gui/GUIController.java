@@ -84,6 +84,7 @@ public class GUIController extends Application {
 	final static String STYLE_TEXT = "label";
 	final static String STYLE_COLOR = "-fx-background-color: %1$s;";
 
+	final static String SEARCH_LIST_FORMAT = taskListNames[TASKLIST_SEARCH] + " - \"%1$s\"";
 	final static String MSG_PROMPT = "Type command here";
 	final static String MSG_WINDOWSWITCH = "Switch"; // name for button
 
@@ -573,7 +574,11 @@ public class GUIController extends Application {
 				break;
 			case SEARCH: // search function
 				executeCommand(CMD_CLOSEALL); // close all
-				openList(TASKLIST_SEARCH); // focus on search
+				openList(TASKLIST_SEARCH); // focus on search 
+				// then modify the Search List name to include the search term
+				taskLists.get(TASKLIST_SEARCH).setName(
+					String.format(SEARCH_LIST_FORMAT,parsedCommand.getKeywords())
+				);
 				break;
 			default:
 				break;
