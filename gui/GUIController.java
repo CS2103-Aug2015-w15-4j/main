@@ -546,7 +546,6 @@ public class GUIController extends Application {
 		CommandType command = parsedCommand.getCommandType();
 		String output = "";
 		try {
-			System.out.println(command);
 			switch(command) {
 			case ADD: // focus on the newly added task
 				TaskList list = taskLists.get(TASKLIST_ALL); 
@@ -561,7 +560,7 @@ public class GUIController extends Application {
 			case HELP:
 				// help menu?
 				break;
-			case CONFIG:
+			case CONFIG_IMG:
 				// if it had been a Set function, it might have been an avatar or background, so reload them
 				AVATAR_IMAGENAME = model.getAvatarLocation();
 				BACKGROUND_NAME = model.getBackgroundLocation(); 

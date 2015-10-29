@@ -67,8 +67,8 @@ public class TaskList {
 	protected ScrollPane detailedView;
 	
 	protected Image[] imageCompletion = new Image[2];
-	protected final String DONE = "Check.png";
-	protected final String NOT_DONE = "Delete.png";
+	protected final String DONE = "resources/Check.png";
+	protected final String NOT_DONE = "resources/Delete.png";
 	protected final int DONE_IMAGE_SIZE = 16; 
 	protected boolean isChanging = false;
 	public boolean isPinnedWindow = false; // by default assume that it is not pinned 

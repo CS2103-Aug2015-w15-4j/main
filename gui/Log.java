@@ -20,6 +20,7 @@ public class Log {
 	public static final Pos ALIGNMENT = Pos.BOTTOM_LEFT;
 	public static final String ID_VBOX = "logVbox";
 	public static final String ID_SCROLL = "logScroll";
+	public static final int MAXSIZE = 100;
 	
 	protected VBox vbox;
 	protected ScrollPane sp;
@@ -93,6 +94,10 @@ public class Log {
 	 */
 	public void addToTextbox(String input) {
 		textbox.getChildren().add(new Text(">"+input.trim()+"\n"));
+		// if size exceed, delete first item
+		if (textbox.getChildren().size()>MAXSIZE) {
+			textbox.getChildren().remove(0);
+		}
 		refresh();
 	}
 	
