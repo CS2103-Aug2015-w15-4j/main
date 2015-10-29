@@ -11,8 +11,9 @@ import javafx.event.EventHandler;
 import javafx.stage.Stage;
 import logic.Logic;
 import logic.Task;
+import parser.MyParser;
+import parser.MyParser.CommandType;
 import parser.ParsedCommand;
-import parser.ParsedCommand.CommandType;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -380,7 +381,7 @@ public class GUIController extends Application {
 	}
 	
 	protected boolean checkForGuiActions(ParsedCommand parsedCommand) {
-		CommandType command = parsedCommand.getCommandType();
+		MyParser.CommandType command = parsedCommand.getCommandType();
 		switch (command) {
 		case GUI_CLOSE_ALL:
 			for (TaskList list : taskLists) {
@@ -497,7 +498,7 @@ public class GUIController extends Application {
 	 */
 	protected void executeCommand(String input) {
 		if (input!= null && !input.isEmpty()) {
-			ParsedCommand parsedCommand = ParsedCommand.parseCommand(input.trim());
+			ParsedCommand parsedCommand = MyParser.parseCommand(input.trim());
 			if (!checkForGuiActions(parsedCommand)) {
 				model = controller.executeCommand(parsedCommand);
 				textboxObject.addToTextbox(model.getConsoleMessage());

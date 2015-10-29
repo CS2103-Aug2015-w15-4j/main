@@ -146,7 +146,7 @@ public class FormattedDateTimeParser extends DateTimeParser{
 	}
 
 	private static String removeFormattedDatesFromString(String input) {
-		return StringParser.removeRegexPatternFromString(input, FORMATTED_DATE_REGEX);
+		return InputParser.removeRegexPatternFromString(input, FORMATTED_DATE_REGEX);
 	}
 	
 	@Override

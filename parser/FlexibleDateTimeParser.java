@@ -173,13 +173,13 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 		return temp;
 	}
 
-	
+	// double direction dependency!
 	private static String removeDateMonthFromString(String input) {
-		return StringParser.removeRegexPatternFromString(input, DATE_MONTH_REGEX);
+		return InputParser.removeRegexPatternFromString(input, DATE_MONTH_REGEX);
 	}
 	
 	private static String removeMonthDateFromString(String input) {
-		return StringParser.removeRegexPatternFromString(input, MONTH_DATE_REGEX);
+		return InputParser.removeRegexPatternFromString(input, MONTH_DATE_REGEX);
 	}
 	
 	private static void setUnparsedInput(DateFormat df, String input, String[] dateArr) {

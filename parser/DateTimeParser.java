@@ -41,7 +41,7 @@ public abstract class DateTimeParser {
 	}
 		
 	private static String removeTagsAndDescriptions(String input) {
-		return StringParser.removeRegexPatternFromString(input, TAG_OR_DESCRIPTION_REGEX);
+		return InputParser.removeRegexPatternFromString(input, TAG_OR_DESCRIPTION_REGEX);
 	}
 	
 	private static String getFormattedDateTimeSection(String input) {

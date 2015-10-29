@@ -17,8 +17,8 @@ import java.util.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
+import parser.MyParser;
 import parser.ParsedCommand;
-import parser.ParsedCommand.CommandType;
 import parser.ParsedCommand.ConfigType;
 import parser.ParsedCommand.TaskType;
 import parser.StringParser;
@@ -72,23 +72,23 @@ public class ParsedCommandTest {
 	@Test
 	public void testParsedCommand() {
 		// Check null input returns no user input error
-		pc = ParsedCommand.parseCommand(null);
-		assertEquals(CommandType.ERROR, pc.getCommandType());
+		pc = MyParser.parseCommand(null);
+		assertEquals(MyParser.CommandType.ERROR, pc.getCommandType());
 		assertEquals("Error: No user input", pc.getErrorMessage());
 
 		// Check empty string returns no user input error
-		pc = ParsedCommand.parseCommand("");
-		assertEquals(CommandType.ERROR, pc.getCommandType());
+		pc = MyParser.parseCommand("");
+		assertEquals(MyParser.CommandType.ERROR, pc.getCommandType());
 		assertEquals("Error: No user input", pc.getErrorMessage());
 
 		// Check empty input returns no user input error
-		pc = ParsedCommand.parseCommand(" ");
-		assertEquals(CommandType.ERROR, pc.getCommandType());
+		pc = MyParser.parseCommand(" ");
+		assertEquals(MyParser.CommandType.ERROR, pc.getCommandType());
 		assertEquals("Error: No user input", pc.getErrorMessage());
 
 		// Check unrecognised command returns invalid command error
-		pc = ParsedCommand.parseCommand("hello");
-		assertEquals(CommandType.ERROR, pc.getCommandType());
+		pc = MyParser.parseCommand("hello");
+		assertEquals(MyParser.CommandType.ERROR, pc.getCommandType());
 		assertEquals("Error: Invalid command", pc.getErrorMessage());
 	}
 
@@ -100,8 +100,8 @@ public class ParsedCommandTest {
 		taskTags.add("cs2101");
 
 		// Check support for floating task
-		pcAdd = ParsedCommand.parseCommand("Add meeting with john #cs2103 #proj \"rmb to bring notes\" #cs2101");
-		assertEquals(CommandType.ADD, pcAdd.getCommandType());
+		pcAdd = MyParser.parseCommand("Add meeting with john #cs2103 #proj \"rmb to bring notes\" #cs2101");
+		assertEquals(MyParser.CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
 		assertEquals("rmb to bring notes", pcAdd.getDescription());
 		assertEquals(null, pcAdd.getFirstDate());
@@ -133,8 +133,8 @@ public class ParsedCommandTest {
 		*/
 
 		// Check support for deadline task formatted date (no keyword)
-		pcAdd = ParsedCommand.parseCommand("INSERT meeting with john 1/4/15 from 3pm to 7.30pm");
-		assertEquals(CommandType.ADD, pcAdd.getCommandType());
+		pcAdd = MyParser.parseCommand("INSERT meeting with john 1/4/15 from 3pm to 7.30pm");
+		assertEquals(MyParser.CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
 		assertEquals(null, pcAdd.getDescription());
 		assertEquals(StringParser.parseStringToDate("Wed Apr 1 15:00:00 SGT 2015"), pcAdd.getFirstDate().getTime());
@@ -145,8 +145,8 @@ public class ParsedCommandTest {
 		
 
 		// Check support for deadline task natty
-		pcAdd = ParsedCommand.parseCommand("+ meeting with john on tmr at 12pm");
-		assertEquals(CommandType.ADD, pcAdd.getCommandType());
+		pcAdd = MyParser.parseCommand("+ meeting with john on tmr at 12pm");
+		assertEquals(MyParser.CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
 		assertEquals(null, pcAdd.getDescription());
 		LocalDateTime dt = LocalDateTime.now();
@@ -158,8 +158,8 @@ public class ParsedCommandTest {
 		assertEquals(TaskType.DEADLINE_TASK, pcAdd.getTaskType());
 		
 		// Check support for deadline task natty
-		pcAdd = ParsedCommand.parseCommand("Add meeting with john on tmr");
-		assertEquals(CommandType.ADD, pcAdd.getCommandType());
+		pcAdd = MyParser.parseCommand("Add meeting with john on tmr");
+		assertEquals(MyParser.CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
 		assertEquals(null, pcAdd.getDescription());
 		dt = LocalDateTime.now();
@@ -171,8 +171,8 @@ public class ParsedCommandTest {
 		assertEquals(TaskType.DEADLINE_TASK, pcAdd.getTaskType());
 		
 		// Check support for event spanning 2 days
-		pcAdd = ParsedCommand.parseCommand("add meeting with john 23/11/10 12:00h to 24/11/10 13:30H  #cs2103 #proj #cs2101");
-		assertEquals(CommandType.ADD, pcAdd.getCommandType());
+		pcAdd = MyParser.parseCommand("add meeting with john 23/11/10 12:00h to 24/11/10 13:30H  #cs2103 #proj #cs2101");
+		assertEquals(MyParser.CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
 		assertEquals(null, pcAdd.getDescription());
 		assertEquals(StringParser.parseStringToDate("Tue Nov 23 12:00:00 SGT 2010"), pcAdd.getFirstDate().getTime());
@@ -201,79 +201,79 @@ public class ParsedCommandTest {
 		assertEquals(TaskType.EVENT, pcAdd.getTaskType());
 		*/
 		// Check invalid date returns invalid date error, where invalid date is in proper format
-		pcAdd = ParsedCommand.parseCommand("Add meeting with john 31/4/10 12:00h #proj");
-		assertEquals(CommandType.ERROR, pcAdd.getCommandType());
+		pcAdd = MyParser.parseCommand("Add meeting with john 31/4/10 12:00h #proj");
+		assertEquals(MyParser.CommandType.ERROR, pcAdd.getCommandType());
 		assertEquals("Error: Invalid date(s) input", pcAdd.getErrorMessage());
 		
 		
 		// Check obviously invalid dates return error
-		pcAdd = ParsedCommand.parseCommand("Add meeting with john 41/4/10 12:00 #proj");
-		assertEquals(CommandType.ERROR, pcAdd.getCommandType());
+		pcAdd = MyParser.parseCommand("Add meeting with john 41/4/10 12:00 #proj");
+		assertEquals(MyParser.CommandType.ERROR, pcAdd.getCommandType());
 		assertEquals("Error: Invalid date(s) input", pcAdd.getErrorMessage());
 		
 		// Check missing arguments returns no arguments error
-		pcAdd = ParsedCommand.parseCommand("Add");
-		assertEquals(CommandType.ERROR, pcAdd.getCommandType());
+		pcAdd = MyParser.parseCommand("Add");
+		assertEquals(MyParser.CommandType.ERROR, pcAdd.getCommandType());
 		assertEquals("Error: No arguments entered", pcAdd.getErrorMessage());
 	
 		// Check missing title returns no title error
-		pcAdd = ParsedCommand.parseCommand("Add 2/3/15 3pm \"hello hello\" #tag1 #tag2");
-		assertEquals(CommandType.ERROR, pcAdd.getCommandType());
+		pcAdd = MyParser.parseCommand("Add 2/3/15 3pm \"hello hello\" #tag1 #tag2");
+		assertEquals(MyParser.CommandType.ERROR, pcAdd.getCommandType());
 		assertEquals("Error: Missing task title", pcAdd.getErrorMessage());
 
 		// Check missing title returns no title error
-		pcAdd = ParsedCommand.parseCommand("Add on tmr 3pm \"hello hello\" #tag1 #tag2");
-		assertEquals(CommandType.ERROR, pcAdd.getCommandType());
+		pcAdd = MyParser.parseCommand("Add on tmr 3pm \"hello hello\" #tag1 #tag2");
+		assertEquals(MyParser.CommandType.ERROR, pcAdd.getCommandType());
 		assertEquals("Error: Missing task title", pcAdd.getErrorMessage());
 	}
 
 	@Test
 	public void testParseCommandDelete() {
 		// Check delete
-		pcDelete = ParsedCommand.parseCommand("Delete 234");
-		assertEquals(CommandType.DELETE, pcDelete.getCommandType());
+		pcDelete = MyParser.parseCommand("Delete 234");
+		assertEquals(MyParser.CommandType.DELETE, pcDelete.getCommandType());
 		assertEquals(234, pcDelete.getTaskId());
 
 		// Check allow extra whitespace
-		pcDelete = ParsedCommand.parseCommand("Delete  234");
-		assertEquals(CommandType.DELETE, pcDelete.getCommandType());
+		pcDelete = MyParser.parseCommand("Delete  234");
+		assertEquals(MyParser.CommandType.DELETE, pcDelete.getCommandType());
 		assertEquals(234, pcDelete.getTaskId());
 
 		// Check missing arguments returns no arguments error
-		pcDelete = ParsedCommand.parseCommand("delete");
-		assertEquals(CommandType.ERROR, pcDelete.getCommandType());
+		pcDelete = MyParser.parseCommand("delete");
+		assertEquals(MyParser.CommandType.ERROR, pcDelete.getCommandType());
 		assertEquals("Error: No arguments entered", pcDelete.getErrorMessage());
 
 		// Check invalid/missing taskId returns error
-		pcDelete = ParsedCommand.parseCommand("delete abc");
-		assertEquals(CommandType.ERROR, pcDelete.getCommandType());
+		pcDelete = MyParser.parseCommand("delete abc");
+		assertEquals(MyParser.CommandType.ERROR, pcDelete.getCommandType());
 		assertEquals("Error: Invalid/Missing taskId", pcDelete.getErrorMessage());
 	}
 
 	@Test
 	public void testParseCommandDisplay() {
-		pcDisplay = ParsedCommand.parseCommand("show 234");
-		assertEquals(CommandType.DISPLAY, pcDisplay.getCommandType());
+		pcDisplay = MyParser.parseCommand("show 234");
+		assertEquals(MyParser.CommandType.DISPLAY, pcDisplay.getCommandType());
 		assertEquals(234, pcDisplay.getTaskId());
 
 		// Check allow extra whitespace
-		pcDisplay = ParsedCommand.parseCommand("show  	234");
-		assertEquals(CommandType.DISPLAY, pcDisplay.getCommandType());
+		pcDisplay = MyParser.parseCommand("show  	234");
+		assertEquals(MyParser.CommandType.DISPLAY, pcDisplay.getCommandType());
 		assertEquals(234, pcDisplay.getTaskId());
 
 		// Check missing arguments returns GUI command
-		pcDisplay = ParsedCommand.parseCommand("show");
-		assertEquals(CommandType.GUI_SHOW, pcDisplay.getCommandType());
+		pcDisplay = MyParser.parseCommand("show");
+		assertEquals(MyParser.CommandType.GUI_SHOW, pcDisplay.getCommandType());
 		
-		pcDisplay = ParsedCommand.parseCommand("search 23/11/15");
-		assertEquals(CommandType.SEARCH, pcDisplay.getCommandType());
+		pcDisplay = MyParser.parseCommand("search 23/11/15");
+		assertEquals(MyParser.CommandType.SEARCH, pcDisplay.getCommandType());
 		//assertEquals("meeting", pcDisplay.getKeywords());
 		assertEquals(StringParser.parseStringToDate("Mon Nov 23 23:59:00 SGT 2015"), pcDisplay.getFirstDate().getTime());
 		assertEquals(null, pcDisplay.getSecondDate());
 		
 		// Check search function works
-		pcDisplay = ParsedCommand.parseCommand("show meeting 23/11/15 #tag todo deadline");
-		assertEquals(CommandType.SEARCH, pcDisplay.getCommandType());
+		pcDisplay = MyParser.parseCommand("show meeting 23/11/15 #tag todo deadline");
+		assertEquals(MyParser.CommandType.SEARCH, pcDisplay.getCommandType());
 		assertEquals("meeting", pcDisplay.getKeywords());
 		assertEquals(StringParser.parseStringToDate("Mon Nov 23 23:59:00 SGT 2015"), pcDisplay.getFirstDate().getTime());
 		assertEquals(null, pcDisplay.getSecondDate());
@@ -284,8 +284,8 @@ public class ParsedCommandTest {
 		assertEquals(TaskType.DEADLINE_TASK, pcDisplay.getTaskType());
 		
 		// Check search function works
-		pcDisplay = ParsedCommand.parseCommand("show meeting 23/11/15 #tag todo");
-		assertEquals(CommandType.SEARCH, pcDisplay.getCommandType());
+		pcDisplay = MyParser.parseCommand("show meeting 23/11/15 #tag todo");
+		assertEquals(MyParser.CommandType.SEARCH, pcDisplay.getCommandType());
 		assertEquals("meeting", pcDisplay.getKeywords());
 		assertEquals(StringParser.parseStringToDate("Mon Nov 23 23:59:00 SGT 2015"), pcDisplay.getFirstDate().getTime());
 		assertEquals(null, pcDisplay.getSecondDate());
@@ -299,12 +299,12 @@ public class ParsedCommandTest {
 	@Test
 	public void testParseCommandEdit() {
 		// Check support for invalid date
-		pcEdit = ParsedCommand.parseCommand("Edit   234 meeting 31/2/15 \"hello\" #tag");
-		assertEquals(CommandType.ERROR, pcEdit.getCommandType());
+		pcEdit = MyParser.parseCommand("Edit   234 meeting 31/2/15 \"hello\" #tag");
+		assertEquals(MyParser.CommandType.ERROR, pcEdit.getCommandType());
 						
 		// Check support for edit title, description, date, time, tag
-		pcEdit = ParsedCommand.parseCommand("Edit 234 meeting \"hello\" 23/11/10 13:00-15:00 #tag");
-		assertEquals(CommandType.EDIT, pcEdit.getCommandType());
+		pcEdit = MyParser.parseCommand("Edit 234 meeting \"hello\" 23/11/10 13:00-15:00 #tag");
+		assertEquals(MyParser.CommandType.EDIT, pcEdit.getCommandType());
 		assertEquals("hello", pcEdit.getDescription());
 		assertEquals(StringParser.parseStringToDate("Tue Nov 23 13:00:00 SGT 2010"), pcEdit.getFirstDate().getTime());
 		assertEquals(StringParser.parseStringToDate("Tue Nov 23 15:00:00 SGT 2010"), pcEdit.getSecondDate().getTime());
@@ -314,8 +314,8 @@ public class ParsedCommandTest {
 		assertEquals("meeting", pcEdit.getTitle());
 		
 		// Check support for edit description, date, time, tag (flexible)
-		pcEdit = ParsedCommand.parseCommand("Edit 234 by nov 23 1-3pm \"hello\" #tag");
-		assertEquals(CommandType.EDIT, pcEdit.getCommandType());
+		pcEdit = MyParser.parseCommand("Edit 234 by nov 23 1-3pm \"hello\" #tag");
+		assertEquals(MyParser.CommandType.EDIT, pcEdit.getCommandType());
 		assertEquals("hello", pcEdit.getDescription());
 		assertEquals(StringParser.parseStringToDate("Mon Nov 23 13:00:00 SGT 2015"), pcEdit.getFirstDate().getTime());
 		assertEquals(StringParser.parseStringToDate("Mon Nov 23 15:00:00 SGT 2015"), pcEdit.getSecondDate().getTime());
@@ -325,87 +325,87 @@ public class ParsedCommandTest {
 		assertEquals(null, pcEdit.getTitle());
 		
 		// Check allow extra whitespace
-		pcEdit = ParsedCommand.parseCommand("Edit 234 test");
-		assertEquals(CommandType.EDIT, pcEdit.getCommandType());
+		pcEdit = MyParser.parseCommand("Edit 234 test");
+		assertEquals(MyParser.CommandType.EDIT, pcEdit.getCommandType());
 		assertEquals(234, pcEdit.getTaskId());
 		assertEquals("test", pcEdit.getTitle());
 		
 		// Check missing field inputs returns error
-		pcEdit = ParsedCommand.parseCommand("Edit 234");
-		assertEquals(CommandType.ERROR, pcEdit.getCommandType());
+		pcEdit = MyParser.parseCommand("Edit 234");
+		assertEquals(MyParser.CommandType.ERROR, pcEdit.getCommandType());
 		assertEquals("Error: No fields were entered for editing", pcEdit.getErrorMessage());
 
 		// Check missing arguments returns error
-		pcEdit = ParsedCommand.parseCommand("edit");
-		assertEquals(CommandType.ERROR, pcEdit.getCommandType());
+		pcEdit = MyParser.parseCommand("edit");
+		assertEquals(MyParser.CommandType.ERROR, pcEdit.getCommandType());
 		assertEquals("Error: No arguments entered", pcEdit.getErrorMessage());
 
 		// Check invalid taskId returns error
-		pcEdit = ParsedCommand.parseCommand("edit abc #hello");
-		assertEquals(CommandType.ERROR, pcEdit.getCommandType());
+		pcEdit = MyParser.parseCommand("edit abc #hello");
+		assertEquals(MyParser.CommandType.ERROR, pcEdit.getCommandType());
 		assertEquals("Error: Invalid/Missing taskId", pcEdit.getErrorMessage());
 		
 		// Check invalid date returns error
-		pcEdit = ParsedCommand.parseCommand("edit 123 31/2/16 #hello");
-		assertEquals(CommandType.ERROR, pcEdit.getCommandType());
+		pcEdit = MyParser.parseCommand("edit 123 31/2/16 #hello");
+		assertEquals(MyParser.CommandType.ERROR, pcEdit.getCommandType());
 		assertEquals("Error: Invalid date(s) input", pcEdit.getErrorMessage());
 	}
 
 	@Test
 	public void testParseCommandUndo() {
-		pcUndo = ParsedCommand.parseCommand("Undo");
-		assertEquals(CommandType.UNDO, pcUndo.getCommandType());
+		pcUndo = MyParser.parseCommand("Undo");
+		assertEquals(MyParser.CommandType.UNDO, pcUndo.getCommandType());
 	}
 	
 	@Test
 	public void testParseCommandHelp() {
-		pcHelp = ParsedCommand.parseCommand("help");
-		assertEquals(CommandType.HELP, pcHelp.getCommandType());
+		pcHelp = MyParser.parseCommand("help");
+		assertEquals(MyParser.CommandType.HELP, pcHelp.getCommandType());
 	}
 
 	@Test
 	public void testParseCommandFlag() {
 		// Partition 1: FLAG
 		// Check flag command for done
-		pcDone = ParsedCommand.parseCommand("Flag completed 234");
-		assertEquals(CommandType.FLAG, pcDone.getCommandType());
+		pcDone = MyParser.parseCommand("Flag completed 234");
+		assertEquals(MyParser.CommandType.FLAG, pcDone.getCommandType());
 		assertEquals(true, pcDone.isCompleted());
 		assertEquals(234, pcDone.getTaskId());
 		
 		// Check flag for todo
-		pcDone = ParsedCommand.parseCommand("flag   TODO  234");
-		assertEquals(CommandType.FLAG, pcDone.getCommandType());
+		pcDone = MyParser.parseCommand("flag   TODO  234");
+		assertEquals(MyParser.CommandType.FLAG, pcDone.getCommandType());
 		assertEquals(false, pcDone.isCompleted());
 		assertEquals(234, pcDone.getTaskId());
 
 		
 		// Partition 2: DONE
 		// Check standard input
-		pcDone = ParsedCommand.parseCommand("Done 234");
-		assertEquals(CommandType.FLAG, pcDone.getCommandType());
+		pcDone = MyParser.parseCommand("Done 234");
+		assertEquals(MyParser.CommandType.FLAG, pcDone.getCommandType());
 		assertEquals(true, pcDone.isCompleted());
 		assertEquals(234, pcDone.getTaskId());
 
 		// Check allow extra whitespace
-		pcDone = ParsedCommand.parseCommand("finished  234");
-		assertEquals(CommandType.FLAG, pcDone.getCommandType());
+		pcDone = MyParser.parseCommand("finished  234");
+		assertEquals(MyParser.CommandType.FLAG, pcDone.getCommandType());
 		assertEquals(true, pcDone.isCompleted());
 		assertEquals(234, pcDone.getTaskId());
 
 		// Check missing arguments returns error
-		pcDone = ParsedCommand.parseCommand("done ");
-		assertEquals(CommandType.ERROR, pcDone.getCommandType());
+		pcDone = MyParser.parseCommand("done ");
+		assertEquals(MyParser.CommandType.ERROR, pcDone.getCommandType());
 		assertEquals("Error: No arguments entered", pcDone.getErrorMessage());
 
 		// Check invalid/missing taskId returns error
-		pcDone = ParsedCommand.parseCommand("done abc");
-		assertEquals(CommandType.ERROR, pcDone.getCommandType());
+		pcDone = MyParser.parseCommand("done abc");
+		assertEquals(MyParser.CommandType.ERROR, pcDone.getCommandType());
 		assertEquals("Error: Invalid/Missing taskId", pcDone.getErrorMessage());
 		
 		
 		// Partition 3: TODO (similar pathway as DONE)
-		pcDone = ParsedCommand.parseCommand("todo 234");
-		assertEquals(CommandType.FLAG, pcDone.getCommandType());
+		pcDone = MyParser.parseCommand("todo 234");
+		assertEquals(MyParser.CommandType.FLAG, pcDone.getCommandType());
 		assertEquals(false, pcDone.isCompleted());
 		assertEquals(234, pcDone.getTaskId());
 	}
@@ -413,47 +413,47 @@ public class ParsedCommandTest {
 	@Test
 	public void testGetErrorMessage() {
 		// Check returns null if irrelevant (not an error)
-		pcDone = ParsedCommand.parseCommand("Done 234");
-		assertEquals(CommandType.FLAG, pcDone.getCommandType());
+		pcDone = MyParser.parseCommand("Done 234");
+		assertEquals(MyParser.CommandType.FLAG, pcDone.getCommandType());
 		assertEquals(null, pcDone.getErrorMessage());
 	}
 	
 	@Test
 	public void testParseCommandConfig() {
 		// Check missing config type
-		pcConfig = ParsedCommand.parseCommand("Set");
-		assertEquals(CommandType.ERROR, pcConfig.getCommandType());
+		pcConfig = MyParser.parseCommand("Set");
+		assertEquals(MyParser.CommandType.ERROR, pcConfig.getCommandType());
 		assertEquals("Error: No arguments entered", pcConfig.getErrorMessage());
 		
 		// Check invalid config type
-		pcConfig = ParsedCommand.parseCommand("Set file");
-		assertEquals(CommandType.ERROR, pcConfig.getCommandType());
+		pcConfig = MyParser.parseCommand("Set file");
+		assertEquals(MyParser.CommandType.ERROR, pcConfig.getCommandType());
 		assertEquals("Error: Invalid command", pcConfig.getErrorMessage());
 		
 		// Check missing path
-		pcConfig = ParsedCommand.parseCommand("set folder");
-		assertEquals(CommandType.ERROR, pcConfig.getCommandType());
+		pcConfig = MyParser.parseCommand("set folder");
+		assertEquals(MyParser.CommandType.ERROR, pcConfig.getCommandType());
 		assertEquals("Error: No arguments entered", pcConfig.getErrorMessage());
 		
 		// Check missing path
-		pcConfig = ParsedCommand.parseCommand("set background");
-		assertEquals(CommandType.ERROR, pcConfig.getCommandType());
+		pcConfig = MyParser.parseCommand("set background");
+		assertEquals(MyParser.CommandType.ERROR, pcConfig.getCommandType());
 		assertEquals("Error: No arguments entered", pcConfig.getErrorMessage());
 				
 		// Check config data
-		pcConfig = ParsedCommand.parseCommand("set folder C:\\file name\\folder");
-		assertEquals(CommandType.CONFIG_DATA, pcConfig.getCommandType());
+		pcConfig = MyParser.parseCommand("set folder C:\\file name\\folder");
+		assertEquals(MyParser.CommandType.CONFIG_DATA, pcConfig.getCommandType());
 		assertEquals("C:\\file name\\folder", pcConfig.getConfigPath());
 		
 		// Check config img background
-		pcConfig = ParsedCommand.parseCommand("set background filePath");
-		assertEquals(CommandType.CONFIG_IMG, pcConfig.getCommandType());
+		pcConfig = MyParser.parseCommand("set background filePath");
+		assertEquals(MyParser.CommandType.CONFIG_IMG, pcConfig.getCommandType());
 		assertEquals(ConfigType.BACKGROUND, pcConfig.getConfigType());
 		assertEquals("filePath", pcConfig.getConfigPath());
 						
 		// Check config img avatar
-		pcConfig = ParsedCommand.parseCommand("set avatar filePath");
-		assertEquals(CommandType.CONFIG_IMG, pcConfig.getCommandType());
+		pcConfig = MyParser.parseCommand("set avatar filePath");
+		assertEquals(MyParser.CommandType.CONFIG_IMG, pcConfig.getCommandType());
 		assertEquals(ConfigType.AVATAR, pcConfig.getConfigType());
 		assertEquals("filePath", pcConfig.getConfigPath());
 		
