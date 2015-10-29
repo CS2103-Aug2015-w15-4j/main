@@ -79,13 +79,28 @@ public class Log {
 		}
 	}
 	
+	/**
+	 * Resets the scrollpane to the bottom
+	 */
 	public void refresh() {
 		sp.snapshot(new SnapshotParameters(), new WritableImage(1, 1));
 		sp.setVvalue(sp.getVmax());
 	}
 	
+	/**
+	 * Adds a string to the log
+	 * @param input String to be added
+	 */
 	public void addToTextbox(String input) {
 		textbox.getChildren().add(new Text(">"+input.trim()+"\n"));
 		refresh();
 	}
+	
+	/**
+	 * Gets the stored log data in the form of an iterator
+	 */
+	public TextFlow getLog() {
+		return textbox;
+	}
+	
 }

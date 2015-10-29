@@ -30,6 +30,8 @@ public class Textbox {
 	public final static String WELCOME_MESSAGE = "Welcome!";
 	
 	public final static int WIDTH = 100;//GUIController.MINIMUM_WINDOW_SIZE/GUIController.TEXTBOX_RATIO;
+	public final static int CLOCK_WIDTH = 140;
+	public final static int CLOCK_HEIGHT = 80;
 	public final static int PADDING = 10;
 	public final static Pos ORIENTATION = Pos.CENTER_RIGHT;
 	
@@ -50,12 +52,15 @@ public class Textbox {
 		
 		clock = new Label();
 		clock.getStyleClass().add(GUIController.STYLE_CURVED_LABEL);
+		formatter = DateTimeFormatter.ofPattern("E\ndd/MM/yyyy\nHH:mm");
 		updateTime();
-		clock.prefWidthProperty().bind(hbox.widthProperty());
-		clock.setMaxWidth(350);
+		//clock.prefWidthProperty().bind(hbox.widthProperty());
+		clock.setMinHeight(CLOCK_HEIGHT);
+		//clock.setMaxWidth(CLOCK_WIDTH);
+		clock.setMinWidth(CLOCK_WIDTH);
 		clock.setTextAlignment(TextAlignment.CENTER);
 		clock.setAlignment(Pos.CENTER);
-		HBox.setHgrow(clock, Priority.NEVER);
+		HBox.setHgrow(clock, Priority.SOMETIMES);
 
 		avatarView = new ImageView();
 		avatarView.setEffect(new DropShadow());
@@ -114,11 +119,13 @@ public class Textbox {
 	
 	public void updateTime() {
 		time = LocalDateTime.now();
+		/*
 		clock.setText(
 			time.getDayOfWeek() + "\n" +
 			time.toLocalDate().toString() + "\n" + 
 			time.getHour() + ":" + time.getMinute()
-		);
+		);//*/
+		clock.setText(time.format(formatter));
 	}
 	
 	/**
