@@ -20,6 +20,7 @@ public class Log {
 	public static final Pos ALIGNMENT = Pos.BOTTOM_LEFT;
 	public static final String ID_VBOX = "logVbox";
 	public static final String ID_SCROLL = "logScroll";
+	public static final int MAXSIZE = 100;
 	
 	protected VBox vbox;
 	protected ScrollPane sp;
@@ -79,13 +80,32 @@ public class Log {
 		}
 	}
 	
+	/**
+	 * Resets the scrollpane to the bottom
+	 */
 	public void refresh() {
 		sp.snapshot(new SnapshotParameters(), new WritableImage(1, 1));
 		sp.setVvalue(sp.getVmax());
 	}
 	
+	/**
+	 * Adds a string to the log
+	 * @param input String to be added
+	 */
 	public void addToTextbox(String input) {
 		textbox.getChildren().add(new Text(">"+input.trim()+"\n"));
+		// if size exceed, delete first item
+		if (textbox.getChildren().size()>MAXSIZE) {
+			textbox.getChildren().remove(0);
+		}
 		refresh();
 	}
+	
+	/**
+	 * Gets the stored log data in the form of an iterator
+	 */
+	public TextFlow getLog() {
+		return textbox;
+	}
+	
 }

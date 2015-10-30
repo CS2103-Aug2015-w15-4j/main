@@ -2,6 +2,7 @@ package gui;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
@@ -20,6 +21,7 @@ import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
+import javafx.scene.text.Text;
 
 public class GUIController extends Application {
 	public static class TaskListCustom extends TaskList {
@@ -54,17 +56,6 @@ public class GUIController extends Application {
 		    });
 		}
 	}
-	
-	/*
-	 private static volatile GUIController gui;
-	 private GUIController(){};
-
-	 public static GUIController getInstance() {
-		 if (gui==null) {
-			 gui = new GUIController();
-		 }
-		 return gui;
-	 }//*/
 
 	final public static String[] taskListNames = {
 			"All Tasks",  
@@ -76,8 +67,8 @@ public class GUIController extends Application {
 	final static int TASKLIST_FLOATING = 1;
 	final static int TASKLIST_COMPLETED = 2;
 	final static int TASKLIST_SEARCH = 3;
-
-	public static int TASKLIST_PINNED = -1;
+	final static int TASKLIST_INVALID = -1;
+	public static int TASKLIST_PINNED = TASKLIST_INVALID;
 
 	final static String APP_TITLE = "OraCle";
 	final static String FILE_CSS = "application.css";
@@ -94,6 +85,7 @@ public class GUIController extends Application {
 	final static String STYLE_TEXT = "label";
 	final static String STYLE_COLOR = "-fx-background-color: %1$s;";
 
+	final static String SEARCH_LIST_FORMAT = taskListNames[TASKLIST_SEARCH] + " - \"%1$s\"";
 	final static String MSG_PROMPT = "Type command here";
 	final static String MSG_WINDOWSWITCH = "Switch"; // name for button
 
@@ -124,7 +116,14 @@ public class GUIController extends Application {
 	final static int PINNED_WINDOW_RATIO = 3;
 	final static int TEXTBOX_RATIO = 8;
 
+	// Stores all lists
 	public static ArrayList<TaskList> taskLists = new ArrayList<TaskList>();
+	
+	// for getting old commands
+	public static ListIterator<Node> commandIterator;
+	final static boolean PREVIOUS = false;
+	final static boolean NEXT = true;
+	
 	final Pane window = new VBox();
 	public Log logCommands;
 	public Log logConsole;
@@ -266,8 +265,9 @@ public class GUIController extends Application {
 		pane.setTop(null);
 		if (pinnedWindow.getChildren().size()>0) {
 			// unpin the top
+			openList(TASKLIST_PINNED);
 			Region node = taskLists.get(TASKLIST_PINNED).getNode();
-			TASKLIST_PINNED = -1;
+			TASKLIST_PINNED = TASKLIST_INVALID;
 			node.prefWidthProperty().unbind();
 			node.prefHeightProperty().unbind();
 			node.setPrefHeight(Region.USE_COMPUTED_SIZE);
@@ -305,6 +305,28 @@ public class GUIController extends Application {
 		VBox.setVgrow(logConsole.getNode(), Priority.ALWAYS);
 		return logObject;
 	}
+	
+	/**
+	 * Returns the string from the command log. 
+	 * @param next if true, get next command. If false, get previous command
+	 * @return command last inputted
+	 */
+	public String getCommandLog(boolean next) {
+		Text command = null;
+		String output = "";
+		if (commandIterator!=null) { // if commandIterator empty, do nothing
+			if (next==NEXT&&commandIterator.hasNext()) {
+				command = (Text)commandIterator.next();
+			} else if (next==PREVIOUS&&commandIterator.hasPrevious()) {
+				command = (Text)commandIterator.previous();
+			} // if there are no valid commands, do nothing
+			
+			if (command!=null) {
+				output = command.getText().replaceFirst(">",""); // delete the > in the log
+			}
+		}
+		return output;
+	}
 
 	/**
 	 * Adds handlers to the scene
@@ -321,6 +343,24 @@ public class GUIController extends Application {
 
 		// event handler for userTextField
 		userTextField.setOnAction((ActionEvent event) -> processUserTextField(userTextField));
+		userTextField.setOnKeyPressed(new EventHandler<KeyEvent>() {
+			@Override
+			public void handle(KeyEvent keyEvent) {
+				if (keyEvent.getCode()==KeyCode.UP) { // get last item typed in, unless it is first
+					String lastCommand = getCommandLog(PREVIOUS); // get previous
+					if (!lastCommand.isEmpty()) { // if not empty, replace current userTextField data
+						userTextField.setText(lastCommand);
+					}
+				}
+				
+				if (keyEvent.getCode()==KeyCode.DOWN) { // get next item typed in, unless it is last
+					String lastCommand = getCommandLog(NEXT); // get next item
+					if (!lastCommand.isEmpty()) { // if not empty, replace current userTextField data
+						userTextField.setText(lastCommand);
+					}
+				}
+			}
+		});
 
 		// event handler for button
 		windowSwitch.setOnAction(new EventHandler<ActionEvent>() {
@@ -330,6 +370,7 @@ public class GUIController extends Application {
 			}
 		});
 
+		// Scene resize listener
 		ChangeListener<Number> listener = new ChangeListener<Number>() {
 			@Override
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
@@ -338,10 +379,10 @@ public class GUIController extends Application {
 				center.recalculate();
 			}
 		};
-
 		scene.widthProperty().addListener(listener);
 		scene.heightProperty().addListener(listener);
 
+		// Scene event handler
 		scene.setOnKeyPressed((new EventHandler<KeyEvent>() {
 			@Override
 			public void handle(KeyEvent keyEvent) {
@@ -356,7 +397,7 @@ public class GUIController extends Application {
 				}
 
 				if(keyEvent.getCode()==KeyCode.BACK_SLASH) { // zoom in on a task
-					if (TASKLIST_PINNED!=-1) {
+					if (TASKLIST_PINNED!=TASKLIST_INVALID) {
 						taskLists.get(TASKLIST_PINNED).focusTask();
 					} else {
 						listLoop: for (TaskList list : taskLists) {
@@ -479,16 +520,16 @@ public class GUIController extends Application {
 					// means that it should have been validated by parser. Can return immediately
 					return i; 
 				} else if (split.length==1) { // if it is only one item, means it is a number that needs processing to check positioning
-					if (TASKLIST_PINNED==-1) { 
+					if (TASKLIST_PINNED==TASKLIST_INVALID) { 
 						// if no pinned window, order is same as initial
 						return i;
-					} else if (TASKLIST_PINNED!=-1&&i==0) { 
+					} else if (TASKLIST_PINNED!=TASKLIST_INVALID&&i==0) { 
 						// if there is a pinned window and is first element
 						return TASKLIST_PINNED;
-					} else if (TASKLIST_PINNED!=-1&&i>TASKLIST_PINNED) {
+					} else if (TASKLIST_PINNED!=TASKLIST_INVALID&&i>TASKLIST_PINNED) {
 						// if pinned window, but number is bigger
 						return i;
-					} else if (TASKLIST_PINNED!=-1&&i<=TASKLIST_PINNED) {
+					} else if (TASKLIST_PINNED!=TASKLIST_INVALID&&i<=TASKLIST_PINNED) {
 						return i-1;
 					}
 				}
@@ -496,15 +537,16 @@ public class GUIController extends Application {
 				e.printStackTrace();
 			}
 		}
-		return -1; // return invalid otherwise
+		return TASKLIST_INVALID; // return invalid otherwise
 	}
 
 	/**
 	 * Checks for what kind of command it was, so that it can be used to focus on the correct object
 	 * @param command The first word of the command
 	 */
-	protected void checkCommandType(ParsedCommand parsedCommand) {
+	protected String checkCommandType(ParsedCommand parsedCommand) {
 		CommandType command = parsedCommand.getCommandType();
+		String output = "";
 		try {
 			switch(command) {
 			case ADD: // focus on the newly added task
@@ -520,18 +562,24 @@ public class GUIController extends Application {
 			case HELP:
 				// help menu?
 				break;
-			case CONFIG:
+			case CONFIG_IMG:
 				// if it had been a Set function, it might have been an avatar or background, so reload them
 				AVATAR_IMAGENAME = model.getAvatarLocation();
 				BACKGROUND_NAME = model.getBackgroundLocation(); 
-				textboxObject.loadAvatar();
+				if(!textboxObject.loadAvatar()) {
+					output = "Cannot find new avatar specified";
+				}
 				break;
 			case UNDO:
 				openList(TASKLIST_PINNED); // same as delete
 				break;
-			case SHOW: // search function
+			case SEARCH: // search function
 				executeCommand(CMD_CLOSEALL); // close all
-				openList(TASKLIST_SEARCH); // focus on search
+				openList(TASKLIST_SEARCH); // focus on search 
+				// then modify the Search List name to include the search term
+				taskLists.get(TASKLIST_SEARCH).setName(
+					String.format(SEARCH_LIST_FORMAT,parsedCommand.getKeywords())
+				);
 				break;
 			default:
 				break;
@@ -541,6 +589,7 @@ public class GUIController extends Application {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		return output;
 	}//*/
 	/**
 	 * Runs the command input. 
@@ -551,11 +600,20 @@ public class GUIController extends Application {
 			ParsedCommand parsedCommand = MyParser.parseCommand(input.trim());
 			if (!checkForGuiActions(parsedCommand)) {
 				model = controller.executeCommand(parsedCommand);
-				textboxObject.addToTextbox(model.getConsoleMessage());
+				// refresh log command, and get new iterator
 				logCommands.addToTextbox(input);
-				logConsole.addToTextbox(model.getConsoleMessage());
+				commandIterator = logCommands.getLog().getChildren().listIterator(
+						logCommands.getLog().getChildren().size()); // get last item
+				
 				refreshLists();
-				checkCommandType(parsedCommand);
+				String output = checkCommandType(parsedCommand);
+				if (output.isEmpty()) {
+					output = model.getConsoleMessage();
+				}
+				
+				// output console message
+				textboxObject.addToTextbox(output);
+				logConsole.addToTextbox(output);
 			}
 		}
 	}

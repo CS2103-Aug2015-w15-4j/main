@@ -64,7 +64,6 @@ public class Search {
 	    // Store results
 	    ArrayList<Task> hitList = new ArrayList<Task>();
 	    Gson gson = new Gson();
-	    System.out.println("Found " + hits.length + " hits.");
 	    for(int i=0;i<hits.length;++i) {
 	        int docId = hits[i].doc;
 	        Document d = searcher.doc(docId);
@@ -96,7 +95,6 @@ public class Search {
 		// Create indexes with taskList
 		StandardAnalyzer analyzer = new StandardAnalyzer();
 	    Directory index = indexTaskList(taskList,analyzer);
-		
 	    
 	    // Set up Query
 		String sFromDate = DateTools.dateToString(fromDate.getTime(),
@@ -140,17 +138,15 @@ public class Search {
 		    doc.add(new TextField("id",new Integer(task.getId()).toString(), Field.Store.YES));
 		    doc.add(new TextField("isCompleted",new Boolean(task.getIsCompleted()).toString(), Field.Store.YES));
 		    String tagString = "";
-		    if (task.getTags()!=null) {
-		    	for (String tags : task.getTags()) {
-			    	tagString = tagString + tags + " ";
-			    }
+		    for (String tags : task.getTags()) {
+		    	tagString = tagString + tags + " ";
 		    }
 		    doc.add(new TextField("tags",tagString, Field.Store.YES));
 		    doc.add(new TextField("taskType",task.getTaskType().toString(), Field.Store.YES));
 		    if (task.getDetails() != null) {
 		    	doc.add(new TextField("details",task.getDetails(), Field.Store.YES));
 		    }
-		    
+		   
 		    if(task.getTaskType().equals(ParsedCommand.TaskType.DEADLINE_TASK) || task.getTaskType().equals(ParsedCommand.TaskType.EVENT)) {
 		    	DeadlineTask dlTask = (DeadlineTask) task;
 		    	doc.add(new TextField("end",DateTools.dateToString(dlTask.getEnd().getTime(), DateTools.Resolution.SECOND), Field.Store.YES));

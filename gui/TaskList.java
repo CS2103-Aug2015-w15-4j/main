@@ -31,6 +31,9 @@ public class TaskList {
 	
 	final static String ID_GRID = "taskGrid";
 	final static String STYLE_TEXT = GUIController.STYLE_TEXT;
+	final static String STYLE_FLOATING = "floating";
+	final static String STYLE_DEADLINE = "deadline";
+	final static String STYLE_EVENT = "event";
 	
 	// grid locations
 	final static int COL_HEADER = 0;
@@ -46,14 +49,15 @@ public class TaskList {
 	final static VPos GRID_HEADER_VERT_ALIGNMENT = VPos.TOP;
 	final static int GRID_COL_HEADER_FINAL_LENGTH = 70; // header col's fixed length
 	
-	final static String HEADER_COLOR = "rgba(255, 255, 0, 0.9)";
-	final static Color LABEL_COLOR = Color.BLACK;
+	final static String COLOR_OVERDUE = "-fx-text-fill: rgba(255, 0, 0, 1);";
+	final static String COLOR_HEADER = "rgba(255, 255, 0, 0.9)";
+	final static Color COLOR_LABEL = Color.BLACK;
 	final double ROW_CELL_HEIGHT = 33.3;
 	final double BORDER_HEIGHT = 2.0;
 	final double IMAGE_SIZE = 10.0;
 	
 	final double DATE_WIDTH = 280.0;
-	final SimpleDateFormat format = new SimpleDateFormat("HH:mm, dd/MM E");
+	public static SimpleDateFormat format;
 	
 	protected VBox master; // the overall TaskList manager
 	protected Button name; // button to press;
@@ -63,8 +67,8 @@ public class TaskList {
 	protected ScrollPane detailedView;
 	
 	protected Image[] imageCompletion = new Image[2];
-	protected final String DONE = "Check.png";
-	protected final String NOT_DONE = "Delete.png";
+	protected final String DONE = "resources/Check.png";
+	protected final String NOT_DONE = "resources/Delete.png";
 	protected final int DONE_IMAGE_SIZE = 16; 
 	protected boolean isChanging = false;
 	public boolean isPinnedWindow = false; // by default assume that it is not pinned 
@@ -98,6 +102,9 @@ public class TaskList {
 		detailedView.prefWidthProperty().bind(master.widthProperty());
 		detailedView.prefHeightProperty().bind(master.heightProperty());
 		detailedView.getStyleClass().add(GUIController.STYLE_TRANSPARENT);
+		
+		// Time
+		format = new SimpleDateFormat("HH:mm, dd/MM E");
 	    
 	    name.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
@@ -368,7 +375,7 @@ public class TaskList {
 		HBox header = new HBox();
 		label.prefWidthProperty().bind(header.widthProperty());
 		header.prefWidthProperty().bind(grid.widthProperty());
-		header.setStyle(String.format(GUIController.STYLE_COLOR, HEADER_COLOR));
+		header.setStyle(String.format(GUIController.STYLE_COLOR, COLOR_HEADER));
 		header.getChildren().add(getTaskCompletion(task.getIsCompleted()));
 		header.getChildren().add(label);
 		HBox.setHgrow(label, Priority.ALWAYS);
@@ -420,6 +427,9 @@ public class TaskList {
 		label.setWrapText(false);
 		header.getChildren().add(label);
 		HBox.setHgrow(label, Priority.ALWAYS);
+		
+		// set colour of text
+		
 		
 		// set date if exists
 		try {
@@ -478,7 +488,7 @@ public class TaskList {
 	protected Label createLabel(String text) {
 		Label label = new Label(text);
 		label.setWrapText(true);
-		label.setTextFill(LABEL_COLOR);
+		label.setTextFill(COLOR_LABEL);
 		return label;
 	}
 }
