@@ -85,6 +85,7 @@ public class GUIController extends Application {
 	final static String STYLE_COLOR = "-fx-background-color: %1$s;";
 
 	final static String SEARCH_LIST_FORMAT = taskListNames[TASKLIST_SEARCH] + " - \"%1$s\"";
+	final static String MSG_SUGGESTED_COMMAND_FORMAT = "Did you mean the \"%1$s\" command?";
 	final static String MSG_PROMPT = "Type command here";
 	final static String MSG_WINDOWSWITCH = "Switch"; // name for button
 
@@ -153,7 +154,10 @@ public class GUIController extends Application {
 		/**
 		 * Initialise the Model
 		 */
-		model = controller.executeCommand(null);
+		try {
+			model = controller.executeCommand(null);
+		} catch (Logic.UnrecognisedCommandException e) {
+		}
 		AVATAR_IMAGENAME = model.getAvatarLocation();
 		BACKGROUND_NAME = model.getBackgroundLocation();
 
@@ -452,6 +456,7 @@ public class GUIController extends Application {
 	 */
 	protected boolean checkForGuiActions(ParsedCommand parsedCommand) {
 		CommandType command = parsedCommand.getCommandType();
+
 		try {
 			switch (command) {
 			case GUI_OPEN_ALL:
@@ -504,13 +509,22 @@ public class GUIController extends Application {
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
 			// do nothing
+		} catch (Logic.UnrecognisedCommandException e) {
+			for (int i=0;i<ParsedCommand.COMMAND_CHOICES.length;i++) {
+				if (command.equals(ParsedCommand.COMMAND_CHOICES[i].commandType)) {
+					model.setConsoleMessage(
+							String.format(MSG_SUGGESTED_COMMAND_FORMAT, 
+									ParsedCommand.COMMAND_CHOICES[i].str[0]));
+					break;
+				}
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return false; // if not valid, return false
 	}
 
-	protected int getTaskListNumber(String processedString) {
+	protected int getTaskListNumber(String processedString) throws Logic.UnrecognisedCommandException {
 		String[] split = processedString.trim().split("\\s+");
 		if (split.length>=1) {
 			try {
@@ -533,7 +547,8 @@ public class GUIController extends Application {
 					}
 				}
 			} catch (NumberFormatException e) {
-				e.printStackTrace();
+				model.setConsoleMessage("Invalid command");
+				throw new Logic.UnrecognisedCommandException("Unable to parse integer"); 
 			}
 		}
 		return TASKLIST_INVALID; // return invalid otherwise
@@ -598,22 +613,44 @@ public class GUIController extends Application {
 		if (input!= null && !input.isEmpty()) {
 			ParsedCommand parsedCommand = ParsedCommand.parseCommand(input.trim());
 			if (!checkForGuiActions(parsedCommand)) {
-				model = controller.executeCommand(parsedCommand);
-				// refresh log command, and get new iterator
-				logCommands.addToTextbox(input);
-				commandIterator = logCommands.getLog().getChildren().listIterator(
-						logCommands.getLog().getChildren().size()); // get last item
+				// in case checkForGUI has an output console
+				String output = model.getConsoleMessage(); 
 				
-				refreshLists();
-				String output = checkCommandType(parsedCommand);
-				if (output.isEmpty()) {
-					output = model.getConsoleMessage();
+				try {
+					model = controller.executeCommand(parsedCommand);
+					// refresh log command, and get new iterator
+					logCommands.addToTextbox(input);
+					commandIterator = logCommands.getLog().getChildren().listIterator(
+							logCommands.getLog().getChildren().size()); // get last item
+					
+					refreshLists(); // only needed if sent to logic
+				} catch (Logic.UnrecognisedCommandException e) {
+					model.setConsoleMessage(output);
 				}
 				
-				// output console message
-				textboxObject.addToTextbox(output);
-				logConsole.addToTextbox(output);
+				// then allocate the console message if there isn't one already after going through logic
+				if (model.getConsoleMessage()==null||model.getConsoleMessage().isEmpty()) {
+					model.setConsoleMessage(output);
+				}				
+				
+				output = checkCommandType(parsedCommand);
+				if (!output.isEmpty()) {
+					model.setConsoleMessage(output);
+				}
 			}
+			
+			// output console message
+			outputToScreen();
+		}
+	}
+	
+	/**
+	 * Output to console and store consoleMessage
+	 */
+	protected void outputToScreen() {
+		if (model.getConsoleMessage()!=null&&!model.getConsoleMessage().isEmpty()) {
+			textboxObject.addToTextbox(model.getConsoleMessage());
+			logConsole.addToTextbox(model.getConsoleMessage());
 		}
 	}
 

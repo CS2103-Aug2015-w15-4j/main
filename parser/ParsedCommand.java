@@ -66,7 +66,7 @@ public class ParsedCommand {
 		}
 	}
 
-	private static final Pair[] COMMAND_CHOICES = {
+	public static final Pair[] COMMAND_CHOICES = {
 		new Pair(CommandType.ADD, new String[] {"add", "insert", "+"}),
 		new Pair(CommandType.DELETE, new String[] {"delete", "del", "remove", "cancel", "x"}),
 		new Pair(CommandType.EDIT, new String[] {"edit", "change"}),
