@@ -102,6 +102,7 @@ public class Textbox {
 		
 		// create the message box
 		label = new Label(WELCOME_MESSAGE);
+		label.setWrapText(true);
 		label.prefWidthProperty().bind(hbox.widthProperty());
 		label.prefHeightProperty().bind(hbox.heightProperty());
 		label.setTextFill(Color.WHITE);

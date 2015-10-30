@@ -611,6 +611,7 @@ public class GUIController extends Application {
 	 */
 	protected void executeCommand(String input) {
 		if (input!= null && !input.isEmpty()) {
+			model.setConsoleMessage(null); // set empty
 			ParsedCommand parsedCommand = ParsedCommand.parseCommand(input.trim());
 			if (!checkForGuiActions(parsedCommand)) {
 				// in case checkForGUI has an output console
@@ -648,10 +649,11 @@ public class GUIController extends Application {
 	 * Output to console and store consoleMessage
 	 */
 	protected void outputToScreen() {
-		if (model.getConsoleMessage()!=null&&!model.getConsoleMessage().isEmpty()) {
-			textboxObject.addToTextbox(model.getConsoleMessage());
-			logConsole.addToTextbox(model.getConsoleMessage());
+		if (model.getConsoleMessage()==null) {
+			model.setConsoleMessage("");
 		}
+		textboxObject.addToTextbox(model.getConsoleMessage());
+		logConsole.addToTextbox(model.getConsoleMessage());
 	}
 
 	/**
