@@ -19,6 +19,11 @@ public class Event extends DeadlineTask {
 		super(name, details,id,isCompleted,tags,taskType,end);
 		setStart(start);
 	}
+	
+	public Event(Event newTask) {
+		super(newTask.getName(),newTask.getDetails(),newTask.getId(),newTask.getIsCompleted(),newTask.getTags(),newTask.getTaskType(),newTask.getEnd());
+		this.start = newTask.getStart();
+	}
 
 	public Event(ParsedCommand parsedInput) {
 		super(parsedInput);

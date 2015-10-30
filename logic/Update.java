@@ -29,9 +29,19 @@ public class Update implements Command {
 		List<Task> taskList = storage.getAllTasks();
 		toUpdate = Logic.searchList(taskList,specifications.getTaskId());
 		// Clone Task
-		updated = new Task(toUpdate);
+		if (toUpdate.getTaskType() == TASK) {
+			updated = new Task(toUpdate);
+			updated = updateTask(specifications, updated);
+		} else if (toUpdate.getTaskType() == DEADLINETASK) {
+			DeadlineTask newTask = new DeadlineTask((DeadlineTask)toUpdate);
+			updated = newTask;
+			updated = (DeadlineTask)updateTask(specifications, updated);
+		} else if (toUpdate.getTaskType() == EVENT) {
+			Event newTask = new Event((Event)toUpdate);
+			updated = newTask;
+			updated = (Event)updateTask(specifications, updated);
+		}
 		
-		updated = updateTask(specifications, updated);
 		storage.delete(toUpdate.getId());
 		storage.add(updated);
 	}
