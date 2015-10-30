@@ -548,7 +548,7 @@ public class GUIController extends Application {
 	 */
 	protected void executeCommand(String input) {
 		if (input!= null && !input.isEmpty()) {
-			ParsedCommand parsedCommand = ParsedCommand.parseCommand(input.trim());
+			ParsedCommand parsedCommand = MyParser.parseCommand(input.trim());
 			if (!checkForGuiActions(parsedCommand)) {
 				model = controller.executeCommand(parsedCommand);
 				textboxObject.addToTextbox(model.getConsoleMessage());
