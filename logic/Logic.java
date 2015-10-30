@@ -11,12 +11,6 @@ import parser.ParsedCommand.ConfigType;
 import storage.Storage;
 
 public class Logic {
-	public static class UnrecognisedCommandException extends Exception {
-		private static final long serialVersionUID = 1738498476358630253L;
-		public UnrecognisedCommandException(String message) {
-			super(message);
-		}
-	}
 
 	private static final String MESSAGE_INVALID_FORMAT = "invalid command format :%1$s";
 
@@ -35,10 +29,10 @@ public class Logic {
 		return new Model("", storage.getAllTasks());
 	}
 
-	public Model executeCommand(ParsedCommand parsedCommand) throws UnrecognisedCommandException {
+	public Model executeCommand(ParsedCommand parsedCommand) {
 		if (checkIfEmptyCommand(parsedCommand))
 			return new Model(MESSAGE_INVALID_FORMAT, storage.getAllTasks());
-		
+
 		switch (parsedCommand.getCommandType()) {
 		case ADD:
 			return executeAdd(parsedCommand);
@@ -62,17 +56,19 @@ public class Logic {
 			return executeSearch(parsedCommand);
 			// case SET:
 			// return executeSetAvatar(parsedCommand);
-		case EXIT:
-			System.exit(0);
-		case ERROR: 
+		case ERROR:
 			try {
 				return new Model(parsedCommand.getErrorMessage(),
 						storage.getAllTasks());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		default: 
-			throw new UnrecognisedCommandException("Unrecognized command type: " + parsedCommand.getCommandType());
+		case EXIT:
+			System.exit(0);
+		default:
+			// TODO: Change this line into ???
+			// throw an error if the command is not recognized
+			throw new Error("Unrecognized command type: " + parsedCommand.getCommandType());
 		}
 	}
 
