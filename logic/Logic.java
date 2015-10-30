@@ -81,15 +81,12 @@ public class Logic {
 		try {
 			ParsedCommand.ConfigType type = parsedCommand.getConfigType();
 			if (type == ConfigType.BACKGROUND) {
-				if (storage.setBackground(parsedCommand.getConfigPath())) {
 					model.setBackgroundLocation(parsedCommand.getConfigPath());
 					consoleMessage = "Background switched";
-				}
+
 			} else if (type == ConfigType.AVATAR) {
-				if (storage.setAvatar(parsedCommand.getConfigPath())) {
 					model.setAvatarLocation(parsedCommand.getConfigPath());
 					consoleMessage = "Avatar switched";
-				}
 			}
 		} catch (Exception e) {
 			consoleMessage = "Failed to Set new Path";
@@ -106,10 +103,9 @@ public class Logic {
 
 		String consoleMessage = "Failed to Set new Path";
 		try {
-			if (storage.setFileLocation(parsedCommand.getConfigPath())) {
-				consoleMessage = "data file set to "
+			storage.setFileLocation(parsedCommand.getConfigPath());
+			consoleMessage = "data file set to "
 						+ parsedCommand.getConfigPath();
-			}
 			this.model.updateModel(consoleMessage, storage.getAllTasks());
 		} catch (Exception e) {
 			this.model.updateModel(consoleMessage, storage.getAllTasks());
@@ -121,12 +117,17 @@ public class Logic {
 
 	private Model executeSearch(ParsedCommand parsedCommand) {
 
-		List<Task> tasksToDisplay;
+		List<Task> tasksToDisplay = null;
 		String consoleMessage = "Search failed";
 		try {
-			String query = parsedCommand.getKeywords(); // Stub, substitute with
-														// parsedCommand.getQuery
-			tasksToDisplay = Search.search(storage.getAllTasks(), query);
+			String query = "";
+			if (parsedCommand.getKeywords() != null && !parsedCommand.getKeywords().equals("")) {
+				query = parsedCommand.getKeywords();
+				tasksToDisplay = Search.search(storage.getAllTasks(), query);
+			} else if (parsedCommand.getFirstDate() != null && parsedCommand.getSecondDate() != null) {
+				query = "Displaying range of dates";
+				tasksToDisplay = Search.searchDate(storage.getAllTasks(),parsedCommand.getFirstDate(),parsedCommand.getSecondDate());
+			}
 			if (tasksToDisplay.size() == 0) {
 				consoleMessage = "No results found";
 			} else if (tasksToDisplay.size() == 1) {
