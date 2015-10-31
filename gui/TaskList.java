@@ -55,7 +55,6 @@ public class TaskList {
 	final double ROW_CELL_HEIGHT = 33.3;
 	final double BORDER_HEIGHT = 2.0;
 	final double IMAGE_SIZE = 10.0;
-	
 	final double DATE_WIDTH = 280.0;
 	public static SimpleDateFormat format;
 	
@@ -70,6 +69,8 @@ public class TaskList {
 	protected final String DONE = "resources/Check.png";
 	protected final String NOT_DONE = "resources/Delete.png";
 	protected final int DONE_IMAGE_SIZE = 16; 
+	
+	public final int INVALID_SELECTION = -1; 
 	protected boolean isChanging = false;
 	public boolean isPinnedWindow = false; // by default assume that it is not pinned 
 	public boolean isListOpen = true; // open by default
@@ -106,6 +107,9 @@ public class TaskList {
 		// Time
 		format = new SimpleDateFormat("HH:mm, dd/MM E");
 	    
+		
+		
+		// handlers and listeners
 	    name.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
@@ -141,6 +145,8 @@ public class TaskList {
 	    		name.setText(GUIController.taskListNames[listNumber]);
 	    	}
 	    });//*/
+	    
+	    
 	}
 	
 	/**
@@ -180,6 +186,15 @@ public class TaskList {
 	 */
 	public VBox getNode() { 
 		return master;
+	}
+	
+	/**
+	 * Calls focusTask() in this function
+	 * @return the window of the FocusTask
+	 */
+	public ScrollPane getFocusTask() {
+		focusTask();
+		return detailedView;
 	}
 	
 	/**
@@ -331,7 +346,10 @@ public class TaskList {
 		return false;
 	}
 	
-	public void clearHighlight() {
+	/**
+	 * Clears the detailed window
+	 */
+	public void clearDetailedWindow() {
 		listView.getSelectionModel().clearSelection();
 		detailedView.setContent(null); // clear the stored view
 	}
@@ -341,9 +359,12 @@ public class TaskList {
 	 */
 	public void focusTask() {
 		int selected = listView.getSelectionModel().getSelectedIndex();
-		if (selected>=0) {
+		if (selected>INVALID_SELECTION) {
+			// create the detailed view
 			updateDetailedView(createDetailedDisplay(listOfTasks.get(selected)));
-			closeList();
+			if (isPinnedWindow) { // if it is the pinned window, show it
+				closeList();
+			}
 		}
 	}
 	

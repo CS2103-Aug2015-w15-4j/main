@@ -50,7 +50,7 @@ public class GUIController extends Application {
 						closeList();
 					} else {
 						closeAllLists(); // new line that changes everything
-						openList();
+						GUIController.openList(listNumber);
 					}
 				}
 		    });
@@ -69,6 +69,7 @@ public class GUIController extends Application {
 	final static int TASKLIST_SEARCH = 3;
 	final static int TASKLIST_INVALID = -1;
 	public static int TASKLIST_PINNED = TASKLIST_INVALID;
+	public static int TASKLIST_OPENED = TASKLIST_INVALID; // task list last opened
 
 	final static String APP_TITLE = "OraCle";
 	final static String FILE_CSS = "application.css";
@@ -102,6 +103,7 @@ public class GUIController extends Application {
 	final static String CMD_OPENALL = "open all"; // opens all task lists
 	final static String CMD_CLOSEALL = "close all"; // closes all open task lists
 	final static String CMD_SHOW = "show"; // focuses on a selected task in the main view
+	final static String CMD_SEARCH = "search"; // for Ctrl+F and searching 
 	final static String CMD_SWITCH = "switch"; // switches between the log and the main window
 	final static String CMD_LOG = "log"; // switches to the log
 	final static String CMD_MAIN = "main"; // switches to the main window
@@ -207,7 +209,7 @@ public class GUIController extends Application {
 
 		// add all lists to to the center
 		center = new MainWindow();
-		taskLists.get(TASKLIST_SEARCH).addAllTasks(model.getTasksToDisplay());
+		taskLists.get(TASKLIST_SEARCH).addAllTasks(model.getSearchList());
 		for (int i=0; i<taskLists.size();i++) {
 			center.addToList(taskLists.get(i));
 		}
@@ -236,6 +238,10 @@ public class GUIController extends Application {
 		primaryStage.setMinHeight(primaryStage.getHeight());
 	}
 
+	/**
+	 * Pins the list to the top window
+	 * @param list list to be pinned
+	 */
 	protected void pinWindow(TaskList list) {
 		unpinWindow(list);
 		pane.setTop(pinnedWindow);
@@ -253,11 +259,26 @@ public class GUIController extends Application {
 		pinnedWindow.getChildren().clear();
 		pinnedWindow.getChildren().add(node);
 	}
+	
+	/**
+	 * Pins a focused Task into the window
+	 * @param Task to be pinned
+	 */
+	protected void pinWindow(Region focusedTask) {
+		unpinWindow();
+		pane.setTop(pinnedWindow);
+		focusedTask.prefWidthProperty().unbind();
+		focusedTask.prefHeightProperty().unbind();
+		focusedTask.prefWidthProperty().bind(pinnedWindow.widthProperty());
+		focusedTask.prefHeightProperty().bind(pinnedWindow.heightProperty());
+		pinnedWindow.getChildren().clear();
+		pinnedWindow.getChildren().add(focusedTask);
+	}
 
 	/**
 	 * Unpins all windows from the pinnedWindow
 	 */
-	protected void unpinWindow() { // list will be left out of unpinned
+	protected void unpinWindow() {
 		unpinWindow(null);
 	}
 
@@ -267,7 +288,7 @@ public class GUIController extends Application {
 	 */
 	protected void unpinWindow(TaskList list) { // list will be left out of unpinned
 		pane.setTop(null);
-		if (pinnedWindow.getChildren().size()>0) {
+		if (TASKLIST_PINNED!=TASKLIST_INVALID){//pinnedWindow.getChildren().size()>0) {
 			// unpin the top
 			openList(TASKLIST_PINNED);
 			Region node = taskLists.get(TASKLIST_PINNED).getNode();
@@ -354,6 +375,7 @@ public class GUIController extends Application {
 					String lastCommand = getCommandLog(PREVIOUS); // get previous
 					if (!lastCommand.isEmpty()) { // if not empty, replace current userTextField data
 						userTextField.setText(lastCommand);
+						userTextField.end(); // set cursor behind last chara
 					}
 				}
 				
@@ -361,6 +383,7 @@ public class GUIController extends Application {
 					String lastCommand = getCommandLog(NEXT); // get next item
 					if (!lastCommand.isEmpty()) { // if not empty, replace current userTextField data
 						userTextField.setText(lastCommand);
+						userTextField.end(); // set cursor behind last chara
 					}
 				}
 			}
@@ -394,6 +417,7 @@ public class GUIController extends Application {
 				if(keyEvent.getCode()==KeyCode.T) {
 					if (keyEvent.isControlDown()){
 						userTextField.requestFocus();
+						userTextField.end(); // set cursor behind last chara
 					} else if (keyEvent.isAltDown()) {
 						// switch
 						switchWindow();
@@ -403,6 +427,8 @@ public class GUIController extends Application {
 				if(keyEvent.getCode()==KeyCode.BACK_SLASH) { // zoom in on a task
 					if (TASKLIST_PINNED!=TASKLIST_INVALID) {
 						taskLists.get(TASKLIST_PINNED).focusTask();
+					} else if (TASKLIST_OPENED!=TASKLIST_INVALID) {
+						pinWindow(taskLists.get(TASKLIST_OPENED).getFocusTask());
 					} else {
 						listLoop: for (TaskList list : taskLists) {
 							for (Node node : list.getNode().getChildren()) {
@@ -418,12 +444,23 @@ public class GUIController extends Application {
 
 				if ((keyEvent.getCode()==KeyCode.BACK_SLASH&&keyEvent.isShiftDown())||
 						keyEvent.getCode()==KeyCode.BACK_SPACE) { // see the main list again
-					openList(TASKLIST_PINNED);
+					if (TASKLIST_PINNED!=TASKLIST_INVALID) { // if there is pinned window, open that
+						openList(TASKLIST_PINNED);
+					} else {
+						unpinWindow(); // else clear the focus task
+					}
 				}
 
 				if (keyEvent.getCode()==KeyCode.Z&&
 						(keyEvent.isControlDown()||keyEvent.isAltDown())) { // undo the last command
 					executeCommand("undo");
+				}
+				
+				if (keyEvent.getCode()==KeyCode.F&&
+						(keyEvent.isControlDown())) { // undo the last command
+					userTextField.requestFocus();
+					userTextField.setText(CMD_SEARCH+" ");
+					userTextField.end(); // set cursor behind last chara
 				}
 			}
 		}));//*/
@@ -457,7 +494,6 @@ public class GUIController extends Application {
 	 */
 	protected boolean checkForGuiActions(ParsedCommand parsedCommand) {
 		CommandType command = parsedCommand.getCommandType();
-
 		try {
 			switch (command) {
 			case GUI_OPEN_ALL:
@@ -471,13 +507,18 @@ public class GUIController extends Application {
 				closeAllLists();
 				return true;
 			case GUI_SHOW: // show a specific task in the pinned window
-				TaskList list = taskLists.get(TASKLIST_PINNED);
-				if (list.isListOpen) {
-					list.focusTask();
-				} else {
-					openList(list);
+				if (TASKLIST_PINNED!=TASKLIST_INVALID) {
+					TaskList list = taskLists.get(TASKLIST_PINNED);
+					if (list.isListOpen) {
+						list.focusTask();
+					} else {
+						openList(list);
+					}
+					return true;
+				} else if (TASKLIST_OPENED!=TASKLIST_INVALID) {
+					pinWindow(taskLists.get(TASKLIST_OPENED).getFocusTask());
+					return true;
 				}
-				return true;
 			case GUI_SWITCH:
 				switchWindow();
 				return true;
@@ -511,14 +552,15 @@ public class GUIController extends Application {
 		} catch (ArrayIndexOutOfBoundsException e) {
 			// do nothing
 		} catch (Logic.UnrecognisedCommandException e) {
-			for (int i=0;i<ParsedCommand.COMMAND_CHOICES.length;i++) {
-				if (command.equals(ParsedCommand.COMMAND_CHOICES[i].commandType)) {
+			for (int i=0;i<MyParser.COMMAND_CHOICES.length;i++) {
+				if (command.equals(MyParser.COMMAND_CHOICES[i].commandType)) {
 					model.setConsoleMessage(
 							String.format(MSG_SUGGESTED_COMMAND_FORMAT, 
-									ParsedCommand.COMMAND_CHOICES[i].str[0]));
+									MyParser.COMMAND_CHOICES[i].str[0]));
 					break;
 				}
 			}
+			return true; // because it was caught by GUI controller
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -592,9 +634,12 @@ public class GUIController extends Application {
 				executeCommand(CMD_CLOSEALL); // close all
 				openList(TASKLIST_SEARCH); // focus on search 
 				// then modify the Search List name to include the search term
-				taskLists.get(TASKLIST_SEARCH).setName(
-					String.format(SEARCH_LIST_FORMAT,parsedCommand.getKeywords())
-				);
+				String keywords = parsedCommand.getKeywords();
+				if (!keywords.isEmpty()) {
+					taskLists.get(TASKLIST_SEARCH).setName(
+							String.format(SEARCH_LIST_FORMAT,keywords)
+						);
+				}
 				break;
 			default:
 				break;
@@ -615,9 +660,6 @@ public class GUIController extends Application {
 			model.setConsoleMessage(null); // set empty
 			ParsedCommand parsedCommand = MyParser.parseCommand(input.trim());
 			if (!checkForGuiActions(parsedCommand)) {
-				// in case checkForGUI has an output console
-				String output = model.getConsoleMessage(); 
-				
 				try {
 					model = controller.executeCommand(parsedCommand);
 					// refresh log command, and get new iterator
@@ -627,16 +669,11 @@ public class GUIController extends Application {
 					
 					refreshLists(); // only needed if sent to logic
 				} catch (Logic.UnrecognisedCommandException e) {
-					model.setConsoleMessage(output);
+					//model.setConsoleMessage(output);
 				}
 				
-				// then allocate the console message if there isn't one already after going through logic
-				if (model.getConsoleMessage()==null||model.getConsoleMessage().isEmpty()) {
-					model.setConsoleMessage(output);
-				}				
-				
-				output = checkCommandType(parsedCommand);
-				if (!output.isEmpty()) {
+				String output = checkCommandType(parsedCommand);
+				if (!output.isEmpty()) { // override previous error
 					model.setConsoleMessage(output);
 				}
 			}
@@ -665,7 +702,7 @@ public class GUIController extends Application {
 		taskLists.get(TASKLIST_ALL).addAllTasks(model.getAllTasks());
 
 		// search list
-		taskLists.get(TASKLIST_SEARCH).addAllTasks(model.getTasksToDisplay());
+		taskLists.get(TASKLIST_SEARCH).addAllTasks(model.getSearchList());
 
 		// Completed list
 		try {
@@ -721,13 +758,14 @@ public class GUIController extends Application {
 	 * Opens a specified list and closes all other lists at the same time
 	 * @param listNumber list to open
 	 */
-	protected static void openList(int listNumber) {
-		if (listNumber>=0&&listNumber<taskListNames.length) { // if valid
+	public static void openList(int listNumber) {
+		if (listNumber>TASKLIST_INVALID&&listNumber<taskListNames.length) { // if valid
 			if (listNumber!=TASKLIST_PINNED) {
 				// if it is for pinned window, no need to close anything
 				// else close everything
 				closeAllLists();
-			}	
+			}
+			TASKLIST_OPENED = listNumber;
 			taskLists.get(listNumber).openList();
 		}
 	}
@@ -736,7 +774,7 @@ public class GUIController extends Application {
 	 * Opens a specified list and closes all other lists at the same time
 	 * @param list list to open
 	 */
-	protected static void openList(TaskList list) {
+	public static void openList(TaskList list) {
 		openList(list.listNumber);
 	}
 	

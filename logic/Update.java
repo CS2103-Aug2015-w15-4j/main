@@ -33,11 +33,11 @@ public class Update implements Command {
 			updated = new Task(toUpdate);
 			updated = updateTask(specifications, updated);
 		} else if (toUpdate.getTaskType() == DEADLINETASK) {
-			DeadlineTask newTask = new DeadlineTask((DeadlineTask)toUpdate);
+			DeadlineTask newTask = ((DeadlineTask)toUpdate);
 			updated = newTask;
 			updated = (DeadlineTask)updateTask(specifications, updated);
 		} else if (toUpdate.getTaskType() == EVENT) {
-			Event newTask = new Event((Event)toUpdate);
+			Event newTask = ((Event)toUpdate);
 			updated = newTask;
 			updated = (Event)updateTask(specifications, updated);
 		}

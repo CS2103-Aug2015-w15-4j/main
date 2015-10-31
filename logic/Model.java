@@ -9,7 +9,8 @@ public class Model {
 
 	private static Model instance = null;
 	private String consoleMessage;
-	private List<Task> tasksToDisplay;
+	private List<Task> searchList;
+	private List<Task> todayList;
 	private List<Task> allTasks;
 	private String avatarLocation;
 	private String backgroundLocation;
@@ -23,7 +24,8 @@ public class Model {
 
 	protected Model(String consoleMessage, List<Task> allTasks) {
 		this.consoleMessage = consoleMessage;
-		this.tasksToDisplay = new ArrayList<Task>();
+		this.searchList = new ArrayList<Task>();
+		this.todayList = new ArrayList<Task>();
 		this.allTasks = allTasks;
 		Storage storage = new Storage();
 		avatarLocation = storage.getAvatarPath();
@@ -49,10 +51,13 @@ public class Model {
 	public String getConsoleMessage() {
 		return consoleMessage;
 	}
-
-
-	public List<Task> getTasksToDisplay() {
-		return tasksToDisplay;
+	
+	public List<Task> getTodayList() {
+		return todayList;
+	}
+	
+	public List<Task> getSearchList() {
+		return searchList;
 	}
 
 	public List<Task> getAllTasks() {
@@ -62,15 +67,13 @@ public class Model {
 	public void updateModel(String consoleMessage,List<Task> tasksToDisplay,
 			List<Task> allTasks) {
 		this.consoleMessage = consoleMessage;
-		this.tasksToDisplay = tasksToDisplay;
+		this.searchList = tasksToDisplay;
 		this.allTasks = allTasks;
-
 	}
 
 	public void updateModel(String consoleMessage, List<Task> allTasks) {
 		this.consoleMessage = consoleMessage;
 		this.allTasks = allTasks;
-
 	}
 
 	public void setConsoleMessage(String consoleMessage) {

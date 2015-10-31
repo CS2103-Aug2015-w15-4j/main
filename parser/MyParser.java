@@ -28,7 +28,7 @@ public class MyParser {
 		}
 	}
 
-	private static final Pair[] COMMAND_CHOICES = {
+	public static final Pair[] COMMAND_CHOICES = {
 		new Pair(MyParser.CommandType.ADD, new String[] {"add", "insert", "+"}),
 		new Pair(MyParser.CommandType.DELETE, new String[] {"delete", "del", "remove", "cancel", "x"}),
 		new Pair(MyParser.CommandType.EDIT, new String[] {"edit", "change"}),
