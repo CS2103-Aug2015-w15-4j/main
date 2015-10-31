@@ -42,7 +42,7 @@ public class NattyDateTimeParser extends DateTimeParser{
 	
 	public static Calendar[] parseDateTimeWithNatty(String input) {
 		
-		Calendar[] parsedDates = new Calendar[2];
+		Calendar[] parsedDates = new Calendar[3];
 		Parser parser = new Parser();
 		List<DateGroup> groups = parser.parse(input); // returns empty list if parse fails
 		

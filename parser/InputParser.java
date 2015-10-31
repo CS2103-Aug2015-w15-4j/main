@@ -29,8 +29,8 @@ public abstract class InputParser {
 
 		
 	protected static final String TASK_ID_REGEX = "(^[0-9]+(?=\\s|$))";
-	protected static final String TAG_REGEX = "(#(\\w+))";
-	protected static final String DESCRIPTION_REGEX = "(\"[^\"]*?\")";
+	protected static final String TAG_REGEX = "(?<=\\s|^)(#(\\w+))";
+	protected static final String DESCRIPTION_REGEX = "\"(.*)\"(?!\")";
 	protected static final String TASK_STATUS_REGEX = "(?<=[^//s])(todo|completed|overdue)(?=\\s|$)";
 	protected static final String TASK_TYPE_REGEX = "(?<=\\s|^)(floating(?:task)?|deadline(?:task)?|event(?:task)?)(?:s)?(?=\\s|$)";
 	
@@ -40,7 +40,8 @@ public abstract class InputParser {
 	protected static Pattern taskStatus = Pattern.compile(TASK_STATUS_REGEX);
 	private static final Pattern taskType = Pattern.compile(TASK_TYPE_REGEX);
 	
-	protected static final String notTitleRegex = "(" + "( from | fr | at | to | til | until | by | on )?" + DateTimeParser.DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|(" + TASK_STATUS_REGEX + "))";  	
+	protected static final String NOT_TITLE_REGEX_KEYWORD_OK = "(" + "( from | fr | at | to | til | until | by | on | - )?" + DateTimeParser.NO_KEYWORD_DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|(" + TASK_STATUS_REGEX + "))";  	
+	protected static final String NOT_TITLE_REGEX = "(" + "( from | fr | at | to | til | until | by | on | - )?" + DateTimeParser.DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|(" + TASK_STATUS_REGEX + "))";  	
 	
 	// private static final Logger logger = Logger.getLogger(StringParser.class.getName() );
 	public static final String ERROR_INVALID_TABID = "Error: Invalid tab ID";
@@ -72,18 +73,25 @@ public abstract class InputParser {
 	}
 	
     // returns null if not found
-	public static String getTitleFromString(String inputArgs) {
-		String regex = notTitleRegex;
-		inputArgs = inputArgs.replaceAll(regex, "");
+	public static String getTitleWithKeywordsFromString(String inputArgs) {
+		inputArgs = removeRegexPatternFromString(inputArgs, NOT_TITLE_REGEX_KEYWORD_OK);
 		if (inputArgs.trim().equals("")) {
 			return null;
 		}
-		
-		/*Matcher m = beforeKeyword.matcher(inputArgs);
-		if (m.find()) {
-			inputArgs = m.group();
-		}*/
 		return inputArgs.trim();
+	}
+	
+	public static String getTitleFromString(String inputArgs) {
+		inputArgs = removeRegexPatternFromString(inputArgs, NOT_TITLE_REGEX);
+		if (inputArgs.trim().equals("")) {
+			return null;
+		}
+		return inputArgs.trim();
+	}
+	
+	public static String removeKeywordSection(String input) {
+		input = InputParser.removeRegexPatternFromString(input, DateTimeParser.DATE_KEYWORD_REGEX);
+		return input;
 	}
 
 	public static String getDescriptionFromString(String inputArgs) {
@@ -91,14 +99,9 @@ public abstract class InputParser {
 		String description = null;
 
 		if (m.find()) {
-			description = m.group();
+			description = m.group(1);
 		}
-
-		if (description != null) {
-			return description.substring(1, description.length() - 1);
-		} else {
-			return null;
-		}
+		return description;
 	}
 
 	/**
@@ -155,6 +158,9 @@ public abstract class InputParser {
 	}
 	
 	public static String removeRegexPatternFromString(String input, String regex) {
+		if (input == null) {
+			return null;
+		}
 		input = input.replaceAll(regex, "");
 		return input.trim();
 	}
@@ -191,8 +197,7 @@ public abstract class InputParser {
 		if (m.find()) {
 			type = m.group(1);
 		}
-		System.out.println(type);
-
+		
 		return taskTypeToEnum(type);
 	}
 

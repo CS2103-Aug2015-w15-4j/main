@@ -12,8 +12,11 @@ public class AddParser extends InputParser {
 			String inputArgs = input[INDEX_FOR_ARGS];
 			
 			try {
-				String parsedTitle = getTitleFromString(inputArgs);
+				String parsedTitle = getTitleWithKeywordsFromString(inputArgs);
 				Calendar[] parsedTimes = getDatesTimesFromString(inputArgs);
+				if (parsedTimes != null && parsedTimes.length > 2) {
+					parsedTitle = removeKeywordSection(parsedTitle);
+				}
 				String parsedDescription = getDescriptionFromString(inputArgs);
 				ArrayList<String> parsedTags = getTagsFromString(inputArgs);
 				

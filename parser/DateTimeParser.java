@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 public abstract class DateTimeParser {
 	//private static Pattern parentheses = Pattern.compile("([(][a-zA-Z0-9\\s]+[)])");
-	private static String DATE_KEYWORD_REGEX = "(?<=\\s|^)(on|by)\\s([^\"#]*)";
+	protected static String DATE_KEYWORD_REGEX = "(?<=\\s|^)(on|by)\\s(?!.*( on | by ))([^\"#]*)";
 	private static Pattern DATE_KEYWORD_PATTERN = Pattern.compile(DATE_KEYWORD_REGEX);
 	
 	private static String TAG_OR_DESCRIPTION_REGEX = "(" + StringParser.TAG_REGEX + "|" + StringParser.DESCRIPTION_REGEX + ")";  	                                        
@@ -17,6 +17,8 @@ public abstract class DateTimeParser {
 	private static Pattern NON_NATTY_DATE_OR_TIME_PATTERN = Pattern.compile(NON_NATTY_DATE_TIME_REGEX);
 
 	protected static String DATE_TIME_REGEX = "(" + TimeParser.TIME_REGEX + "|" + FormattedDateTimeParser.FORMATTED_DATE_REGEX + "|" + FlexibleDateTimeParser.FLEXIBLE_DATE_REGEX + "|" + DATE_KEYWORD_REGEX + ")";
+	protected static String NO_KEYWORD_DATE_TIME_REGEX = "(" + TimeParser.TIME_REGEX + "|" + FormattedDateTimeParser.FORMATTED_DATE_REGEX + "|" + FlexibleDateTimeParser.FLEXIBLE_DATE_REGEX + ")";
+	
 	protected DateTimeParser nextParser;
 	
 	abstract protected String getUnparsedInput();
@@ -60,9 +62,8 @@ public abstract class DateTimeParser {
 		String dateSection = "";
 
 		if (m.find()) {
-			dateSection = m.group(2);
+			dateSection = m.group(3);
 		}
-
 		return dateSection.trim();
 	}
 		

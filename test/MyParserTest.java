@@ -112,27 +112,27 @@ public class MyParserTest {
 		assertEquals(taskTags, pcAdd.getTags());
 		assertEquals(TaskType.FLOATING_TASK, pcAdd.getTaskType());
 
-        /* NOT SUPPORTED YET
+        
 		// Check support for floating task containing keyword
-		pcAdd = ParsedCommand.parseCommand("Add meeting with john on software requirements #cs2103 #proj #cs2101");
+		pcAdd = MyParser.parseCommand("Add meeting with john on software requirements #cs2103 #proj #cs2101");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
-		assertEquals("meeting with john", pcAdd.getTitle());
-		assertEquals("", pcAdd.getDescription());
+		assertEquals("meeting with john on software requirements", pcAdd.getTitle());
+		assertEquals(null, pcAdd.getDescription());
 		assertEquals(null, pcAdd.getFirstDate());
 		assertEquals(null, pcAdd.getSecondDate());
 		assertEquals(taskTags, pcAdd.getTags());
-		assertEquals(1, pcAdd.getTaskType());
+		assertEquals(TaskType.FLOATING_TASK, pcAdd.getTaskType());
 		
 		// Check support for floating task containing keyword
-		pcAdd = ParsedCommand.parseCommand("Add meeting with john of 3 software requirements #cs2103 #proj #cs2101");
+		pcAdd = MyParser.parseCommand("Add meeting with john on 3 software requirements #cs2103 #proj #cs2101");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
-		assertEquals("meeting with john", pcAdd.getTitle());
-		assertEquals("", pcAdd.getDescription());
+		assertEquals("meeting with john on 3 software requirements", pcAdd.getTitle());
+		assertEquals(null, pcAdd.getDescription());
 		assertEquals(null, pcAdd.getFirstDate());
 		assertEquals(null, pcAdd.getSecondDate());
 		assertEquals(taskTags, pcAdd.getTags());
-		assertEquals(1, pcAdd.getTaskType());
-		
+		assertEquals(TaskType.FLOATING_TASK, pcAdd.getTaskType());
+		/* NOT SUPPORTED YET
 		*/
 
 		// Check support for deadline task formatted date (no keyword)
@@ -145,8 +145,6 @@ public class MyParserTest {
 		assertEquals(emptyArrayList, pcAdd.getTags());
 		assertEquals(TaskType.EVENT, pcAdd.getTaskType());
 		
-		
-
 		// Check support for deadline task natty
 		pcAdd = MyParser.parseCommand("+ meeting with john on tmr at 12pm");
 		assertEquals(MyParser.CommandType.ADD, pcAdd.getCommandType());
@@ -182,6 +180,15 @@ public class MyParserTest {
 		assertEquals(StringParser.parseStringToDate("Wed Nov 24 13:30:00 SGT 2010"), pcAdd.getSecondDate().getTime());
 		assertEquals(TaskType.EVENT, pcAdd.getTaskType());
 		
+		// Check support for event spanning 2 days
+		pcAdd = MyParser.parseCommand("add meeting with john on next mon till next tues #cs2103 #proj #cs2101");
+		assertEquals(MyParser.CommandType.ADD, pcAdd.getCommandType());
+		assertEquals("meeting with john", pcAdd.getTitle());
+		assertEquals(null, pcAdd.getDescription());
+		assertEquals(StringParser.parseStringToDate("Mon Nov 2 23:59:00 SGT 2015"), pcAdd.getFirstDate().getTime());
+		assertEquals(StringParser.parseStringToDate("Tue Nov 3 23:59:00 SGT 2015"), pcAdd.getSecondDate().getTime());
+		assertEquals(TaskType.EVENT, pcAdd.getTaskType());
+				
 		/********************DEFINITION OF 'NEXT TUES'???****************************/
 		/*
 		// Check support for event spanning 2 days

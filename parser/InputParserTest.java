@@ -72,18 +72,18 @@ public class InputParserTest {
 	
 	@Test
 	public void testGetTitleFromString() {
-		assertEquals("hello this is my task", InputParser.getTitleFromString(" hello this is my task 12:00 \"description\" #tags #tag1"));
-		assertEquals("13:30hello this is my task", InputParser.getTitleFromString("13:30hello this is my task"));
-		assertEquals("hello this is   my task", InputParser.getTitleFromString(" hello this is 12/12/12 5pm my task"));
-		assertEquals("hello  task", InputParser.getTitleFromString(" hello \"this is my\" task 12:00"));
-		assertEquals("Meet John about proposal", InputParser.getTitleFromString("12.2-13 Meet John about proposal #cs2103 12:00h"));
-		assertEquals("Meet John about proposal", InputParser.getTitleFromString("#cs2101 Meet John about proposal on 23 jan #cs2103 12:00 12/2/13"));
-		assertEquals("Meet John about proposal", InputParser.getTitleFromString(" 12:00 12/2/13 Meet John about proposal #cs2103 todo"));
-		assertEquals(null, InputParser.getTitleFromString("23/1/15 2pm \"description\" #tag1 #tag2"));
-		assertEquals("Meet John about proposal", InputParser.getTitleFromString("#cs2101 Meet John about proposal 12:00 to 1:30pm 12/2/13"));
-		assertEquals("Meet John about proposal", InputParser.getTitleFromString("#cs2101 Meet John about proposal #cs2103 12:00 until 15:30 12/2/13"));
-		assertEquals("Meet John about proposal", InputParser.getTitleFromString("#cs2101 Meet John about proposal 23 jan #cs2103 from 12:00 to 12/2/13"));
-		assertEquals("Meet John about proposal", InputParser.getTitleFromString("#cs2101 Meet John about proposal 23 jan #cs2103 at 12:00 to 12/2/13"));	
+		assertEquals("hello this is my task", InputParser.getTitleWithKeywordsFromString(" hello this is my task 12:00 \"description\" #tags #tag1"));
+		assertEquals("13:30hello this is my task", InputParser.getTitleWithKeywordsFromString("13:30hello this is my task"));
+		assertEquals("hello this is   my task", InputParser.getTitleWithKeywordsFromString(" hello this is 12/12/12 5pm my task"));
+		assertEquals("hello  task", InputParser.getTitleWithKeywordsFromString(" hello \"this is my\" task 12:00"));
+		assertEquals("Meet John about proposal", InputParser.getTitleWithKeywordsFromString("12.2-13 Meet John about proposal #cs2103 12:00h"));
+		assertEquals("Meet John about proposal", InputParser.getTitleWithKeywordsFromString("#cs2101 Meet John about proposal on 23 jan #cs2103 12:00 12/2/13"));
+		assertEquals("Meet John about proposal", InputParser.getTitleWithKeywordsFromString(" 12:00 12/2/13 Meet John about proposal #cs2103 todo"));
+		assertEquals(null, InputParser.getTitleWithKeywordsFromString("23/1/15 2pm \"description\" #tag1 #tag2"));
+		assertEquals("Meet John about proposal", InputParser.getTitleWithKeywordsFromString("#cs2101 Meet John about proposal 12:00 to 1:30pm 12/2/13"));
+		assertEquals("Meet John about proposal", InputParser.getTitleWithKeywordsFromString("#cs2101 Meet John about proposal #cs2103 12:00 until 15:30 12/2/13"));
+		assertEquals("Meet John about proposal", InputParser.getTitleWithKeywordsFromString("#cs2101 Meet John about proposal 23 jan #cs2103 from 12:00 to 12/2/13"));
+		assertEquals("Meet John about proposal", InputParser.getTitleWithKeywordsFromString("#cs2101 Meet John about proposal 23 jan #cs2103 at 12:00 to 12/2/13"));	
 	}
 
 	@Test
@@ -150,7 +150,7 @@ public class InputParserTest {
 	@Test
 	public void testGetDescriptionFromString() {
 		assertEquals("and this my description", InputParser.getDescriptionFromString("this is my task \"and this my description\" blah blah 23/3/12"));
-		assertEquals("my desc", InputParser.getDescriptionFromString("Meet John about proposal @1200 #cs2103 \"my desc\" #cs2101 \"lalala\""));
+		assertEquals("my desc\" #cs2101 \"lalala", InputParser.getDescriptionFromString("Meet John about proposal @1200 #cs2103 \"my desc\" #cs2101 \"lalala\""));
 		assertEquals(null, InputParser.getDescriptionFromString("Meet John about proposal @1200 #cs2103 #cs2101"));
 	}
 
