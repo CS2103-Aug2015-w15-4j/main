@@ -181,7 +181,16 @@ public class Storage {
 		}
 	}
 
-	public boolean setFileLocation(String filePath) throws IOException {
+	public boolean setFileLocation(String filePath) throws Exception {
+
+		if (filePath.startsWith("/") || filePath.startsWith("\\")) {
+			if (filePath.length() == 1) {
+				return false;
+			} else {
+				filePath = "." + filePath;
+			}
+		}
+
 		File newFile = new java.io.File(filePath);
 		String separator = File.separator;
 		String path = null, finalPath = null;
@@ -190,7 +199,7 @@ public class Storage {
 			newFile.mkdirs();
 			path = newFile.getPath();
 			finalPath = path + separator + DATA_FILENAME;
-			File newPath = new File(path + separator + DATA_FILENAME);
+			File newPath = new File(finalPath);
 			try {
 				if (createFile(finalPath)) {
 					if (newPath.canWrite()) {
@@ -203,7 +212,8 @@ public class Storage {
 					}
 				}
 			} catch (SecurityException se) {
-				se.printStackTrace();
+				// throw new Exception();
+				return false;
 			}
 		} else {
 			if (newFile.isDirectory()) {
@@ -222,13 +232,14 @@ public class Storage {
 						}
 					}
 				} catch (SecurityException se) {
-					se.printStackTrace();
+					// throw new Exception();
+					return false;
 				}
 			} else if (newFile.isFile()) {
 				copyAndDelete(dataFilePath, filePath);
-				return true;
 			}
 		}
+		// throw new Exception();
 		return false;
 	}
 
@@ -277,9 +288,10 @@ public class Storage {
 		try {
 			File afile = new File(oldPath); // original path
 			File bfile = new File(newFilePath); // new path
+			File temp = File.createTempFile("temp", ".tmp"); // temp file
 
 			inStream = new FileInputStream(afile);
-			outStream = new FileOutputStream(bfile);
+			outStream = new FileOutputStream(temp);
 
 			byte[] buffer = new byte[65536];
 
@@ -292,19 +304,41 @@ public class Storage {
 			inStream.close();
 			outStream.close();
 
-			// delete the original file
-			afile.delete();
+			// System.out.println("afile : " + afile.getCanonicalFile());
+			// System.out.println("bfile : " + bfile.getCanonicalFile());
 
-			try {
-				// delete folder
-				String absolutePath = afile.getAbsolutePath();
-				String filePath = absolutePath.substring(0,
-						absolutePath.lastIndexOf(File.separator));
-				Path paths = Paths.get(filePath);
-				Files.delete(paths);
-			} catch (FileSystemException e) {
+			// delete the original file
+			if (!afile.getCanonicalFile().equals(bfile.getCanonicalFile())) {
+				afile.delete();
+
+				// delete folder is up to one level only
+				try {
+					// delete folder
+					String absolutePath = afile.getAbsolutePath();
+					String filePath = absolutePath.substring(0,
+							absolutePath.lastIndexOf(File.separator));
+					Path paths = Paths.get(filePath);
+					Files.delete(paths);
+				} catch (FileSystemException e) {
+				}
+
 			}
 
+			buffer = new byte[65536];
+			length = 0;
+			inStream = new FileInputStream(temp);
+			outStream = new FileOutputStream(bfile);
+
+			buffer = new byte[65536];
+			// copy the file content in bytes
+			while ((length = inStream.read(buffer)) > 0) {
+				outStream.write(buffer, 0, length);
+			}
+
+			inStream.close();
+			outStream.close();
+
+			temp.delete();
 			fileName = newFilePath;
 
 		} catch (IOException e) {
@@ -318,6 +352,7 @@ public class Storage {
 			try {
 				file.createNewFile();
 			} catch (IOException e) {
+				e.printStackTrace();
 				return false;
 			}
 		}
