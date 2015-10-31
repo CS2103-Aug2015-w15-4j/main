@@ -17,13 +17,15 @@ import java.util.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
+import gui.GUIController;
 import parser.MyParser;
+import parser.MyParser.CommandType;
 import parser.ParsedCommand;
 import parser.ParsedCommand.ConfigType;
 import parser.ParsedCommand.TaskType;
 import parser.StringParser;
 
-public class ParsedCommandTest {
+public class MyParserTest {
 	private ParsedCommand pc;
 	private ParsedCommand pcAdd;
 	private ParsedCommand pcUndo;
@@ -33,6 +35,7 @@ public class ParsedCommandTest {
 	private ParsedCommand pcDisplay;
 	private ParsedCommand pcConfig;
 	private ParsedCommand pcHelp;
+	private ParsedCommand pcGui;
 	
 	private ArrayList<String> emptyArrayList = new ArrayList<String>();
 	// private ParsedCommand pcGui;
@@ -56,7 +59,7 @@ public class ParsedCommandTest {
  
 		InputStream ins = new ByteArrayInputStream(config.getBytes());
  
-		Logger logger = Logger.getLogger(ParsedCommandTest.class.getName());
+		Logger logger = Logger.getLogger(MyParserTest.class.getName());
 		try {
 			LogManager.getLogManager().readConfiguration(ins);
 		} catch (IOException e) {
@@ -70,7 +73,7 @@ public class ParsedCommandTest {
 	}
 
 	@Test
-	public void testParsedCommand() {
+	public void testParseCommand() {
 		// Check null input returns no user input error
 		pc = MyParser.parseCommand(null);
 		assertEquals(MyParser.CommandType.ERROR, pc.getCommandType());
@@ -205,12 +208,6 @@ public class ParsedCommandTest {
 		assertEquals(MyParser.CommandType.ERROR, pcAdd.getCommandType());
 		assertEquals("Error: Invalid date(s) input", pcAdd.getErrorMessage());
 		
-		
-		// Check obviously invalid dates return error
-		pcAdd = MyParser.parseCommand("Add meeting with john 41/4/10 12:00 #proj");
-		assertEquals(MyParser.CommandType.ERROR, pcAdd.getCommandType());
-		assertEquals("Error: Invalid date(s) input", pcAdd.getErrorMessage());
-		
 		// Check missing arguments returns no arguments error
 		pcAdd = MyParser.parseCommand("Add");
 		assertEquals(MyParser.CommandType.ERROR, pcAdd.getCommandType());
@@ -268,15 +265,15 @@ public class ParsedCommandTest {
 		pcDisplay = MyParser.parseCommand("search 23/11/15");
 		assertEquals(MyParser.CommandType.SEARCH, pcDisplay.getCommandType());
 		//assertEquals("meeting", pcDisplay.getKeywords());
-		assertEquals(StringParser.parseStringToDate("Mon Nov 23 23:59:00 SGT 2015"), pcDisplay.getFirstDate().getTime());
-		assertEquals(null, pcDisplay.getSecondDate());
+		assertEquals(StringParser.parseStringToDate("Mon Nov 23 00:00:00 SGT 2015"), pcDisplay.getFirstDate().getTime());
+		assertEquals(StringParser.parseStringToDate("Mon Nov 23 23:59:00 SGT 2015"), pcDisplay.getSecondDate().getTime());
 		
 		// Check search function works
 		pcDisplay = MyParser.parseCommand("show meeting 23/11/15 #tag todo deadline");
 		assertEquals(MyParser.CommandType.SEARCH, pcDisplay.getCommandType());
 		assertEquals("meeting", pcDisplay.getKeywords());
-		assertEquals(StringParser.parseStringToDate("Mon Nov 23 23:59:00 SGT 2015"), pcDisplay.getFirstDate().getTime());
-		assertEquals(null, pcDisplay.getSecondDate());
+		assertEquals(StringParser.parseStringToDate("Mon Nov 23 00:00:00 SGT 2015"), pcDisplay.getFirstDate().getTime());
+		assertEquals(StringParser.parseStringToDate("Mon Nov 23 23:59:00 SGT 2015"), pcDisplay.getSecondDate().getTime());
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("tag");
 		assertEquals(list, pcDisplay.getTags());
@@ -284,11 +281,11 @@ public class ParsedCommandTest {
 		assertEquals(TaskType.DEADLINE_TASK, pcDisplay.getTaskType());
 		
 		// Check search function works
-		pcDisplay = MyParser.parseCommand("show meeting 23/11/15 #tag todo");
+		pcDisplay = MyParser.parseCommand("show meeting 23/11/15 23:59 #tag todo");
 		assertEquals(MyParser.CommandType.SEARCH, pcDisplay.getCommandType());
 		assertEquals("meeting", pcDisplay.getKeywords());
 		assertEquals(StringParser.parseStringToDate("Mon Nov 23 23:59:00 SGT 2015"), pcDisplay.getFirstDate().getTime());
-		assertEquals(null, pcDisplay.getSecondDate());
+		assertEquals(StringParser.parseStringToDate("Mon Nov 23 23:59:00 SGT 2015"), pcDisplay.getSecondDate().getTime());
 		list = new ArrayList<String>();
 		list.add("tag");
 		assertEquals(list, pcDisplay.getTags());
@@ -461,10 +458,29 @@ public class ParsedCommandTest {
 	
 	@Test
 	public void testGuiCommands() {
-		/*
-		pcGui = ParsedCommand.parseCommand("Open 1");
+		pcGui = MyParser.parseCommand("Open 1");
 		assertEquals(CommandType.GUI_OPEN, pcGui.getCommandType());
-		assertEquals(1, pcGui.getGuiTabId());
-		*/
+		assertEquals("1", pcGui.getGuiType());
+		
+		String tabName = GUIController.taskListNames[2];
+		pcGui = MyParser.parseCommand("Close " + tabName);
+		assertEquals(CommandType.GUI_CLOSE, pcGui.getCommandType());
+		assertEquals("2", pcGui.getGuiType());
+		
+		pcGui = MyParser.parseCommand("Close random");
+		assertEquals(CommandType.ERROR, pcGui.getCommandType());
+		assertEquals("Error: Invalid tab ID", pcGui.getErrorMessage());
+		
+		pcGui = MyParser.parseCommand("pin");
+		assertEquals(CommandType.ERROR, pcGui.getCommandType());
+		assertEquals("Error: No arguments entered", pcGui.getErrorMessage());
+		
+		pcGui = MyParser.parseCommand("log");
+		assertEquals(CommandType.GUI_LOG, pcGui.getCommandType());
+		
+		pcGui = MyParser.parseCommand("mAin");
+		assertEquals(CommandType.GUI_MAIN, pcGui.getCommandType());
+		
+		// Missing switch test
 	}
 }

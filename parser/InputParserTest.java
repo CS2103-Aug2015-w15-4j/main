@@ -1,7 +1,9 @@
-package test;
+package parser;
 
 import static org.junit.Assert.*;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -9,11 +11,64 @@ import java.util.Date;
 
 import org.junit.Test;
 
-import parser.StringParser;
-import parser.InputParser;
+import parser.MyParser.CommandType;
 import parser.ParsedCommand.TaskType;
 
-public class StringParserTest {
+public class InputParserTest {
+	
+	public static Date parseStringToDate(String input) {
+		Date date = new Date();
+			SimpleDateFormat format = new SimpleDateFormat(
+					"EEE MMM dd HH:mm:ss zzz yyyy");
+			try {
+				date = format.parse(input);
+			} catch (ParseException e) {
+				return null;
+			}
+			return date;
+	}
+	
+	@Test
+	public void testParse() {
+		
+	}
+
+	@Test
+	public void testCreateParsedCommandError() {
+		ParsedCommand pc = InputParser.createParsedCommandError("ERROR");
+		assertEquals(MyParser.CommandType.ERROR, pc.getCommandType());
+		assertEquals("ERROR", pc.getErrorMessage());
+		
+		pc = InputParser.createParsedCommandError(null);
+		assertEquals(MyParser.CommandType.ERROR, pc.getCommandType());
+		assertEquals("Error: Missing error message", pc.getErrorMessage());
+		
+		pc = InputParser.createParsedCommandError("");
+		assertEquals(MyParser.CommandType.ERROR, pc.getCommandType());
+		assertEquals("Error: Missing error message", pc.getErrorMessage());
+	}
+
+	@Test
+	public void testCreateParsedCommand() {
+		ParsedCommand pc = InputParser.createParsedCommand(CommandType.UNDO);
+		assertEquals(CommandType.UNDO, pc.getCommandType());
+		
+		pc = InputParser.createParsedCommand(CommandType.ADD);
+		assertEquals(MyParser.CommandType.ERROR, pc.getCommandType());
+		assertEquals("Error: Missing task title", pc.getErrorMessage());
+		
+		pc = InputParser.createParsedCommand(null);
+		assertEquals(MyParser.CommandType.ERROR, pc.getCommandType());
+		assertEquals("Error: Missing command type for building ParsedCommand", pc.getErrorMessage());
+		
+	}
+
+	@Test
+	public void testIsMissingArguments() {
+		assertEquals(true, InputParser.isMissingArguments(new String[] {""}));
+		assertEquals(false, InputParser.isMissingArguments(new String[] {"", ""}));
+		assertEquals(false, InputParser.isMissingArguments(new String[] {null, null, ""}));
+	}
 	
 	@Test
 	public void testGetTitleFromString() {
@@ -40,7 +95,7 @@ public class StringParserTest {
 		assertEquals(null, InputParser.getDatesTimesFromString("Meet John about proposal 1200 #cs2103 #cs2101")[1]);
 		
 		// Check support for flexible start date no time
-		assertEquals(InputParser.parseStringToDate("Fri Apr 1 23:59:00 SGT 2016"), InputParser.getDatesTimesFromString("Add meeting with john on 1st April")[0].getTime());
+		assertEquals(parseStringToDate("Fri Apr 1 23:59:00 SGT 2016"), InputParser.getDatesTimesFromString("Add meeting with john on 1st April")[0].getTime());
 		assertEquals(null, InputParser.getDatesTimesFromString("Add meeting with john on 1st April")[1]);
 
 		// Check support for natty start date no time, keyword
@@ -147,4 +202,5 @@ public class StringParserTest {
 		assertEquals(null, InputParser.getTaskTypeFromString("eventsal"));
 
 	}
+
 }

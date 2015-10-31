@@ -40,15 +40,17 @@ public abstract class InputParser {
 	protected static Pattern taskStatus = Pattern.compile(TASK_STATUS_REGEX);
 	private static final Pattern taskType = Pattern.compile(TASK_TYPE_REGEX);
 	
-	private static final String notTitleRegex = "(" + "( from | fr | at | to | til | until | by | on )?" + DateTimeParser.DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|(" + TASK_STATUS_REGEX + "))";  	
+	protected static final String notTitleRegex = "(" + "( from | fr | at | to | til | until | by | on )?" + DateTimeParser.DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|(" + TASK_STATUS_REGEX + "))";  	
 	
 	// private static final Logger logger = Logger.getLogger(StringParser.class.getName() );
-	private static final String NOT_KEYWORDS_REGEX = notTitleRegex + "|" + TASK_TYPE_REGEX;
 	public static final String ERROR_INVALID_TABID = "Error: Invalid tab ID";
+	
+	protected static final int INDEX_FOR_START = 0;
+	protected static final int INDEX_FOR_END = 1;
 	
 
 	abstract ParsedCommand parse(String[] input);
-
+	
 	static ParsedCommand createParsedCommandError(String errorMsg) {
 		ParsedCommand pc;
 		try {
@@ -57,7 +59,7 @@ public abstract class InputParser {
 						 		  .build();
 			return pc;
 		} catch (InvalidArgumentsForParsedCommandException e) {
-			return null;
+			return createParsedCommandError(e.getMessage());
 		}
 	}
 
@@ -66,19 +68,6 @@ public abstract class InputParser {
 			return new ParsedCommand.Builder(cmd).build();
 		} catch (InvalidArgumentsForParsedCommandException e) {
 			return InputParser.createParsedCommandError(e.getMessage());
-		}
-	}
-	
-	// Used for testing purposes
-	public static Date parseStringToDate(String input) {
-		Date date = new Date();
-		try {
-			SimpleDateFormat format = new SimpleDateFormat(
-					"EEE MMM dd HH:mm:ss zzz yyyy");
-			date = format.parse(input);
-			return date;
-		} catch (ParseException | java.text.ParseException pe) {
-			throw new IllegalArgumentException();
 		}
 	}
 	
@@ -148,7 +137,6 @@ public abstract class InputParser {
 	}
 	
 	public static Calendar[] getDatesTimesFromString(String input) {
-		System.out.println("start date time");
 		DateTimeParser dateTimeParserChain = getChainOfParsers();
 		String[] emptyArr = new String[4];
 		String dateSection = DateTimeParser.extractDateTimeSectionFromString(input);
@@ -222,13 +210,6 @@ public abstract class InputParser {
 		}
 	}
 
-	static String getKeywordsFromString(String input) {
-		return removeRegexPatternFromString(input, NOT_KEYWORDS_REGEX);
-	}
-	
-	static boolean hasTaskId(int taskId) {
-		return taskId >= 0;
-	}
 	
 	static boolean isMissingArguments(String[] input) {
 		return input.length < 2;
