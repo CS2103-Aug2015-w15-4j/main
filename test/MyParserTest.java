@@ -103,10 +103,10 @@ public class MyParserTest {
 		taskTags.add("cs2101");
 
 		// Check support for floating task
-		pcAdd = MyParser.parseCommand("Add meeting with john #cs2103 #proj \"rmb to bring notes\" #cs2101");
+		pcAdd = MyParser.parseCommand("Add meeting with john #cs2103 #proj \"rmb to \"bring\" notes\" #cs2101");
 		assertEquals(MyParser.CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
-		assertEquals("rmb to bring notes", pcAdd.getDescription());
+		assertEquals("rmb to \"bring\" notes", pcAdd.getDescription());
 		assertEquals(null, pcAdd.getFirstDate());
 		assertEquals(null, pcAdd.getSecondDate());
 		assertEquals(taskTags, pcAdd.getTags());
@@ -114,9 +114,9 @@ public class MyParserTest {
 
         
 		// Check support for floating task containing keyword
-		pcAdd = MyParser.parseCommand("Add meeting with john on software requirements #cs2103 #proj #cs2101");
+		pcAdd = MyParser.parseCommand("Add meeting with \\\"john\\\" on software requirements #cs2103 #proj #cs2101");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
-		assertEquals("meeting with john on software requirements", pcAdd.getTitle());
+		assertEquals("meeting with \"john\" on software requirements", pcAdd.getTitle());
 		assertEquals(null, pcAdd.getDescription());
 		assertEquals(null, pcAdd.getFirstDate());
 		assertEquals(null, pcAdd.getSecondDate());

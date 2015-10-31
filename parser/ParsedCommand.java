@@ -208,13 +208,16 @@ public class ParsedCommand {
 		private TaskType taskType = null;
 		private Boolean isCompleted = null;
 		private ConfigType configType = null;
+		
+		static final String ESC_CHAR_REGEX = "(?<!\\\\)(\\\\)";
+		
 
 		public Builder(MyParser.CommandType cmdType) {
 			this.cmdType = cmdType;
 		}
 		
 		public Builder title(String title) {
-			this.title = title;
+			this.title = removeEscapeChars(title);
 			return this;
 		}
 		
@@ -274,7 +277,7 @@ public class ParsedCommand {
 		}
 		
 		public Builder searchKeywords(String keywords) {
-			this.searchKeywords = keywords;
+			this.searchKeywords = removeEscapeChars(keywords);
 			return this;
 		}
 		
@@ -364,6 +367,14 @@ public class ParsedCommand {
 
 		private void setTaskType() {
 			this.taskType = determineTaskType(this.firstDate, this.secondDate);
+		}
+		
+		private static String removeEscapeChars(String input) {
+			if (input == null) {
+				return null;
+			} else {
+				return input.replaceAll(ESC_CHAR_REGEX, "");
+			}
 		}
 		
 		private static TaskType determineTaskType(Calendar start, Calendar end) {

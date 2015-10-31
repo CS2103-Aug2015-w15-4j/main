@@ -5,7 +5,7 @@ import java.util.Calendar;
 import parser.MyParser.CommandType;
 
 public class ShowParser extends InputParser {
-	private static final String NOT_KEYWORDS_REGEX = notTitleRegex + "|" + TASK_TYPE_REGEX;
+	private static final String NOT_KEYWORDS_REGEX = NOT_TITLE_REGEX + "|" + TASK_TYPE_REGEX;
 	
 	private static String getKeywordsFromString(String input) {
 		return removeRegexPatternFromString(input, NOT_KEYWORDS_REGEX);

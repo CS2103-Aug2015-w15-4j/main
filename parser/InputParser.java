@@ -26,11 +26,10 @@ public abstract class InputParser {
 	
 
 	static final String TO_REGEX = "-|to|until|till";
-
 		
 	protected static final String TASK_ID_REGEX = "(^[0-9]+(?=\\s|$))";
 	protected static final String TAG_REGEX = "(?<=\\s|^)(#(\\w+))";
-	protected static final String DESCRIPTION_REGEX = "\"(.*)\"(?!\")";
+	protected static final String DESCRIPTION_REGEX = "(?<!\\\\)\"(.*)(?<!\\\\)\"(?!.*((?<!\\\\)\"))";
 	protected static final String TASK_STATUS_REGEX = "(?<=[^//s])(todo|completed|overdue)(?=\\s|$)";
 	protected static final String TASK_TYPE_REGEX = "(?<=\\s|^)(floating(?:task)?|deadline(?:task)?|event(?:task)?)(?:s)?(?=\\s|$)";
 	
@@ -40,7 +39,7 @@ public abstract class InputParser {
 	protected static Pattern taskStatus = Pattern.compile(TASK_STATUS_REGEX);
 	private static final Pattern taskType = Pattern.compile(TASK_TYPE_REGEX);
 	
-	protected static final String NOT_TITLE_REGEX_KEYWORD_OK = "(" + "( from | fr | at | to | til | until | by | on | - )?" + DateTimeParser.NO_KEYWORD_DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|(" + TASK_STATUS_REGEX + "))";  	
+	protected static final String NOT_TITLE_REGEX_KEYWORD_OK = "(" + "( from | fr | at | to | til | until | by | on | - )?" + DateTimeParser.NO_KEYWORD_DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|(" + TASK_STATUS_REGEX + ")|((?<=\\s|^)(tmr|tomorrow|tomorow)(?=\\s|$)))";  	
 	protected static final String NOT_TITLE_REGEX = "(" + "( from | fr | at | to | til | until | by | on | - )?" + DateTimeParser.DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|(" + TASK_STATUS_REGEX + "))";  	
 	
 	// private static final Logger logger = Logger.getLogger(StringParser.class.getName() );
@@ -90,7 +89,7 @@ public abstract class InputParser {
 	}
 	
 	public static String removeKeywordSection(String input) {
-		input = InputParser.removeRegexPatternFromString(input, DateTimeParser.DATE_KEYWORD_REGEX);
+		input = removeRegexPatternFromString(input, DateTimeParser.DATE_KEYWORD_REGEX);
 		return input;
 	}
 
