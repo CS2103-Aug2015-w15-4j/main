@@ -308,9 +308,13 @@ public class ParsedCommand {
 		}
 		
 		private void validateGuiType() throws InvalidArgumentsForParsedCommandException {
-			int tabNumber = Integer.valueOf(guiType);
-			if (tabNumber < GUIController.taskListNames.length && tabNumber >= 0) {
-				return;
+			try {
+				int tabNumber = Integer.parseInt(guiType);
+				if (tabNumber < GUIController.taskListNames.length && tabNumber >= 0) {
+					return;
+				}
+			} catch (NumberFormatException e) {
+				// do nothing
 			}
 			
 			for (int i = 0; i < GUIController.taskListNames.length; i++) {
