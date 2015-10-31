@@ -43,7 +43,7 @@ public class MainWindow {
 	public void addToList(TaskList list) {
 		listOfTaskLists.add(list);
 		list.isPinnedWindow = false;
-		list.clearHighlight(); // clear the detailed View
+		list.clearDetailedWindow(); // clear the detailed View
 		list.closeList(); // start off closed
 		list.getNode().prefWidthProperty().bind(master.widthProperty().subtract(8));
 		master.getChildren().add(list.getNode());
