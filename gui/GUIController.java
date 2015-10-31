@@ -207,7 +207,7 @@ public class GUIController extends Application {
 
 		// add all lists to to the center
 		center = new MainWindow();
-		taskLists.get(TASKLIST_SEARCH).addAllTasks(model.getTasksToDisplay());
+		taskLists.get(TASKLIST_SEARCH).addAllTasks(model.getSearchList());
 		for (int i=0; i<taskLists.size();i++) {
 			center.addToList(taskLists.get(i));
 		}
