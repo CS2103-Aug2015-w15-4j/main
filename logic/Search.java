@@ -57,7 +57,7 @@ public class Search {
 	private static ArrayList<Task> queryIndex(Directory index, Query q)
 			throws IOException {
 		// Search
-	    int hitsPerPage = 10;
+	    int hitsPerPage = 1000;
 	    IndexReader reader = DirectoryReader.open(index);
 	    IndexSearcher searcher = new IndexSearcher(reader);
 	    TopScoreDocCollector collector = TopScoreDocCollector.create(hitsPerPage);
@@ -116,7 +116,7 @@ public class Search {
 	    TermRangeQuery rq = TermRangeQuery.newStringRange("end" ,sFromDate,sToDate,true,true);
 	    
 	    ArrayList<Task> hitList = queryIndex(index, rq);
-	    
+		
 		return hitList;
 	}
 

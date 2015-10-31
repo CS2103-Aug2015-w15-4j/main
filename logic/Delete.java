@@ -10,12 +10,14 @@ public class Delete implements Command {
 	private Task toDelete;
 	private int taskId;
 	private Storage storage;
+	private Model model;
 
 	public Delete(Storage storage) {
 		this.storage = storage;
 	}
 
-	public Delete(ParsedCommand specifications,Storage storage) {
+	public Delete(ParsedCommand specifications,Storage storage,Model model) {
+		this.model = model;
 		List<Task> taskList = storage.getAllTasks();
 		this.taskId = specifications.getTaskId();
 		this.toDelete = Logic.searchList(taskList,taskId);
@@ -25,12 +27,16 @@ public class Delete implements Command {
 	@Override
 	public void execute() {
 		storage.delete(taskId);
+
+		model.updateModel("Task " + taskId + " deleted");
 	}
 
 	@Override
 	public void undo() {
 		Task deleted = toDelete;
 		storage.add(deleted);
+
+		model.updateFocus(deleted.getId());
 	}
 
 

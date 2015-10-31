@@ -15,14 +15,17 @@ public class Update implements Command {
 	private Task toUpdate;
 	private Task updated;
 	private Storage storage;
+	private Model model;
 
 	public Update(Storage storage) {
 		this.storage = storage;
 	}
 	
-	public Update(ParsedCommand specifications,Storage storage) {
+	public Update(ParsedCommand specifications,Storage storage,Model model) {
 		this.specifications = specifications;
 		this.storage = storage;
+		this.model = model;
+
 	}
 
 	public void execute() {
@@ -33,23 +36,25 @@ public class Update implements Command {
 			updated = new Task(toUpdate);
 			updated = updateTask(specifications, updated);
 		} else if (toUpdate.getTaskType() == DEADLINETASK) {
-			DeadlineTask newTask = ((DeadlineTask)toUpdate);
+			DeadlineTask newTask = new DeadlineTask((DeadlineTask)toUpdate);
 			updated = newTask;
 			updated = (DeadlineTask)updateTask(specifications, updated);
 		} else if (toUpdate.getTaskType() == EVENT) {
-			Event newTask = ((Event)toUpdate);
+			Event newTask = new Event((Event)toUpdate);
 			updated = newTask;
 			updated = (Event)updateTask(specifications, updated);
 		}
 		
 		storage.delete(toUpdate.getId());
 		storage.add(updated);
+		model.updateModel(toUpdate.getName() + " updated",updated.getId());
 	}
 
 	public void undo() {
 		storage.delete(updated.getId());
 		storage.add(toUpdate);
 		storage.sort();
+		model.updateFocus(toUpdate.getId());
 	}
 
 	/*

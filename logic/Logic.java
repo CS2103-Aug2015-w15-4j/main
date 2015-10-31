@@ -1,6 +1,8 @@
 package logic;
 
 import java.io.IOException;
+import java.util.Date;
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -31,17 +33,19 @@ public class Logic {
 
 	public Logic() {
 		storage = new Storage();
-		model = Model.getInstance("", storage.getAllTasks());
+		model = Model.getInstance(storage);
 	}
 
 	public static Model initializeTaskList() {
 		Storage storage = new Storage();
-		return new Model("", storage.getAllTasks());
+		return new Model(storage);
 	}
 
 	public Model executeCommand(ParsedCommand parsedCommand) throws UnrecognisedCommandException {
-		if (checkIfEmptyCommand(parsedCommand))
-			return new Model(MESSAGE_INVALID_FORMAT, storage.getAllTasks());
+		if (checkIfEmptyCommand(parsedCommand)) {
+			model.updateModel(MESSAGE_INVALID_FORMAT);
+			return model;
+		}
 
 		switch (parsedCommand.getCommandType()) {
 		case ADD:
@@ -62,14 +66,16 @@ public class Logic {
 			// Fall Over
 		case EDIT:
 			return executeUpdate(parsedCommand);
+		case SHOW:
+			return executeShow(parsedCommand);
 		case SEARCH:
 			return executeSearch(parsedCommand);
 			// case SET:
 			// return executeSetAvatar(parsedCommand);
 		case ERROR:
 			try {
-				return new Model(parsedCommand.getErrorMessage(),
-						storage.getAllTasks());
+				model.updateModel(parsedCommand.getErrorMessage());
+				return model;
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -82,26 +88,31 @@ public class Logic {
 		}
 	}
 
+	private Model executeShow(ParsedCommand parsedCommand) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	private Model executeSet(ParsedCommand parsedCommand) {
 		String consoleMessage = "Failed to Set new Path";
 		try {
 			ParsedCommand.ConfigType type = parsedCommand.getConfigType();
 			if (type == ConfigType.BACKGROUND) {
-					model.setBackgroundLocation(parsedCommand.getConfigPath());
-					consoleMessage = "Background switched";
+				model.setBackgroundLocation(parsedCommand.getConfigPath());
+				consoleMessage = "Background switched";
 
 			} else if (type == ConfigType.AVATAR) {
-					model.setAvatarLocation(parsedCommand.getConfigPath());
-					consoleMessage = "Avatar switched";
+				model.setAvatarLocation(parsedCommand.getConfigPath());
+				consoleMessage = "Avatar switched";
 			}
 		} catch (Exception e) {
 			consoleMessage = "Failed to Set new Path";
-			this.model.updateModel(consoleMessage, storage.getAllTasks());
+			this.model.setConsoleMessage(consoleMessage);
 			e.printStackTrace();
 			return model;
 		}
 
-		model.updateModel(consoleMessage, storage.getAllTasks());
+		model.setConsoleMessage(consoleMessage);
 		return model;
 	}
 
@@ -111,10 +122,10 @@ public class Logic {
 		try {
 			storage.setFileLocation(parsedCommand.getConfigPath());
 			consoleMessage = "data file set to "
-						+ parsedCommand.getConfigPath();
-			this.model.updateModel(consoleMessage, storage.getAllTasks());
+					+ parsedCommand.getConfigPath();
+			this.model.setConsoleMessage(consoleMessage);
 		} catch (Exception e) {
-			this.model.updateModel(consoleMessage, storage.getAllTasks());
+			this.model.setConsoleMessage(consoleMessage);
 			e.printStackTrace();
 			return model;
 		}
@@ -142,8 +153,7 @@ public class Logic {
 				consoleMessage = "Displaying " + tasksToDisplay.size()
 						+ " results for \"" + query + "\"";
 			}
-			model.updateModel(consoleMessage, tasksToDisplay,
-					storage.getAllTasks());
+			model.updateSearchList(consoleMessage, tasksToDisplay);
 		} catch (IOException | ParseException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
@@ -154,10 +164,9 @@ public class Logic {
 	}
 
 	private Model executeUpdate(ParsedCommand userCommand) {
-
 		String taskName = searchList(storage.getAllTasks(),
 				userCommand.getTaskId()).getName();
-		Command command = new Update(userCommand, storage);
+		Command command = new Update(userCommand, storage, model);
 		String consoleMessage = "Update Failed";
 		// Check if update id is correct
 		if (!Update.checkValid(userCommand, model)) {
@@ -168,8 +177,6 @@ public class Logic {
 			commandHistory.addFirst(invoke);
 		}
 
-		consoleMessage = taskName + " updated";
-		model.updateModel(consoleMessage, storage.getAllTasks());
 		return model;
 	}
 
@@ -177,10 +184,10 @@ public class Logic {
 		if (commandHistory.size() != 0) {
 			commandHistory.poll().undo();
 		} else {
-			model.updateModel("Nothing to undo", storage.getAllTasks());
+			model.updateModel("Nothing to undo");
 			return model;
 		}
-		model.updateModel("Undo Successful", storage.getAllTasks());
+		model.updateModel("Undo Successful");
 		return model;
 	}
 
@@ -190,16 +197,14 @@ public class Logic {
 				userCommand.getTaskId()).getName();
 		if (!Delete.checkValid(userCommand)) {
 			String consoleMessage = "Error: Invalid taskID";
-			model.updateModel(consoleMessage, storage.getAllTasks());
+			model.updateModel(consoleMessage);
 			return model;
 		} else {
-			Command command = new Delete(userCommand, storage);
+			Command command = new Delete(userCommand, storage, model);
 			invoke = new Invoker(command);
 			invoke.execute();
 			commandHistory.addFirst(invoke);
 
-			String consoleMessage = taskName + " deleted";
-			model.updateModel(consoleMessage, storage.getAllTasks());
 			return model;
 		}
 	}
@@ -211,13 +216,11 @@ public class Logic {
 		/*
 		 * if (!Add.checkValid(userCommand, model)) { return model; } else {
 		 */
-		Command command = new Add(userCommand, newId, storage);
+		Command command = new Add(userCommand, newId, storage, model);
 		invoke = new Invoker(command);
 		invoke.execute();
 		commandHistory.addFirst(invoke);
 
-		consoleMessage = userCommand.getTitle() + " added";
-		model.updateModel(consoleMessage, storage.getAllTasks());
 		return model;
 		// }
 	}
@@ -237,7 +240,6 @@ public class Logic {
 	}
 
 	public static Task searchList(List<Task> taskList, int taskId) {
-
 		for (int i = 0; i < taskList.size(); i++) {
 			if (taskList.get(i).getId() == taskId) {
 				return taskList.get(i);
@@ -246,4 +248,44 @@ public class Logic {
 		return null;
 	}
 
+	public static List<Task> updateTodayList() {
+		try {
+			Storage storage = new Storage();
+			Calendar fromCal = Calendar.getInstance();
+			Calendar toCal = Calendar.getInstance();
+			toCal.set(Calendar.HOUR_OF_DAY,23);
+			toCal.set(Calendar.MINUTE,59);
+			toCal.set(Calendar.SECOND,59);
+
+			return Search.searchDate(storage.getAllTasks(), fromCal, toCal);
+		} catch (ParseException e) {
+
+			e.printStackTrace();
+			return null;
+		} catch (IOException e) {
+
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static List<Task> updateMainList() {
+		try {
+			Storage storage = new Storage();
+			Calendar fromCal = Calendar.getInstance();
+
+			Calendar toCal = Calendar.getInstance();
+			toCal.setTime(new Date(Long.MAX_VALUE));
+
+			return Search.searchDate(storage.getAllTasks(), fromCal, toCal);
+		} catch (ParseException e) {
+
+			e.printStackTrace();
+			return null;
+		} catch (IOException e) {
+
+			e.printStackTrace();
+			return null;
+		}
+	}
 }
