@@ -33,12 +33,12 @@ public class Add implements Command {
 		} else if (specifications.getTaskType() == ParsedCommand.TaskType.DEADLINE_TASK) {
 			DeadlineTask newDeadlineTask = new DeadlineTask(specifications);
 			newDeadlineTask.setId(id);
-			storage.add((Task) newDeadlineTask);
+			storage.add(newDeadlineTask);
 			newTask = newDeadlineTask;
 		} else if (specifications.getTaskType() == ParsedCommand.TaskType.EVENT) {
 			Event newEvent = new Event(specifications);
 			newEvent.setId(id);
-			storage.add((Task) newEvent);
+			storage.add(newEvent);
 			newTask = newEvent;
 		}
 
