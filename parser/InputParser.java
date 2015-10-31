@@ -39,7 +39,7 @@ public abstract class InputParser {
 	protected static Pattern taskStatus = Pattern.compile(TASK_STATUS_REGEX);
 	private static final Pattern taskType = Pattern.compile(TASK_TYPE_REGEX);
 	
-	protected static final String NOT_TITLE_REGEX_KEYWORD_OK = "(" + "( from | fr | at | to | til | until | by | on | - )?" + DateTimeParser.NO_KEYWORD_DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|(" + TASK_STATUS_REGEX + ")|((?<=\\s|^)(tmr|tomorrow|tomorow)(?=\\s|$)))";  	
+	protected static final String NOT_TITLE_REGEX_KEYWORD_OK = "(" + "( from | fr | at | to | til | until | by | on | - )?" + DateTimeParser.NO_KEYWORD_DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|(" + TASK_STATUS_REGEX + ")|((?<=\\s|^)(on )?(tmr|tomorrow|tomorow)(?=\\s|$)))";  	
 	protected static final String NOT_TITLE_REGEX = "(" + "( from | fr | at | to | til | until | by | on | - )?" + DateTimeParser.DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|(" + TASK_STATUS_REGEX + "))";  	
 	
 	// private static final Logger logger = Logger.getLogger(StringParser.class.getName() );
