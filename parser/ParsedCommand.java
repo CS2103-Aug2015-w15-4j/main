@@ -191,6 +191,8 @@ public class ParsedCommand {
 	}
 	
 	static class Builder {
+		private static final String ERROR_MISSING_ERROR_MESSAGE = "Error: Missing error message";
+
 		private MyParser.CommandType cmdType;
 		
 		private String title = null;
@@ -283,7 +285,9 @@ public class ParsedCommand {
 		
 		public ParsedCommand build() throws InvalidArgumentsForParsedCommandException {
 			MyParser.CommandType command = this.cmdType;
-			if (command == MyParser.CommandType.ADD) {
+			if (command == null) {
+				throw new InvalidArgumentsForParsedCommandException("Error: Missing command type for building ParsedCommand");
+			} else if (command == MyParser.CommandType.ADD) {
 				validateTitle();
 				setTaskType();
 			} else if (command == MyParser.CommandType.EDIT || command == MyParser.CommandType.FLAG || command == MyParser.CommandType.DELETE) {
@@ -297,8 +301,16 @@ public class ParsedCommand {
 			} else if (command == MyParser.CommandType.GUI_OPEN || command == MyParser.CommandType.GUI_CLOSE 
 					|| command == MyParser.CommandType.GUI_PIN) {
 				validateGuiType();
+			} else if (command == MyParser.CommandType.ERROR) {
+				validateErrorMsg();
 			}
 			return new ParsedCommand(this);
+		}
+
+		private void validateErrorMsg() throws InvalidArgumentsForParsedCommandException {
+			if (this.errorMessage == null || this.errorMessage.isEmpty()) {
+				throw new InvalidArgumentsForParsedCommandException(ERROR_MISSING_ERROR_MESSAGE);
+			}
 		}
 
 		private void validateTaskId() throws InvalidArgumentsForParsedCommandException {
