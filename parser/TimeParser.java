@@ -105,9 +105,19 @@ public class TimeParser {
 		// System.out.println(times[3]);
 		return times;
 	}
+	
 	private static String removeTimesFromString(String input) {
 		String regex = TIME_REGEX;
 		input = input.replaceAll(regex, "");
 		return input.trim();
+	}
+	
+	public static boolean hasTime(String input) {
+		String[] times = getStandardTimesFromString(input);
+		if (times[0] == null) {
+			return false;
+		} else {
+			return true;
+		}
 	}
 }

@@ -2,11 +2,21 @@ package parser;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-
 import parser.MyParser.CommandType;
 
 public class ShowParser extends InputParser {
+	private static final String NOT_KEYWORDS_REGEX = notTitleRegex + "|" + TASK_TYPE_REGEX;
+	
+	private static String getKeywordsFromString(String input) {
+		return removeRegexPatternFromString(input, NOT_KEYWORDS_REGEX);
+	}
+	
 
+	private static boolean hasTaskId(int taskId) {
+		return taskId >= 0;
+	}
+	
+	
 	ParsedCommand parse(String[] input) {
 		if (isMissingArguments(input)) {
 			return createParsedCommand(CommandType.GUI_SHOW);
@@ -32,6 +42,7 @@ public class ShowParser extends InputParser {
 		try {
 			String parsedKeywords = getKeywordsFromString(inputArgs);
 			Calendar[] parsedTimes = getDatesTimesFromString(inputArgs);
+			parsedTimes = convertToSearchTimes(parsedTimes, inputArgs);
 			ArrayList<String> parsedTags = getTagsFromString(inputArgs);
 			Boolean parsedStatus = getTaskStatusFromString(inputArgs);
 			ParsedCommand.TaskType taskType = getTaskTypeFromString(inputArgs);
@@ -50,6 +61,27 @@ public class ShowParser extends InputParser {
 		}
 	}
 
+	private static Calendar[] convertToSearchTimes(Calendar[] parsedTimes, String input) {
+		if (parsedTimes == null) {
+			return null;
+		}
+		if (parsedTimes[INDEX_FOR_START] != null && parsedTimes[INDEX_FOR_END] == null) {
+			if (TimeParser.hasTime(input)) { // user input start date and time only
+				Calendar endTime = (Calendar) parsedTimes[INDEX_FOR_START].clone();
+				endTime.set(Calendar.HOUR_OF_DAY, 23);
+				endTime.set(Calendar.MINUTE, 59);
+				parsedTimes[INDEX_FOR_END] = endTime;
+			} else { // user input start date only
+				Calendar startTime = (Calendar) parsedTimes[INDEX_FOR_START].clone();
+				startTime.set(Calendar.HOUR_OF_DAY, 0);
+				startTime.set(Calendar.MINUTE,  0);
+				parsedTimes[INDEX_FOR_END] = parsedTimes[INDEX_FOR_START];
+				parsedTimes[INDEX_FOR_START] = startTime;
+			}
+		}
+		return parsedTimes;
+	}
+	
 	static ParsedCommand createParsedCommandShowDisplay(int taskId) {
 		ParsedCommand pc;
 		try {
