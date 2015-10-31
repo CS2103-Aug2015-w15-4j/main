@@ -11,6 +11,16 @@ import parser.ParsedCommand.ConfigType;
 import storage.Storage;
 
 public class Logic {
+	public static class UnrecognisedCommandException extends Exception {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 356113122590795999L;
+
+		public UnrecognisedCommandException(String message) {
+			super(message);
+		}
+	}
 
 	private static final String MESSAGE_INVALID_FORMAT = "invalid command format :%1$s";
 
@@ -29,7 +39,7 @@ public class Logic {
 		return new Model("", storage.getAllTasks());
 	}
 
-	public Model executeCommand(ParsedCommand parsedCommand) {
+	public Model executeCommand(ParsedCommand parsedCommand) throws UnrecognisedCommandException {
 		if (checkIfEmptyCommand(parsedCommand))
 			return new Model(MESSAGE_INVALID_FORMAT, storage.getAllTasks());
 
@@ -68,7 +78,7 @@ public class Logic {
 		default:
 			// TODO: Change this line into ???
 			// throw an error if the command is not recognized
-			throw new Error("Unrecognized command type: " + parsedCommand.getCommandType());
+			throw new UnrecognisedCommandException("Unrecognized command type: " + parsedCommand.getCommandType());
 		}
 	}
 

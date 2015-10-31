@@ -518,6 +518,7 @@ public class GUIController extends Application {
 					break;
 				}
 			}
+			return true; // because it was caught by GUI controller
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -614,9 +615,6 @@ public class GUIController extends Application {
 			model.setConsoleMessage(null); // set empty
 			ParsedCommand parsedCommand = ParsedCommand.parseCommand(input.trim());
 			if (!checkForGuiActions(parsedCommand)) {
-				// in case checkForGUI has an output console
-				String output = model.getConsoleMessage(); 
-				
 				try {
 					model = controller.executeCommand(parsedCommand);
 					// refresh log command, and get new iterator
@@ -626,16 +624,11 @@ public class GUIController extends Application {
 					
 					refreshLists(); // only needed if sent to logic
 				} catch (Logic.UnrecognisedCommandException e) {
-					model.setConsoleMessage(output);
+					//model.setConsoleMessage(output);
 				}
 				
-				// then allocate the console message if there isn't one already after going through logic
-				if (model.getConsoleMessage()==null||model.getConsoleMessage().isEmpty()) {
-					model.setConsoleMessage(output);
-				}				
-				
-				output = checkCommandType(parsedCommand);
-				if (!output.isEmpty()) {
+				String output = checkCommandType(parsedCommand);
+				if (!output.isEmpty()) { // override previous error
 					model.setConsoleMessage(output);
 				}
 			}
