@@ -46,8 +46,8 @@ public class NattyDateTimeParser extends DateTimeParser{
     }
 
     private static boolean canParseWithNatty(String input) {
-		Parser parser = new Parser();
-		System.out.println(input);
+    	Parser parser = new Parser();
+		// System.out.println(input);
 		List<DateGroup> groups = parser.parse(input); // returns empty list if parse fails
 		if (groups.isEmpty()) {
 			logger.log(Level.FINE, "Parse " + input + " with Natty fail");
@@ -64,7 +64,6 @@ public class NattyDateTimeParser extends DateTimeParser{
     	assert(parsedTimes != null);
     	logger.log(Level.FINE, "INPUT TO NATTY: " + input);
     	// Times parsed by now, only dates left
-    	
     	if (canParseWithNatty(input)) { // can parse without time, ie has date
     		String[] startAndEndDates = input.split(" to | until | til | till | - ");
     		String dateWithTime;
