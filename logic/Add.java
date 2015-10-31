@@ -14,16 +14,14 @@ public class Add implements Command {
 	private ParsedCommand specifications;
 	private int id;
 	private Storage storage;
+	private Model model;
 
-	public Add(Storage storage) {
-		this.storage = storage;
-	}
-	
-	public Add(ParsedCommand specifications, int newId, Storage storage) {
+	public Add(ParsedCommand specifications, int newId, Storage storage,Model model) {
 		this.specifications = specifications;
 		newTask = new Task(specifications);
 		this.id = newId;
 		this.storage = storage;
+		this.model = model;
 	}
 
 	@Override
@@ -35,19 +33,23 @@ public class Add implements Command {
 		} else if (specifications.getTaskType() == ParsedCommand.TaskType.DEADLINE_TASK) {
 			DeadlineTask newDeadlineTask = new DeadlineTask(specifications);
 			newDeadlineTask.setId(id);
-			storage.add((Task) newDeadlineTask);
+			storage.add(newDeadlineTask);
 			newTask = newDeadlineTask;
 		} else if (specifications.getTaskType() == ParsedCommand.TaskType.EVENT) {
 			Event newEvent = new Event(specifications);
 			newEvent.setId(id);
-			storage.add((Task) newEvent);
+			storage.add(newEvent);
 			newTask = newEvent;
 		}
+
+		model.updateModel(newTask.getName() + " added",newTask.getId());
 	}
 
 	@Override
 	public void undo() {
 		storage.delete(id);
+
+		model.updateModel();
 	}
 
 	/*

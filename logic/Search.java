@@ -57,7 +57,7 @@ public class Search {
 	private static ArrayList<Task> queryIndex(Directory index, Query q)
 			throws IOException {
 		// Search
-	    int hitsPerPage = 10;
+	    int hitsPerPage = 1000;
 	    IndexReader reader = DirectoryReader.open(index);
 	    IndexSearcher searcher = new IndexSearcher(reader);
 	    TopScoreDocCollector collector = TopScoreDocCollector.create(hitsPerPage);
@@ -116,7 +116,7 @@ public class Search {
 	    TermRangeQuery rq = TermRangeQuery.newStringRange("end" ,sFromDate,sToDate,true,true);
 	    
 	    ArrayList<Task> hitList = queryIndex(index, rq);
-	    
+
 		return hitList;
 	}
 
@@ -157,13 +157,13 @@ public class Search {
 		    	doc.add(new TextField("details",task.getDetails(), Field.Store.YES));
 		    }
 		   
-		    if(task.getTaskType().equals(ParsedCommand.TaskType.DEADLINE_TASK) || task.getTaskType().equals(ParsedCommand.TaskType.EVENT)) {
-		    	DeadlineTask dlTask = (DeadlineTask) task;
-		    	doc.add(new TextField("end",DateTools.dateToString(dlTask.getEnd().getTime(), DateTools.Resolution.SECOND), Field.Store.YES));
-		    	if(task.getTaskType().equals(ParsedCommand.TaskType.EVENT)) {
-		    		Event event = (Event) task;
-		    		doc.add(new TextField("start",DateTools.dateToString(event.getStart().getTime(), DateTools.Resolution.SECOND), Field.Store.YES));
-		    	}
+		    if(task.getTaskType().equals(ParsedCommand.TaskType.DEADLINE_TASK)) {
+				DeadlineTask dlTask = (DeadlineTask) task;
+				doc.add(new TextField("end", DateTools.dateToString(dlTask.getEnd().getTime(), DateTools.Resolution.SECOND), Field.Store.YES));
+			} else if(task.getTaskType().equals(ParsedCommand.TaskType.EVENT)) {
+				Event event = (Event) task;
+				doc.add(new TextField("start", DateTools.dateToString(event.getStart().getTime(), DateTools.Resolution.SECOND), Field.Store.YES));
+				doc.add(new TextField("end", DateTools.dateToString(event.getEnd().getTime(), DateTools.Resolution.SECOND), Field.Store.YES));
 		    }
 		    
 		    doc.add(new StringField("json",jsonString,Field.Store.YES));
