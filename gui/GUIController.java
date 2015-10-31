@@ -13,7 +13,8 @@ import javafx.stage.Stage;
 import logic.Logic;
 import logic.Task;
 import parser.ParsedCommand;
-import parser.ParsedCommand.CommandType;
+import parser.MyParser;
+import parser.MyParser.CommandType;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -612,7 +613,7 @@ public class GUIController extends Application {
 	protected void executeCommand(String input) {
 		if (input!= null && !input.isEmpty()) {
 			model.setConsoleMessage(null); // set empty
-			ParsedCommand parsedCommand = ParsedCommand.parseCommand(input.trim());
+			ParsedCommand parsedCommand = MyParser.parseCommand(input.trim());
 			if (!checkForGuiActions(parsedCommand)) {
 				// in case checkForGUI has an output console
 				String output = model.getConsoleMessage(); 
