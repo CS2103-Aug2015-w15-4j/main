@@ -18,7 +18,7 @@ public class NattyDateTimeParser extends DateTimeParser{
 	private String[] nattyTimes;
 	private String[] nattyDates;
 	private static final String DAYS = "(mon(day)?|tue?(sday)?|tues|wed(nesday)?|thur(sday)?|thu|thurs|fri(day)?|sat(urday)?|sun(day)?|tmr|tomorrow|tomorow|today|tdy|ytd|yesterday)s?";
-	private static final String RELATIVE_WORDS = "(next|nxt|prev|previous|last|coming|upcoming)";
+	private static final String RELATIVE_WORDS = "(next|nxt|prev|previous|last|coming|upcoming|before|after)";
 	private static final String DURATION = "(day(s?)|month(s?)|year(s?)|yrs)";
 	private static final String NUMBERS = "(\\d+)(?=\\s" + "(DURATION" + "|" + DAYS + ")" + ")";
 	private static final String TO_ALTERNATIVES = "(?<=\\s|^)(until|til|till|-)(?=\\s|$)";

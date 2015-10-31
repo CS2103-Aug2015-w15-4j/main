@@ -84,6 +84,8 @@ public class InputParserTest {
 		assertEquals("Meet John about proposal", InputParser.getTitleWithKeywordsFromString("#cs2101 Meet John about proposal #cs2103 12:00 until 15:30 12/2/13"));
 		assertEquals("Meet John about proposal", InputParser.getTitleWithKeywordsFromString("#cs2101 Meet John about proposal 23 jan #cs2103 from 12:00 to 12/2/13"));
 		assertEquals("Meet John about proposal", InputParser.getTitleWithKeywordsFromString("#cs2101 Meet John about proposal 23 jan #cs2103 at 12:00 to 12/2/13"));	
+		assertEquals("watch", InputParser.getTitleWithKeywordsFromString("watch tmr"));
+		assertEquals("do proj on cats", InputParser.getTitleWithKeywordsFromString("do proj on cats"));
 	}
 
 	@Test

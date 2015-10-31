@@ -21,7 +21,8 @@ public class DateTimeParserTest {
 		assertEquals("essay bye tmr 3pm", DateTimeParser.extractDateTimeSectionFromString("do homework on essay bye tmr 3pm #tags \"descriptions...\""));
 		assertEquals("12/2/13 12pm", DateTimeParser.extractDateTimeSectionFromString("do homework by 12/2/13 12pm #tags \"descriptions...\""));
 		assertEquals("next tues from 16:00 to 18:00", DateTimeParser.extractDateTimeSectionFromString(" meet john on next tues from 16:00 to 18:00 #cs2103 #proj #cs2101"));
-
+		assertEquals("tmr", DateTimeParser.extractDateTimeSectionFromString("watch tmr"));
+		assertEquals("extra tmr", DateTimeParser.extractDateTimeSectionFromString("meeting by extra tmr"));
 		// Test floating tasks
 		assertEquals("", DateTimeParser.extractDateTimeSectionFromString("do homework #tags \"descriptions...\""));
 		
