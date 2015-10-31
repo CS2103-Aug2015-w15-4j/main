@@ -120,11 +120,21 @@ public class StorageTest {
 
 	@Test
 	public void testSetFolder() throws Exception {
-		boolean output = storage.setFileLocation("c:\\");
-		assertEquals(false, output);
 
-		output = storage.setFileLocation("\\");
-		assertEquals(false, output);
+		boolean output = storage.setFileLocation(".\\");
+		assertEquals(true, output);
+
+		output = storage.setFileLocation("//");
+		assertEquals(true, output);
+
+		output = storage.setFileLocation("./new");
+		assertEquals(true, output);
+
+		output = storage.setFileLocation("//new");
+		assertEquals(true, output);
+
+		output = storage.setFileLocation("\\new");
+		assertEquals(true, output);
 
 		// folder is not exist
 		output = storage
