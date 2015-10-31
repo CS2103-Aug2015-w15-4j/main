@@ -20,6 +20,11 @@ public class DeadlineTask extends Task {
 		
 	}
 	
+	public DeadlineTask(DeadlineTask newTask) {
+		super(newTask.getName(),newTask.getDetails(),newTask.getId(),newTask.getIsCompleted(),newTask.getTags(),newTask.getTaskType());
+		this.end = newTask.getEnd();
+	}
+	
 
 	public DeadlineTask(ParsedCommand parsedInput) {
 		super(parsedInput);

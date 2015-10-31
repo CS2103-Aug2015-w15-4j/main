@@ -24,6 +24,7 @@ import org.apache.lucene.store.RAMDirectory;
 import com.google.gson.Gson;
 
 import parser.ParsedCommand;
+import parser.ParsedCommand.TaskType;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,7 +32,9 @@ import java.util.Calendar;
 import java.util.List;
 
 public class Search {
-	
+	private static final TaskType TASK = TaskType.FLOATING_TASK;
+	private static final TaskType DEADLINETASK = TaskType.DEADLINE_TASK;
+	private static final TaskType EVENT = TaskType.EVENT;
 	/*
 	 * Search function. Uses the Lucene Library to search through all the fields of a task. Only
 	 * searches through 1 task at a time so range searches are not within the scope of this function.
@@ -68,7 +71,14 @@ public class Search {
 	        int docId = hits[i].doc;
 	        Document d = searcher.doc(docId);
 	        
-	        hitList.add(gson.fromJson(d.get("json"),Task.class));
+	        Task task = gson.fromJson(d.get("json"),Task.class);
+	        if (task.getTaskType() == TASK) {
+	        	hitList.add(gson.fromJson(d.get("json"),Task.class));
+	        } else if (task.getTaskType() == DEADLINETASK) {
+	        	hitList.add(gson.fromJson(d.get("json"),DeadlineTask.class));
+	        } else if (task.getTaskType() == EVENT) {
+	        	hitList.add(gson.fromJson(d.get("json"),Event.class));
+	        }
 	    }
 		return hitList;
 	}
