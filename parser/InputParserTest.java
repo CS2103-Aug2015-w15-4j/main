@@ -116,10 +116,10 @@ public class InputParserTest {
 				InputParser.getDatesTimesFromString("Meet John about proposal on feb 12 2013 12:00 #cs2103 #cs2101")[0].getTime());
 		assertEquals(null, InputParser.getDatesTimesFromString("Meet John about proposal on feb 12 2013 12:00 #cs2103 #cs2101")[1]);
 		
-		// Check support for flexible start date and time, keyword
+		// Check support for flexible start date and time, no keyword
 		assertEquals(StringParser.parseStringToDate("Tue Feb 12 12:00:00 SGT 2013"),
-				InputParser.getDatesTimesFromString("Meet John about proposal on feb 12 2013 12:00 #cs2103 #cs2101")[0].getTime());
-		assertEquals(null, InputParser.getDatesTimesFromString("Meet John about proposal on feb 12 2013 12:00 #cs2103 #cs2101")[1]);
+				InputParser.getDatesTimesFromString("Meet John about proposal feb 12 2013 12:00 #cs2103 #cs2101")[0].getTime());
+		assertEquals(null, InputParser.getDatesTimesFromString("Meet John about proposal feb 12 2013 12:00 #cs2103 #cs2101")[1]);
 		
 		// NO SUPPORT FOR NATTY EVENT!
 		// Check support for Natty input start date & time
