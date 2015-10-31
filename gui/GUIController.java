@@ -511,11 +511,11 @@ public class GUIController extends Application {
 		} catch (ArrayIndexOutOfBoundsException e) {
 			// do nothing
 		} catch (Logic.UnrecognisedCommandException e) {
-			for (int i=0;i<ParsedCommand.COMMAND_CHOICES.length;i++) {
-				if (command.equals(ParsedCommand.COMMAND_CHOICES[i].commandType)) {
+			for (int i=0;i<MyParser.COMMAND_CHOICES.length;i++) {
+				if (command.equals(MyParser.COMMAND_CHOICES[i].commandType)) {
 					model.setConsoleMessage(
 							String.format(MSG_SUGGESTED_COMMAND_FORMAT, 
-									ParsedCommand.COMMAND_CHOICES[i].str[0]));
+									MyParser.COMMAND_CHOICES[i].str[0]));
 					break;
 				}
 			}
@@ -658,7 +658,7 @@ public class GUIController extends Application {
 		taskLists.get(TASKLIST_ALL).addAllTasks(model.getAllTasks());
 
 		// search list
-		taskLists.get(TASKLIST_SEARCH).addAllTasks(model.getTasksToDisplay());
+		taskLists.get(TASKLIST_SEARCH).addAllTasks(model.getSearchList());
 
 		// Completed list
 		try {
