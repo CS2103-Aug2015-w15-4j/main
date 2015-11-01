@@ -183,9 +183,9 @@ public class Storage {
 
 	public boolean setFileLocation(String filePath) throws Exception {
 
-		if (filePath.startsWith("/") || filePath.startsWith("\\")) {
+		if (filePath.startsWith("//") || filePath.startsWith("\\")) {
 			if (filePath.length() == 1) {
-				return false;
+				throw new Exception();
 			} else {
 				filePath = "." + filePath;
 			}
@@ -213,7 +213,7 @@ public class Storage {
 				}
 			} catch (SecurityException se) {
 				// throw new Exception();
-				return false;
+				throw new Exception();
 			}
 		} else {
 			if (newFile.isDirectory()) {
@@ -232,15 +232,14 @@ public class Storage {
 						}
 					}
 				} catch (SecurityException se) {
-					// throw new Exception();
-					return false;
+					throw new Exception();
 				}
 			} else if (newFile.isFile()) {
 				copyAndDelete(dataFilePath, filePath);
+				return true;
 			}
 		}
-		// throw new Exception();
-		return false;
+		throw new Exception();
 	}
 
 	public void initializeStorage() {
