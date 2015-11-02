@@ -1,6 +1,7 @@
 package logic;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.search.*;
 import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -11,13 +12,9 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TermRangeQuery;
-import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 
@@ -35,6 +32,49 @@ public class Search {
 	private static final TaskType TASK = TaskType.FLOATING_TASK;
 	private static final TaskType DEADLINETASK = TaskType.DEADLINE_TASK;
 	private static final TaskType EVENT = TaskType.EVENT;
+
+	public List<Task> multiSearch(List<Task> taskList, ParsedCommand toSearch) throws IOException, ParseException{
+		StandardAnalyzer analyzer = new StandardAnalyzer();
+		Directory index = indexTaskList(taskList,analyzer);
+		BooleanQuery bQuery = new BooleanQuery();
+
+		if (toSearch.getKeywords() != null && !toSearch.getKeywords().isEmpty()) {
+			String titleQuery = "name: " + toSearch.getKeywords();
+			String descriptionQuery = "details: " + toSearch.getKeywords();
+
+			Query title = createQuery(analyzer, titleQuery);
+			Query description = createQuery(analyzer, descriptionQuery);
+			bQuery.add(title, BooleanClause.Occur.SHOULD);
+			bQuery.add(description, BooleanClause.Occur.SHOULD);
+		}
+
+		if (toSearch.getFirstDate() != null && toSearch.getSecondDate() != null) {
+			TermRangeQuery dates = createDateQuery(analyzer,toSearch.getFirstDate(),toSearch.getSecondDate());
+			bQuery.add(dates, BooleanClause.Occur.MUST);
+		}
+		if (toSearch.getTags() != null && toSearch.getTags().size() != 0) {
+			String tagQuery = "tags: ";
+			for (String tag : toSearch.getTags()) {
+				tagQuery += tag + " ";
+			}
+			Query tags = createQuery(analyzer, tagQuery);
+			bQuery.add(tags, BooleanClause.Occur.MUST);
+		}
+		if (toSearch.isCompleted() != null) {
+			String isCompleteQuery = "isCompleted: " + toSearch.isCompleted();
+			Query isComplete = createQuery(analyzer, isCompleteQuery);
+			bQuery.add(isComplete, BooleanClause.Occur.MUST);
+		}
+		if (toSearch.getTaskType() != null) {
+			String typeQuery = "taskType: " + toSearch.getTaskType();
+			Query type = createQuery(analyzer, typeQuery);
+			bQuery.add(type, BooleanClause.Occur.MUST);
+		}
+
+
+		return queryIndex(index, bQuery);
+	}
+
 	/*
 	 * Search function. Uses the Lucene Library to search through all the fields of a task. Only
 	 * searches through 1 task at a time so range searches are not within the scope of this function.
@@ -49,6 +89,18 @@ public class Search {
 	    ArrayList<Task> hitList = queryIndex(index, q);
 	    
 		return hitList;
+	}
+
+	private Query createQuery(StandardAnalyzer analyzer, String querystr) throws ParseException {
+		System.out.println(querystr);
+		Query q = new QueryParser("name", analyzer).parse(querystr);
+		return q;
+	}
+
+	private TermQuery createTermQuery(StandardAnalyzer analyzer, String querystr, String field) {
+
+		TermQuery q = new TermQuery(new Term(field,querystr));
+		return q;
 	}
 
 	/*
@@ -118,6 +170,19 @@ public class Search {
 	    ArrayList<Task> hitList = queryIndex(index, rq);
 
 		return hitList;
+	}
+
+	private TermRangeQuery createDateQuery(StandardAnalyzer analyzer, Calendar fromDate, Calendar toDate) {
+		// Set up Query
+		String sFromDate = DateTools.dateToString(fromDate.getTime(),
+				Resolution.SECOND);
+
+		String sToDate = DateTools.dateToString(toDate.getTime(),
+				Resolution.SECOND);
+
+		TermRangeQuery rq = TermRangeQuery.newStringRange("end" ,sFromDate,sToDate,true,true);
+
+		return rq;
 	}
 
 	/*

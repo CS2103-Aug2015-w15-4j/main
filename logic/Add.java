@@ -62,13 +62,9 @@ public class Add implements Command {
 		if (parsedInput.getTitle() == null) {
 			view.setConsoleMessage("Error: Missing task title");
 			return false;
-		} /*else if (parsedInput.getDescription() == null) {
-			view.setConsoleMessage("Error: Missing task description");
-			return false;
-		} */
-
+		}
 		if (taskType==null) {
-			view.setConsoleMessage("Logic Error: task type missing"); 
+			view.setConsoleMessage("Error: task type missing");
 			return false;
 		}
 		if (taskType == TASK) {

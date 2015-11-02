@@ -15,7 +15,7 @@ import storage.Storage;
 public class Logic {
 	public static class UnrecognisedCommandException extends Exception {
 		/**
-		 * 
+		 *
 		 */
 		private static final long serialVersionUID = -297345203728757157L;
 
@@ -28,7 +28,7 @@ public class Logic {
 
 	private Storage storage;
 	private Invoker invoke;
-	private LinkedList<Invoker> commandHistory = new LinkedList<Invoker>();
+	private LinkedList<Command> commandHistory = new LinkedList<Command>();
 	private Model model;
 
 	public Logic() {
@@ -48,43 +48,43 @@ public class Logic {
 		}
 
 		switch (parsedCommand.getCommandType()) {
-		case ADD:
-			return executeAdd(parsedCommand);
-		case UNDO:
-			return executeUndo();
-		case DELETE:
-			return executeDelete(parsedCommand);
+			case ADD:
+				return executeAdd(parsedCommand);
+			case UNDO:
+				return executeUndo();
+			case DELETE:
+				return executeDelete(parsedCommand);
 			// case CLEAR:
 			// return clear();
 			// case SORT:
 			// return sort();
-		case CONFIG_DATA:
-			return executeSetData(parsedCommand);
-		case CONFIG_IMG:
-			return executeSet(parsedCommand);
-		case FLAG:
-			// Fall Over
-		case EDIT:
-			return executeUpdate(parsedCommand);
-		case SHOW:
-			return executeShow(parsedCommand);
-		case SEARCH:
-			return executeSearch(parsedCommand);
+			case CONFIG_DATA:
+				return executeSetData(parsedCommand);
+			case CONFIG_IMG:
+				return executeSet(parsedCommand);
+			case FLAG:
+				// Fall Over
+			case EDIT:
+				return executeUpdate(parsedCommand);
+			case SHOW:
+				return executeShow(parsedCommand);
+			case SEARCH:
+				return executeSearch(parsedCommand);
 			// case SET:
 			// return executeSetAvatar(parsedCommand);
-		case ERROR:
-			try {
-				model.updateModel(parsedCommand.getErrorMessage());
-				return model;
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		case EXIT:
-			System.exit(0);
-		default:
-			// TODO: Change this line into ???
-			// throw an error if the command is not recognized
-			throw new UnrecognisedCommandException("Unrecognized command type: " + parsedCommand.getCommandType());
+			case ERROR:
+				try {
+					model.updateModel(parsedCommand.getErrorMessage());
+					return model;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			case EXIT:
+				System.exit(0);
+			default:
+				// TODO: Change this line into ???
+				// throw an error if the command is not recognized
+				throw new UnrecognisedCommandException("Unrecognized command type: " + parsedCommand.getCommandType());
 		}
 	}
 
@@ -137,23 +137,16 @@ public class Logic {
 		List<Task> tasksToDisplay = null;
 		String consoleMessage = "Search failed";
 		try {
-			String query = "";
-			if (parsedCommand.getKeywords() != null && !parsedCommand.getKeywords().equals("")) {
-				query = parsedCommand.getKeywords();
-				tasksToDisplay = Search.search(storage.getAllTasks(), query);
-			} else if (parsedCommand.getFirstDate() != null && parsedCommand.getSecondDate() != null) {
-				query = "Displaying range of dates";
-				tasksToDisplay = Search.searchDate(storage.getAllTasks(),parsedCommand.getFirstDate(),parsedCommand.getSecondDate());
-			}
+			Search search = new Search();
+			tasksToDisplay = search.multiSearch(storage.getAllTasks(), parsedCommand);
 			if (tasksToDisplay.size() == 0) {
 				consoleMessage = "No results found";
 			} else if (tasksToDisplay.size() == 1) {
-				consoleMessage = "Displaying 1 result for \"" + query + "\"";
+				consoleMessage = "1 result found";
 			} else {
-				consoleMessage = "Displaying " + tasksToDisplay.size()
-						+ " results for \"" + query + "\"";
+				consoleMessage = tasksToDisplay.size() + " results found";
 			}
-			model.updateSearchList(consoleMessage, tasksToDisplay);
+			model.updateSearch(consoleMessage, parsedCommand, tasksToDisplay);
 		} catch (IOException | ParseException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
@@ -164,17 +157,13 @@ public class Logic {
 	}
 
 	private Model executeUpdate(ParsedCommand userCommand) {
-		String taskName = searchList(storage.getAllTasks(),
-				userCommand.getTaskId()).getName();
+
 		Command command = new Update(userCommand, storage, model);
-		String consoleMessage = "Update Failed";
-		// Check if update id is correct
 		if (!Update.checkValid(userCommand, model)) {
 			return model;
 		} else {
-			invoke = new Invoker(command);
-			invoke.execute();
-			commandHistory.addFirst(invoke);
+			command.execute();
+			commandHistory.addFirst(command);
 		}
 
 		return model;
@@ -193,38 +182,38 @@ public class Logic {
 
 	private Model executeDelete(ParsedCommand userCommand) {
 
-		String taskName = searchList(storage.getAllTasks(),
-				userCommand.getTaskId()).getName();
 		if (!Delete.checkValid(userCommand)) {
 			String consoleMessage = "Error: Invalid taskID";
 			model.updateModel(consoleMessage);
 			return model;
 		} else {
 			Command command = new Delete(userCommand, storage, model);
-			invoke = new Invoker(command);
-			invoke.execute();
-			commandHistory.addFirst(invoke);
+			command.execute();
+			commandHistory.addFirst(command);
 
 			return model;
 		}
 	}
 
 	private Model executeAdd(ParsedCommand userCommand) {
-		String consoleMessage = "Add failed";
+
 		int newId = getNewId();
 
-		/*
-		 * if (!Add.checkValid(userCommand, model)) { return model; } else {
-		 */
-		Command command = new Add(userCommand, newId, storage, model);
-		invoke = new Invoker(command);
-		invoke.execute();
-		commandHistory.addFirst(invoke);
+		if (!Add.checkValid(userCommand, model)) {
+			return model;
 
-		return model;
-		// }
+		} else {
+			Command command = new Add(userCommand, newId, storage, model);
+			command.execute();
+			commandHistory.addFirst(command);
+
+			return model;
+		}
 	}
 
+	/*
+	 * Issues the next available ID. IDs take integer values and are not replaced when deleted.
+	 */
 	public static int getNewId() {
 		Storage storage = new Storage();
 		List<Task> taskList = storage.getAllTasks();
@@ -239,7 +228,7 @@ public class Logic {
 		return parsedCommand == null;
 	}
 
-	public static Task searchList(List<Task> taskList, int taskId) {
+	public static Task searchList(List<Task> taskList, int taskId) throws IndexOutOfBoundsException {
 		for (int i = 0; i < taskList.size(); i++) {
 			if (taskList.get(i).getId() == taskId) {
 				return taskList.get(i);
@@ -278,6 +267,22 @@ public class Logic {
 			toCal.setTime(new Date(Long.MAX_VALUE));
 
 			return Search.searchDate(storage.getAllTasks(), fromCal, toCal);
+		} catch (ParseException e) {
+
+			e.printStackTrace();
+			return null;
+		} catch (IOException e) {
+
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static List<Task> updateFloatingList() {
+		try {
+			Storage storage = new Storage();
+
+			return Search.search(storage.getAllTasks(), "taskType: FLOATING_TASK");
 		} catch (ParseException e) {
 
 			e.printStackTrace();

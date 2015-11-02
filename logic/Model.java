@@ -1,9 +1,12 @@
 package logic;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.lucene.queryparser.classic.ParseException;
 import storage.Storage;
+import parser.ParsedCommand;
 
 public class Model {
 
@@ -14,9 +17,11 @@ public class Model {
 	private List<Task> todayList;
 	private List<Task> allTasks;
 	private List<Task> mainList;
+	private List<Task> floatingList;
 	private int focusId;
 	private String avatarLocation;
 	private String backgroundLocation;
+	private ParsedCommand searchQuery;
 	
 	private Storage storage;
 	public static Model getInstance(Storage storage) {
@@ -74,28 +79,39 @@ public class Model {
 		return allTasks;
 	}
 
+	public List<Task> getFloatingList() {return floatingList; }
+
 	public int getFocusId() { return focusId; }
 
-	/*
-	 * Updates the model with the 
-	 */
-	public void updateSearchList(String consoleMessage,List<Task> tasksToDisplay) {
+
+	public void updateSearch(String consoleMessage, ParsedCommand searchQuery, List<Task> searchList) {
 		this.consoleMessage = consoleMessage;
-		this.searchList = tasksToDisplay;
+		this.searchQuery = searchQuery;
+		this.searchList = searchList;
+	}
+
+	/*
+	 * Updates the search list
+	 */
+	public void updateSearchList() {
+		try {
+			Search search = new Search();
+			this.searchList = search.multiSearch(storage.getAllTasks(), searchQuery);
+		} catch (ParseException e) {
+			consoleMessage = "Error: Search ParseException";
+		} catch (IOException e) {
+			consoleMessage = "Error: Search IOException";
+		}
 	}
 	
 	public void updateModel(String consoleMessage) {
 		this.consoleMessage = consoleMessage;
-		this.allTasks = storage.getAllTasks();
-		this.mainList = Logic.updateMainList();
-		this.todayList = Logic.updateTodayList();
+		updateModel();
 	}
 
 	public void updateModel(String consoleMessage,int focusId) {
 		this.consoleMessage = consoleMessage;
-		this.allTasks = storage.getAllTasks();
-		this.mainList = Logic.updateMainList();
-		this.todayList = Logic.updateTodayList();
+		updateModel();
 		this.focusId = focusId;
 	}
 
@@ -103,6 +119,10 @@ public class Model {
 		this.allTasks = storage.getAllTasks();
 		this.mainList = Logic.updateMainList();
 		this.todayList = Logic.updateTodayList();
+		this.floatingList = Logic.updateFloatingList();
+		if (searchQuery != null) {
+			updateSearchList();
+		}
 	}
 
 	public void updateFocus(int focusId) {

@@ -46,13 +46,6 @@ public class Task implements Comparable<Task> {
 		this.tags = parsedInput.getTags();
 		this.taskType = parsedInput.getTaskType();
 	}
-	/*
-	public Task getTask(ParsedCommand parsedInput) {
-		Storage storage = new Storage();
-		List<Task> taskList = storage.getAllTasks();
-		return taskList.get(id);
-	}
-	 */
 
 	public ArrayList<String[]> getTaskDetails() {
 		ArrayList<String[]> task = new ArrayList<String[]>();
@@ -67,6 +60,10 @@ public class Task implements Comparable<Task> {
 		array[1] = "" + id;
 		task.add(array);
 		array = new String[2];
+		array[0] = "Type";
+		array[1] = taskType.toString();
+		task.add(array);
+		array = new String[2];
 		array[0] = "Details";
 		array[1] = details;
 		task.add(array);
@@ -74,7 +71,7 @@ public class Task implements Comparable<Task> {
 		array[0] = "tags";
 		if(tags != null) {	
 			for (int i = 0; i<tags.size(); i++) {
-				tagList += tags.get(i) + "\n";
+				tagList += "[" + tags.get(i) + "]";
 			}
 		}
 		array[1] = tagList;

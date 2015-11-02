@@ -11,8 +11,16 @@ public class Event extends Task {
 	protected Calendar start;
 	protected Calendar end;
 
-	public Event() {
+	public Event(Task task, Calendar start, Calendar end) {
+		super(task.getName(), task.getDetails(), task.getId(), task.getIsCompleted(), task.getTags(), TaskType.EVENT);
+		this.start = start;
+		this.end = end;
+	}
 
+	public Event(DeadlineTask dlTask, Calendar start) {
+		super(dlTask.getName(), dlTask.getDetails(), dlTask.getId(), dlTask.getIsCompleted(), dlTask.getTags(), TaskType.EVENT);
+		this.start = start;
+		this.end = dlTask.getEnd();
 	}
 	
 	public Event(String name, String details,int id,boolean isCompleted,ArrayList<String> tags,

@@ -38,11 +38,11 @@ public class Update implements Command {
 		} else if (toUpdate.getTaskType() == DEADLINETASK) {
 			DeadlineTask newTask = new DeadlineTask((DeadlineTask)toUpdate);
 			updated = newTask;
-			updated = (DeadlineTask)updateTask(specifications, updated);
+			updated = updateTask(specifications, updated);
 		} else if (toUpdate.getTaskType() == EVENT) {
 			Event newTask = new Event((Event)toUpdate);
 			updated = newTask;
-			updated = (Event)updateTask(specifications, updated);
+			updated = updateTask(specifications, updated);
 		}
 		
 		storage.delete(toUpdate.getId());
@@ -76,51 +76,37 @@ public class Update implements Command {
 		if (parsedInput.isCompleted() != null) {
 			toUpdate.setIsCompleted(parsedInput.isCompleted());
 		}
-		if (taskType == DEADLINETASK) {
-			if (parsedInput.getFirstDate() != null) {
+		if (parsedInput.getFirstDate() != null && parsedInput.getSecondDate() == null) {
+			if (toUpdate.getTaskType() == TASK) {
+				toUpdate = new DeadlineTask(toUpdate,parsedInput.getFirstDate());	// Convert to DeadlineTask
+			} else if (toUpdate.getTaskType() == DEADLINETASK) {
 				((DeadlineTask) toUpdate).setEnd(parsedInput.getFirstDate());
+			} else if (toUpdate.getTaskType() == EVENT) {
+				((Event) toUpdate).setEnd(parsedInput.getFirstDate());
 			}
-		} else if (taskType == EVENT) {
-			if (parsedInput.getSecondDate() != null) {
-				((DeadlineTask) toUpdate).setEnd(parsedInput.getSecondDate());
-			}
-			if (parsedInput.getFirstDate() != null) {
+
+		} else if (parsedInput.getFirstDate() != null && parsedInput.getSecondDate() != null) {
+
+			if (toUpdate.getTaskType() == TASK || toUpdate.getTaskType() == DEADLINETASK) {
+				toUpdate = new Event(toUpdate,parsedInput.getFirstDate(),parsedInput.getSecondDate());	// Convert to Event
+			} else if (toUpdate.getTaskType() == EVENT) {
 				((Event) toUpdate).setStart(parsedInput.getFirstDate());
+				((Event) toUpdate).setEnd(parsedInput.getSecondDate());
 			}
 		}
 
 		return toUpdate;
 	}
 
+	/*
+	 *	Checks if the parsedInput is valid for the execute method and updates the view with
+	 * 	the corresponding error message
+	 */
 	public static boolean checkValid(ParsedCommand parsedInput, Model view) {
-		TaskType taskType = parsedInput.getTaskType();
 
 		if (parsedInput.getTaskId() >= Logic.getNewId()) {
 			view.setConsoleMessage("Error: Invalid TaskID");
 			return false;
-		}
-		if (taskType==null) {
-			view.setConsoleMessage("Logic Error: task type missing");
-		}
-		if (taskType == TASK) {
-			if (parsedInput.getSecondDate() != null) { // Error: Task Should have no
-												// End Field
-				view.setConsoleMessage("Error: Task Should have no end field");
-				return false;
-			} else if (parsedInput.getFirstDate() != null) { // Error: Task Should
-															// have no Start
-															// Field
-				view.setConsoleMessage("Error: Task Should have no start field");
-				return false;
-			}
-		} else if (taskType == DEADLINETASK) {
-			if (parsedInput.getSecondDate() != null) { // Error: DeadlineTask Should
-													// have no Start Field
-				view.setConsoleMessage("Error: DeadlineTask Should have no start field");
-				return false;
-			}
-		} else if (taskType == EVENT) {
-
 		}
 
 		return true;

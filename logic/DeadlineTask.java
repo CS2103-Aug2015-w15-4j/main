@@ -16,8 +16,9 @@ public class DeadlineTask extends Task {
 		setEnd(end);
 	}
 	
-	public DeadlineTask() {
-		
+	public DeadlineTask(Task task, Calendar end) {
+		super(task.getName(), task.getDetails(), task.getId(), task.getIsCompleted(), task.getTags(), TaskType.DEADLINE_TASK);
+		this.end = end;
 	}
 	
 	public DeadlineTask(DeadlineTask newTask) {
