@@ -183,7 +183,7 @@ public class Storage {
 
 	public boolean setFileLocation(String filePath) throws Exception {
 
-		if (filePath.startsWith("//") || filePath.startsWith("\\")) {
+		if (filePath.startsWith("/") || filePath.startsWith("\\")) {
 			if (filePath.length() == 1) {
 				throw new Exception();
 			} else {
@@ -204,9 +204,10 @@ public class Storage {
 				if (createFile(finalPath)) {
 					if (newPath.canWrite()) {
 						filePath = (newPath.toPath()).toString();
-						copyAndDelete(dataFilePath, finalPath);
 
-						this.dataFilePath = filePath;
+						this.dataFilePath = copyAndDelete(dataFilePath,
+								finalPath);
+						;
 						writeConfigDetails();
 						return true;
 					}
@@ -223,8 +224,8 @@ public class Storage {
 					if (newFile.canWrite()) {
 						if (createFile(finalPath)) {
 							createFile(finalPath);
-							copyAndDelete(dataFilePath, finalPath);
-							filePath = finalPath;
+							filePath = copyAndDelete(dataFilePath, finalPath);
+							;
 
 							this.dataFilePath = filePath;
 							writeConfigDetails();
@@ -280,7 +281,7 @@ public class Storage {
 	}
 
 	// Copy and delete text file
-	private static void copyAndDelete(String oldPath, String newFilePath) {
+	private static String copyAndDelete(String oldPath, String newFilePath) {
 		InputStream inStream = null;
 		OutputStream outStream = null;
 
@@ -338,11 +339,13 @@ public class Storage {
 			outStream.close();
 
 			temp.delete();
-			fileName = newFilePath;
+			fileName = bfile.getCanonicalFile().toString();
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+		return fileName;
 	}
 
 	private boolean createFile(String fileName) {
