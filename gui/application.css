@@ -18,7 +18,10 @@
 }
 
 .list-cell {
-    -fx-skin: "com.sun.javafx.scene.control.skin.ListCellSkin";
+	-fx-border-radius: 5 5 5 5;
+  	-fx-background-radius: 10 10 10 10;
+    -fx-border-color:pink;
+    /*-fx-skin: "com.sun.javafx.scene.control.skin.ListCellSkin";*/
     -fx-background-color: #f2f2f2; /*rgba(167, 152, 83, 0.8); /*-fx-control-inner-background;*/
     -fx-padding: 0.25em; /* 3 */
     -fx-text-fill: -fx-text-inner-color;
@@ -50,11 +53,9 @@
 
 .fancytext {
     -fx-font-family: Helvetica;
-    /*-fx-fill: white;*/
-    -fx-fill: linear-gradient(from 0% 0% to 100% 200%, repeat, aqua 0%, red 50%);/**/
+    -fx-text-fill: white;/**/
     -fx-stroke: black;
-    /*-fx-font-weight: bold;*/
-    -fx-stroke-width: 1; /**/
+    -fx-stroke-width: 4; /**/
 }
 
 #taskGrid {
@@ -72,6 +73,14 @@
 .button {
 	-fx-background-insets: 0,1,4,5;
     -fx-background-radius: 9,8,5,4;
+}
+
+.button-overdue {
+    -fx-base: red;
+}
+
+.button-floating {
+    -fx-base: #4B0082;
 }
 
 .heading {
@@ -96,18 +105,29 @@
 }
 
 .floating {
-	-fx-background-color: rgba(0, 0, 255, 0.3);
+	-fx-background-color:#4B0082; /* #800000;*/
+	-fx-text-fill: white;
+	-fx-background-radius: 9,8,5,4;
 }
 
 .event {
-	-fx-background-color: rgba(0, 255, 0, 0.3);
+	-fx-background-color:#FFD700;
+	-fx-background-radius: 9,8,5,4;
 }
 
 .deadline {
-	/*-fx-background-color: rgba(255, 0, 0, 0.3);*/
-	-fx-text-fill: rgba(255, 0, 0, 1);
+	-fx-background-color:green;
+	-fx-text-fill:white;
+	-fx-background-radius: 9,8,5,4;
 }
 
-
+.label-tags {
+	-fx-background-insets: 0,1,4,5;
+	-fx-background-color:pink;
+	-fx-background-radius: 9,8,5,4;
+	-fx-border-color: red;
+	-fx-border-width: 3;
+	-fx-border-radius: 9,8,5,4;
+}
 
 

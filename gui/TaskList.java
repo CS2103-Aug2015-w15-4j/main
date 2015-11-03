@@ -4,7 +4,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -19,9 +22,13 @@ import javafx.scene.paint.Color;
 import logic.DeadlineTask;
 import logic.Event;
 import logic.Task;
+import parser.ParsedCommand.TaskType;
 
 public class TaskList {
 	public int listNumber = -1;
+	public String listName = "";
+	public int listSize = 0;
+	final static String NAME_FORMAT = "%1$s (%2$d)";
 	
 	final static int PADDING = 6;
 	
@@ -35,12 +42,16 @@ public class TaskList {
 	final static String STYLE_DEADLINE = "deadline";
 	final static String STYLE_EVENT = "event";
 	
+	final static String STYLE_CURVED = "-fx-background-radius: 9,8,5,4;";
+	
 	// grid locations
 	final static int COL_HEADER = 0;
 	final static int COL_CONTENT = 1;
 	final static int COL_SIZE = 2;
 	final static int ROW_NAME = 0;
 	final static int ROW_ID = 1;
+	final static int ROW_TAGS = 2;
+	final static int ROW_DATE = 3;
 	final static int SIDEBAR_COL_ID = 0;
 	final static int SIDEBAR_COL_NAME = 1;
 	final static int SIDEBAR_COL_DATE = 2;
@@ -52,10 +63,10 @@ public class TaskList {
 	final static String COLOR_OVERDUE = "-fx-text-fill: rgba(255, 0, 0, 1);";
 	final static String COLOR_HEADER = "rgba(255, 255, 0, 0.9)";
 	final static Color COLOR_LABEL = Color.BLACK;
-	final double ROW_CELL_HEIGHT = 33.3;
-	final double BORDER_HEIGHT = 2.0;
-	final double IMAGE_SIZE = 10.0;
-	final double DATE_WIDTH = 280.0;
+	final static double ROW_CELL_HEIGHT = 33.3;
+	final static double BORDER_HEIGHT = 2.0;
+	final static double IMAGE_SIZE = 10.0;
+	final static double DATE_WIDTH = 280.0;
 	public static SimpleDateFormat format;
 	
 	protected VBox master; // the overall TaskList manager
@@ -65,10 +76,10 @@ public class TaskList {
 	protected List<Task> listOfTasks = new ArrayList<Task>(); // currently displayed tasks
 	protected ScrollPane detailedView;
 	
-	protected Image[] imageCompletion = new Image[2];
-	protected final String DONE = "resources/Check.png";
-	protected final String NOT_DONE = "resources/Delete.png";
-	protected final int DONE_IMAGE_SIZE = 16; 
+	protected static Image[] imageCompletion = new Image[2];
+	protected final static String DONE = "resources/Check.png";
+	protected final static String NOT_DONE = "resources/Delete.png";
+	protected final static int DONE_IMAGE_SIZE = 16; 
 	
 	public final int INVALID_SELECTION = -1; 
 	protected boolean isChanging = false;
@@ -107,20 +118,47 @@ public class TaskList {
 		// Time
 		format = new SimpleDateFormat("HH:mm, dd/MM E");
 	    
-		
-		
-		// handlers and listeners
+		addHandlers();
+	}
+	
+	/**
+	 * Function to hold all handlers and listeners
+	 */
+	protected void addHandlers() {
 	    name.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
 				if (isListOpen) {
-					focusTask();
+					// focusTask(); // removed due to real time focus 
 					closeList();
 				} else {
 					openList();
 				}
 			}
 	    });
+	    
+	    items.addListener(new ListChangeListener<Node>() {
+			@Override
+			public void onChanged(javafx.collections.ListChangeListener.Change<? extends Node> c) {
+				listSize = items.size();
+				if (listSize==0) {
+					name.setText(listName);
+				} else {
+					name.setText(String.format(NAME_FORMAT, listName, listSize));
+				}
+			}
+		});//*/
+
+		listView.getSelectionModel().selectedItemProperty().addListener(
+			new ChangeListener<Node>() {
+				public void changed(ObservableValue<? extends Node> ov, Node old_val, Node new_val) {
+					if (isListOpen) { // if the list is open, generate the focus task in real time
+						focusTask(); // generate a focus view
+					}
+				}
+			});
+		
+
 	    /*
 	    name.addEventHandler(MouseEvent.MOUSE_ENTERED, 
 	    		new EventHandler<MouseEvent>() {
@@ -144,9 +182,7 @@ public class TaskList {
 	    		// change back to default
 	    		name.setText(GUIController.taskListNames[listNumber]);
 	    	}
-	    });//*/
-	    
-	    
+	    });//*/		
 	}
 	
 	/**
@@ -175,7 +211,8 @@ public class TaskList {
 	 * @param _name Name of TaskList
 	 */
 	public void setName(String _name) {
-		name.setText(_name);
+		listName = _name.trim();
+		name.setText(listName);
 		if (master.getChildren().size()==1) { // add the name if it does not exist
 			master.getChildren().add(0,name);
 		}
@@ -362,9 +399,6 @@ public class TaskList {
 		if (selected>INVALID_SELECTION) {
 			// create the detailed view
 			updateDetailedView(createDetailedDisplay(listOfTasks.get(selected)));
-			if (isPinnedWindow) { // if it is the pinned window, show it
-				closeList();
-			}
 		}
 	}
 	
@@ -374,30 +408,69 @@ public class TaskList {
 	}
 	
 	/**
-	 * 
+	 * Create a focused view that shows all details of the task 
 	 * @param task Task to take information from
 	 * @return VBox with Name and ID
-	 */
-	protected GridPane createDetailedDisplay(Task task) {
+	 *//*
+	public static GridPane createDetailedDisplay(Task task) {
+		GridPane grid = new GridPane();
+	    grid.getColumnConstraints().add(new ColumnConstraints(GRID_COL_HEADER_FINAL_LENGTH)); 
+		grid.setPadding(new Insets(0, 9, 0, 0));
+		
+		// Set name
+		Label label = createLabel(task.getName());
+		label.setText(" " + label.getText());
+		label.setWrapText(false);
+		label.setStyle(String.format(GUIController.STYLE_COLOR, COLOR_HEADER)+
+				STYLE_CURVED+"-fx-font-weight: bold;");
+		grid.add(label, COL_CONTENT, ROW_NAME); 
+		// add id
+		Label id = createLabel(Integer.toString(task.getId()));
+		id.setPadding(new Insets(0,5,0,5));
+		id.getStyleClass().add(getTaskStyle(task.getTaskType())); // set colour based on type
+		grid.add(id, COL_HEADER, ROW_NAME); 
+		
+		// add id
+		TextFlow tagFlow = new TextFlow();
+		tagFlow.prefWidthProperty().bind(grid.widthProperty());
+		grid.add(tagFlow, COL_HEADER, ROW_TAGS, COL_SIZE, 1); // span 2 col and 1 row
+		Label type = createLabel(task.getTaskType().toString());
+		type.setPadding(new Insets(0,5,0,5));
+		type.getStyleClass().add("label-tags"); // set colour based on type
+		tagFlow.getChildren().add(type);
+		
+		for (String tag : task.getTags()) {
+			type = createLabel("#"+tag);
+			type.getStyleClass().add("label-tags"); // set colour based on type
+			tagFlow.getChildren().add(type);
+		}
+		
+		return grid;
+	}//*/
+	
+	/**
+	 * Create a focused view that shows all details of the task 
+	 * @param task Task to take information from
+	 * @return VBox with Name and ID
+	 *///*// old version using the arraylist from Logic
+	public static GridPane createDetailedDisplay(Task task) {
 		GridPane grid = new GridPane();
 	    grid.getColumnConstraints().add(new ColumnConstraints(GRID_COL_HEADER_FINAL_LENGTH)); 
 		grid.setPadding(new Insets(0, 9, 0, 0));
 
-		ArrayList<String[]> details = task.getTaskDetails(); 
+		ArrayList<String[]> details = task.getTaskDetails();
+		
 		// Set name
 		Label label = createLabel(task.getName());
-		if (label.getText().isEmpty()) {
-			label.setText("Task	" + items.size());
-		}
 		label.setText(" " + label.getText());
 		label.setWrapText(false);
-		GUIController.setFancyText(label);
 		label.setStyle("-fx-font-weight: bold");
 		HBox header = new HBox();
 		label.prefWidthProperty().bind(header.widthProperty());
 		header.prefWidthProperty().bind(grid.widthProperty());
-		header.setStyle(String.format(GUIController.STYLE_COLOR, COLOR_HEADER));
-		header.getChildren().add(getTaskCompletion(task.getIsCompleted()));
+		header.setStyle(String.format(GUIController.STYLE_COLOR, COLOR_HEADER)+STYLE_CURVED);
+		// add completed icon
+		header.getChildren().add(getTaskCompletion(task.getIsCompleted())); 
 		header.getChildren().add(label);
 		HBox.setHgrow(label, Priority.ALWAYS);
 		header.setAlignment(Pos.CENTER_LEFT);
@@ -415,10 +488,10 @@ public class TaskList {
 				label.setText("None");
 			}
 			grid.add(label, COL_CONTENT, i);
-		}//*/
+		}
 		
 		return grid;
-	}
+	}//*/
 	
 	/**
 	 * 
@@ -431,7 +504,9 @@ public class TaskList {
 		grid.getColumnConstraints().add(new ColumnConstraints(GRID_COL_HEADER_FINAL_LENGTH));
 		
 		// ID content
-		Label id = createLabel(task.getId() + " ");
+		Label id = createLabel(Integer.toString(task.getId()));
+		id.setPadding(new Insets(0,5,0,5));
+		id.getStyleClass().add(getTaskStyle(task.getTaskType())); // set colour based on type
 		grid.add(id, SIDEBAR_COL_ID, ROW_NAME);
 
 		HBox header = new HBox();
@@ -441,15 +516,10 @@ public class TaskList {
 		
 		// Set name
 		Label label = createLabel(task.getName());
-		if (label.getText().isEmpty()) {
-			label.setText("Task	" + items.size());
-		}
 		label.prefWidthProperty().bind(header.widthProperty());
 		label.setWrapText(false);
 		header.getChildren().add(label);
 		HBox.setHgrow(label, Priority.ALWAYS);
-		
-		// set colour of text
 		
 		
 		// set date if exists
@@ -485,7 +555,7 @@ public class TaskList {
 	 * @param isCompleted Whether the task is completed or not
 	 * @return ImageView of a tick or cross
 	 */
-	protected ImageView getTaskCompletion(boolean isCompleted) {
+	public static ImageView getTaskCompletion(boolean isCompleted) {
 		if (isCompleted) {
 			return new ImageView(imageCompletion[1]); 
 		} else {
@@ -506,10 +576,28 @@ public class TaskList {
 	 * @param text Text to be added
 	 * @return a Label that has wrapText and width properties ready
 	 */
-	protected Label createLabel(String text) {
+	protected static Label createLabel(String text) {
 		Label label = new Label(text);
 		label.setWrapText(true);
 		label.setTextFill(COLOR_LABEL);
 		return label;
+	}
+	
+	/**
+	 * Return colour of TaskType
+	 * @param type
+	 * @return colour style string
+	 */
+	protected static String getTaskStyle(TaskType type) {
+		switch(type) {
+		case FLOATING_TASK:
+			return STYLE_FLOATING;
+		case DEADLINE_TASK:
+			return STYLE_DEADLINE;
+		case EVENT:
+			return STYLE_EVENT;
+		default:
+			return "";
+		}
 	}
 }

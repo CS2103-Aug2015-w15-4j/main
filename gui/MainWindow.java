@@ -41,12 +41,16 @@ public class MainWindow {
 	 * @param item Must be an item that can set bind its width
 	 */
 	public void addToList(TaskList list) {
-		listOfTaskLists.add(list);
-		list.isPinnedWindow = false;
-		list.clearDetailedWindow(); // clear the detailed View
-		list.closeList(); // start off closed
-		list.getNode().prefWidthProperty().bind(master.widthProperty().subtract(8));
-		master.getChildren().add(list.getNode());
+		if (list.listSize>0) {// add only if it has more than one item
+			listOfTaskLists.add(list);
+			list.isPinnedWindow = false;
+			closeAllLists();
+			if (list.isListOpen) { // if it was open at the start, keep it open
+				list.openList();
+			}
+			list.getNode().prefWidthProperty().bind(master.widthProperty().subtract(8));
+			master.getChildren().add(list.getNode());
+		}
 	}
 	
 	/**
@@ -84,5 +88,12 @@ public class MainWindow {
 			}
 			isChanging = false;
 		}
+	}
+	
+	/**
+	 * Closes all lists in the main window
+	 */
+	protected void closeAllLists() {
+		GUIController.closeAllLists();
 	}
 }

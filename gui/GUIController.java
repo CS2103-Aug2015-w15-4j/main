@@ -1,7 +1,6 @@
 package gui;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.ListIterator;
 
 import javafx.application.Application;
@@ -46,11 +45,10 @@ public class GUIController extends Application {
 				@Override
 				public void handle(ActionEvent event) {
 					if (isListOpen) {
-						focusTask();
+						// focusTask(); // removed due to real time focus
 						closeList();
 					} else {
-						closeAllLists(); // new line that changes everything
-						GUIController.openList(listNumber);
+						GUIController.openList(listNumber);// new line that changes everything
 					}
 				}
 		    });
@@ -58,18 +56,23 @@ public class GUIController extends Application {
 	}
 
 	final public static String[] taskListNames = {
-			"All Tasks",  
-			"Floating Tasks",
-			"Completed Tasks",
+			"Overdue",
+			"Today",
+			"Event",
+			"Floating",
 			"Search list"
 	};
-	final static int TASKLIST_ALL = 0;
-	final static int TASKLIST_FLOATING = 1;
-	final static int TASKLIST_COMPLETED = 2;
-	final static int TASKLIST_SEARCH = 3;
+	final static int TASKLIST_OVERDUE = 0;
+	final static int TASKLIST_TODAY = 1;
+	final static int TASKLIST_EVENT = 2;
+	final static int TASKLIST_FLOATING = 3;
+	final static int TASKLIST_SEARCH = 4;
 	final static int TASKLIST_INVALID = -1;
 	public static int TASKLIST_PINNED = TASKLIST_INVALID;
 	public static int TASKLIST_OPENED = TASKLIST_INVALID; // task list last opened
+
+	final static String STYLE_BUTTON_OVERDUE = "button-overdue";
+	final static String STYLE_BUTTON_FLOATING = "button-floating";
 
 	final static String APP_TITLE = "OraCle";
 	final static String FILE_CSS = "application.css";
@@ -80,7 +83,6 @@ public class GUIController extends Application {
 
 	final static String STYLE_CURVED_VBOX = "vbox-curved";
 	final static String STYLE_CURVED_LABEL = "label-curved";
-	final static String STYLE_FANCYTEXT = "fancytext";
 	final static String STYLE_HEADING = "heading";
 	final static String STYLE_TRANSPARENT = "transparent";
 	final static String STYLE_TEXT = "label";
@@ -113,7 +115,8 @@ public class GUIController extends Application {
 	public static String ICON_IMAGE = "icon.png";
 	public static boolean isMainWindow = true; // true = main pane window, false = logObject
 
-	final static int MINIMUM_WINDOW_SIZE = 600;
+	final static int MINIMUM_WINDOW_WIDTH = 600;
+	final static int MINIMUM_WINDOW_HEIGHT = 650;
 
 	// 1/ratio, ratio being the number to divide by
 	final static int PINNED_WINDOW_RATIO = 3;
@@ -126,6 +129,9 @@ public class GUIController extends Application {
 	public static ListIterator<Node> commandIterator;
 	final static boolean PREVIOUS = false;
 	final static boolean NEXT = true;
+	
+	// for activating focus view
+	public static boolean focusView = false;
 	
 	final Pane window = new VBox();
 	public Log logCommands;
@@ -167,6 +173,8 @@ public class GUIController extends Application {
 		for (int i=0; i<taskListNames.length;i++) {
 			taskLists.add(new TaskListCustom(i)); // use this version to allow to close all other task lists
 		}
+		taskLists.get(TASKLIST_OVERDUE).name.getStyleClass().add(STYLE_BUTTON_OVERDUE);
+		taskLists.get(TASKLIST_FLOATING).name.getStyleClass().add(STYLE_BUTTON_FLOATING);
 
 		// intialise the all task lists
 		refreshLists();
@@ -176,8 +184,9 @@ public class GUIController extends Application {
 		pinnedWindow.prefWidthProperty().bind(pane.widthProperty());
 		pinnedWindow.prefHeightProperty().bind(pane.heightProperty().divide(PINNED_WINDOW_RATIO));
 		pinnedWindow.getStyleClass().add(STYLE_CURVED_VBOX);
-		//pane.setTop(pinnedWindow);
-		//pinWindow(taskLists.get(TASKLIST_ALL));
+		if (taskLists.get(TASKLIST_OVERDUE).listSize>0) {
+			pinWindow(taskLists.get(TASKLIST_OVERDUE));
+		}//*/
 
 		// create the text
 		textboxObject = new Textbox();
@@ -209,18 +218,15 @@ public class GUIController extends Application {
 
 		// add all lists to to the center
 		center = new MainWindow();
-		taskLists.get(TASKLIST_SEARCH).addAllTasks(model.getSearchList());
-		for (int i=0; i<taskLists.size();i++) {
-			center.addToList(taskLists.get(i));
-		}
+		refreshLists();
 		center.getNode().prefWidthProperty().bind(pane.widthProperty());
 		center.getNode().maxWidthProperty().bind(pane.widthProperty());
 		pane.setCenter(center.getNode());
 
 		pane.prefWidthProperty().bind(window.widthProperty());
 		pane.prefHeightProperty().bind(window.heightProperty());
-		window.setMinWidth(MINIMUM_WINDOW_SIZE);
-		window.setMinHeight(MINIMUM_WINDOW_SIZE);
+		window.setMinWidth(MINIMUM_WINDOW_WIDTH);
+		window.setMinHeight(MINIMUM_WINDOW_HEIGHT);
 
 		window.getChildren().add(pane);
 		window.getChildren().add(bottomBar);
@@ -264,7 +270,7 @@ public class GUIController extends Application {
 	 * Pins a focused Task into the window
 	 * @param Task to be pinned
 	 */
-	protected void pinWindow(Region focusedTask) {
+	protected void pinFocusView(Region focusedTask) {
 		unpinWindow();
 		pane.setTop(pinnedWindow);
 		focusedTask.prefWidthProperty().unbind();
@@ -273,6 +279,7 @@ public class GUIController extends Application {
 		focusedTask.prefHeightProperty().bind(pinnedWindow.heightProperty());
 		pinnedWindow.getChildren().clear();
 		pinnedWindow.getChildren().add(focusedTask);
+		focusView = true;
 	}
 
 	/**
@@ -291,36 +298,34 @@ public class GUIController extends Application {
 		if (TASKLIST_PINNED!=TASKLIST_INVALID){//pinnedWindow.getChildren().size()>0) {
 			// unpin the top
 			openList(TASKLIST_PINNED);
+			// focus view deactivate regardless of pinned window or task
+			focusView = false;
 			Region node = taskLists.get(TASKLIST_PINNED).getNode();
+			taskLists.get(TASKLIST_PINNED).isPinnedWindow = false;
 			TASKLIST_PINNED = TASKLIST_INVALID;
 			node.prefWidthProperty().unbind();
 			node.prefHeightProperty().unbind();
 			node.setPrefHeight(Region.USE_COMPUTED_SIZE);
 
 			if (list!=null) {
-				list.isPinnedWindow = false;
+				TASKLIST_PINNED = list.listNumber;
 			}
-
+			
 			// then update the center's list
-			center.removeAllFromList();
-			for (int i=0; i<taskLists.size();i++) {
-				if (list==null||i!=list.listNumber) {
-					center.addToList(taskLists.get(i));
-				}
-			}
+			refreshLists();
 		}
 	}
 
 	public VBox createLogTab() {
 		logObject = new VBox();
-		logCommands = new Log("Commands");
 		logConsole = new Log("Console");
-		logObject.getChildren().add(logCommands.getNode());
+		logCommands = new Log("Commands");
 		logObject.getChildren().add(logConsole.getNode());
-		logCommands.getNode().prefHeightProperty().bind(logObject.heightProperty().divide(2));
-		logCommands.getNode().prefWidthProperty().bind(logObject.widthProperty());
+		logObject.getChildren().add(logCommands.getNode());
 		logConsole.getNode().prefHeightProperty().bind(logObject.heightProperty().divide(2));
 		logConsole.getNode().prefWidthProperty().bind(logObject.widthProperty());
+		logCommands.getNode().prefHeightProperty().bind(logObject.heightProperty().divide(2));
+		logCommands.getNode().prefWidthProperty().bind(logObject.widthProperty());
 		logObject.prefWidthProperty().bind(window.widthProperty());
 		logObject.maxWidthProperty().bind(window.widthProperty());
 		logObject.prefHeightProperty().bind(window.heightProperty());
@@ -402,7 +407,7 @@ public class GUIController extends Application {
 			@Override
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
 				// TODO Auto-generated method stub				
-				taskLists.get(TASKLIST_ALL).recalculate();
+				taskLists.get(TASKLIST_EVENT).recalculate();
 				center.recalculate();
 			}
 		};
@@ -427,8 +432,9 @@ public class GUIController extends Application {
 				if(keyEvent.getCode()==KeyCode.BACK_SLASH) { // zoom in on a task
 					if (TASKLIST_PINNED!=TASKLIST_INVALID) {
 						taskLists.get(TASKLIST_PINNED).focusTask();
+						taskLists.get(TASKLIST_PINNED).closeList();
 					} else if (TASKLIST_OPENED!=TASKLIST_INVALID) {
-						pinWindow(taskLists.get(TASKLIST_OPENED).getFocusTask());
+						pinFocusView(taskLists.get(TASKLIST_OPENED).getFocusTask());
 					} else {
 						listLoop: for (TaskList list : taskLists) {
 							for (Node node : list.getNode().getChildren()) {
@@ -496,16 +502,6 @@ public class GUIController extends Application {
 		CommandType command = parsedCommand.getCommandType();
 		try {
 			switch (command) {
-			case GUI_OPEN_ALL:
-				for (TaskList list : taskLists) {
-					if (list.listNumber!=TASKLIST_PINNED) {
-						openList(list);
-					}
-				}
-				return true;
-			case GUI_CLOSE_ALL:
-				closeAllLists();
-				return true;
 			case GUI_SHOW: // show a specific task in the pinned window
 				if (TASKLIST_PINNED!=TASKLIST_INVALID) {
 					TaskList list = taskLists.get(TASKLIST_PINNED);
@@ -516,7 +512,7 @@ public class GUIController extends Application {
 					}
 					return true;
 				} else if (TASKLIST_OPENED!=TASKLIST_INVALID) {
-					pinWindow(taskLists.get(TASKLIST_OPENED).getFocusTask());
+					pinFocusView(taskLists.get(TASKLIST_OPENED).getFocusTask());
 					return true;
 				}
 			case GUI_SWITCH:
@@ -567,36 +563,6 @@ public class GUIController extends Application {
 		return false; // if not valid, return false
 	}
 
-	protected int getTaskListNumber(String processedString) throws Logic.UnrecognisedCommandException {
-		String[] split = processedString.trim().split("\\s+");
-		if (split.length>=1) {
-			try {
-				int i = Integer.parseInt(split[0]);
-				if (split.length>=2) { 
-					// means that it should have been validated by parser. Can return immediately
-					return i; 
-				} else if (split.length==1) { // if it is only one item, means it is a number that needs processing to check positioning
-					if (TASKLIST_PINNED==TASKLIST_INVALID) { 
-						// if no pinned window, order is same as initial
-						return i;
-					} else if (TASKLIST_PINNED!=TASKLIST_INVALID&&i==0) { 
-						// if there is a pinned window and is first element
-						return TASKLIST_PINNED;
-					} else if (TASKLIST_PINNED!=TASKLIST_INVALID&&i>TASKLIST_PINNED) {
-						// if pinned window, but number is bigger
-						return i;
-					} else if (TASKLIST_PINNED!=TASKLIST_INVALID&&i<=TASKLIST_PINNED) {
-						return i-1;
-					}
-				}
-			} catch (NumberFormatException e) {
-				model.setConsoleMessage("Invalid command");
-				throw new Logic.UnrecognisedCommandException("Unable to parse integer"); 
-			}
-		}
-		return TASKLIST_INVALID; // return invalid otherwise
-	}
-
 	/**
 	 * Checks for what kind of command it was, so that it can be used to focus on the correct object
 	 * @param command The first word of the command
@@ -606,15 +572,24 @@ public class GUIController extends Application {
 		String output = "";
 		try {
 			switch(command) {
-			case ADD: // focus on the newly added task
-				TaskList list = taskLists.get(TASKLIST_ALL); 
-				if (list.isPinnedWindow) {
-					list.selectNode(list.listOfTasks.size()-1);
-					list.focusTask();
-				}
-				break;
+			case ADD: // focus on the newly added task by putting it at the top
+				Task lastAdded = model.getAllTasks().get(model.getAllTasks().size()-1); // get the task that was added
+				pinFocusView(TaskList.createDetailedDisplay(lastAdded));
+				break;				
 			case DELETE:
 				openList(TASKLIST_PINNED); // open the list to prevent focus on deleted item 
+				break;
+			case EDIT: // focus on editted task
+				/*
+				 * 
+				 * 
+				 * 
+				 * 
+				 * 
+				 * 
+				 * 
+				 * 
+				 */
 				break;
 			case HELP:
 				// help menu?
@@ -631,7 +606,7 @@ public class GUIController extends Application {
 				openList(TASKLIST_PINNED); // same as delete
 				break;
 			case SEARCH: // search function
-				executeCommand(CMD_CLOSEALL); // close all
+				closeAllLists();
 				openList(TASKLIST_SEARCH); // focus on search 
 				// then modify the Search List name to include the search term
 				String keywords = parsedCommand.getKeywords();
@@ -699,40 +674,28 @@ public class GUIController extends Application {
 	 */
 	protected void refreshLists() {
 		// all tasks tab
-		taskLists.get(TASKLIST_ALL).addAllTasks(model.getAllTasks());
+		taskLists.get(TASKLIST_EVENT).addAllTasks(model.getMainList());;
 
 		// search list
 		taskLists.get(TASKLIST_SEARCH).addAllTasks(model.getSearchList());
 
-		// Completed list
-		try {
-			List<Task> tasks = logic.Search.search(model.getAllTasks(), "isCompleted:true");
-			if (tasks!=null) {
-				taskLists.get(TASKLIST_COMPLETED).addAllTasks(tasks);
-			}
-		} catch (Exception e) { 
-			e.printStackTrace();
-		}
+		// overdue list
+		taskLists.get(TASKLIST_OVERDUE).addAllTasks(model.getOverdueList());
 
 		// floating tasks list
-		//*
-		try {
-			List<Task> floating = logic.Search.search(model.getAllTasks(), "taskType:FLOATING_TASK");
-			floating = logic.Search.search(floating, "isCompleted:false");
-			if (floating!=null) {
-				taskLists.get(TASKLIST_FLOATING).addAllTasks(floating);
+		taskLists.get(TASKLIST_FLOATING).addAllTasks(model.getFloatingList());
+		
+		// today list
+		taskLists.get(TASKLIST_TODAY).addAllTasks(model.getTodayList());
+		
+		if (center!=null) {
+			center.removeAllFromList();
+			for (int i=0; i<taskLists.size();i++) {
+				if (i!=TASKLIST_PINNED) {
+					center.addToList(taskLists.get(i));
+				}
 			}
-		} catch (Exception e) { 
-			e.printStackTrace();
-		}//*/
-	}
-
-	/**
-	 * 
-	 * @param text Sets this text to FancyText css style
-	 */
-	public static void setFancyText(Label text) {
-		text.getStyleClass().add(STYLE_FANCYTEXT);
+		}
 	}
 
 	/**
@@ -794,5 +757,49 @@ public class GUIController extends Application {
 	 */
 	protected static void closeList(TaskList list) {
 		closeList(list.listNumber);
+	}
+	
+	/**
+	 * Gets task list number from the input by user
+	 * @param processedString
+	 * @return
+	 * @throws Logic.UnrecognisedCommandException
+	 */
+	protected int getTaskListNumber(String processedString) throws Logic.UnrecognisedCommandException {
+		try {
+			int i = Integer.parseInt(processedString);
+			if (i<0) { 
+				// means that it should have been validated by parser. Can return immediately
+				return i+taskListNames.length; 
+			} else { // it must be a number inputted by the user based on the location of items on the screen
+				if (TASKLIST_PINNED==TASKLIST_INVALID) { 
+					// if no pinned window, order is same as initial
+					return getTaskListNumberFromMainWindowLocation(i);
+				} else if (TASKLIST_PINNED!=TASKLIST_INVALID&&i==0) { 
+					// if there is a pinned window and is first element
+					return TASKLIST_PINNED;
+				} else if (TASKLIST_PINNED!=TASKLIST_INVALID) {
+					// if there is pinned window and not zero, means one of the main window
+					return getTaskListNumberFromMainWindowLocation(i-1);
+				}
+			}
+		} catch (NumberFormatException e) {
+			model.setConsoleMessage("Invalid command");
+			throw new Logic.UnrecognisedCommandException("Unable to parse integer"); 
+		} catch (IndexOutOfBoundsException e) {
+			model.setConsoleMessage("Unable to find selected tab");
+			//throw new Logic.UnrecognisedCommandException("Unable to parse integer");
+		}
+		return TASKLIST_INVALID; // return invalid otherwise
+	}
+	
+	/**
+	 * Returns the task number of the item indicated in the location
+	 * @param mainWindowLocation
+	 * @return
+	 * @throws Exception 
+	 */
+	protected int getTaskListNumberFromMainWindowLocation(int mainWindowLocation) throws IndexOutOfBoundsException {
+		return center.listOfTaskLists.get(mainWindowLocation).listNumber;
 	}
 }

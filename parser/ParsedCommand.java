@@ -333,8 +333,8 @@ public class ParsedCommand {
 			}
 			
 			for (int i = 0; i < GUIController.taskListNames.length; i++) {
-				if (guiType.equalsIgnoreCase(GUIController.taskListNames[i])) {
-					guiType = Integer.toString(i);
+				if (guiType.trim().equalsIgnoreCase(GUIController.taskListNames[i])) {
+					guiType = Integer.toString(i-GUIController.taskListNames.length); // return specific format to indicate name call
 					return;
 				}
 			}
