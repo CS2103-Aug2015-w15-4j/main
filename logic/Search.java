@@ -92,7 +92,6 @@ public class Search {
 	}
 
 	private Query createQuery(StandardAnalyzer analyzer, String querystr) throws ParseException {
-		System.out.println(querystr);
 		Query q = new QueryParser("name", analyzer).parse(querystr);
 		return q;
 	}

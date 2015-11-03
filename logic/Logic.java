@@ -224,6 +224,19 @@ public class Logic {
 		}
 	}
 
+	public static boolean checkID(int id) {
+		Storage storage = new Storage();
+		List<Task> taskList = storage.getAllTasks();
+		boolean isFound = false;
+		for (Task task : taskList) {
+			if (task.getId() == id) {
+				isFound = true;
+			}
+		}
+		System.out.println(isFound);
+		return isFound;
+	}
+
 	private static boolean checkIfEmptyCommand(ParsedCommand parsedCommand) {
 		return parsedCommand == null;
 	}
@@ -283,6 +296,42 @@ public class Logic {
 			Storage storage = new Storage();
 
 			return Search.search(storage.getAllTasks(), "taskType: FLOATING_TASK");
+		} catch (ParseException e) {
+
+			e.printStackTrace();
+			return null;
+		} catch (IOException e) {
+
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static List<Task> updateOverdueList() {
+		try {
+			Storage storage = new Storage();
+			Calendar toCal = Calendar.getInstance();
+
+			Calendar fromCal = Calendar.getInstance();
+			fromCal.setTime(new Date(0));
+
+			return Search.searchDate(storage.getAllTasks(), fromCal, toCal);
+		} catch (ParseException e) {
+
+			e.printStackTrace();
+			return null;
+		} catch (IOException e) {
+
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static List<Task> updateCompletedList() {
+		try {
+			Storage storage = new Storage();
+
+			return Search.search(storage.getAllTasks(), "isCompleted: true");
 		} catch (ParseException e) {
 
 			e.printStackTrace();

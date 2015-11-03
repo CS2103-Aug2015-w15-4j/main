@@ -18,6 +18,8 @@ public class Model {
 	private List<Task> allTasks;
 	private List<Task> mainList;
 	private List<Task> floatingList;
+	private List<Task> overdueList;
+	private List<Task> completedList;
 	private int focusId;
 	private String avatarLocation;
 	private String backgroundLocation;
@@ -79,7 +81,9 @@ public class Model {
 		return allTasks;
 	}
 
-	public List<Task> getFloatingList() {return floatingList; }
+	public List<Task> getFloatingList() { return floatingList; }
+
+	public List<Task> getOverdueList() { return overdueList; }
 
 	public int getFocusId() { return focusId; }
 
@@ -120,6 +124,8 @@ public class Model {
 		this.mainList = Logic.updateMainList();
 		this.todayList = Logic.updateTodayList();
 		this.floatingList = Logic.updateFloatingList();
+		this.overdueList = Logic.updateOverdueList();
+		this.completedList = Logic.updateCompletedList();
 		if (searchQuery != null) {
 			updateSearchList();
 		}

@@ -42,11 +42,7 @@ public class Delete implements Command {
 
 	public static boolean checkValid(ParsedCommand specifications) {
 		int idToCheck = specifications.getTaskId();
-		if (idToCheck < Logic.getNewId() && idToCheck > 0) {
-			return true;
-		} else {
-			return false;
-		}
+		return Logic.checkID(idToCheck);
 	}
 
 }
