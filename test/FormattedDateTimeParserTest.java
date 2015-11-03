@@ -45,8 +45,8 @@ public class FormattedDateTimeParserTest {
 		// Check has support for dd/MM
 		assertEquals("2/02/2016", FormattedDateTimeParser.getStandardFormattedDates("Hello how 2/02 are you today?")[0]);
 		assertEquals(null, FormattedDateTimeParser.getStandardFormattedDates("Hello how 2/02 are you today?")[1]);
-		assertEquals("3/2/2014", FormattedDateTimeParser.getStandardFormattedDates("Hello 3.2 how 2/2/14 are you today?")[0]);
-		assertEquals("2/2/2014", FormattedDateTimeParser.getStandardFormattedDates("Hello 3.2 how 2/2/14 are you today?")[1]);
+		assertEquals("2/2/2014", FormattedDateTimeParser.getStandardFormattedDates("Hello 3.2 how 2/2/14 are you today?")[0]);
+		assertEquals(null, FormattedDateTimeParser.getStandardFormattedDates("Hello 3.2 how 2/2/14 are you today?")[1]);
 		assertEquals("12/2/2016", FormattedDateTimeParser.getStandardFormattedDates("12/2 until 16/2")[0]);
 		assertEquals("16/2/2016", FormattedDateTimeParser.getStandardFormattedDates("12/2 until 16/2")[1]);
 

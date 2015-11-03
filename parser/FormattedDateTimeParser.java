@@ -12,13 +12,18 @@ import java.util.regex.Pattern;
 
 public class FormattedDateTimeParser extends DateTimeParser{
 	
+	private static final int INDEX_FOR_START = 0;
 	private static final String DELIM = "-/.";
-	protected static final String DD = "(?<=^|\\s)([0-9]?[0-9])";
-	protected static final String MM = "([0-9]?[0-9])";
-	protected static final String DATE_DELIM = "[" + DELIM + "]";
-	protected static final String YY = "("+ DATE_DELIM + "(\\d{4}|\\d{2}))?(?=\\s|$)";
-	protected static final String FORMATTED_DATE_REGEX = DD + DATE_DELIM + MM + YY;
-	protected static final String FORMATTED_DATE_FORMAT = "d/M/yy";
+	static final String START = "(?<=^|\\s)";
+	static final String END = "(?=\\s|$)";
+	static final String DD = "([0-9]?[0-9])";
+	static final String MM = "([0-9]?[0-9])";
+	static final String DATE_DELIM = "[" + DELIM + "]";
+	static final String YY = "(\\d{4}|\\d{2})";
+	static final String NO_YEAR_FORMATTED_DATE_REGEX = START + DD + "[-/]" + MM + END;
+	static final String FORMATTED_DATE_REGEX = START + DD + DATE_DELIM + MM + DATE_DELIM + YY + END;
+	static final String FORMATTED_DATE_FORMAT = "d/M/yy";
+	
 	private static final int INDEX_FOR_DATE_INPUT = 1;
 	private static final int INDEX_FOR_MONTH_INPUT = 2;
 	private static final int INDEX_FOR_YEAR_INPUT = 3;
@@ -27,7 +32,7 @@ public class FormattedDateTimeParser extends DateTimeParser{
 	private static final int INDEX_FOR_YEAR_ARR = 2;
 	
 	private static Pattern ddmmyy = Pattern.compile(FORMATTED_DATE_REGEX);
-	// private static Pattern dateDelim = Pattern.compile(DATE_DELIM);
+	private static Pattern ddmm = Pattern.compile(NO_YEAR_FORMATTED_DATE_REGEX);
 	
 	private String[] formattedTimes;
 	private String[] formattedDates;
@@ -50,13 +55,20 @@ public class FormattedDateTimeParser extends DateTimeParser{
 		if (year == null) {
 			return null;
 		} else if (year.length() < 4) {
-			year = "20" + year.substring(1);
+			year = "20" + year;
 		} else {
-			return year.substring(1);
+			return year;
 		}
 		return year;
 	}
 	
+	public static String[] getStandardFormattedDates(String input) {
+		String[][] dates = getStandardFormattedDatesWithYear(input);
+		if (dates[INDEX_FOR_START][0] == null) {
+			dates = getStandardFormattedDatesNoYear(input);
+		}
+		return processFormattedDates(input, dates);
+	}
 	/**
 	 * This method looks for dd/mm/yy or dd.mm.yy or dd-mm-yy) substrings of userInput, single digit
 	 * inputs allowed for date and month and returns dates formated dd/MM/yy.
@@ -67,28 +79,45 @@ public class FormattedDateTimeParser extends DateTimeParser{
 	 *         = second date found (if any), If no dates are found, ans[0] =
 	 *         ans[1] = null and if only one date found, ans[1] = null.
 	 */
-	public static String[] getStandardFormattedDates(String userInput) {
-		// System.out.println(userInput);
-		Matcher m = ddmmyy.matcher(userInput);
-		String[] ans = new String[4];
+	public static String[][] getStandardFormattedDatesWithYear(String userInput) {
+		return getFormattedDates(userInput, ddmmyy);
+	}
 
+	public static String[][] getStandardFormattedDatesNoYear(String userInput) {
+		return getFormattedDates(userInput, ddmm);
+	}
+
+	private static String[][] getFormattedDates(String userInput, Pattern p) {
+		Matcher m = p.matcher(userInput);
+		
 		int i = 0;
 		String[][] tempDates = new String[2][3];
 		while (m.find() & i < 2) {
 			String[] dateArr = new String[3];
 			dateArr[INDEX_FOR_DATE_ARR] = m.group(INDEX_FOR_DATE_INPUT);
 			dateArr[INDEX_FOR_MONTH_ARR] = m.group(INDEX_FOR_MONTH_INPUT);
-			dateArr[INDEX_FOR_YEAR_ARR] = convertYearToStandardFormat(m.group(INDEX_FOR_YEAR_INPUT));
+			String yr;
+			if (m.groupCount() < 3) {
+				yr = null;
+			} else {
+				yr = convertYearToStandardFormat(m.group(INDEX_FOR_YEAR_INPUT));
+			}
+			dateArr[INDEX_FOR_YEAR_ARR] = yr;
 			tempDates[i] = dateArr;
 			i++;
 		}
 		logDatesRead(tempDates);
+		return tempDates;
+	}
+
+	private static String[] processFormattedDates(String userInput, String[][] tempDates) {
+		String[] ans = new String[4];
 		ans = standardizeDatesArray(tempDates);
 		ans[2] = FORMATTED_DATE_FORMAT;
 		ans[3] = removeFormattedDatesFromString(userInput);
 		return ans;
 	}
-
+	
 	private static void logDatesRead(String[][] tempDates) {
 		/*for (int a = 0; a < 2; a++) {
 			for (int b = 0; b < 3; b++) {
