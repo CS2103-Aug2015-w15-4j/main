@@ -39,18 +39,30 @@ public class Search {
 		BooleanQuery bQuery = new BooleanQuery();
 
 		if (toSearch.getKeywords() != null && !toSearch.getKeywords().isEmpty()) {
-			String titleQuery = "name: " + toSearch.getKeywords();
-			String descriptionQuery = "details: " + toSearch.getKeywords();
-
+			String titleQuery = toSearch.getKeywords();
 			Query title = createQuery(analyzer, titleQuery);
-			Query description = createQuery(analyzer, descriptionQuery);
 			bQuery.add(title, BooleanClause.Occur.SHOULD);
-			bQuery.add(description, BooleanClause.Occur.SHOULD);
+
+			try {
+				String descriptionQuery = "details: " + toSearch.getKeywords();
+				Query description = createQuery(analyzer, descriptionQuery);
+				bQuery.add(description, BooleanClause.Occur.SHOULD);
+			} catch (ParseException e) {
+				// Search has a string value that parser does not accept, skip
+			}
+
 		}
 
 		if (toSearch.getFirstDate() != null && toSearch.getSecondDate() != null) {
-			TermRangeQuery dates = createDateQuery(analyzer,toSearch.getFirstDate(),toSearch.getSecondDate());
-			bQuery.add(dates, BooleanClause.Occur.MUST);
+			TermRangeQuery dates = createDateQuery(analyzer,toSearch.getFirstDate(),toSearch.getSecondDate(),"end");
+			bQuery.add(dates, BooleanClause.Occur.SHOULD);
+			dates = createDateQuery(analyzer,toSearch.getFirstDate(),toSearch.getSecondDate(),"start");
+			bQuery.add(dates, BooleanClause.Occur.SHOULD);
+		}
+		if (toSearch.getTaskId() >= 0) {
+			String idQuery = "id: " + toSearch.getTaskId();
+			Query isComplete = createQuery(analyzer, idQuery);
+			bQuery.add(isComplete, BooleanClause.Occur.MUST);
 		}
 		if (toSearch.getTags() != null && toSearch.getTags().size() != 0) {
 			String tagQuery = "tags: ";
@@ -93,12 +105,6 @@ public class Search {
 
 	private Query createQuery(StandardAnalyzer analyzer, String querystr) throws ParseException {
 		Query q = new QueryParser("name", analyzer).parse(querystr);
-		return q;
-	}
-
-	private TermQuery createTermQuery(StandardAnalyzer analyzer, String querystr, String field) {
-
-		TermQuery q = new TermQuery(new Term(field,querystr));
 		return q;
 	}
 
@@ -171,7 +177,7 @@ public class Search {
 		return hitList;
 	}
 
-	private TermRangeQuery createDateQuery(StandardAnalyzer analyzer, Calendar fromDate, Calendar toDate) {
+	private TermRangeQuery createDateQuery(StandardAnalyzer analyzer, Calendar fromDate, Calendar toDate,String field) {
 		// Set up Query
 		String sFromDate = DateTools.dateToString(fromDate.getTime(),
 				Resolution.SECOND);
@@ -179,7 +185,7 @@ public class Search {
 		String sToDate = DateTools.dateToString(toDate.getTime(),
 				Resolution.SECOND);
 
-		TermRangeQuery rq = TermRangeQuery.newStringRange("end" ,sFromDate,sToDate,true,true);
+		TermRangeQuery rq = TermRangeQuery.newStringRange(field ,sFromDate,sToDate,true,true);
 
 		return rq;
 	}

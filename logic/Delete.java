@@ -40,9 +40,12 @@ public class Delete implements Command {
 	}
 
 
-	public static boolean checkValid(ParsedCommand specifications) {
+	public static boolean checkValid(ParsedCommand specifications, Model model) {
 		int idToCheck = specifications.getTaskId();
-		return Logic.checkID(idToCheck);
+		if (!Logic.checkID(idToCheck)) {
+			model.setConsoleMessage(Logic.ERROR_INVALID_ID);
+		}
+		return true;
 	}
 
 }

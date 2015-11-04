@@ -16,10 +16,10 @@ public class Add implements Command {
 	private Storage storage;
 	private Model model;
 
-	public Add(ParsedCommand specifications, int newId, Storage storage,Model model) {
+	public Add(ParsedCommand specifications, Storage storage,Model model) {
 		this.specifications = specifications;
 		newTask = new Task(specifications);
-		this.id = newId;
+		this.id = Logic.getNewId();
 		this.storage = storage;
 		this.model = model;
 	}

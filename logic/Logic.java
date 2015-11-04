@@ -1,6 +1,7 @@
 package logic;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Calendar;
 import java.util.LinkedList;
@@ -13,6 +14,32 @@ import parser.ParsedCommand.ConfigType;
 import storage.Storage;
 
 public class Logic {
+
+	public static final SimpleDateFormat dateFormatter = new SimpleDateFormat("E, dd-MM-yyyy, hh:mm");
+
+	// Error Messages
+	public static final String ERROR_INVALID_ID = "Error: Invalid ID";
+	public static final String ERROR_SEARCH_FAILED = "Error: Search Failed";
+
+	// Constants for Searching to end of the day
+	public static final int TODAY_LAST_HOUR = 23;
+	public static final int TODAY_LAST_MINUTE = 59;
+	public static final int TODAY_LAST_SECOND = 59;
+
+	// Search String queries
+	public static final String INCOMPLTETED_TASKS = "isCompleted: false";
+	public static final String COMPLETED_TASKS = "isCompleted: true";
+	public static final String FLOATING_TASKS = "taskType: FLOATING_TASK";
+
+	// Messages
+	public static final String MESSAGE_NO_RESULTS_FOUND = "No results found";
+	public static final String MESSAGE_1_RESULT_FOUND = "1 result found";
+	public static final String MESSAGE_NOTHING_TO_UNDO = "Nothing to undo";
+	public static final String MESSAGE_UNDO_SUCCESSFUL = "Undo Successful";
+	public static final String MESSAGE_AVATAR_SWITCHED = "Avatar switched";
+	public static final String MESSAGE_BACKGROUND_SWITCHED = "Background switched";
+	public static final String MESSAGE_FAILED_TO_SET_NEW_PATH = "Failed to Set new Path";
+
 	public static class UnrecognisedCommandException extends Exception {
 		/**
 		 *
@@ -27,7 +54,6 @@ public class Logic {
 	private static final String MESSAGE_INVALID_FORMAT = "invalid command format :%1$s";
 
 	private Storage storage;
-	private Invoker invoke;
 	private LinkedList<Command> commandHistory = new LinkedList<Command>();
 	private Model model;
 
@@ -42,6 +68,7 @@ public class Logic {
 	}
 
 	public Model executeCommand(ParsedCommand parsedCommand) throws UnrecognisedCommandException {
+
 		if (checkIfEmptyCommand(parsedCommand)) {
 			model.updateModel(MESSAGE_INVALID_FORMAT);
 			return model;
@@ -66,47 +93,35 @@ public class Logic {
 				// Fall Over
 			case EDIT:
 				return executeUpdate(parsedCommand);
-			case SHOW:
-				return executeShow(parsedCommand);
+			case DISPLAY:
+				// Fall Over
 			case SEARCH:
 				return executeSearch(parsedCommand);
-			// case SET:
-			// return executeSetAvatar(parsedCommand);
 			case ERROR:
-				try {
-					model.updateModel(parsedCommand.getErrorMessage());
-					return model;
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+				model.updateModel(parsedCommand.getErrorMessage());
+				return model;
 			case EXIT:
 				System.exit(0);
 			default:
-				// TODO: Change this line into ???
 				// throw an error if the command is not recognized
 				throw new UnrecognisedCommandException("Unrecognized command type: " + parsedCommand.getCommandType());
 		}
 	}
 
-	private Model executeShow(ParsedCommand parsedCommand) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	private Model executeSet(ParsedCommand parsedCommand) {
-		String consoleMessage = "Failed to Set new Path";
+		String consoleMessage = MESSAGE_FAILED_TO_SET_NEW_PATH;
 		try {
 			ParsedCommand.ConfigType type = parsedCommand.getConfigType();
 			if (type == ConfigType.BACKGROUND) {
 				model.setBackgroundLocation(parsedCommand.getConfigPath());
-				consoleMessage = "Background switched";
+				consoleMessage = MESSAGE_BACKGROUND_SWITCHED;
 
 			} else if (type == ConfigType.AVATAR) {
 				model.setAvatarLocation(parsedCommand.getConfigPath());
-				consoleMessage = "Avatar switched";
+				consoleMessage = MESSAGE_AVATAR_SWITCHED;
 			}
 		} catch (Exception e) {
-			consoleMessage = "Failed to Set new Path";
+			consoleMessage = MESSAGE_FAILED_TO_SET_NEW_PATH;
 			this.model.setConsoleMessage(consoleMessage);
 			e.printStackTrace();
 			return model;
@@ -118,7 +133,7 @@ public class Logic {
 
 	private Model executeSetData(ParsedCommand parsedCommand) {
 
-		String consoleMessage = "Failed to Set new Path";
+		String consoleMessage = MESSAGE_FAILED_TO_SET_NEW_PATH;
 		try {
 			storage.setFileLocation(parsedCommand.getConfigPath());
 			consoleMessage = "data file set to "
@@ -133,24 +148,23 @@ public class Logic {
 	}
 
 	private Model executeSearch(ParsedCommand parsedCommand) {
-
 		List<Task> tasksToDisplay = null;
 		String consoleMessage = "Search failed";
 		try {
 			Search search = new Search();
 			tasksToDisplay = search.multiSearch(storage.getAllTasks(), parsedCommand);
 			if (tasksToDisplay.size() == 0) {
-				consoleMessage = "No results found";
+				consoleMessage = MESSAGE_NO_RESULTS_FOUND;
 			} else if (tasksToDisplay.size() == 1) {
-				consoleMessage = "1 result found";
+				consoleMessage = MESSAGE_1_RESULT_FOUND;
 			} else {
 				consoleMessage = tasksToDisplay.size() + " results found";
 			}
 			model.updateSearch(consoleMessage, parsedCommand, tasksToDisplay);
 		} catch (IOException | ParseException e) {
+			model.updateModel(ERROR_SEARCH_FAILED);
 			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
+			return model;
 		}
 
 		return model;
@@ -173,18 +187,16 @@ public class Logic {
 		if (commandHistory.size() != 0) {
 			commandHistory.poll().undo();
 		} else {
-			model.updateModel("Nothing to undo");
+			model.updateModel(MESSAGE_NOTHING_TO_UNDO);
 			return model;
 		}
-		model.updateModel("Undo Successful");
+		model.updateModel(MESSAGE_UNDO_SUCCESSFUL);
 		return model;
 	}
 
 	private Model executeDelete(ParsedCommand userCommand) {
 
-		if (!Delete.checkValid(userCommand)) {
-			String consoleMessage = "Error: Invalid taskID";
-			model.updateModel(consoleMessage);
+		if (!Delete.checkValid(userCommand,model)) {
 			return model;
 		} else {
 			Command command = new Delete(userCommand, storage, model);
@@ -197,13 +209,11 @@ public class Logic {
 
 	private Model executeAdd(ParsedCommand userCommand) {
 
-		int newId = getNewId();
-
 		if (!Add.checkValid(userCommand, model)) {
 			return model;
 
 		} else {
-			Command command = new Add(userCommand, newId, storage, model);
+			Command command = new Add(userCommand, storage, model);
 			command.execute();
 			commandHistory.addFirst(command);
 
@@ -224,6 +234,9 @@ public class Logic {
 		}
 	}
 
+	/*
+	 * Checks if the ID specified is a currently assigned ID.
+	 */
 	public static boolean checkID(int id) {
 		Storage storage = new Storage();
 		List<Task> taskList = storage.getAllTasks();
@@ -233,7 +246,6 @@ public class Logic {
 				isFound = true;
 			}
 		}
-		System.out.println(isFound);
 		return isFound;
 	}
 
@@ -250,14 +262,18 @@ public class Logic {
 		return null;
 	}
 
+	/*
+	 *	Searches for all tasks from now to the end of the day
+	 */
 	public static List<Task> updateTodayList() {
 		try {
 			Storage storage = new Storage();
 			Calendar fromCal = Calendar.getInstance();
+
 			Calendar toCal = Calendar.getInstance();
-			toCal.set(Calendar.HOUR_OF_DAY,23);
-			toCal.set(Calendar.MINUTE,59);
-			toCal.set(Calendar.SECOND,59);
+			toCal.set(Calendar.HOUR_OF_DAY, TODAY_LAST_HOUR);
+			toCal.set(Calendar.MINUTE, TODAY_LAST_MINUTE);
+			toCal.set(Calendar.SECOND, TODAY_LAST_SECOND);
 
 			return Search.searchDate(storage.getAllTasks(), fromCal, toCal);
 		} catch (ParseException e) {
@@ -271,6 +287,9 @@ public class Logic {
 		}
 	}
 
+	/*
+	 *	Updates the Event tab
+	 */
 	public static List<Task> updateMainList() {
 		try {
 			Storage storage = new Storage();
@@ -295,7 +314,7 @@ public class Logic {
 		try {
 			Storage storage = new Storage();
 
-			return Search.search(storage.getAllTasks(), "taskType: FLOATING_TASK");
+			return Search.search(storage.getAllTasks(), FLOATING_TASKS);
 		} catch (ParseException e) {
 
 			e.printStackTrace();
@@ -309,7 +328,7 @@ public class Logic {
 
 	public static List<Task> updateOverdueList() {
 		try {
-			
+
 			Storage storage = new Storage();
 			Calendar toCal = Calendar.getInstance();
 
@@ -317,7 +336,7 @@ public class Logic {
 			fromCal.setTime(new Date(0));
 
 			List<Task> overdue = Search.searchDate(storage.getAllTasks(), fromCal, toCal);
-			return Search.search(overdue,"isCompleted:false");
+			return Search.search(overdue, INCOMPLTETED_TASKS);
 
 		} catch (ParseException e) {
 
@@ -334,7 +353,7 @@ public class Logic {
 		try {
 			Storage storage = new Storage();
 
-			return Search.search(storage.getAllTasks(), "isCompleted: true");
+			return Search.search(storage.getAllTasks(), COMPLETED_TASKS);
 		} catch (ParseException e) {
 
 			e.printStackTrace();

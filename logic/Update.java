@@ -63,11 +63,10 @@ public class Update implements Command {
 	 */
 	public Task updateTask(ParsedCommand parsedInput, Task toUpdate) {
 
-		TaskType taskType = toUpdate.getTaskType();
-		if (parsedInput.getTitle() != null) {
+		if (parsedInput.getTitle() != null && !parsedInput.getTitle().isEmpty()) {
 			toUpdate.setName(parsedInput.getTitle());
 		}
-		if (parsedInput.getDescription() != null) {
+		if (parsedInput.getDescription() != null && !parsedInput.getTitle().isEmpty()) {
 			toUpdate.setDetails(parsedInput.getDescription());
 		}
 		if (parsedInput.getTags().size() != 0) {
@@ -82,7 +81,7 @@ public class Update implements Command {
 			} else if (toUpdate.getTaskType() == DEADLINETASK) {
 				((DeadlineTask) toUpdate).setEnd(parsedInput.getFirstDate());
 			} else if (toUpdate.getTaskType() == EVENT) {
-				((Event) toUpdate).setEnd(parsedInput.getFirstDate());
+				toUpdate = new DeadlineTask(toUpdate,parsedInput.getFirstDate());
 			}
 
 		} else if (parsedInput.getFirstDate() != null && parsedInput.getSecondDate() != null) {

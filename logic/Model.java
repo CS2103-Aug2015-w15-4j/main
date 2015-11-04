@@ -94,9 +94,6 @@ public class Model {
 		this.searchList = searchList;
 	}
 
-	/*
-	 * Updates the search list
-	 */
 	public void updateSearchList() {
 		try {
 			Search search = new Search();
