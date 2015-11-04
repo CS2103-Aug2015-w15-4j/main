@@ -6,8 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javafx.application.Application;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -22,6 +21,7 @@ import parser.MyParser;
 import parser.MyParser.CommandType;
 import javafx.scene.*;
 import javafx.scene.control.*;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -133,7 +133,6 @@ public class GUIController extends Application {
 	final static int MINIMUM_WINDOW_WIDTH = 600;
 	final static int MINIMUM_WINDOW_HEIGHT = 650;
 	final static int PADDING = 6;
-	public static BooleanProperty isWindowShortcutTriggered = new SimpleBooleanProperty(false); // false until called
 
 	// 1/ratio, ratio being the number to divide by
 	final static int PINNED_WINDOW_RATIO = 3;
@@ -152,6 +151,9 @@ public class GUIController extends Application {
 	// for activating focus view
 	public static boolean isFocusView = false;
 	
+	
+	// javafx nodes
+	public static Stage stage; 
 	final static Pane window = new VBox();
 	public static Log logCommands;
 	public static Log logConsole;
@@ -175,6 +177,7 @@ public class GUIController extends Application {
 	
 	@Override
 	public void start(Stage primaryStage) {
+		stage = primaryStage;
 		// prevent resizing?
 		//primaryStage.setResizable(false); // allow resizing?
 
@@ -265,7 +268,7 @@ public class GUIController extends Application {
 		primaryStage.setMinHeight(primaryStage.getHeight());
 		
 		// Add handlers
-		addHandlers(scene, primaryStage);
+		addHandlers(scene);
 
 		// After showing the scene, pin the overdue tab if not empty
 		if (!taskLists.get(TASKLIST_OVERDUE).isListEmpty()) {
@@ -282,7 +285,16 @@ public class GUIController extends Application {
 			if (e.getKeyCode()==NativeKeyEvent.VC_SPACE&& // if space and
 					(e.getModifiers()==NativeKeyEvent.CTRL_L_MASK||
 					e.getModifiers()==NativeKeyEvent.CTRL_R_MASK)) { // alt
-				GUIController.isWindowShortcutTriggered.setValue(true);
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+						if (stage.isFocused()) {
+							stage.setIconified(true);
+						} else {
+							stage.setIconified(false);
+						}
+					}
+		        });
 			}
 		}
 		
@@ -301,7 +313,7 @@ public class GUIController extends Application {
 	 * 
 	 * 
 	 */
-	public void addHandlers(Scene scene, Stage stage) {
+	public void addHandlers(Scene scene) {
 		// create global hook
 		try {
 			// Get the logger for "org.jnativehook" and set the level to off to remove log from it
@@ -379,7 +391,7 @@ public class GUIController extends Application {
 		scene.widthProperty().addListener(listener);
 		scene.heightProperty().addListener(listener);
 
-		// Scene event handler
+		// Scene event handler for shortcuts
 		scene.setOnKeyPressed((new EventHandler<KeyEvent>() {
 			@Override
 			public void handle(KeyEvent keyEvent) {
@@ -939,7 +951,12 @@ public class GUIController extends Application {
 	protected void focusOnTaskID(int id) {
 		try {
 			Task taskToFocus = Logic.searchList(model.getAllTasks(), id);
-			pinFocusView(TaskList.createDetailedDisplay(taskToFocus));
+			GridPane grid = TaskList.createDetailedDisplay(taskToFocus);
+			ScrollPane sp = new ScrollPane(grid);
+			sp.setVbarPolicy(ScrollBarPolicy.NEVER);
+			sp.setHbarPolicy(ScrollBarPolicy.NEVER);
+			sp.setPadding(new Insets(0, PADDING, 0, PADDING));
+			pinFocusView(sp);
 		} catch (IndexOutOfBoundsException e) {
 			// if out of range
 			model.setConsoleMessage(ERR_TASKID);
