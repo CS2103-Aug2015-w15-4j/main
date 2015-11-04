@@ -84,11 +84,11 @@
 }
 
 .button-todo {
-    -fx-base: #FFD700;
+    -fx-base: green;
 }
 
 .button-today {
-    -fx-base: green;
+    -fx-base: #FFD700;
 }
 
 .floating {

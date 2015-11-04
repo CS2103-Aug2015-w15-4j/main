@@ -38,7 +38,7 @@ public class NattyDateTimeParser extends DateTimeParser{
 		while (m.find()) {
 			stdForm = stdForm + m.group() + " ";
 		}
-		System.out.println(stdForm);
+		// System.out.println(stdForm);
 		return stdForm;
 	}
 	
