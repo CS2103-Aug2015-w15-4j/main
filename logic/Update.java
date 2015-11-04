@@ -66,7 +66,7 @@ public class Update implements Command {
 		if (parsedInput.getTitle() != null && !parsedInput.getTitle().isEmpty()) {
 			toUpdate.setName(parsedInput.getTitle());
 		}
-		if (parsedInput.getDescription() != null && !parsedInput.getTitle().isEmpty()) {
+		if (parsedInput.getDescription() != null && !parsedInput.getDescription().isEmpty()) {
 			toUpdate.setDetails(parsedInput.getDescription());
 		}
 		if (parsedInput.getTags().size() != 0) {
