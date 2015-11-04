@@ -536,8 +536,10 @@ public class GUIController extends Application {
 			case GUI_PIN:
 				pinWindow(taskLists.get(getTaskListNumber(parsedCommand.getGuiType())));
 				return true;
-			case GUI_OPEN: 
-				openList(taskLists.get(getTaskListNumber(parsedCommand.getGuiType())));
+			case GUI_OPEN:
+				TaskList list = taskLists.get(getTaskListNumber(parsedCommand.getGuiType()));
+				openList(list.listNumber);
+				list.getNode().getChildren().get(0).requestFocus(); // have the first node of the Vbox request focus
 				return true;
 			case GUI_CLOSE:
 				closeList(taskLists.get(getTaskListNumber(parsedCommand.getGuiType())));
@@ -673,28 +675,37 @@ public class GUIController extends Application {
 	 * Refreshes all displayed lists
 	 */
 	protected void refreshLists() {
-		// all tasks tab
-		taskLists.get(TASKLIST_EVENT).addAllTasks(model.getMainList());;
-
-		// search list
-		taskLists.get(TASKLIST_SEARCH).addAllTasks(model.getSearchList());
-
-		// overdue list
-		taskLists.get(TASKLIST_OVERDUE).addAllTasks(model.getOverdueList());
-
-		// floating tasks list
-		taskLists.get(TASKLIST_FLOATING).addAllTasks(model.getFloatingList());
-		
-		// today list
-		taskLists.get(TASKLIST_TODAY).addAllTasks(model.getTodayList());
+		for (TaskList list : taskLists) {
+			switch(list.listNumber) {
+			case TASKLIST_EVENT: // all tasks tab
+				taskLists.get(TASKLIST_EVENT).addAllTasks(model.getMainList());;
+				break;
+			case TASKLIST_SEARCH: // search list
+				list.addAllTasks(model.getSearchList());
+				break;
+			case TASKLIST_OVERDUE: // overdue list
+				list.addAllTasks(model.getOverdueList());
+				break;
+			case TASKLIST_FLOATING: // floating tasks list
+				list.addAllTasks(model.getFloatingList());
+				break;
+			case TASKLIST_TODAY:// today list 
+				list.addAllTasks(model.getTodayList());
+				break;
+			default:
+				break;
+			}
+		}
 		
 		if (center!=null) {
+			int open = TASKLIST_OPENED;
 			center.removeAllFromList();
 			for (int i=0; i<taskLists.size();i++) {
 				if (i!=TASKLIST_PINNED) {
 					center.addToList(taskLists.get(i));
 				}
 			}
+			openList(open); // keep the list that was previously opened open
 		}
 	}
 
@@ -727,8 +738,8 @@ public class GUIController extends Application {
 				// if it is for pinned window, no need to close anything
 				// else close everything
 				closeAllLists();
+				TASKLIST_OPENED = listNumber;
 			}
-			TASKLIST_OPENED = listNumber;
 			taskLists.get(listNumber).openList();
 		}
 	}

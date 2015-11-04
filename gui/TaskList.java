@@ -32,7 +32,7 @@ public class TaskList {
 	
 	final static int PADDING = 6;
 	
-	final static ScrollBarPolicy V_POLICY = ScrollBarPolicy.AS_NEEDED;
+	final static ScrollBarPolicy V_POLICY = ScrollBarPolicy.NEVER;
 	final static ScrollBarPolicy H_POLICY = ScrollBarPolicy.NEVER;
 	final static Pos ALIGNMENT = Pos.TOP_LEFT;
 	
@@ -47,6 +47,7 @@ public class TaskList {
 	// grid locations
 	final static int COL_HEADER = 0;
 	final static int COL_CONTENT = 1;
+	final static int COL_CONTENT_SIZE = 2;
 	final static int COL_SIZE = 2;
 	final static int ROW_NAME = 0;
 	final static int ROW_ID = 1;
@@ -432,6 +433,11 @@ public class TaskList {
 		
 		// add id
 		TextFlow tagFlow = new TextFlow();
+		
+		// consider using flowpane
+		
+		
+		
 		tagFlow.prefWidthProperty().bind(grid.widthProperty());
 		grid.add(tagFlow, COL_HEADER, ROW_TAGS, COL_SIZE, 1); // span 2 col and 1 row
 		Label type = createLabel(task.getTaskType().toString());
@@ -454,12 +460,11 @@ public class TaskList {
 	 * @return VBox with Name and ID
 	 *///*// old version using the arraylist from Logic
 	public static GridPane createDetailedDisplay(Task task) {
+		
 		GridPane grid = new GridPane();
 	    grid.getColumnConstraints().add(new ColumnConstraints(GRID_COL_HEADER_FINAL_LENGTH)); 
 		grid.setPadding(new Insets(0, 9, 0, 0));
-
-		ArrayList<String[]> details = task.getTaskDetails();
-		
+		/*
 		// Set name
 		Label label = createLabel(task.getName());
 		label.setText(" " + label.getText());
@@ -475,6 +480,31 @@ public class TaskList {
 		HBox.setHgrow(label, Priority.ALWAYS);
 		header.setAlignment(Pos.CENTER_LEFT);
 		grid.add(header, COL_HEADER, ROW_NAME, COL_SIZE, 1); // span 2 col and 1 row
+		//*/
+		// ID content
+		Label id = createLabel(Integer.toString(task.getId()));
+		id.setPadding(new Insets(0,5,0,5));
+		id.getStyleClass().add(getTaskStyle(task.getTaskType())); // set colour based on type
+		grid.add(id, SIDEBAR_COL_ID, ROW_NAME);
+
+		HBox header = new HBox();
+		header.prefWidthProperty().bind(grid.widthProperty().subtract(id.widthProperty()).subtract(IMAGE_SIZE)); // 8 is size of image
+		header.setAlignment(Pos.CENTER_LEFT);
+		grid.add(header, SIDEBAR_COL_NAME, ROW_NAME, 2, 1);
+		
+		// Set name
+		Label label = createLabel(task.getName());
+		label.prefWidthProperty().bind(header.widthProperty());
+		label.setWrapText(false);
+		label.setStyle("-fx-font-weight: bold");
+		header.getChildren().add(label);
+		HBox.setHgrow(label, Priority.ALWAYS);
+
+		// add whether completed
+		grid.add(getTaskCompletion(task.getIsCompleted()), SIDEBAR_COL_DONE, ROW_NAME); // only need up to 1 row
+		
+		
+		ArrayList<String[]> details = task.getTaskDetails();
 		
 		String[] array;
 		for (int i=1;i<details.size();i++) { // skip name element
@@ -487,7 +517,7 @@ public class TaskList {
 			if (label.getText()==null||label.getText().trim().isEmpty()) {
 				label.setText("None");
 			}
-			grid.add(label, COL_CONTENT, i);
+			grid.add(label, COL_CONTENT, i, COL_CONTENT_SIZE, 1);
 		}
 		
 		return grid;
