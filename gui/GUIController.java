@@ -58,22 +58,27 @@ public class GUIController extends Application {
 	final public static String[] taskListNames = {
 			"Overdue",
 			"Today",
-			"Event",
+			"To-do",
 			"Floating",
 			"Search list"
 	};
 	final static int TASKLIST_OVERDUE = 0;
 	final static int TASKLIST_TODAY = 1;
-	final static int TASKLIST_EVENT = 2;
+	final static int TASKLIST_TODO = 2;
 	final static int TASKLIST_FLOATING = 3;
 	final static int TASKLIST_SEARCH = 4;
 	final static int TASKLIST_INVALID = -1;
 	public static int TASKLIST_PINNED = TASKLIST_INVALID;
 	public static int TASKLIST_OPENED = TASKLIST_INVALID; // task list last opened
-
-	final static String STYLE_BUTTON_OVERDUE = "button-overdue";
-	final static String STYLE_BUTTON_FLOATING = "button-floating";
-
+	
+	final public static String[] STYLE_BUTTON_NAMES = {
+			"button-overdue",
+			"button-today",
+			"button-todo",
+			"button-floating",
+			"button-search"
+	};
+	
 	final static String APP_TITLE = "OraCle";
 	final static String FILE_CSS = "application.css";
 
@@ -171,11 +176,11 @@ public class GUIController extends Application {
 		BACKGROUND_NAME = model.getBackgroundLocation();
 
 		for (int i=0; i<taskListNames.length;i++) {
-			taskLists.add(new TaskListCustom(i)); // use this version to allow to close all other task lists
+			TaskList list = new TaskListCustom(i);
+			taskLists.add(list); // use this version to allow to close all other task lists
+			list.name.getStyleClass().add(STYLE_BUTTON_NAMES[i]);
 		}
-		taskLists.get(TASKLIST_OVERDUE).name.getStyleClass().add(STYLE_BUTTON_OVERDUE);
-		taskLists.get(TASKLIST_FLOATING).name.getStyleClass().add(STYLE_BUTTON_FLOATING);
-
+		
 		// intialise the all task lists
 		refreshLists();
 
@@ -184,9 +189,6 @@ public class GUIController extends Application {
 		pinnedWindow.prefWidthProperty().bind(pane.widthProperty());
 		pinnedWindow.prefHeightProperty().bind(pane.heightProperty().divide(PINNED_WINDOW_RATIO));
 		pinnedWindow.getStyleClass().add(STYLE_CURVED_VBOX);
-		if (!taskLists.get(TASKLIST_OVERDUE).isListEmpty()) {
-			pinWindow(taskLists.get(TASKLIST_OVERDUE));
-		}//*/
 
 		// create the text
 		textboxObject = new Textbox();
@@ -242,6 +244,10 @@ public class GUIController extends Application {
 		primaryStage.show();
 		primaryStage.setMinWidth(primaryStage.getWidth());
 		primaryStage.setMinHeight(primaryStage.getHeight());
+
+		if (!taskLists.get(TASKLIST_OVERDUE).isListEmpty()) {
+			pinWindow(taskLists.get(TASKLIST_OVERDUE));
+		}//*/
 	}
 
 	/**
@@ -407,7 +413,7 @@ public class GUIController extends Application {
 			@Override
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
 				// TODO Auto-generated method stub				
-				taskLists.get(TASKLIST_EVENT).recalculate();
+				taskLists.get(TASKLIST_TODO).recalculate();
 				center.recalculate();
 			}
 		};
@@ -619,6 +625,9 @@ public class GUIController extends Application {
 				closeAllLists();
 				TaskList search = taskLists.get(TASKLIST_SEARCH);
 				if (!search.isListEmpty()) { // if it is not empty
+					// deactivate focus view
+					unpinWindow();
+					isFocusView = false; 
 					openList(TASKLIST_SEARCH); // focus on search 
 					// then modify the Search List name to include the search term
 					String keywords = parsedCommand.getKeywords();
@@ -691,8 +700,8 @@ public class GUIController extends Application {
 	protected static void refreshLists() {
 		for (TaskList list : taskLists) {
 			switch(list.listNumber) {
-			case TASKLIST_EVENT: // all tasks tab
-				taskLists.get(TASKLIST_EVENT).addAllTasks(model.getMainList());;
+			case TASKLIST_TODO: // all tasks tab
+				taskLists.get(TASKLIST_TODO).addAllTasks(model.getMainList());;
 				break;
 			case TASKLIST_SEARCH: // search list
 				list.addAllTasks(model.getSearchList());
@@ -798,7 +807,7 @@ public class GUIController extends Application {
 	protected int getTaskListNumber(String processedString) throws Logic.UnrecognisedCommandException {
 		try {
 			int i = Integer.parseInt(processedString);
-			if (i<0) { 
+			if (i<=TASKLIST_INVALID) { 
 				// means that it should have been validated by parser. Can return immediately
 				return i+taskListNames.length; 
 			} else { // it must be a number inputted by the user based on the location of items on the screen

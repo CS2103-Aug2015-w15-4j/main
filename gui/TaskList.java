@@ -40,7 +40,7 @@ public class TaskList {
 	final static String STYLE_TEXT = GUIController.STYLE_TEXT;
 	final static String STYLE_FLOATING = "floating";
 	final static String STYLE_DEADLINE = "deadline";
-	final static String STYLE_EVENT = "event";
+	final static String STYLE_EVENT = "todo";
 	
 	final static String STYLE_CURVED = "-fx-background-radius: 9,8,5,4;";
 	

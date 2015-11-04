@@ -83,6 +83,31 @@
     -fx-base: #4B0082;
 }
 
+.button-todo {
+    -fx-base: #FFD700;
+}
+
+.button-today {
+    -fx-base: green;
+}
+
+.floating {
+	-fx-background-color:#4B0082; /* #800000;*/
+	-fx-text-fill: white;
+	-fx-background-radius: 9,8,5,4;
+}
+
+.todo {
+	-fx-background-color:#FFD700;
+	-fx-background-radius: 9,8,5,4;
+}
+
+.deadline {
+	-fx-background-color:green;
+	-fx-text-fill:white;
+	-fx-background-radius: 9,8,5,4;
+}
+
 .heading {
     -fx-font-family: Helvetica;
 	-fx-color:#4E443C;
@@ -102,23 +127,6 @@
 	-fx-border-width: 3;
 	-fx-border-radius: 9,8,5,4;
     -fx-background-radius: 11,9,6,5;
-}
-
-.floating {
-	-fx-background-color:#4B0082; /* #800000;*/
-	-fx-text-fill: white;
-	-fx-background-radius: 9,8,5,4;
-}
-
-.event {
-	-fx-background-color:#FFD700;
-	-fx-background-radius: 9,8,5,4;
-}
-
-.deadline {
-	-fx-background-color:green;
-	-fx-text-fill:white;
-	-fx-background-radius: 9,8,5,4;
 }
 
 .label-tags {

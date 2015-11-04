@@ -317,7 +317,7 @@ public class Logic {
 			fromCal.setTime(new Date(0));
 
 			List<Task> overdue = Search.searchDate(storage.getAllTasks(), fromCal, toCal);
-			return Search.search(overdue,"isCompleted: true");
+			return Search.search(overdue,"isCompleted:false");
 
 		} catch (ParseException e) {
 
