@@ -5,7 +5,7 @@ public class GUIConfig {
 	public static int lastOpenedList = -1;
 
 	public static String AVATAR_IMAGENAME = "";
-	public static String BACKGROUND_NAME = "";
 	
 	public static String[] AUDIOCLIPS = null;
+	public static double AUDIO_VOLUME = 0.5;
 }

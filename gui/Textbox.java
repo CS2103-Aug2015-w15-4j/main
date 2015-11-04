@@ -30,7 +30,6 @@ import javafx.util.Duration;
 public class Textbox {
 	public final static String TAG = GUIController.TAG_BOTTOMBAR;
 	public final static String TAG_TEXTBOX = GUIController.TAG_TEXTBOX;
-	public static String AVATAR_IMAGE = GUIController.AVATAR_IMAGENAME;
 	public final static String WELCOME_MESSAGE = "Welcome!";
 	
 	public final static int WIDTH = 100;//GUIController.MINIMUM_WINDOW_SIZE/GUIController.TEXTBOX_RATIO;
@@ -42,8 +41,6 @@ public class Textbox {
 	public final static int POS_AVATAR = 0;
 	public final static int POS_TEXTBOX = 1;
 	public final static int POS_CLOCK = 2;
-
-	public static double AUDIO_VOLUME = 0.1;
 	
 	protected TextFlow textflow; // list of messages from application
 	protected Label label;
@@ -143,7 +140,7 @@ public class Textbox {
 								currentlyPlaying.equals(randomClip) // if it is same, keep looping
 								); // while they are the same, keep looping
 						currentlyPlaying = randomClip;
-						currentlyPlaying.setVolume(AUDIO_VOLUME);
+						currentlyPlaying.setVolume(GUIConfig.AUDIO_VOLUME);
 						currentlyPlaying.play();
 					}
 				}
@@ -156,10 +153,9 @@ public class Textbox {
 	 * @return true if successful
 	 */
 	public boolean loadAvatar() {
-		AVATAR_IMAGE = GUIController.AVATAR_IMAGENAME;
 		InputStream stream;
 		try {
-			stream = new FileInputStream(new File(AVATAR_IMAGE));
+			stream = new FileInputStream(new File(GUIController.AVATAR_IMAGENAME));
 			if (stream!=null) {
 				Image image = new Image(stream,WIDTH, WIDTH, true,true);
 				if (image!=null) {
