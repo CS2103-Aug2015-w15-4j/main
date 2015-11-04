@@ -2,6 +2,7 @@ package logic;
 
 import java.util.ArrayList;
 
+import org.apache.lucene.queryparser.classic.ParseException;
 import parser.ParsedCommand;
 
 public class Task implements Comparable<Task> {
@@ -66,9 +67,10 @@ public class Task implements Comparable<Task> {
 		array = new String[2];
 		array[0] = "Details";
 		array[1] = details;
+
 		task.add(array);
 		array = new String[2];
-		array[0] = "tags";
+		array[0] = "Tags";
 		if(tags != null) {	
 			for (int i = 0; i<tags.size(); i++) {
 				tagList += "[" + tags.get(i) + "]";

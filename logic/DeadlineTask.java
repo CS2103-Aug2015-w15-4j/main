@@ -1,5 +1,6 @@
 package logic;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -36,8 +37,8 @@ public class DeadlineTask extends Task {
 		ArrayList<String[]> task = super.getTaskDetails();;
 		String[] array = new String[2];
 		
-		array[0] = "end";
-		array[1] = end.getTime().toString();
+		array[0] = "End";
+		array[1] = Logic.dateFormatter.format(end.getTime());
 		task.add(array);
 		
 		return task;
