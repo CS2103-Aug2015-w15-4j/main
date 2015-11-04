@@ -28,11 +28,12 @@ public abstract class InputParser {
 	protected static final String TASK_ID_REGEX = "(^[0-9]+(?=\\s|$))";
 	protected static final String TAG_REGEX = "(?<=\\s|^)#(\\w+)";
 	protected static final String DESCRIPTION_REGEX = "(?<!\\\\)\"(.*)(?<!\\\\)\"(?!.*((?<!\\\\)\"))";
-	protected static final String TASK_STATUS_REGEX = "(?<=[^//s])(todo|completed|overdue)(?=\\s|$)";
+	protected static final String TASK_STATUS_REGEX = "(?<=[^//s])(todo|completed)(?=\\s|$)";
 	protected static final String TASK_TYPE_REGEX = "(?<=\\s|^)(floating(?:task)?|deadline(?:task)?|event(?:task)?)(?:s)?(?=\\s|$)";
+	protected static final String OVERDUE_REGEX = "(?<=[^//s])(overdue)(?=\\s|$)";
 	
 	
-	protected static final String NOT_TITLE_REGEX_KEYWORD_OK = "(" + "((?<=\\s|^)(from |fr |at |to |til |until |by |on |- ))?" + DateTimeParser.NO_KEYWORD_DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|(" + TASK_STATUS_REGEX + ")|((?<=\\s|^)(on )?(tmr|tomorrow|tomorow)(?=\\s|$)))";  	
+	protected static final String NOT_TITLE_REGEX_KEYWORD_OK = "(" + "((?<=\\s|^)(from |fr |at |to |til |until |by |on |- ))?" + DateTimeParser.NO_KEYWORD_DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|(" + TASK_STATUS_REGEX + ")|((?<=\\s|^)(on )?((tmr|tomorrow|tomorow).*)(?=\\s|$)))";  	
 	protected static final String NOT_TITLE_REGEX = "(" + "( from | fr | at | to | til | until | by | on | - )?" + DateTimeParser.DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|(" + TASK_STATUS_REGEX + "))";  	
 	
 	// private static final Logger logger = Logger.getLogger(StringParser.class.getName() );
@@ -66,7 +67,7 @@ public abstract class InputParser {
     
 	// Methods to extract fields from string
 	
-	static String getTitleWithKeywordsFromString(String inputArgs) {
+	public static String getTitleWithKeywordsFromString(String inputArgs) {
 		// System.out.print("Parsing: " + inputArgs);
 		inputArgs = removeRegexPatternFromString(inputArgs, NOT_TITLE_REGEX_KEYWORD_OK);
 		// System.out.println(" to : " + inputArgs);
@@ -125,6 +126,17 @@ public abstract class InputParser {
 		}
 
 		return determineTaskStatus(status);
+	}
+	
+	static Boolean getOverdueFromString(String inputArgs) {
+		Pattern taskStatusPattern = Pattern.compile(OVERDUE_REGEX);
+		Matcher m = taskStatusPattern.matcher(inputArgs);
+
+		if (m.find()) {
+			return true;
+		}
+
+		return false;
 	}
 
 	static TaskType getTaskTypeFromString(String inputArgs) {
