@@ -27,8 +27,14 @@ public class ShowParser extends InputParser {
 	private static ParsedCommand createParsedCommandSearch(String inputArgs) {
 		ParsedCommand pc;
 		try {
-			String parsedKeywords = getSearchKeywordsFromString(inputArgs);
+			System.out.println(inputArgs);
+			String parsedKeywords = getSearchKeywordsWithDateKeywordsFromString(inputArgs);
+			System.out.println("KEYWORDS: " + parsedKeywords);
 			Calendar[] parsedTimes = getDatesTimesFromString(inputArgs);
+			if (parsedTimes != null && parsedTimes.length > 2) { // date keyword used for date input
+				parsedKeywords = removeKeywordSection(parsedKeywords);
+			}
+			System.out.println(parsedTimes[0]);
 			parsedTimes = convertToSearchTimes(parsedTimes, inputArgs);
 			ArrayList<String> parsedTags = getTagsFromString(inputArgs);
 			Boolean parsedStatus = getTaskStatusFromString(inputArgs);
@@ -51,6 +57,7 @@ public class ShowParser extends InputParser {
 		if (parsedTimes == null) {
 			return null;
 		}
+		System.out.println("P1: " + parsedTimes[0] + " P2: " + parsedTimes[1]);
 		if (parsedTimes[INDEX_FOR_START] != null && parsedTimes[INDEX_FOR_END] == null) {
 			if (TimeParser.hasTime(input)) { // user input start date and time only
 				Calendar endTime = (Calendar) parsedTimes[INDEX_FOR_START].clone();
