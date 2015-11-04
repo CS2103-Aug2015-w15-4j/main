@@ -309,13 +309,16 @@ public class Logic {
 
 	public static List<Task> updateOverdueList() {
 		try {
+			
 			Storage storage = new Storage();
 			Calendar toCal = Calendar.getInstance();
 
 			Calendar fromCal = Calendar.getInstance();
 			fromCal.setTime(new Date(0));
 
-			return Search.searchDate(storage.getAllTasks(), fromCal, toCal);
+			List<Task> overdue = Search.searchDate(storage.getAllTasks(), fromCal, toCal);
+			return Search.search(overdue,"isCompleted: true");
+
 		} catch (ParseException e) {
 
 			e.printStackTrace();
