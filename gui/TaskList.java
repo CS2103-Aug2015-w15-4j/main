@@ -460,32 +460,34 @@ public class TaskList {
 	 * @return VBox with Name and ID
 	 *///*// old version using the arraylist from Logic
 	public static GridPane createDetailedDisplay(Task task) {
-		
 		GridPane grid = new GridPane();
 	    grid.getColumnConstraints().add(new ColumnConstraints(GRID_COL_HEADER_FINAL_LENGTH)); 
 		grid.setPadding(new Insets(0, 9, 0, 0));
+		
 		// ID content
+		//*
 		Label id = createLabel(Integer.toString(task.getId()));
 		id.setPadding(new Insets(0,5,0,5));
 		id.getStyleClass().add(getTaskStyle(task.getTaskType())); // set colour based on type
-		grid.add(id, SIDEBAR_COL_ID, ROW_NAME);
-
+		grid.add(id, SIDEBAR_COL_ID, ROW_NAME);//*/
+		/*
 		HBox header = new HBox();
-		header.prefWidthProperty().bind(grid.widthProperty().subtract(id.widthProperty()).subtract(IMAGE_SIZE)); // 8 is size of image
+		header.prefWidthProperty().bind(grid.widthProperty().
+				subtract(GRID_COL_HEADER_FINAL_LENGTH).subtract(IMAGE_SIZE)); // 8 is size of image
 		header.setAlignment(Pos.CENTER_LEFT);
-		grid.add(header, SIDEBAR_COL_NAME, ROW_NAME, 2, 1);
+		grid.add(header, SIDEBAR_COL_NAME, ROW_NAME, 2, 1);//*/
 		
 		// Set name
 		Label label = createLabel(task.getName());
-		label.prefWidthProperty().bind(header.widthProperty());
-		label.setWrapText(false);
+		label.prefWidthProperty().bind(grid.widthProperty());
+		label.setWrapText(true);
 		label.setStyle("-fx-font-weight: bold");
-		header.getChildren().add(label);
+		//header.getChildren().add(label);
+		grid.add(label, SIDEBAR_COL_NAME, ROW_NAME, 2, 1);
 		HBox.setHgrow(label, Priority.ALWAYS);
 
 		// add whether completed
 		grid.add(getTaskCompletion(task.getIsCompleted()), SIDEBAR_COL_DONE, ROW_NAME); // only need up to 1 row
-		
 		
 		ArrayList<String[]> details = task.getTaskDetails();
 		
@@ -523,7 +525,8 @@ public class TaskList {
 		grid.add(id, SIDEBAR_COL_ID, ROW_NAME);
 
 		HBox header = new HBox();
-		header.prefWidthProperty().bind(grid.widthProperty().subtract(id.widthProperty()).subtract(IMAGE_SIZE)); // 8 is size of image
+		header.prefWidthProperty().bind(grid.widthProperty().
+				subtract(GRID_COL_HEADER_FINAL_LENGTH).subtract(IMAGE_SIZE)); // 8 is size of image
 		header.setAlignment(Pos.CENTER_LEFT);
 		grid.add(header, SIDEBAR_COL_NAME, ROW_NAME, 2, 1);
 		

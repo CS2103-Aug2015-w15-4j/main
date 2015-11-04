@@ -274,6 +274,7 @@ public class GUIController extends Application {
 		if (!taskLists.get(TASKLIST_OVERDUE).isListEmpty()) {
 			pinWindow(taskLists.get(TASKLIST_OVERDUE));
 		}//*/
+		openList(TASKLIST_TODAY); // open today first
 	}
 	/**
 	 * Global Handlers
@@ -407,39 +408,7 @@ public class GUIController extends Application {
 				}
 
 				if(keyEvent.getCode()==KeyCode.BACK_SLASH) { // zoom in on a task
-					if (TASKLIST_PINNED!=TASKLIST_INVALID&&isPinnedFocused(scene)) {
-						// check if the pinned window is the focus of the scene
-						taskLists.get(TASKLIST_PINNED).focusTask();
-						taskLists.get(TASKLIST_PINNED).closeList();
-					} else if (TASKLIST_OPENED!=TASKLIST_INVALID) {
-						pinFocusView(taskLists.get(TASKLIST_OPENED).getFocusTask());
-					} else {
-						/*
-						listLoop: for (TaskList list : taskLists) {
-							for (Node node : list.getNode().getChildren()) {
-								if (node.isFocused()) {
-									list.focusTask();
-									openList(list);
-									break listLoop;
-								}
-							}
-						}//*/
-						Node focused = scene.getFocusOwner();
-						if (focused!=null) {
-							listLoop: for (TaskList list : taskLists) {
-								Node node = focused;
-								for (int i=0;i<NESTED_NODE_NUM;i++) {
-									if (list.getNode().equals(node)) {
-										openList(list);
-										list.selectFirstNode();
-										pinFocusView(list.getFocusTask());
-										break listLoop;
-									}
-									node = node.getParent();
-								}
-							}
-						}
-					}
+					showFocusTask(false);
 				}
 
 				if ((keyEvent.getCode()==KeyCode.BACK_SLASH&&keyEvent.isShiftDown())||
@@ -529,7 +498,9 @@ public class GUIController extends Application {
 			TaskList pinnedList = taskLists.get(pinned);
 			Region node = pinnedList.getNode();
 			pinnedList.isPinnedWindow = false;
-			closeList(pinnedList);
+			// force it to close
+			pinnedList.openList();
+			pinnedList.closeList();
 			node.prefWidthProperty().unbind();
 			node.prefHeightProperty().unbind();
 			node.setPrefHeight(Region.USE_COMPUTED_SIZE);
@@ -617,18 +588,7 @@ public class GUIController extends Application {
 		try {
 			switch (command) {
 			case GUI_SHOW: // show a specific task in the pinned window
-				if (TASKLIST_PINNED!=TASKLIST_INVALID) {
-					TaskList list = taskLists.get(TASKLIST_PINNED);
-					if (list.isListOpen) {
-						list.focusTask();
-					} else {
-						openList(list);
-					}
-					return true;
-				} else if (TASKLIST_OPENED!=TASKLIST_INVALID) {
-					pinFocusView(taskLists.get(TASKLIST_OPENED).getFocusTask());
-					return true;
-				}
+				return showFocusTask(true);
 			case GUI_SWITCH:
 				switchWindow();
 				return true;
@@ -726,8 +686,9 @@ public class GUIController extends Application {
 				TaskList search = taskLists.get(TASKLIST_SEARCH);
 				if (!search.isListEmpty()) { // if it is not empty
 					// deactivate focus view
-					unpinWindow();
-					isFocusView = false; 
+					if (isFocusView) {
+						unpinWindow();
+					}
 					openList(TASKLIST_SEARCH); // focus on search 
 					// then modify the Search List name to include the search term
 					String keywords = parsedCommand.getKeywords();
@@ -977,6 +938,40 @@ public class GUIController extends Application {
 					return true;
 				}
 				focused = focused.getParent();
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Opens the focus Task view if valid
+	 * @param isFromShow is it from the show command?
+	 */
+	protected boolean showFocusTask(boolean isFromShow) {
+		if (TASKLIST_PINNED!=TASKLIST_INVALID&&
+				(isPinnedFocused(stage.getScene())||isFromShow)) {
+			// check if the pinned window is the focus of the scene
+			taskLists.get(TASKLIST_PINNED).focusTask();
+			taskLists.get(TASKLIST_PINNED).closeList();
+			return true;
+		} else if (TASKLIST_OPENED!=TASKLIST_INVALID) {
+			pinFocusView(taskLists.get(TASKLIST_OPENED).getFocusTask());
+			return true;
+		} else {
+			Node focused = stage.getScene().getFocusOwner();
+			if (focused!=null) {
+				listLoop: for (TaskList list : taskLists) {
+					Node node = focused;
+					for (int i=0;i<NESTED_NODE_NUM;i++) {
+						if (list.getNode().equals(node)) {
+							openList(list);
+							list.selectFirstNode();
+							pinFocusView(list.getFocusTask());
+							return true;
+						}
+						node = node.getParent();
+					}
+				}
 			}
 		}
 		return false;

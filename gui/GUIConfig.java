@@ -1,8 +1,7 @@
 package gui;
 
-public class GUIConfig {	
+public class GUIConfig {
 	public static int lastPinnedList = -1;
-	public static int lastOpenedList = -1;
 
 	public static String AVATAR_IMAGENAME = "";
 	

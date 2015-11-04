@@ -127,6 +127,7 @@
 	-fx-border-width: 3;
 	-fx-border-radius: 9,8,5,4;
     -fx-background-radius: 11,9,6,5;
+	-fx-background-insets: 10;
 }
 
 .label-tags {
