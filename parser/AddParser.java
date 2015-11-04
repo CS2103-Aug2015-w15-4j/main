@@ -1,3 +1,4 @@
+//@@author A0114620X
 package parser;
 
 import java.util.ArrayList;
@@ -7,14 +8,14 @@ public class AddParser extends InputParser {
 
 	ParsedCommand parse(String[] input) {
 		if (isMissingArguments(input)) {
-			return InputParser.createParsedCommandError(ERROR_MISSING_ARGS);
+			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
 			String inputArgs = input[INDEX_FOR_ARGS];
 			
 			try {
 				String parsedTitle = getTitleWithKeywordsFromString(inputArgs);
 				Calendar[] parsedTimes = getDatesTimesFromString(inputArgs);
-				if (parsedTimes != null && parsedTimes.length > 2) {
+				if (parsedTimes != null && parsedTimes.length > 2) { // date keyword used for date input
 					parsedTitle = removeKeywordSection(parsedTitle);
 				}
 				String parsedDescription = getDescriptionFromString(inputArgs);
@@ -26,12 +27,11 @@ public class AddParser extends InputParser {
 													.description(parsedDescription)
 													.tags(parsedTags)
 													.build();
-				
 				return pc;
 			} catch (InvalidArgumentsForParsedCommandException e) {
 				return InputParser.createParsedCommandError(e.getMessage());
 			}
 		}
 	}
-
+	
 }

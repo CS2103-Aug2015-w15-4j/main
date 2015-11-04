@@ -1,3 +1,5 @@
+//@@author A0114620X
+
 package parser;
 
 import java.util.ArrayList;
@@ -33,6 +35,7 @@ public class ParsedCommand {
 
 	// private static final Logger logger = Logger.getLogger(ParsedCommand.class.getName() );
 	private static final String ERROR_MISSING_TITLE = "Error: Missing task title";
+	
 	private static final int INDEX_FOR_START = 0;
 	private static final int INDEX_FOR_END = 1;
 
@@ -74,39 +77,39 @@ public class ParsedCommand {
 
 	/**
 	 * Returns command type of command, including error CommandType.
-	 * @return
+	 * @return command type.
 	 */
 	public MyParser.CommandType getCommandType() {
 		return this.cmdType;
 	}
 	
 	/**
-	 * Returns title of task, null if not applicable.
-	 * @return
+	 * Returns title of task, empty string if not found, null if not applicable.
+	 * @return title.
 	 */
 	public String getTitle() {
 		return this.title;
 	}
 	
 	/**
-	 * Returns start date and time of task in Calendar format, null if not applicable.
-	 * @return
+	 * Returns first date and time of task in Calendar format, null if not applicable.
+	 * @return first date/time.
 	 */
 	public Calendar getFirstDate() {
 		return this.firstDate;
 	}
 	
 	/**
-	 * Returns end date and time of task in Calendar format, null if not applicable.
-	 * @return
+	 * Returns second date and time of task in Calendar format, null if not applicable.
+	 * @return second date/time.
 	 */
 	public Calendar getSecondDate() {
 		return this.secondDate;
 	}
 	
 	/**
-	 * Returns description of task, null if not applicable.
-	 * @return
+	 * Returns description of task, empty string if not found, null if not applicable.
+	 * @return task description.
 	 */
 	public String getDescription() {
 		return this.description;
@@ -114,15 +117,15 @@ public class ParsedCommand {
 	
 	/**
 	 * Returns ArrayList of tags, empty ArrayList if not applicable.
-	 * @return
+	 * @return tags.
 	 */
 	public ArrayList<String> getTags() {
 		return this.tags;
 	}
 	
 	/**
-	 * Returns error message if ParsedCommand is of type Error.
-	 * @return
+	 * Returns error message if ParsedCommand is of type Error, null if not applicable.
+	 * @return error message.
 	 */
 	public String getErrorMessage() {
 		return this.errorMessage;
@@ -130,15 +133,15 @@ public class ParsedCommand {
 	
 	/**
 	 * Returns taskId of task, -1 if not applicable.
-	 * @return
+	 * @return task ID.
 	 */
 	public int getTaskId() {
 		return this.taskId;
 	}
 	
 	/**
-	 * Returns guiType of task, -1 if not applicable.
-	 * @return
+	 * Returns gui tab's index, empty string if not found, null if not applicable.
+	 * @return gui tab index.
 	 */
 	public String getGuiType() {
 		return this.guiType;
@@ -146,12 +149,16 @@ public class ParsedCommand {
 	
 	/**
 	 * Returns TaskType.EVENT, TaskType.DEADLINE_TASK, TaskType.FLOATING_TASK or null.
-	 * @return
+	 * @return task type.
 	 */
 	public TaskType getTaskType() {
 		return this.taskType;
 	}
 	
+	/**
+	 * Sets taskType of ParsedCommand object to argument.
+	 * @param taskType
+	 */
 	public void setTaskType(TaskType taskType) {
 		this.taskType = taskType;
 	}
@@ -183,7 +190,7 @@ public class ParsedCommand {
 	}
 	
 	/**
-	 * Returns search keywords for show command, returns null if not applicable.
+	 * Returns search keywords for show command, empty string if not found, returns null if not applicable.
 	 * @return
 	 */
 	public String getKeywords() {

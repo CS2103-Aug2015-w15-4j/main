@@ -1,3 +1,4 @@
+//@@author A0114620X
 package parser;
 
 import java.util.ArrayList;
@@ -14,11 +15,13 @@ public class EditParser extends InputParser {
 				return InputParser.createParsedCommandError(ERROR_MISSING_FIELDS);
 			} else {
 				try {
-					int parsedTaskId = getTaskIdFromString(inputArgs[0]);
-					String parsedTitle = getTitleFromString(inputArgs[1]);
-					Calendar[] parsedTimes = getDatesTimesFromString(inputArgs[1]);
-					String parsedDescription = getDescriptionFromString(inputArgs[1]);
-					ArrayList<String> parsedTags = getTagsFromString(inputArgs[1]);
+					String task = inputArgs[0];
+					String changes = inputArgs[1];
+					int parsedTaskId = getTaskIdFromString(task);
+					String parsedTitle = getTitleFromString(changes);
+					Calendar[] parsedTimes = getDatesTimesFromString(changes);
+					String parsedDescription = getDescriptionFromString(changes);
+					ArrayList<String> parsedTags = getTagsFromString(changes);
 				
 					ParsedCommand pc = new ParsedCommand.Builder(MyParser.CommandType.EDIT)
 														.taskId(parsedTaskId)

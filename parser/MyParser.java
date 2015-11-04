@@ -1,3 +1,5 @@
+//@@author A0114620X
+
 package parser;
 
 import java.util.HashMap;
@@ -9,37 +11,22 @@ public class MyParser {
 		EXIT, CONFIG, SEARCH, SHOW, 
 		GUI_OPEN, GUI_CLOSE, GUI_PIN, GUI_UNPIN, GUI_SHOW, GUI_SWITCH, GUI_LOG, GUI_MAIN, GUI_OPEN_ALL, GUI_CLOSE_ALL;
 	}
-
-	static final int INDEX_FOR_CMD = 0;
-	static final int INDEX_FOR_ARGS = 1;
-	private static HashMap<String, MyParser.CommandType> _commandChoicesHashMap;
-
 	
-	public static class Pair {
-		public String[] str;
-		public MyParser.CommandType commandType;
-		Pair(MyParser.CommandType _commandType, String[] stringChoices) {
-			str = stringChoices;
-			commandType = _commandType;
-		}
-		Pair() {
-			str = null;
-			commandType = MyParser.CommandType.INVALID;			
-		}
-	}
+	private static final int INDEX_FOR_CMD = 0;
 
+	private static HashMap<String, MyParser.CommandType> _commandChoicesHashMap;
 	public static final Pair[] COMMAND_CHOICES = {
 		new Pair(MyParser.CommandType.ADD, new String[] {"add", "insert", "+"}),
 		new Pair(MyParser.CommandType.DELETE, new String[] {"delete", "del", "remove", "cancel", "x"}),
-		new Pair(MyParser.CommandType.EDIT, new String[] {"edit", "change"}),
-		new Pair(MyParser.CommandType.SHOW, new String[] {"show", "search", "find"}),
-		new Pair(MyParser.CommandType.EXIT, new String[] {"exit"}),
+		new Pair(MyParser.CommandType.EDIT, new String[] {"edit", "change", "update", "e;"}),
+		new Pair(MyParser.CommandType.SHOW, new String[] {"show", "search", "find", "s;"}),
+		new Pair(MyParser.CommandType.EXIT, new String[] {"exit", "e;"}),
 		new Pair(MyParser.CommandType.UNDO, new String[] {"undo"}),
 		new Pair(MyParser.CommandType.DONE, new String[] {"done", "finished", "completed", "v"}),
-		new Pair(MyParser.CommandType.FLAG, new String[] {"flag", "mark"}),
-		new Pair(MyParser.CommandType.TODO, new String[] {"todo"}),
+		new Pair(MyParser.CommandType.FLAG, new String[] {"flag", "mark", "f;"}),
+		new Pair(MyParser.CommandType.TODO, new String[] {"todo", "do"}),
 		new Pair(MyParser.CommandType.CONFIG, new String[] {"set"}),
-		new Pair(MyParser.CommandType.HELP, new String[] {"help", "?"}),
+		new Pair(MyParser.CommandType.HELP, new String[] {"help", "?", "h;"}),
 		new Pair(MyParser.CommandType.GUI_OPEN, new String[] {"open"}),
 		new Pair(MyParser.CommandType.GUI_CLOSE, new String[] {"close"}),
 		new Pair(MyParser.CommandType.GUI_PIN, new String[] {"pin"}),
@@ -66,7 +53,7 @@ public class MyParser {
 			userInput = userInput.trim().replaceAll("\\s+", " ");
 			String input[] = userInput.trim().split(" ", 2);
 			String userCommand = input[INDEX_FOR_CMD];
-			MyParser.CommandType command = MyParser.getStandardCommandType(userCommand.toLowerCase());
+			CommandType command = getStandardCommandType(userCommand.toLowerCase());
 			
 			InputParser ip;
 			
@@ -87,9 +74,6 @@ public class MyParser {
 					ip = new ShowParser();
 					return ip.parse(input);
 					
-				case UNDO:
-					return InputParser.createParsedCommand(MyParser.CommandType.UNDO);
-	
 				case FLAG:
 					ip = new FlagParser();
 					return ip.parse(input);
@@ -102,6 +86,9 @@ public class MyParser {
 					ip = new TodoParser();
 					return ip.parse(input);
 					
+				case UNDO:
+					return InputParser.createParsedCommand(MyParser.CommandType.UNDO);
+	
 				case GUI_OPEN:
 					ip = new OpenParser();
 					return ip.parse(input);
@@ -126,9 +113,6 @@ public class MyParser {
 				case GUI_UNPIN:
 					return InputParser.createParsedCommand(CommandType.GUI_UNPIN);
 					
-				case INVALID:
-					return InputParser.createParsedCommandError(InputParser.ERROR_INVALID_COMMAND);
-			
 				case CONFIG:
 					ip = new ConfigParser();
 					return ip.parse(input);
@@ -139,6 +123,9 @@ public class MyParser {
 				case EXIT:
 					return InputParser.createParsedCommand(CommandType.EXIT);
 	
+				case INVALID:
+					return InputParser.createParsedCommandError(InputParser.ERROR_INVALID_COMMAND);
+			
 				default:
 					// is never visited
 					throw new Error("ERROR");
@@ -159,7 +146,7 @@ public class MyParser {
 	}
 
 
-	static CommandType getStandardCommandType(String input) {
+	private static CommandType getStandardCommandType(String input) {
 		CommandType cmd = _commandChoicesHashMap.get(input);
 		if (cmd != null) {
 			return cmd;
@@ -168,5 +155,12 @@ public class MyParser {
 		}
 	}
 
-	
+	public static class Pair {
+		public String[] str;
+		public CommandType commandType;
+		public Pair(CommandType commandType, String[] stringChoices) {
+			this.str = stringChoices;
+			this.commandType = commandType;
+		}
+	}
 }

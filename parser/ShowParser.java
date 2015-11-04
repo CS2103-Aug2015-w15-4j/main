@@ -1,21 +1,14 @@
+//@@author A0114620X
+
 package parser;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import parser.MyParser.CommandType;
+import parser.ParsedCommand.TaskType;
 
 public class ShowParser extends InputParser {
 	private static final String NOT_KEYWORDS_REGEX = NOT_TITLE_REGEX + "|" + TASK_TYPE_REGEX;
-	
-	private static String getKeywordsFromString(String input) {
-		return removeRegexPatternFromString(input, NOT_KEYWORDS_REGEX);
-	}
-	
-
-	private static boolean hasTaskId(int taskId) {
-		return taskId >= 0;
-	}
-	
 	
 	ParsedCommand parse(String[] input) {
 		if (isMissingArguments(input)) {
@@ -24,30 +17,24 @@ public class ShowParser extends InputParser {
 			String inputArgs = input[INDEX_FOR_ARGS];
 			int taskId = getTaskIdFromString(inputArgs);
 			if (hasTaskId(taskId)) { // show task details
-				return ShowParser.createParsedCommandShowDisplay(taskId);
-			} else if (containsOnlyTaskId(inputArgs)) { // invalid taskId - how to get this???
-				return InputParser.createParsedCommandError(ERROR); 
+				return createParsedCommandDisplay(taskId);
 			} else { // search	
-				return ShowParser.createParsedCommandShowSearch(inputArgs);
+				return createParsedCommandSearch(inputArgs);
 			}
 		}
 	}
 
-	static boolean containsOnlyTaskId(String inputArgs) {
-		return removeRegexPatternFromString(inputArgs, StringParser.TASK_ID_REGEX).trim().equals("");
-	}
-
-	static ParsedCommand createParsedCommandShowSearch(String inputArgs) {
+	private static ParsedCommand createParsedCommandSearch(String inputArgs) {
 		ParsedCommand pc;
 		try {
-			String parsedKeywords = getKeywordsFromString(inputArgs);
+			String parsedKeywords = getSearchKeywordsFromString(inputArgs);
 			Calendar[] parsedTimes = getDatesTimesFromString(inputArgs);
 			parsedTimes = convertToSearchTimes(parsedTimes, inputArgs);
 			ArrayList<String> parsedTags = getTagsFromString(inputArgs);
 			Boolean parsedStatus = getTaskStatusFromString(inputArgs);
-			ParsedCommand.TaskType taskType = getTaskTypeFromString(inputArgs);
+			TaskType taskType = getTaskTypeFromString(inputArgs);
 			
-			pc = new ParsedCommand.Builder(MyParser.CommandType.SEARCH)
+			pc = new ParsedCommand.Builder(CommandType.SEARCH)
 								  .searchKeywords(parsedKeywords)
 								  .times(parsedTimes)
 								  .tags(parsedTags)
@@ -55,7 +42,6 @@ public class ShowParser extends InputParser {
 								  .taskType(taskType)
 								  .build();
 			return pc;
-		
 		} catch (InvalidArgumentsForParsedCommandException e) {
 			return InputParser.createParsedCommandError(e.getMessage());
 		}
@@ -82,16 +68,24 @@ public class ShowParser extends InputParser {
 		return parsedTimes;
 	}
 	
-	static ParsedCommand createParsedCommandShowDisplay(int taskId) {
+	private static ParsedCommand createParsedCommandDisplay(int taskId) {
 		ParsedCommand pc;
 		try {
-			pc = new ParsedCommand.Builder(MyParser.CommandType.DISPLAY)
+			pc = new ParsedCommand.Builder(CommandType.DISPLAY)
 	  							  .taskId(taskId)
 	  							  .build();
 			return pc;
 		} catch (InvalidArgumentsForParsedCommandException e) {
 			return InputParser.createParsedCommandError(e.getMessage());
 		}
+	}
+	
+	private static String getSearchKeywordsFromString(String input) {
+		return removeRegexPatternFromString(input, NOT_KEYWORDS_REGEX);
+	}
+	
+	private static boolean hasTaskId(int taskId) {
+		return taskId >= 0;
 	}
 
 }

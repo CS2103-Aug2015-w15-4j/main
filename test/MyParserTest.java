@@ -40,16 +40,6 @@ public class MyParserTest {
 	private ArrayList<String> emptyArrayList = new ArrayList<String>();
 	// private ParsedCommand pcGui;
 	
-	public static Calendar nextDayOfWeek(int day) {
-        Calendar date = Calendar.getInstance();
-        int difference = day - date.get(Calendar.DAY_OF_WEEK);
-        if (difference < 0) {
-            difference += 7;
-        }
-        date.add(Calendar.DAY_OF_MONTH, difference);
-        return date;
-    }
-	
 	private void initLogging(){
 		String config = "\nhandlers = java.util.logging.ConsoleHandler\n.level = ALL\n" +
 						"java.util.logging.ConsoleHandler.level = FINE\n" +
@@ -66,6 +56,18 @@ public class MyParserTest {
 			logger.log(Level.WARNING, "Log manager configuration failed: " + e.getMessage(),e);
 		}
 	}
+	
+	//@@author A0114620X
+
+	public static Calendar nextDayOfWeek(int day) {
+        Calendar date = Calendar.getInstance();
+        int difference = day - date.get(Calendar.DAY_OF_WEEK);
+        if (difference < 0) {
+            difference += 7;
+        }
+        date.add(Calendar.DAY_OF_MONTH, difference);
+        return date;
+    }
 	
 	@Before
 	public void setUp() throws Exception {
@@ -181,6 +183,7 @@ public class MyParserTest {
 		assertEquals(TaskType.EVENT, pcAdd.getTaskType());
 		
 		// Check support for event spanning 2 days
+		/*
 		pcAdd = MyParser.parseCommand("add meeting with john on next mon till next tues #cs2103 #proj #cs2101");
 		assertEquals(MyParser.CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
@@ -188,7 +191,7 @@ public class MyParserTest {
 		assertEquals(StringParser.parseStringToDate("Mon Nov 2 23:59:00 SGT 2015"), pcAdd.getFirstDate().getTime());
 		assertEquals(StringParser.parseStringToDate("Tue Nov 3 23:59:00 SGT 2015"), pcAdd.getSecondDate().getTime());
 		assertEquals(TaskType.EVENT, pcAdd.getTaskType());
-				
+		*/	
 		/********************DEFINITION OF 'NEXT TUES'???****************************/
 		/*
 		// Check support for event spanning 2 days
@@ -326,7 +329,7 @@ public class MyParserTest {
 		ArrayList<String> list1 = new ArrayList<String>();
 		list1.add("tag");
 		assertEquals(list1, pcEdit.getTags());
-		assertEquals(null, pcEdit.getTitle());
+		assertEquals("", pcEdit.getTitle());
 		
 		// Check allow extra whitespace
 		pcEdit = MyParser.parseCommand("Edit 234 test");

@@ -1,3 +1,5 @@
+//@@author A0114620X
+
 package parser;
 
 import static org.junit.Assert.*;
@@ -38,28 +40,28 @@ public class ShowParserTest {
 	public void testCreateParsedCommandShowSearch() {
 		ArrayList<String> tags = new ArrayList<String>();
 		tags.add("tag");
-		ParsedCommand pc = ShowParser.createParsedCommandShowSearch(" my search keywords from 1/4/16 3pm to 5pm #tag \"description\"");
+		ParsedCommand pc = ShowParser.createParsedCommandSearch(" my search keywords from 1/4/16 3pm to 5pm #tag \"description\"");
 		assertEquals(CommandType.SEARCH, pc.getCommandType());
 		assertEquals("my search keywords", pc.getKeywords());
 		assertEquals(parseStringToDate("Fri Apr 1 15:00:00 SGT 2016"), pc.getFirstDate().getTime());
 		assertEquals(parseStringToDate("Fri Apr 1 17:00:00 SGT 2016"), pc.getSecondDate().getTime());
 		assertEquals(tags, pc.getTags());		
 
-		pc = ShowParser.createParsedCommandShowSearch(" my search keywords #tag \"description\"");
+		pc = ShowParser.createParsedCommandSearch(" my search keywords #tag \"description\"");
 		assertEquals(CommandType.SEARCH, pc.getCommandType());
 		assertEquals("my search keywords", pc.getKeywords());
 		assertEquals(null, pc.getFirstDate());
 		assertEquals(null, pc.getSecondDate());
 		assertEquals(tags, pc.getTags());		
 
-		pc = ShowParser.createParsedCommandShowSearch(" my search keywords on apr 1 #tag \"description\"");
+		pc = ShowParser.createParsedCommandSearch(" my search keywords on apr 1 #tag \"description\"");
 		assertEquals(CommandType.SEARCH, pc.getCommandType());
 		assertEquals("my search keywords", pc.getKeywords());
 		assertEquals(parseStringToDate("Fri Apr 1 00:00:00 SGT 2016"), pc.getFirstDate().getTime());
 		assertEquals(parseStringToDate("Fri Apr 1 23:59:00 SGT 2016"), pc.getSecondDate().getTime());
 		assertEquals(tags, pc.getTags());		
 
-		pc = ShowParser.createParsedCommandShowSearch(" my search keywords from 1/4/16 3pm to 2/4/16 5pm #tag \"description\"");
+		pc = ShowParser.createParsedCommandSearch(" my search keywords from 1/4/16 3pm to 2/4/16 5pm #tag \"description\"");
 		assertEquals(CommandType.SEARCH, pc.getCommandType());
 		assertEquals("my search keywords", pc.getKeywords());
 		assertEquals(parseStringToDate("Fri Apr 1 15:00:00 SGT 2016"), pc.getFirstDate().getTime());
@@ -67,22 +69,22 @@ public class ShowParserTest {
 		assertEquals(tags, pc.getTags());		
 
 
-		pc = ShowParser.createParsedCommandShowSearch(" my search keywords from 31/4/16 3pm to 5pm #tag \"description\"");
+		pc = ShowParser.createParsedCommandSearch(" my search keywords from 31/4/16 3pm to 5pm #tag \"description\"");
 		assertEquals(CommandType.ERROR, pc.getCommandType());
 		assertEquals("Error: Invalid date(s) input", pc.getErrorMessage());
 	}
 
 	@Test
 	public void testCreateParsedCommandShowDisplay() {
-		ParsedCommand pc = ShowParser.createParsedCommandShowDisplay(234);
+		ParsedCommand pc = ShowParser.createParsedCommandDisplay(234);
 		assertEquals(MyParser.CommandType.DISPLAY, pc.getCommandType());
 		assertEquals(234, pc.getTaskId());
 		
-		pc = ShowParser.createParsedCommandShowDisplay(0);
+		pc = ShowParser.createParsedCommandDisplay(0);
 		assertEquals(MyParser.CommandType.DISPLAY, pc.getCommandType());
 		assertEquals(0, pc.getTaskId());
 
-		pc = ShowParser.createParsedCommandShowDisplay(-1);
+		pc = ShowParser.createParsedCommandDisplay(-1);
 		assertEquals(MyParser.CommandType.ERROR, pc.getCommandType());
 		assertEquals("Error: Invalid/Missing taskId", pc.getErrorMessage());
 

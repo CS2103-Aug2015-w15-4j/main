@@ -1,3 +1,5 @@
+//@@author A0114620X
+
 package parser;
 
 import static org.junit.Assert.*;
@@ -79,7 +81,7 @@ public class InputParserTest {
 		assertEquals("Meet John about proposal", InputParser.getTitleWithKeywordsFromString("12.2-13 Meet John about proposal #cs2103 12:00h"));
 		assertEquals("Meet John about proposal", InputParser.getTitleWithKeywordsFromString("#cs2101 Meet John about proposal on 23 jan #cs2103 12:00 12/2/13"));
 		assertEquals("Meet John about proposal", InputParser.getTitleWithKeywordsFromString(" 12:00 12/2/13 Meet John about proposal #cs2103 todo"));
-		assertEquals(null, InputParser.getTitleWithKeywordsFromString("23/1/15 2pm \"description\" #tag1 #tag2"));
+		assertEquals("", InputParser.getTitleWithKeywordsFromString("23/1/15 2pm \"description\" #tag1 #tag2"));
 		assertEquals("Meet John about proposal", InputParser.getTitleWithKeywordsFromString("#cs2101 Meet John about proposal 12:00 to 1:30pm 12/2/13"));
 		assertEquals("Meet John about proposal", InputParser.getTitleWithKeywordsFromString("#cs2101 Meet John about proposal #cs2103 12:00 until 15:30 12/2/13"));
 		assertEquals("Meet John about proposal", InputParser.getTitleWithKeywordsFromString("#cs2101 Meet John about proposal 23 jan #cs2103 from 12:00 to 12/2/13"));

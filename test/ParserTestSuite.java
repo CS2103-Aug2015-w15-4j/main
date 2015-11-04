@@ -1,3 +1,5 @@
+//@@author A0114620X
+
 package test;
 
 import org.junit.runner.RunWith;
@@ -11,7 +13,8 @@ import org.junit.runners.Suite;
    FormattedDateTimeParserTest.class,
    FlexibleDateTimeParserTest.class,
    NattyDateTimeParserTest.class,
-   parser.InputParserTest.class
+   parser.InputParserTest.class,
+   parser.ShowParserTest.class
 })
 public class ParserTestSuite {
 

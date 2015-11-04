@@ -1,3 +1,5 @@
+//@@author A0114620X
+
 package parser;
 
 import java.util.logging.Level;
@@ -6,19 +8,20 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TimeParser {
-	// protected static final String TWELVE_HR_REGEX = "(?<=\\s|^)(1[012]|0?[1-9])([.:][0-5][0-9])?\\s?(am|pm)?(\\s?(?:-|to)\\s?(1[012]|0?[1-9])([.:][0-5][0-9])?\\s?)?(am|pm)(?=\\s|$)";
-	// protected static final String TWENTYFOUR_HR_REGEX = "(?<=\\s|^)((0?[0-9]|1[0-9]|2[0-3])[:]([0-5][0-9]))\\s?[?:h|H]?\\s?(-\\s?((0[0-9]|1[0-9]|2[0-3])[:]([0-5][0-9])))?\\s?[?:h|H]?(?=\\s|$)";
-	protected static final String TWELVE_HR_REGEX = "(?<=\\s|^)([0-9]?[0-9])([.:][0-9][0-9])?\\s?(am|pm)?(\\s?(?:-|to|until|til|till)\\s?([0-9]?[0-9])([.:][0-9][0-9])?\\s?)?(am|pm)(?=\\s|$)";
-	protected static final String TWENTYFOUR_HR_REGEX = "(?<=\\s|^)(([0-9]?[0-9])[:]([0-9][0-9]))\\s?[?:h|H]?\\s?((?:-|to|until|til|till)?\\s?(([0-9]?[0-9])[:]([0-9][0-9])))?\\s?[?:h|H]?(?=\\s|$)";
+	private static final int INDEX_FOR_TIME_FORMAT = 2;
+	private static final int INDEX_FOR_FIRST_TIME = 0;
+	private static final int INDEX_FOR_NONTIME_STRING = 3;
+	
+	static final String TWELVE_HR_REGEX = "(?<=\\s|^)([0-9]?[0-9])([.:][0-9][0-9])?\\s?(am|pm)?(\\s?(?:-|to|until|til|till)\\s?([0-9]?[0-9])([.:][0-9][0-9])?\\s?)?(am|pm)(?=\\s|$)";
+	static final String TWENTYFOUR_HR_REGEX = "(?<=\\s|^)(([0-9]?[0-9])[:]([0-9][0-9]))\\s?[?:h|H]?\\s?((?:-|to|until|til|till)?\\s?(([0-9]?[0-9])[:]([0-9][0-9])))?\\s?[?:h|H]?(?=\\s|$)";
 		
+	static final String TIME_REGEX = "(" + TWELVE_HR_REGEX + "|" + TWENTYFOUR_HR_REGEX + ")";
 	
-	protected static final String TIME_REGEX = "(" + TWELVE_HR_REGEX + "|" + TWENTYFOUR_HR_REGEX + ")";
+	static final Pattern HHMM = Pattern.compile(TWENTYFOUR_HR_REGEX);
+	static final Pattern HMMA = Pattern.compile(TWELVE_HR_REGEX);
 	
-	protected static final Pattern HHMM = Pattern.compile(TWENTYFOUR_HR_REGEX);
-	protected static final Pattern HMMA = Pattern.compile(TWELVE_HR_REGEX);
-	
-	protected static final String TWELVE_HR_FORMAT = "h:mma";
-	protected static final String TWENTY_FOUR_HR_FORMAT = "HH:mm";
+	static final String TWELVE_HR_FORMAT = "h:mma";
+	static final String TWENTY_FOUR_HR_FORMAT = "HH:mm";
 
 	private static final int TIME_H1 = 1;
 	private static final int TIME_M1 = 2;
@@ -32,7 +35,7 @@ public class TimeParser {
 	private static String[] getTwentyfourHrTimesFromString(String input) {
 		Matcher m = HHMM.matcher(input);
 		String[] ans = new String[4];
-		ans[2] = TWENTY_FOUR_HR_FORMAT;
+		ans[INDEX_FOR_TIME_FORMAT] = TWENTY_FOUR_HR_FORMAT;
 		
 		int i = 0;
 		while (m.find() & i < 2) {
@@ -48,11 +51,10 @@ public class TimeParser {
 		return ans;
 	}
 
-	//private static Pattern times = Pattern.compile("(0?[1-9]|1[012])([.:][0-5][0-9])?([ap]m)?(-((0?[1-9]|1[012])([.:][0-5][0-9])?([ap]m)))?");
 	private static String[] getTwelveHrTimesFromString(String input) {
 		Matcher m = HMMA.matcher(input);
 		String[] timeArr = new String[4];
-		timeArr[2] = TWELVE_HR_FORMAT;
+		timeArr[INDEX_FOR_TIME_FORMAT] = TWELVE_HR_FORMAT;
 		
 		int i = 0;
 		
@@ -70,12 +72,15 @@ public class TimeParser {
 			} else {
 				time1 = time1 + ":00";
 			}
+			
 			if (apm1 != null) {
 				time1 = time1 + apm1;
 			} else {
 				time1 = time1 + apm2;
 			}
+			
 			timeArr[j] = time1;
+		
 			if (i < 1 & (h2 != null)) {
 				String time2 = h2;
 				if (m2 != null) {
@@ -85,6 +90,7 @@ public class TimeParser {
 				}
 				timeArr[1] = time2;
 			}
+			
 			i++;
 		}
 		return timeArr;
@@ -101,20 +107,19 @@ public class TimeParser {
 			times = getTwentyfourHrTimesFromString(input);
 			logger.log(Level.FINE, "24HR for " + input + " : " + times[0]);
 		} 
-		times[3] = removeTimesFromString(input);
+		times[INDEX_FOR_NONTIME_STRING] = removeTimesFromString(input);
 		// System.out.println(times[3]);
 		return times;
 	}
 	
 	private static String removeTimesFromString(String input) {
-		String regex = TIME_REGEX;
-		input = input.replaceAll(regex, "");
+		input = input.replaceAll(TIME_REGEX, "");
 		return input.trim();
 	}
 	
 	public static boolean hasTime(String input) {
 		String[] times = getStandardTimesFromString(input);
-		if (times[0] == null) {
+		if (times[INDEX_FOR_FIRST_TIME] == null) {
 			return false;
 		} else {
 			return true;

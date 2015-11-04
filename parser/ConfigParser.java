@@ -1,3 +1,4 @@
+//@@author A0114620X
 package parser;
 
 import parser.MyParser.CommandType;
@@ -9,8 +10,8 @@ public class ConfigParser extends InputParser {
 		if (isMissingArguments(input)) {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
-			String[] subInput = input[1].split(" ", 2);
-			String subCommand = subInput[0];
+			String[] subInput = input[INDEX_FOR_ARGS].split(" ", 2);
+			String subCommand = subInput[INDEX_FOR_SUBCMD];
 			if (subCommand.equalsIgnoreCase("folder")) {
 				return createParsedCommandConfigData(subInput);
 			} else {
@@ -20,13 +21,13 @@ public class ConfigParser extends InputParser {
 	}
 
 	static ParsedCommand createParsedCommandConfigImg(String[] input) {
-		ConfigType configType = ConfigParser.determineConfigImgType(input[0]);
+		ConfigType configType = determineConfigImgType(input[INDEX_FOR_SUBCMD]);
 		if (configType != ConfigType.INVALID) {
 			if (isMissingArguments(input)) {
 				return createParsedCommandError(ERROR_MISSING_ARGS);
 			}
 			try {
-				String fileName = input[1];
+				String fileName = input[INDEX_FOR_SUBARGS];
 				ParsedCommand pc = new ParsedCommand.Builder(CommandType.CONFIG_IMG)
 													.configType(configType)
 													.configPath(fileName)
@@ -41,11 +42,11 @@ public class ConfigParser extends InputParser {
 	}
 
 	static ParsedCommand createParsedCommandConfigData(String[] input) {
-		if (isMissingArguments(input)) { // missing file name
+		if (isMissingArguments(input)) { 
 			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
 			try {
-				String fileName = input[INDEX_FOR_ARGS];
+				String fileName = input[INDEX_FOR_SUBARGS];
 				ParsedCommand pc = new ParsedCommand.Builder(MyParser.CommandType.CONFIG_DATA)
 						  			  				.configPath(fileName)
 						  			  				.build();

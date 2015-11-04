@@ -1,3 +1,5 @@
+//@@author A0114620X
+
 package parser;
 
 public class FlagParser extends InputParser {
@@ -6,19 +8,19 @@ public class FlagParser extends InputParser {
 		if (isMissingArguments(input)) {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
-			String[] subInput = input[1].split(" ");
-			String subCommand = subInput[0];
+			String[] subInput = input[INDEX_FOR_ARGS].split(" ");
+			String subCommand = subInput[INDEX_FOR_SUBCMD];
 			if (subCommand.equalsIgnoreCase("todo")) {
-				return createParsedCommandFlagTodo(subInput);
+				return createParsedCommandTodo(subInput);
 			} else if (subCommand.equalsIgnoreCase("done") || subCommand.equalsIgnoreCase("completed")) {
-				return createParsedCommandFlagDone(subInput);
+				return createParsedCommandDone(subInput);
 			} else {
 				return createParsedCommandError(InputParser.ERROR_INVALID_COMMAND);
 			}
 		}
 	}
 
-	static ParsedCommand createParsedCommandFlagTaskStatus(String[] input, Boolean status) {
+	private static ParsedCommand createParsedCommandFlagTaskStatus(String[] input, Boolean status) {
 		if (isMissingArguments(input)) {
 			return InputParser.createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
@@ -36,11 +38,11 @@ public class FlagParser extends InputParser {
 		}
 	}
 
-	static ParsedCommand createParsedCommandFlagDone(String[] input) {
+	static ParsedCommand createParsedCommandDone(String[] input) {
 		return createParsedCommandFlagTaskStatus(input, true);
 	}
 
-	static ParsedCommand createParsedCommandFlagTodo(String[] input) {
+	static ParsedCommand createParsedCommandTodo(String[] input) {
 		return createParsedCommandFlagTaskStatus(input, false);
 	}
 
