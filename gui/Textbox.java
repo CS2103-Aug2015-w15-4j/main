@@ -59,10 +59,10 @@ public class Textbox {
 	protected ArrayList<AudioClip> audioClips;
 	protected AudioClip currentlyPlaying = null;
 	public final String[] audioClipNames = {
-			"gui/resources/pika_happy.mp3",
-			"gui/resources/pika_piiikachu.mp3",
-			"gui/resources/pikaaaa.mp3",
-			"gui/resources/pikachu_normal.mp3"
+			"resources/pika_happy.mp3",
+			"resources/pika_piiikachu.mp3",
+			"resources/pikaaaa.mp3",
+			"resources/pikachu_normal.mp3"
 		};
 	
 	// Real time clock

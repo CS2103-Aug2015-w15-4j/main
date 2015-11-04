@@ -99,6 +99,15 @@ public class Storage {
 		return taskList;
 	}
 
+	public void clearList() {
+		taskList.clear();
+	}
+
+	/*
+	 * public void clearAllList() { searchList.clear(); todayList.clear();
+	 * mainList.clear(); allTasks.clear(); }
+	 */
+
 	public String getAvatarPath() {
 		return avatarFilePath;
 	}
@@ -213,7 +222,6 @@ public class Storage {
 					}
 				}
 			} catch (SecurityException se) {
-				// throw new Exception();
 				throw new Exception();
 			}
 		} else {

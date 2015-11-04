@@ -6,4 +6,6 @@ public class GUIConfig {
 
 	public static String AVATAR_IMAGENAME = "";
 	public static String BACKGROUND_NAME = "";
+	
+	public static String[] AUDIOCLIPS = null;
 }
