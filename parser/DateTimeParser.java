@@ -25,7 +25,7 @@ public abstract class DateTimeParser {
 	private static String NON_NATTY_DATE_TIME_REGEX = "(" + TimeParser.TIME_REGEX + "|" + FormattedDateTimeParser.FORMATTED_DATE_REGEX + "|" + FlexibleDateTimeParser.FLEXIBLE_DATE_REGEX + "|((?<=\\s|^)(tmr|tomorrow|tomorow)(?=\\s|$)))";
 	private static Pattern NON_NATTY_DATE_OR_TIME_PATTERN = Pattern.compile(NON_NATTY_DATE_TIME_REGEX);
 
-	static String DATE_TIME_REGEX = "(" + TimeParser.TIME_REGEX + "|" + FormattedDateTimeParser.FORMATTED_DATE_REGEX + "|" + FlexibleDateTimeParser.FLEXIBLE_DATE_REGEX + "|" + DATE_KEYWORD_REGEX + "|((?<=\\s|^)(tmr|tomorrow|tomorow)(?=\\s|$)))";
+	static String DATE_TIME_REGEX = "(" + TimeParser.TIME_REGEX + "|" + FormattedDateTimeParser.FORMATTED_DATE_WITH_YEAR_REGEX + "|" + FlexibleDateTimeParser.FLEXIBLE_DATE_REGEX + "|" + DATE_KEYWORD_REGEX + "|((?<=\\s|^)(tmr|tomorrow|tomorow)(?=\\s|$)))";
 	static String NO_KEYWORD_DATE_TIME_REGEX = "(" + TimeParser.TIME_REGEX + "|" + FormattedDateTimeParser.FORMATTED_DATE_REGEX + "|" + FlexibleDateTimeParser.FLEXIBLE_DATE_REGEX + "|((?<=\\s|^)(tmr|tomorrow|tomorow)(?=\\s|$)))";
 	
 	protected DateTimeParser nextParser;
@@ -40,13 +40,16 @@ public abstract class DateTimeParser {
 	
 	public static String extractDateTimeSectionFromString(String input) {
 		String extract = removeTagsAndDescriptions(input); // for formatted input
+		System.out.println("EXTRACTED: " + extract);
 		if (hasNonNattyDateTimeSection(extract)) { 
 			String nonNattyDateTime = extractNonNattyDateTimeSection(extract);
 			logger.log(Level.FINE, "FORMATTED/FLEX: " + nonNattyDateTime);
+			System.out.println("NONNATTY:" + nonNattyDateTime);
 			return nonNattyDateTime;
 		} else {
 			String keywordDateSection = extractSectionAfterDateKeyword(extract);
 			logger.log(Level.FINE, "KEYWORD:" + keywordDateSection + ",");
+			System.out.println("NATTY:" + keywordDateSection);
 			return keywordDateSection;
 		}
 	}
@@ -70,7 +73,7 @@ public abstract class DateTimeParser {
 		String dateSection = "";
 
 		while (m.find()) {
-			dateSection = dateSection + m.group() + " ";
+			dateSection = dateSection + m.group() + " ; ";
 		}
 		
 		logger.log(Level.FINE, "DATESECTION:" + dateSection.trim() + ".");
