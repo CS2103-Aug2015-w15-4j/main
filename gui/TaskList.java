@@ -464,23 +464,6 @@ public class TaskList {
 		GridPane grid = new GridPane();
 	    grid.getColumnConstraints().add(new ColumnConstraints(GRID_COL_HEADER_FINAL_LENGTH)); 
 		grid.setPadding(new Insets(0, 9, 0, 0));
-		/*
-		// Set name
-		Label label = createLabel(task.getName());
-		label.setText(" " + label.getText());
-		label.setWrapText(false);
-		label.setStyle("-fx-font-weight: bold");
-		HBox header = new HBox();
-		label.prefWidthProperty().bind(header.widthProperty());
-		header.prefWidthProperty().bind(grid.widthProperty());
-		header.setStyle(String.format(GUIController.STYLE_COLOR, COLOR_HEADER)+STYLE_CURVED);
-		// add completed icon
-		header.getChildren().add(getTaskCompletion(task.getIsCompleted())); 
-		header.getChildren().add(label);
-		HBox.setHgrow(label, Priority.ALWAYS);
-		header.setAlignment(Pos.CENTER_LEFT);
-		grid.add(header, COL_HEADER, ROW_NAME, COL_SIZE, 1); // span 2 col and 1 row
-		//*/
 		// ID content
 		Label id = createLabel(Integer.toString(task.getId()));
 		id.setPadding(new Insets(0,5,0,5));

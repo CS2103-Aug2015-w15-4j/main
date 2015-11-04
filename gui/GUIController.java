@@ -21,6 +21,7 @@ import parser.MyParser;
 import parser.MyParser.CommandType;
 import javafx.scene.*;
 import javafx.scene.control.*;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -950,7 +951,12 @@ public class GUIController extends Application {
 	protected void focusOnTaskID(int id) {
 		try {
 			Task taskToFocus = Logic.searchList(model.getAllTasks(), id);
-			pinFocusView(TaskList.createDetailedDisplay(taskToFocus));
+			GridPane grid = TaskList.createDetailedDisplay(taskToFocus);
+			ScrollPane sp = new ScrollPane(grid);
+			sp.setVbarPolicy(ScrollBarPolicy.NEVER);
+			sp.setHbarPolicy(ScrollBarPolicy.NEVER);
+			sp.setPadding(new Insets(0, PADDING, 0, PADDING));
+			pinFocusView(sp);
 		} catch (IndexOutOfBoundsException e) {
 			// if out of range
 			model.setConsoleMessage(ERR_TASKID);
