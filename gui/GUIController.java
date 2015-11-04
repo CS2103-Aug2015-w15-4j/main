@@ -8,6 +8,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.stage.Stage;
 import logic.Logic;
 import logic.Task;
@@ -122,6 +123,7 @@ public class GUIController extends Application {
 
 	final static int MINIMUM_WINDOW_WIDTH = 600;
 	final static int MINIMUM_WINDOW_HEIGHT = 650;
+	final static int PADDING = 6;
 
 	// 1/ratio, ratio being the number to divide by
 	final static int PINNED_WINDOW_RATIO = 3;
@@ -283,6 +285,7 @@ public class GUIController extends Application {
 		focusedTask.prefHeightProperty().unbind();
 		focusedTask.prefWidthProperty().bind(pinnedWindow.widthProperty());
 		focusedTask.prefHeightProperty().bind(pinnedWindow.heightProperty());
+		focusedTask.setPadding(new Insets(0, PADDING, 0, PADDING));
 		pinnedWindow.getChildren().clear();
 		pinnedWindow.getChildren().add(focusedTask);
 		isFocusView = true;
@@ -581,9 +584,8 @@ public class GUIController extends Application {
 		try {
 			switch(command) {
 			case ADD: // focus on the newly added task by putting it at the top
-				Task lastAdded = model.getAllTasks().get(model.getAllTasks().size()-1); // get the task that was added
-				pinFocusView(TaskList.createDetailedDisplay(lastAdded));
-				break;				
+				focusOnTaskID(model.getFocusId());
+				break;
 			case DELETE:
 				if (TASKLIST_PINNED!=TASKLIST_INVALID) { // open the list to prevent focus on deleted item
 					openList(TASKLIST_PINNED);
@@ -592,16 +594,10 @@ public class GUIController extends Application {
 				}
 				break;
 			case EDIT: // focus on editted task
-				/*
-				 * 
-				 * 
-				 * 
-				 * 
-				 * 
-				 * 
-				 * 
-				 * 
-				 */
+				focusOnTaskID(model.getFocusId());
+				break;
+			case DISPLAY: // focus on task to be displayed
+				focusOnTaskID(parsedCommand.getTaskId());
 				break;
 			case HELP:
 				// help menu?
@@ -840,5 +836,15 @@ public class GUIController extends Application {
 	 */
 	protected int getTaskListNumberFromMainWindowLocation(int mainWindowLocation) throws IndexOutOfBoundsException {
 		return center.listOfTaskLists.get(mainWindowLocation).listNumber;
+	}
+	
+	/**
+	 * Creates a focusView for the id number selected
+	 */
+	protected void focusOnTaskID(int id) {
+		if (Logic.checkID(id)) {
+			Task taskToFocus = Logic.searchList(model.getAllTasks(), id);
+			pinFocusView(TaskList.createDetailedDisplay(taskToFocus));
+		}
 	}
 }
