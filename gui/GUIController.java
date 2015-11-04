@@ -956,6 +956,8 @@ public class GUIController extends Application {
 			sp.setVbarPolicy(ScrollBarPolicy.NEVER);
 			sp.setHbarPolicy(ScrollBarPolicy.NEVER);
 			sp.setPadding(new Insets(0, PADDING, 0, PADDING));
+			sp.getStyleClass().add(STYLE_TRANSPARENT);
+			grid.prefWidthProperty().bind(sp.widthProperty().subtract(2*PADDING));
 			pinFocusView(sp);
 		} catch (IndexOutOfBoundsException e) {
 			// if out of range
