@@ -23,7 +23,8 @@ public class FormattedDateTimeParser extends DateTimeParser{
 	static final String DATE_DELIM = "[" + DELIM + "]";
 	static final String YY = "(\\d{4}|\\d{2})";
 	static final String NO_YEAR_FORMATTED_DATE_REGEX = START + DD + "[-/]" + MM + END;
-	static final String FORMATTED_DATE_REGEX = START + DD + DATE_DELIM + MM + DATE_DELIM + YY + END;
+	static final String FORMATTED_DATE_WITH_YEAR_REGEX = START + DD + DATE_DELIM + MM + DATE_DELIM + YY + END;
+	static final String FORMATTED_DATE_REGEX = NO_YEAR_FORMATTED_DATE_REGEX + "|" + FORMATTED_DATE_WITH_YEAR_REGEX;
 	static final String FORMATTED_DATE_FORMAT = "d/M/yy";
 	
 	private static final int INDEX_FOR_DATE_INPUT = 1;
@@ -33,7 +34,7 @@ public class FormattedDateTimeParser extends DateTimeParser{
 	private static final int INDEX_FOR_MONTH_ARR = 1;
 	private static final int INDEX_FOR_YEAR_ARR = 2;
 	
-	private static Pattern ddmmyy = Pattern.compile(FORMATTED_DATE_REGEX);
+	private static Pattern ddmmyy = Pattern.compile(FORMATTED_DATE_WITH_YEAR_REGEX);
 	private static Pattern ddmm = Pattern.compile(NO_YEAR_FORMATTED_DATE_REGEX);
 	
 	private String[] formattedTimes;
@@ -177,7 +178,7 @@ public class FormattedDateTimeParser extends DateTimeParser{
 	}
 
 	private static String removeFormattedDatesFromString(String input) {
-		return InputParser.removeRegexPatternFromString(input, FORMATTED_DATE_REGEX);
+		return InputParser.removeRegexPatternFromString(input, FORMATTED_DATE_WITH_YEAR_REGEX);
 	}
 	
 	@Override

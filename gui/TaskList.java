@@ -513,7 +513,7 @@ public class TaskList {
 			grid.add(label, COL_HEADER, i);
 			GridPane.setValignment(label, GRID_HEADER_VERT_ALIGNMENT);
 
-			label = createLabel(array[COL_CONTENT] + " ");
+			label = createLabel(array[COL_CONTENT]);
 			if (label.getText()==null||label.getText().trim().isEmpty()) {
 				label.setText("None");
 			}

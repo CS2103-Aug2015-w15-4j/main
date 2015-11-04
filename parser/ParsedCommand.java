@@ -29,6 +29,7 @@ public class ParsedCommand {
 	private String guiType;
 	private TaskType taskType;
 	private Boolean isCompleted;
+	private Boolean isOverdue;
 	private ConfigType configType;
 	
 	private static final String ERROR_INVALID_DATE = "Error: Invalid date(s) input";
@@ -72,6 +73,7 @@ public class ParsedCommand {
 		this.guiType = builder.guiType;
 		this.taskType = builder.taskType;
 		this.isCompleted = builder.isCompleted;
+		this.isOverdue = builder.isOverdue;
 		this.configType = builder.configType;
 	}
 
@@ -190,6 +192,14 @@ public class ParsedCommand {
 	}
 	
 	/**
+	 * Returns true if overdue, false if not, null if irrelevant.
+	 * @return
+	 */
+	public Boolean isOverdue() {
+		return this.isOverdue;
+	}
+	
+	/**
 	 * Returns search keywords for show command, empty string if not found, returns null if not applicable.
 	 * @return
 	 */
@@ -214,6 +224,7 @@ public class ParsedCommand {
 		private String guiType = null;
 		private TaskType taskType = null;
 		private Boolean isCompleted = null;
+		private Boolean isOverdue = null;
 		private ConfigType configType = null;
 		
 		static final String ESC_CHAR_REGEX = "(?<!\\\\)(\\\\)";
@@ -283,6 +294,11 @@ public class ParsedCommand {
 			return this;
 		}
 		
+		public Builder isOverdue(Boolean status) {
+			this.isOverdue = status;
+			return this;
+		}
+		
 		public Builder searchKeywords(String keywords) {
 			this.searchKeywords = removeEscapeChars(keywords);
 			return this;
@@ -332,7 +348,8 @@ public class ParsedCommand {
 		private void validateGuiType() throws InvalidArgumentsForParsedCommandException {
 			try {
 				int tabNumber = Integer.parseInt(guiType);
-				if (tabNumber < GUIController.taskListNames.length && tabNumber >= 0) {
+				if (tabNumber <= GUIController.taskListNames.length && tabNumber > 0) {
+					guiType = Integer.toString(tabNumber - 1); // convert to 0 indexing
 					return;
 				}
 			} catch (NumberFormatException e) {
@@ -341,7 +358,7 @@ public class ParsedCommand {
 			
 			for (int i = 0; i < GUIController.taskListNames.length; i++) {
 				if (guiType.trim().equalsIgnoreCase(GUIController.taskListNames[i])) {
-					guiType = Integer.toString(i-GUIController.taskListNames.length); // return specific format to indicate name call
+					guiType = Integer.toString(i - GUIController.taskListNames.length); // return specific format to indicate name call
 					return;
 				}
 			}

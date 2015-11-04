@@ -18,8 +18,11 @@ public class EditParser extends InputParser {
 					String task = inputArgs[0];
 					String changes = inputArgs[1];
 					int parsedTaskId = getTaskIdFromString(task);
-					String parsedTitle = getTitleFromString(changes);
+					String parsedTitle = getTitleWithKeywordsFromString(changes);
 					Calendar[] parsedTimes = getDatesTimesFromString(changes);
+					if (parsedTimes != null && parsedTimes.length > 2) { // date keyword used for date input
+						parsedTitle = removeKeywordSection(parsedTitle);
+					}
 					String parsedDescription = getDescriptionFromString(changes);
 					ArrayList<String> parsedTags = getTagsFromString(changes);
 				

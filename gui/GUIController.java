@@ -2,14 +2,19 @@ package gui;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javafx.application.Application;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import logic.Logic;
 import logic.Task;
 import parser.ParsedCommand;
@@ -22,6 +27,10 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
+import org.jnativehook.GlobalScreen;
+import org.jnativehook.NativeHookException;
+import org.jnativehook.keyboard.NativeKeyEvent;
+import org.jnativehook.keyboard.NativeKeyListener;
 
 public class GUIController extends Application {
 	public static class TaskListCustom extends TaskList {
@@ -47,7 +56,7 @@ public class GUIController extends Application {
 				public void handle(ActionEvent event) {
 					if (isListOpen) {
 						// focusTask(); // removed due to real time focus
-						closeList();
+						GUIController.closeList(listNumber);
 					} else {
 						GUIController.openList(listNumber);// new line that changes everything
 					}
@@ -58,14 +67,14 @@ public class GUIController extends Application {
 
 	final public static String[] taskListNames = {
 			"Overdue",
-			"Today",
 			"To-do",
+			"Today",
 			"Floating",
 			"Search list"
 	};
 	final static int TASKLIST_OVERDUE = 0;
-	final static int TASKLIST_TODAY = 1;
-	final static int TASKLIST_TODO = 2;
+	final static int TASKLIST_TODO = 1;
+	final static int TASKLIST_TODAY = 2;
 	final static int TASKLIST_FLOATING = 3;
 	final static int TASKLIST_SEARCH = 4;
 	final static int TASKLIST_INVALID = -1;
@@ -74,8 +83,8 @@ public class GUIController extends Application {
 	
 	final public static String[] STYLE_BUTTON_NAMES = {
 			"button-overdue",
-			"button-today",
 			"button-todo",
+			"button-today",
 			"button-floating",
 			"button-search"
 	};
@@ -98,6 +107,7 @@ public class GUIController extends Application {
 	final static String MSG_SUGGESTED_COMMAND_FORMAT = "Did you mean the \"%1$s\" command?";
 	final static String MSG_PROMPT = "Type command here";
 	final static String MSG_WINDOWSWITCH = "Switch"; // name for button
+	final static String ERR_TASKID = "ERROR: Task ID not found";
 
 	// gui commands 
 	public enum GUICommandType {
@@ -117,13 +127,13 @@ public class GUIController extends Application {
 	final static String CMD_MAIN = "main"; // switches to the main window
 
 	public static String AVATAR_IMAGENAME;
-	public static String BACKGROUND_NAME;
 	public static String ICON_IMAGE = "icon.png";
 	public static boolean isMainWindow = true; // true = main pane window, false = logObject
 
 	final static int MINIMUM_WINDOW_WIDTH = 600;
 	final static int MINIMUM_WINDOW_HEIGHT = 650;
 	final static int PADDING = 6;
+	public static BooleanProperty isWindowShortcutTriggered = new SimpleBooleanProperty(false); // false until called
 
 	// 1/ratio, ratio being the number to divide by
 	final static int PINNED_WINDOW_RATIO = 3;
@@ -136,6 +146,8 @@ public class GUIController extends Application {
 	public static ListIterator<Node> commandIterator;
 	final static boolean PREVIOUS = false;
 	final static boolean NEXT = true;
+	final static int NESTED_NODE_NUM = 3; // number of nesting nodes possible
+	final static String EMPTY_STRING = "";
 	
 	// for activating focus view
 	public static boolean isFocusView = false;
@@ -156,6 +168,11 @@ public class GUIController extends Application {
 	//public static TabPane tabPane;
 	public static Logic controller = new Logic();
 
+
+	public static void main(String[] args) {
+		launch(args);
+	}
+	
 	@Override
 	public void start(Stage primaryStage) {
 		// prevent resizing?
@@ -175,7 +192,6 @@ public class GUIController extends Application {
 		} catch (Logic.UnrecognisedCommandException e) {
 		}
 		AVATAR_IMAGENAME = model.getAvatarLocation();
-		BACKGROUND_NAME = model.getBackgroundLocation();
 
 		for (int i=0; i<taskListNames.length;i++) {
 			TaskList list = new TaskListCustom(i);
@@ -235,9 +251,10 @@ public class GUIController extends Application {
 		window.getChildren().add(pane);
 		window.getChildren().add(bottomBar);
 		Scene scene = new Scene(window, window.getPrefWidth(), window.getPrefHeight()); //WINDOW_WIDTH+10, WINDOW_HEIGHT+10);
-		addHandlers(scene);
 		//scene.getRoot().setStyle("-fx-background-image: url(\"" + BACKGROUND_NAME + "\");");
 		userTextField.requestFocus();
+		
+		// Activate the scene
 		primaryStage.setScene(scene);
 		primaryStage.setTitle(APP_TITLE);
 		scene.getStylesheets().add(GUIController.class.getResource(FILE_CSS).toExternalForm());
@@ -246,140 +263,79 @@ public class GUIController extends Application {
 		primaryStage.show();
 		primaryStage.setMinWidth(primaryStage.getWidth());
 		primaryStage.setMinHeight(primaryStage.getHeight());
+		
+		// Add handlers
+		addHandlers(scene, primaryStage);
 
+		// After showing the scene, pin the overdue tab if not empty
 		if (!taskLists.get(TASKLIST_OVERDUE).isListEmpty()) {
 			pinWindow(taskLists.get(TASKLIST_OVERDUE));
 		}//*/
 	}
-
 	/**
-	 * Pins the list to the top window
-	 * @param list list to be pinned
+	 * Global Handlers
 	 */
-	protected void pinWindow(TaskList list) {
-		unpinWindow(list);
-		pane.setTop(pinnedWindow);
-
-		TASKLIST_PINNED = list.listNumber;
-		list.isPinnedWindow = true;
-		list.selectFirstNode(); // select the first node, since it is moving up now
-		list.focusTask(); // create an instance of zoomed in task
-		openList(list); // open the list to see the main list
-		Region node = list.getNode();
-		node.prefWidthProperty().unbind();
-		node.prefHeightProperty().unbind();
-		node.prefWidthProperty().bind(pinnedWindow.widthProperty());
-		node.prefHeightProperty().bind(pinnedWindow.heightProperty());
-		pinnedWindow.getChildren().clear();
-		pinnedWindow.getChildren().add(node);
-	}
-	
-	/**
-	 * Pins a focused Task into the window
-	 * @param Task to be pinned
-	 */
-	protected static void pinFocusView(Region focusedTask) {
-		unpinWindow();
-		pane.setTop(pinnedWindow);
-		focusedTask.prefWidthProperty().unbind();
-		focusedTask.prefHeightProperty().unbind();
-		focusedTask.prefWidthProperty().bind(pinnedWindow.widthProperty());
-		focusedTask.prefHeightProperty().bind(pinnedWindow.heightProperty());
-		focusedTask.setPadding(new Insets(0, PADDING, 0, PADDING));
-		pinnedWindow.getChildren().clear();
-		pinnedWindow.getChildren().add(focusedTask);
-		isFocusView = true;
-	}
-
-	/**
-	 * Unpins all windows from the pinnedWindow
-	 */
-	protected static void unpinWindow() {
-		unpinWindow(null);
-	}
-
-	/**
-	 * Unpins all windows from the pinnedWindow
-	 * @param list List to not unpin
-	 */
-	protected static void unpinWindow(TaskList list) { // list will be left out of unpinned
-		pane.setTop(null);
-		if (TASKLIST_PINNED!=TASKLIST_INVALID){//pinnedWindow.getChildren().size()>0) {
-			// unpin the top
-			openList(TASKLIST_PINNED);
-			// focus view deactivate regardless of pinned window or task
-			isFocusView = false;
-			Region node = taskLists.get(TASKLIST_PINNED).getNode();
-			taskLists.get(TASKLIST_PINNED).isPinnedWindow = false;
-			TASKLIST_PINNED = TASKLIST_INVALID;
-			node.prefWidthProperty().unbind();
-			node.prefHeightProperty().unbind();
-			node.setPrefHeight(Region.USE_COMPUTED_SIZE);
-
-			if (list!=null) {
-				TASKLIST_PINNED = list.listNumber;
-			}
-			
-			// then update the center's list
-			refreshLists();
-		}
-	}
-
-	public VBox createLogTab() {
-		logObject = new VBox();
-		logConsole = new Log("Console");
-		logCommands = new Log("Commands");
-		logObject.getChildren().add(logConsole.getNode());
-		logObject.getChildren().add(logCommands.getNode());
-		logConsole.getNode().prefHeightProperty().bind(logObject.heightProperty().divide(2));
-		logConsole.getNode().prefWidthProperty().bind(logObject.widthProperty());
-		logCommands.getNode().prefHeightProperty().bind(logObject.heightProperty().divide(2));
-		logCommands.getNode().prefWidthProperty().bind(logObject.widthProperty());
-		logObject.prefWidthProperty().bind(window.widthProperty());
-		logObject.maxWidthProperty().bind(window.widthProperty());
-		logObject.prefHeightProperty().bind(window.heightProperty());
-		logObject.maxHeightProperty().bind(window.heightProperty());
-		VBox.setVgrow(logObject, Priority.ALWAYS);
-		VBox.setVgrow(logCommands.getNode(), Priority.ALWAYS);
-		VBox.setVgrow(logConsole.getNode(), Priority.ALWAYS);
-		return logObject;
-	}
-	
-	/**
-	 * Returns the string from the command log. 
-	 * @param next if true, get next command. If false, get previous command
-	 * @return command last inputted
-	 */
-	public String getCommandLog(boolean next) {
-		Text command = null;
-		String output = "";
-		if (commandIterator!=null) { // if commandIterator empty, do nothing
-			if (next==NEXT&&commandIterator.hasNext()) {
-				command = (Text)commandIterator.next();
-			} else if (next==PREVIOUS&&commandIterator.hasPrevious()) {
-				command = (Text)commandIterator.previous();
-			} // if there are no valid commands, do nothing
-			
-			if (command!=null) {
-				output = command.getText().replaceFirst(">",""); // delete the > in the log
+	public static class GlobalListener implements NativeKeyListener {
+		// NativeKeyListeners
+		@Override
+		public void nativeKeyPressed(NativeKeyEvent e) {
+			if (e.getKeyCode()==NativeKeyEvent.VC_SPACE&& // if space and
+					(e.getModifiers()==NativeKeyEvent.CTRL_L_MASK||
+					e.getModifiers()==NativeKeyEvent.CTRL_R_MASK)) { // alt
+				GUIController.isWindowShortcutTriggered.setValue(true);
 			}
 		}
-		return output;
+		
+		// Unused methods
+		@Override public void nativeKeyReleased(NativeKeyEvent e) {}
+		@Override public void nativeKeyTyped(NativeKeyEvent e) {}
 	}
-
+	
 	/**
 	 * Adds handlers to the scene
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
 	 */
-	public void addHandlers(Scene scene) {
+	public void addHandlers(Scene scene, Stage stage) {
+		// create global hook
+		try {
+			// Get the logger for "org.jnativehook" and set the level to off to remove log from it
+			Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
+			logger.setLevel(Level.OFF);
+			// Activate the global listener and add it
+			GlobalScreen.registerNativeHook();
+			GlobalScreen.addNativeKeyListener(new GlobalListener());// Clear previous logging configurations.
+		} catch (NativeHookException ex) {
+			// if there was a problem ignore the native hook and don't support it
+        }
+		
+		// unhook it when application closing
+		stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+			public void handle(WindowEvent we) {
+				try {
+					GlobalScreen.unregisterNativeHook();
+				} catch (NativeHookException e) {
+				}
+			}
+		});
 		/*
-		private static class HoverScrollHandler implements EventHandler<MouseEvent> {
-
-		    @Override
-		    public void handle(MouseEvent event) {
-		        scrollpane.setHvalue(label.getWidth());
-		    }
-		}//*/
-
+		isWindowShortcutTriggered.addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+				if (stage.isFocused()) {
+					stage.hide();
+				} else {
+					stage.requestFocus();
+				}
+				isWindowShortcutTriggered.setValue(false);
+            }
+        });//*/
+		
 		// event handler for userTextField
 		userTextField.setOnAction((ActionEvent event) -> processUserTextField(userTextField));
 		userTextField.setOnKeyPressed(new EventHandler<KeyEvent>() {
@@ -439,18 +395,35 @@ public class GUIController extends Application {
 				}
 
 				if(keyEvent.getCode()==KeyCode.BACK_SLASH) { // zoom in on a task
-					if (TASKLIST_PINNED!=TASKLIST_INVALID) {
+					if (TASKLIST_PINNED!=TASKLIST_INVALID&&isPinnedFocused(scene)) {
+						// check if the pinned window is the focus of the scene
 						taskLists.get(TASKLIST_PINNED).focusTask();
 						taskLists.get(TASKLIST_PINNED).closeList();
 					} else if (TASKLIST_OPENED!=TASKLIST_INVALID) {
 						pinFocusView(taskLists.get(TASKLIST_OPENED).getFocusTask());
 					} else {
+						/*
 						listLoop: for (TaskList list : taskLists) {
 							for (Node node : list.getNode().getChildren()) {
 								if (node.isFocused()) {
 									list.focusTask();
 									openList(list);
 									break listLoop;
+								}
+							}
+						}//*/
+						Node focused = scene.getFocusOwner();
+						if (focused!=null) {
+							listLoop: for (TaskList list : taskLists) {
+								Node node = focused;
+								for (int i=0;i<NESTED_NODE_NUM;i++) {
+									if (list.getNode().equals(node)) {
+										openList(list);
+										list.selectFirstNode();
+										pinFocusView(list.getFocusTask());
+										break listLoop;
+									}
+									node = node.getParent();
 								}
 							}
 						}
@@ -481,10 +454,130 @@ public class GUIController extends Application {
 		}));//*/
 	}
 
-	public static void main(String[] args) {
-		launch(args);
+	/**
+	 * Pins the list to the top window
+	 * @param list list to be pinned
+	 */
+	protected void pinWindow(TaskList list) {
+		if (list!=null) {
+			unpinWindow(list);
+			pane.setTop(pinnedWindow);
+	
+			TASKLIST_PINNED = list.listNumber;
+			list.isPinnedWindow = true;
+			list.selectFirstNode(); // select the first node, since it is moving up now
+			list.focusTask(); // create an instance of zoomed in task
+			openList(list); // open the list to see the main list
+			Region node = list.getNode();
+			node.prefWidthProperty().unbind();
+			node.prefHeightProperty().unbind();
+			node.prefWidthProperty().bind(pinnedWindow.widthProperty());
+			node.prefHeightProperty().bind(pinnedWindow.heightProperty());
+			pinnedWindow.getChildren().clear();
+			pinnedWindow.getChildren().add(node);
+		}
+	}
+	
+	/**
+	 * Pins a focused Task into the window
+	 * @param Task to be pinned
+	 */
+	protected static void pinFocusView(Region focusedTask) {
+		if (focusedTask!=null) {
+			unpinWindow();
+			pane.setTop(pinnedWindow);
+			focusedTask.prefWidthProperty().unbind();
+			focusedTask.prefHeightProperty().unbind();
+			focusedTask.prefWidthProperty().bind(pinnedWindow.widthProperty());
+			focusedTask.prefHeightProperty().bind(pinnedWindow.heightProperty());
+			focusedTask.setPadding(new Insets(0, PADDING, 0, PADDING));
+			pinnedWindow.getChildren().clear();
+			pinnedWindow.getChildren().add(focusedTask);
+			isFocusView = true;
+		}
 	}
 
+	/**
+	 * Unpins all windows from the pinnedWindow
+	 */
+	protected static void unpinWindow() {
+		unpinWindow(null);
+	}
+
+	/**
+	 * Unpins all windows from the pinnedWindow
+	 * @param list List to not unpin
+	 */
+	protected static void unpinWindow(TaskList list) { // list will be left out of unpinned
+		isFocusView = false;
+		int pinned = TASKLIST_PINNED;
+		TASKLIST_PINNED = TASKLIST_INVALID;
+		if (pinned!=TASKLIST_INVALID){//pinnedWindow.getChildren().size()>0) {
+			// focus view deactivate regardless of pinned window or task
+			TaskList pinnedList = taskLists.get(pinned);
+			Region node = pinnedList.getNode();
+			pinnedList.isPinnedWindow = false;
+			closeList(pinnedList);
+			node.prefWidthProperty().unbind();
+			node.prefHeightProperty().unbind();
+			node.setPrefHeight(Region.USE_COMPUTED_SIZE);
+
+			if (list!=null) {
+				TASKLIST_PINNED = list.listNumber; // to avoid being added during refreshList()
+			}
+			
+			// then update the center's list
+			refreshLists();
+		}
+		pane.setTop(null);
+		
+	}
+
+	public VBox createLogTab() {
+		logObject = new VBox();
+		logConsole = new Log("Console");
+		logCommands = new Log("Commands");
+		logObject.getChildren().add(logConsole.getNode());
+		logObject.getChildren().add(logCommands.getNode());
+		logConsole.getNode().prefHeightProperty().bind(logObject.heightProperty().divide(2));
+		logConsole.getNode().prefWidthProperty().bind(logObject.widthProperty());
+		logCommands.getNode().prefHeightProperty().bind(logObject.heightProperty().divide(2));
+		logCommands.getNode().prefWidthProperty().bind(logObject.widthProperty());
+		logObject.prefWidthProperty().bind(window.widthProperty());
+		logObject.maxWidthProperty().bind(window.widthProperty());
+		logObject.prefHeightProperty().bind(window.heightProperty());
+		logObject.maxHeightProperty().bind(window.heightProperty());
+		VBox.setVgrow(logObject, Priority.ALWAYS);
+		VBox.setVgrow(logCommands.getNode(), Priority.ALWAYS);
+		VBox.setVgrow(logConsole.getNode(), Priority.ALWAYS);
+		return logObject;
+	}
+	
+	/**
+	 * Returns the string from the command log. 
+	 * @param next if true, get next command. If false, get previous command
+	 * @return command last inputted
+	 */
+	public String getCommandLog(boolean next) {
+		Text command = null;
+		String output = "";
+		if (commandIterator!=null) { // if commandIterator empty, do nothing
+			if (next==NEXT&&commandIterator.hasNext()) {
+				command = (Text)commandIterator.next();
+			} else if (next==PREVIOUS&&commandIterator.hasPrevious()) {
+				command = (Text)commandIterator.previous();
+			} // if there are no valid commands, do nothing
+			
+			if (command!=null) {
+				output = command.getText().replaceFirst(">",""); // delete the > in the log
+			}
+		}
+		return output;
+	}
+
+	/**
+	 * Switch between the main view and the log view
+	 */
 	protected void switchWindow() {
 		window.getChildren().clear();
 		if (!isMainWindow) {
@@ -605,7 +698,6 @@ public class GUIController extends Application {
 			case CONFIG_IMG:
 				// if it had been a Set function, it might have been an avatar or background, so reload them
 				AVATAR_IMAGENAME = model.getAvatarLocation();
-				BACKGROUND_NAME = model.getBackgroundLocation(); 
 				if(!textboxObject.loadAvatar()) {
 					output = "Cannot find new avatar specified";
 				}
@@ -628,7 +720,7 @@ public class GUIController extends Application {
 					// then modify the Search List name to include the search term
 					String keywords = parsedCommand.getKeywords();
 					if (!keywords.isEmpty()) {
-						search.setName(
+						search.name.setText(
 								String.format(SEARCH_LIST_FORMAT,
 										taskListNames[TASKLIST_SEARCH],
 										search.listSize,
@@ -684,7 +776,7 @@ public class GUIController extends Application {
 	 */
 	protected void outputToScreen() {
 		if (model.getConsoleMessage()==null) {
-			model.setConsoleMessage("");
+			model.setConsoleMessage(EMPTY_STRING);
 		}
 		textboxObject.addToTextbox(model.getConsoleMessage());
 		logConsole.addToTextbox(model.getConsoleMessage());
@@ -783,6 +875,9 @@ public class GUIController extends Application {
 	protected static void closeList(int listNumber) {
 		if (listNumber>=0&&listNumber<taskListNames.length) { // if valid
 			taskLists.get(listNumber).closeList();
+			if (listNumber==TASKLIST_OPENED) {
+				TASKLIST_OPENED = TASKLIST_INVALID;
+			}
 		}
 	}
 	
@@ -842,9 +937,29 @@ public class GUIController extends Application {
 	 * Creates a focusView for the id number selected
 	 */
 	protected void focusOnTaskID(int id) {
-		if (Logic.checkID(id)) {
+		try {
 			Task taskToFocus = Logic.searchList(model.getAllTasks(), id);
 			pinFocusView(TaskList.createDetailedDisplay(taskToFocus));
+		} catch (IndexOutOfBoundsException e) {
+			// if out of range
+			model.setConsoleMessage(ERR_TASKID);
 		}
+	}
+	
+	/**
+	 * Checked if the pinned window has focus
+	 */
+	protected boolean isPinnedFocused(Scene scene) {
+		Node focused = scene.getFocusOwner();
+		if (focused!=null) {
+			TaskList list = taskLists.get(TASKLIST_PINNED);
+			for (int i=0;i<NESTED_NODE_NUM;i++) {
+				if (focused==list.getNode()) {
+					return true;
+				}
+				focused = focused.getParent();
+			}
+		}
+		return false;
 	}
 }

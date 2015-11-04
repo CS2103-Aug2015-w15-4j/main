@@ -27,11 +27,18 @@ public class ShowParser extends InputParser {
 	private static ParsedCommand createParsedCommandSearch(String inputArgs) {
 		ParsedCommand pc;
 		try {
-			String parsedKeywords = getSearchKeywordsFromString(inputArgs);
+			// System.out.println(inputArgs);
+			String parsedKeywords = getSearchKeywordsWithDateKeywordsFromString(inputArgs);
+			// System.out.println("KEYWORDS: " + parsedKeywords);
 			Calendar[] parsedTimes = getDatesTimesFromString(inputArgs);
+			if (parsedTimes != null && parsedTimes.length > 2) { // date keyword used for date input
+				parsedKeywords = removeKeywordSection(parsedKeywords);
+			}
+			System.out.println(parsedTimes[0]);
 			parsedTimes = convertToSearchTimes(parsedTimes, inputArgs);
 			ArrayList<String> parsedTags = getTagsFromString(inputArgs);
 			Boolean parsedStatus = getTaskStatusFromString(inputArgs);
+			Boolean parsedOverdue = getOverdueFromString(inputArgs);
 			TaskType taskType = getTaskTypeFromString(inputArgs);
 			
 			pc = new ParsedCommand.Builder(CommandType.SEARCH)
@@ -39,6 +46,7 @@ public class ShowParser extends InputParser {
 								  .times(parsedTimes)
 								  .tags(parsedTags)
 								  .isCompleted(parsedStatus)
+								  .isOverdue(parsedOverdue)
 								  .taskType(taskType)
 								  .build();
 			return pc;
@@ -51,20 +59,33 @@ public class ShowParser extends InputParser {
 		if (parsedTimes == null) {
 			return null;
 		}
-		if (parsedTimes[INDEX_FOR_START] != null && parsedTimes[INDEX_FOR_END] == null) {
-			if (TimeParser.hasTime(input)) { // user input start date and time only
-				Calendar endTime = (Calendar) parsedTimes[INDEX_FOR_START].clone();
-				endTime.set(Calendar.HOUR_OF_DAY, 23);
-				endTime.set(Calendar.MINUTE, 59);
-				parsedTimes[INDEX_FOR_END] = endTime;
-			} else { // user input start date only
-				Calendar startTime = (Calendar) parsedTimes[INDEX_FOR_START].clone();
-				startTime.set(Calendar.HOUR_OF_DAY, 0);
-				startTime.set(Calendar.MINUTE,  0);
-				parsedTimes[INDEX_FOR_END] = parsedTimes[INDEX_FOR_START];
-				parsedTimes[INDEX_FOR_START] = startTime;
+		if (parsedTimes[INDEX_FOR_START] != null) {
+			if (parsedTimes[INDEX_FOR_END] == null) { 
+				if (TimeParser.hasTime(input)) { // user input start date and time only
+					Calendar endTime = (Calendar) parsedTimes[INDEX_FOR_START].clone();
+					endTime.set(Calendar.HOUR_OF_DAY, 23);
+					endTime.set(Calendar.MINUTE, 59);
+					parsedTimes[INDEX_FOR_END] = endTime;
+				} else { // user input start date only
+					Calendar startTime = (Calendar) parsedTimes[INDEX_FOR_START].clone();
+					startTime.set(Calendar.HOUR_OF_DAY, 0);
+					startTime.set(Calendar.MINUTE,  0);
+					parsedTimes[INDEX_FOR_END] = parsedTimes[INDEX_FOR_START];
+					parsedTimes[INDEX_FOR_START] = startTime;
+				}
+			} else {
+				if (!TimeParser.hasTime(input)) { 
+					Calendar startTime = (Calendar) parsedTimes[INDEX_FOR_START].clone();
+					startTime.set(Calendar.HOUR_OF_DAY, 0);
+					startTime.set(Calendar.MINUTE,  0);
+					Calendar endTime = (Calendar) parsedTimes[INDEX_FOR_END].clone();
+					endTime.set(Calendar.HOUR_OF_DAY, 23);
+					endTime.set(Calendar.MINUTE,  59);
+					parsedTimes[INDEX_FOR_START] = startTime;
+					parsedTimes[INDEX_FOR_END] = endTime;
+				}
 			}
-		}
+		} 
 		return parsedTimes;
 	}
 	
@@ -78,10 +99,6 @@ public class ShowParser extends InputParser {
 		} catch (InvalidArgumentsForParsedCommandException e) {
 			return InputParser.createParsedCommandError(e.getMessage());
 		}
-	}
-	
-	private static String getSearchKeywordsFromString(String input) {
-		return removeRegexPatternFromString(input, NOT_KEYWORDS_REGEX);
 	}
 	
 	private static boolean hasTaskId(int taskId) {
