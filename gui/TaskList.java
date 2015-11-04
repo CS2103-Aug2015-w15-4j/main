@@ -142,7 +142,7 @@ public class TaskList {
 			@Override
 			public void onChanged(javafx.collections.ListChangeListener.Change<? extends Node> c) {
 				listSize = items.size();
-				if (listSize==0) {
+				if (isListEmpty()) {
 					name.setText(listName);
 				} else {
 					name.setText(String.format(NAME_FORMAT, listName, listSize));
@@ -611,6 +611,13 @@ public class TaskList {
 		label.setWrapText(true);
 		label.setTextFill(COLOR_LABEL);
 		return label;
+	}
+	
+	/**
+	 * Returns true if the list is empty
+	 */
+	public boolean isListEmpty() {
+		return listSize==0;
 	}
 	
 	/**
