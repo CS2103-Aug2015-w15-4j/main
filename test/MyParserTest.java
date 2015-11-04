@@ -470,12 +470,12 @@ public class MyParserTest {
 	public void testGuiCommands() {
 		pcGui = MyParser.parseCommand("Open 1");
 		assertEquals(CommandType.GUI_OPEN, pcGui.getCommandType());
-		assertEquals("1", pcGui.getGuiType());
+		assertEquals("0", pcGui.getGuiType());
 		
 		String tabName = GUIController.taskListNames[2];
 		pcGui = MyParser.parseCommand("Close " + tabName);
 		assertEquals(CommandType.GUI_CLOSE, pcGui.getCommandType());
-		assertEquals("2", pcGui.getGuiType());
+		assertEquals("-3", pcGui.getGuiType());
 		
 		pcGui = MyParser.parseCommand("Close random");
 		assertEquals(CommandType.ERROR, pcGui.getCommandType());

@@ -332,7 +332,8 @@ public class ParsedCommand {
 		private void validateGuiType() throws InvalidArgumentsForParsedCommandException {
 			try {
 				int tabNumber = Integer.parseInt(guiType);
-				if (tabNumber < GUIController.taskListNames.length && tabNumber >= 0) {
+				if (tabNumber <= GUIController.taskListNames.length && tabNumber > 0) {
+					guiType = Integer.toString(tabNumber - 1); // convert to 0 indexing
 					return;
 				}
 			} catch (NumberFormatException e) {
@@ -341,7 +342,7 @@ public class ParsedCommand {
 			
 			for (int i = 0; i < GUIController.taskListNames.length; i++) {
 				if (guiType.trim().equalsIgnoreCase(GUIController.taskListNames[i])) {
-					guiType = Integer.toString(i-GUIController.taskListNames.length); // return specific format to indicate name call
+					guiType = Integer.toString(i - GUIController.taskListNames.length); // return specific format to indicate name call
 					return;
 				}
 			}
