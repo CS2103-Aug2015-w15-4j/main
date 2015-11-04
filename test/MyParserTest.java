@@ -301,6 +301,19 @@ public class MyParserTest {
 		assertEquals(list, pcDisplay.getTags());
 		assertEquals(false, pcDisplay.isCompleted());
 		assertEquals(null, pcDisplay.getTaskType());
+		
+		// Check search function works
+		pcDisplay = MyParser.parseCommand("show meeting 23/11/15 23:59 #tag overdue");
+		assertEquals(MyParser.CommandType.SEARCH, pcDisplay.getCommandType());
+		assertEquals("meeting", pcDisplay.getKeywords());
+		assertEquals(StringParser.parseStringToDate("Mon Nov 23 23:59:00 SGT 2015"), pcDisplay.getFirstDate().getTime());
+		assertEquals(StringParser.parseStringToDate("Mon Nov 23 23:59:00 SGT 2015"), pcDisplay.getSecondDate().getTime());
+		list = new ArrayList<String>();
+		list.add("tag");
+		assertEquals(list, pcDisplay.getTags());
+		assertEquals(null, pcDisplay.isCompleted());
+		assertEquals(null, pcDisplay.getTaskType());
+		assertEquals(true, pcDisplay.isOverdue());
 	}
 
 	@Test

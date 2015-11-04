@@ -28,7 +28,7 @@ public abstract class InputParser {
 	protected static final String TASK_ID_REGEX = "(^[0-9]+(?=\\s|$))";
 	protected static final String TAG_REGEX = "(?<=\\s|^)#(\\w+)";
 	protected static final String DESCRIPTION_REGEX = "(?<!\\\\)\"(.*)(?<!\\\\)\"(?!.*((?<!\\\\)\"))";
-	protected static final String TASK_STATUS_REGEX = "(?<=[^//s])(todo|completed)(?=\\s|$)";
+	protected static final String TASK_STATUS_REGEX = "(?<=[^//s])(todo|completed|overdue)(?=\\s|$)";
 	protected static final String TASK_TYPE_REGEX = "(?<=\\s|^)(floating(?:task)?|deadline(?:task)?|event(?:task)?)(?:s)?(?=\\s|$)";
 	protected static final String OVERDUE_REGEX = "(?<=[^//s])(overdue)(?=\\s|$)";
 	
