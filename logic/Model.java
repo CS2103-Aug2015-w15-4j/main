@@ -2,6 +2,7 @@ package logic;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.lucene.queryparser.classic.ParseException;

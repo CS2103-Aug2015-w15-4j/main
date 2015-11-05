@@ -40,6 +40,7 @@ public class Search {
 
 		if (toSearch.getKeywords() != null && !toSearch.getKeywords().isEmpty()) {
 			String titleQuery = toSearch.getKeywords();
+
 			Query title = createQuery(analyzer, titleQuery);
 			bQuery.add(title, BooleanClause.Occur.SHOULD);
 
@@ -166,7 +167,6 @@ public class Search {
 	    // Set up Query
 		String sFromDate = DateTools.dateToString(fromDate.getTime(),
 		        Resolution.SECOND);
-		
 		String sToDate = DateTools.dateToString(toDate.getTime(),
 		        Resolution.SECOND);
 		
@@ -213,7 +213,15 @@ public class Search {
 		    Document doc = new Document();
 		    Gson gson = new Gson();
 		    String jsonString = gson.toJson(task);
-		    
+
+		  if(task.getTaskType().equals(ParsedCommand.TaskType.DEADLINE_TASK)) {
+			  DeadlineTask dlTask = (DeadlineTask) task;
+			  doc.add(new TextField("end", DateTools.dateToString(dlTask.getEnd().getTime(), DateTools.Resolution.SECOND), Field.Store.YES));
+		  } else if(task.getTaskType().equals(ParsedCommand.TaskType.EVENT)) {
+			  Event event = (Event) task;
+			  doc.add(new TextField("start", DateTools.dateToString(event.getStart().getTime(), DateTools.Resolution.SECOND), Field.Store.YES));
+			  doc.add(new TextField("end", DateTools.dateToString(event.getEnd().getTime(), DateTools.Resolution.SECOND), Field.Store.YES));
+		  }
 		    doc.add(new TextField("name", task.getName(), Field.Store.YES));
 		    doc.add(new TextField("id",new Integer(task.getId()).toString(), Field.Store.YES));
 		    doc.add(new TextField("isCompleted",new Boolean(task.getIsCompleted()).toString(), Field.Store.YES));
@@ -225,15 +233,6 @@ public class Search {
 		    doc.add(new TextField("taskType",task.getTaskType().toString(), Field.Store.YES));
 		    if (task.getDetails() != null) {
 		    	doc.add(new TextField("details",task.getDetails(), Field.Store.YES));
-		    }
-		   
-		    if(task.getTaskType().equals(ParsedCommand.TaskType.DEADLINE_TASK)) {
-				DeadlineTask dlTask = (DeadlineTask) task;
-				doc.add(new TextField("end", DateTools.dateToString(dlTask.getEnd().getTime(), DateTools.Resolution.SECOND), Field.Store.YES));
-			} else if(task.getTaskType().equals(ParsedCommand.TaskType.EVENT)) {
-				Event event = (Event) task;
-				doc.add(new TextField("start", DateTools.dateToString(event.getStart().getTime(), DateTools.Resolution.SECOND), Field.Store.YES));
-				doc.add(new TextField("end", DateTools.dateToString(event.getEnd().getTime(), DateTools.Resolution.SECOND), Field.Store.YES));
 		    }
 		    
 		    doc.add(new StringField("json",jsonString,Field.Store.YES));

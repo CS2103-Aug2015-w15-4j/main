@@ -47,11 +47,11 @@ public class Event extends Task {
 		String[] array = new String[2];
 		
 		array[0] = "Start";
-		array[1] = Logic.dateFormatter.format(start.getTime());
+		array[1] = Logic.displayDateFormatter.format(start.getTime());
 		task.add(array);
 		array = new String[2];
 		array[0] = "End";
-		array[1] = Logic.dateFormatter.format(end.getTime());
+		array[1] = Logic.displayDateFormatter.format(end.getTime());
 		task.add(array);
 		
 		return task;

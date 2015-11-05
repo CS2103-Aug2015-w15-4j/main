@@ -44,6 +44,7 @@ public class Delete implements Command {
 		int idToCheck = specifications.getTaskId();
 		if (!Logic.checkID(idToCheck)) {
 			model.setConsoleMessage(Logic.ERROR_INVALID_ID);
+			return false;
 		}
 		return true;
 	}

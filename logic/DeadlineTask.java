@@ -38,7 +38,7 @@ public class DeadlineTask extends Task {
 		String[] array = new String[2];
 		
 		array[0] = "End";
-		array[1] = Logic.dateFormatter.format(end.getTime());
+		array[1] = Logic.displayDateFormatter.format(end.getTime());
 		task.add(array);
 		
 		return task;
