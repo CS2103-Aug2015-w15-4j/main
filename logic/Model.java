@@ -1,3 +1,4 @@
+
 package logic;
 
 import java.io.IOException;
@@ -9,6 +10,7 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import storage.Storage;
 import parser.ParsedCommand;
 
+//@author A0124777W
 public class Model {
 
 	public static final int DEFAULT_FOCUS = 1;

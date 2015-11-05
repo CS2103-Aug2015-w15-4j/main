@@ -1,5 +1,6 @@
 package gui;
 
+//@author A0122534R
 public class GUIConfig {
 	public static int lastPinnedList = -1;
 

@@ -27,6 +27,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
 
+//@author A0122534R
 public class Textbox {
 	public final static String TAG = GUIController.TAG_BOTTOMBAR;
 	public final static String TAG_TEXTBOX = GUIController.TAG_TEXTBOX;

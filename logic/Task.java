@@ -6,6 +6,7 @@ import java.util.Comparator;
 import org.apache.lucene.queryparser.classic.ParseException;
 import parser.ParsedCommand;
 
+//@author A0124777W
 public class Task implements Comparable<Task> {
 
 	// Task Type Enums

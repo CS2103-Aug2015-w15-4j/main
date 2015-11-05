@@ -7,6 +7,7 @@ import java.util.Calendar;
 import parser.ParsedCommand;
 import parser.ParsedCommand.TaskType;
 
+//@author A0124777W
 public class DeadlineTask extends Task {
 
 	protected Calendar end;

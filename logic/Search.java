@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+//@author A0124777W
 public class Search {
 	private static final TaskType TASK = TaskType.FLOATING_TASK;
 	private static final TaskType DEADLINETASK = TaskType.DEADLINE_TASK;

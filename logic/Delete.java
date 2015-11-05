@@ -5,6 +5,7 @@ import java.util.List;
 import parser.ParsedCommand;
 import storage.Storage;
 
+//@author A0124777W
 public class Delete implements Command {
 
 	private Task toDelete;

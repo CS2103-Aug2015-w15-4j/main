@@ -7,6 +7,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.layout.VBox;
 
+//@author A0122534R
 public class MainWindow {
 	private boolean isChanging = false;
 	protected int previouslySelected = 0;

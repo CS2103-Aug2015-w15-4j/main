@@ -6,6 +6,7 @@ import java.util.Calendar;
 import parser.ParsedCommand;
 import parser.ParsedCommand.TaskType;
 
+//@author A0124777W
 public class Event extends Task {
 
 	protected Calendar start;

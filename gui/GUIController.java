@@ -32,6 +32,7 @@ import org.jnativehook.NativeHookException;
 import org.jnativehook.keyboard.NativeKeyEvent;
 import org.jnativehook.keyboard.NativeKeyListener;
 
+//@author A0122534R
 public class GUIController extends Application {
 	public static class TaskListCustom extends TaskList {
 		public TaskListCustom() {

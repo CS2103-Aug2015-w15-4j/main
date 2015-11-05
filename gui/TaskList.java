@@ -24,6 +24,7 @@ import logic.Event;
 import logic.Task;
 import parser.ParsedCommand.TaskType;
 
+//@author A0122534R
 public class TaskList {
 	public int listNumber = -1;
 	public String listName = "";
