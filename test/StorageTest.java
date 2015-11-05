@@ -1,3 +1,5 @@
+//@@author A0126276A
+
 package test;
 
 import static org.junit.Assert.assertEquals;
@@ -41,7 +43,6 @@ public class StorageTest {
 	private String dataFilePath;
 	private static String dataFilePathTemp;
 	private String avatarFilePath;
-	private String backgroundFilePath;
 	private static boolean hasConfigFile = false;
 
 	static File dataTemp;
@@ -343,7 +344,6 @@ public class StorageTest {
 
 			this.dataFilePath = reader.readLine();
 			this.avatarFilePath = reader.readLine();
-			this.backgroundFilePath = reader.readLine();
 
 			reader.close();
 

@@ -1,3 +1,5 @@
+//@@author A0126276A
+
 package storage;
 
 import java.io.BufferedReader;
@@ -31,6 +33,7 @@ public class Storage {
 
 	private static final String DEFAULT_BACKGROUND_FILEPATH = "background.jpg";
 	private static final String DEFAULT_AVATAR_FILEPATH = "avatar.png";
+	private static final String DEFAULT_LASTOPENTAB = "0";
 	private static final String CONFIG_FILENAME = "config";
 	private static final String DATA_FILENAME = "Data.txt";
 	private static final boolean OVERWRITE = false;
@@ -40,6 +43,7 @@ public class Storage {
 	private String dataFilePath;
 	private String avatarFilePath;
 	private String backgroundFilePath;
+	private String lastOpenTab;
 
 	private static String fileName;
 
@@ -127,20 +131,12 @@ public class Storage {
 		return false;
 	}
 
-	public boolean setBackground(String path) {
-		File file = new File(path);
-		if (file.exists()) {
-			if (isImageFile(path)) {
-				backgroundFilePath = path;
-				writeConfigDetails();
-				return true;
-			}
-		}
-		return false;
+	public String getLastOpenTab() {
+		return lastOpenTab;
 	}
 
-	public String getBackgroundPath() {
-		return backgroundFilePath;
+	public void setLastOpenTab(String number) {
+		lastOpenTab = number;
 	}
 
 	public void getConfigDetails() {
@@ -151,6 +147,7 @@ public class Storage {
 				this.dataFilePath = DATA_FILENAME;
 				this.avatarFilePath = DEFAULT_AVATAR_FILEPATH;
 				this.backgroundFilePath = DEFAULT_BACKGROUND_FILEPATH;
+				// this.lastOpenTab = DEFAULT_LASTOPENTAB;
 				writeConfigDetails();
 			}
 		} else {
@@ -161,6 +158,7 @@ public class Storage {
 				this.dataFilePath = reader.readLine();
 				this.avatarFilePath = reader.readLine();
 				this.backgroundFilePath = reader.readLine();
+				// this.lastOpenTab = reader.readLine();
 
 				reader.close();
 
@@ -183,6 +181,8 @@ public class Storage {
 			writer.write("\r\n");
 			writer.write(backgroundFilePath);
 			writer.write("\r\n");
+			// writer.write(lastOpenTab);
+			// writer.write("\r\n");
 
 			writer.close();
 		} catch (IOException e) {
