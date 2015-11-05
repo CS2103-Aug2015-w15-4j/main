@@ -1,3 +1,5 @@
+//@@author A0126276A
+
 package test;
 
 import static org.junit.Assert.assertEquals;
@@ -116,9 +118,9 @@ public class IntegrationTest {
 
 		// Add Deadline task - using NATTY DATE
 		logic.executeCommand(MyParser
-				.parseCommand("add homework by 10pm next fri"));
+				.parseCommand("add assignment by next friday 10pm"));
 		output = model.getConsoleMessage();
-		expected = "homework next fri added";
+		expected = "assignment added";
 		assertEquals(expected, output);
 
 		clear();
@@ -130,7 +132,7 @@ public class IntegrationTest {
 		expected += "\n";
 		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":10,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"homework\",\"id\":3,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
-		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"homework next fri\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"assignment\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		assertEquals(expected, output);
 
 		clear();
@@ -151,7 +153,7 @@ public class IntegrationTest {
 		expected += "\n";
 		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":10,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"homework\",\"id\":3,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
-		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"homework next fri\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"assignment\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":13,\"hourOfDay\":13,\"minute\":0,\"second\":0},\"name\":\"project\",\"id\":5,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		assertEquals(expected, output);
@@ -174,7 +176,7 @@ public class IntegrationTest {
 		expected += "\n";
 		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":10,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"homework\",\"id\":3,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
-		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"homework next fri\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"assignment\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":13,\"hourOfDay\":13,\"minute\":0,\"second\":0},\"name\":\"project\",\"id\":5,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
@@ -199,13 +201,130 @@ public class IntegrationTest {
 		expected += "\n";
 		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":10,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"homework\",\"id\":3,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
-		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"homework next fri\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"assignment\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":13,\"hourOfDay\":13,\"minute\":0,\"second\":0},\"name\":\"project\",\"id\":5,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":13,\"hourOfDay\":18,\"minute\":0,\"second\":0},\"name\":\"camp\",\"id\":6,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":10,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":12,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		assertEquals(expected, output);
+
+		clear();
+
+		// Add Event by using backslash as escape key
+		String keyword = "add do project " + "\\"
+				+ "on software engineering principles";
+		logic.executeCommand(MyParser.parseCommand(keyword));
+		output = model.getConsoleMessage();
+		expected = "do project on software engineering principles added";
+		assertEquals(expected, output);
+
+		clear();
+
+		output = readFile(dataFilePath);
+		expected += "{\"name\":\"do homework\",\"id\":1,\"isCompleted\":false,\"tags\":[\"mustTodo\",\"veryHard\"],\"taskType\":\"FLOATING_TASK\"}";
+		expected += "\n";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":23,\"minute\":59,\"second\":0},\"name\":\"do housekeeping\",\"id\":2,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":10,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"homework\",\"id\":3,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"assignment\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":13,\"hourOfDay\":13,\"minute\":0,\"second\":0},\"name\":\"project\",\"id\":5,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "\n";
+		expected += "{\"start\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":13,\"hourOfDay\":18,\"minute\":0,\"second\":0},\"name\":\"camp\",\"id\":6,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "\n";
+		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":10,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":12,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "\n";
+		expected += "{\"name\":\"do project on software engineering principles\",\"id\":8,\"isCompleted\":false,\"tags\":[],\"taskType\":\"FLOATING_TASK\"}";
+		assertEquals(expected, output);
+
+		clear();
+
+		// Add Event without title
+		logic.executeCommand(MyParser.parseCommand("add \"at Orchard\""));
+		output = model.getConsoleMessage();
+		expected = "Error: Missing task title";
+		assertEquals(expected, output);
+
+		clear();
+
+		output = readFile(dataFilePath);
+		expected += "{\"name\":\"do homework\",\"id\":1,\"isCompleted\":false,\"tags\":[\"mustTodo\",\"veryHard\"],\"taskType\":\"FLOATING_TASK\"}";
+		expected += "\n";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":23,\"minute\":59,\"second\":0},\"name\":\"do housekeeping\",\"id\":2,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":10,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"homework\",\"id\":3,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"assignment\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":13,\"hourOfDay\":13,\"minute\":0,\"second\":0},\"name\":\"project\",\"id\":5,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "\n";
+		expected += "{\"start\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":13,\"hourOfDay\":18,\"minute\":0,\"second\":0},\"name\":\"camp\",\"id\":6,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "\n";
+		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":10,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":12,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "\n";
+		expected += "{\"name\":\"do project on software engineering principles\",\"id\":8,\"isCompleted\":false,\"tags\":[],\"taskType\":\"FLOATING_TASK\"}";
+		assertEquals(expected, output);
+
+		clear();
+
+		// Add Event with invalid date
+		logic.executeCommand(MyParser
+				.parseCommand("add meeting kevin by 10/13"));
+		output = model.getConsoleMessage();
+		expected = "Error: Invalid date(s) input";
+		assertEquals(expected, output);
+
+		clear();
+
+		output = readFile(dataFilePath);
+		expected += "{\"name\":\"do homework\",\"id\":1,\"isCompleted\":false,\"tags\":[\"mustTodo\",\"veryHard\"],\"taskType\":\"FLOATING_TASK\"}";
+		expected += "\n";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":23,\"minute\":59,\"second\":0},\"name\":\"do housekeeping\",\"id\":2,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":10,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"homework\",\"id\":3,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"assignment\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":13,\"hourOfDay\":13,\"minute\":0,\"second\":0},\"name\":\"project\",\"id\":5,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "\n";
+		expected += "{\"start\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":13,\"hourOfDay\":18,\"minute\":0,\"second\":0},\"name\":\"camp\",\"id\":6,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "\n";
+		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":10,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":12,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "\n";
+		expected += "{\"name\":\"do project on software engineering principles\",\"id\":8,\"isCompleted\":false,\"tags\":[],\"taskType\":\"FLOATING_TASK\"}";
+		assertEquals(expected, output);
+
+		clear();
+
+		// Add Event with shortcut key, "+"
+		logic.executeCommand(MyParser.parseCommand("+ dinner with parents"));
+		output = model.getConsoleMessage();
+		expected = "dinner with parents added";
+		assertEquals(expected, output);
+
+		clear();
+
+		output = readFile(dataFilePath);
+		expected += "{\"name\":\"do homework\",\"id\":1,\"isCompleted\":false,\"tags\":[\"mustTodo\",\"veryHard\"],\"taskType\":\"FLOATING_TASK\"}";
+		expected += "\n";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":23,\"minute\":59,\"second\":0},\"name\":\"do housekeeping\",\"id\":2,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":10,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"homework\",\"id\":3,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"assignment\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":13,\"hourOfDay\":13,\"minute\":0,\"second\":0},\"name\":\"project\",\"id\":5,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "\n";
+		expected += "{\"start\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":13,\"hourOfDay\":18,\"minute\":0,\"second\":0},\"name\":\"camp\",\"id\":6,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "\n";
+		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":10,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":12,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "\n";
+		expected += "{\"name\":\"do project on software engineering principles\",\"id\":8,\"isCompleted\":false,\"tags\":[],\"taskType\":\"FLOATING_TASK\"}";
+		expected += "\n";
+		expected += "{\"name\":\"dinner with parents\",\"id\":9,\"isCompleted\":false,\"tags\":[],\"taskType\":\"FLOATING_TASK\"}";
 		assertEquals(expected, output);
 
 		clear();
@@ -231,22 +350,25 @@ public class IntegrationTest {
 		expected += "\n";
 		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":23,\"minute\":59,\"second\":0},\"name\":\"do housekeeping\",\"id\":2,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
-		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"homework next fri\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"assignment\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":13,\"hourOfDay\":13,\"minute\":0,\"second\":0},\"name\":\"project\",\"id\":5,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":13,\"hourOfDay\":18,\"minute\":0,\"second\":0},\"name\":\"camp\",\"id\":6,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":10,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":12,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "\n";
+		expected += "{\"name\":\"do project on software engineering principles\",\"id\":8,\"isCompleted\":false,\"tags\":[],\"taskType\":\"FLOATING_TASK\"}";
+		expected += "\n";
+		expected += "{\"name\":\"dinner with parents\",\"id\":9,\"isCompleted\":false,\"tags\":[],\"taskType\":\"FLOATING_TASK\"}";
 		assertEquals(expected, output);
 
 		clear();
 
-		// Delete unexist TaskID
-
-		logic.executeCommand(MyParser.parseCommand("delete 53"));
+		// Delete a Task by using shortcut key - "X"
+		logic.executeCommand(MyParser.parseCommand("X 8"));
 		output = model.getConsoleMessage();
-		expected = "Error: Invalid taskID";
+		expected = "Task 8 deleted";
 		assertEquals(expected, output);
 
 		clear();
@@ -256,13 +378,15 @@ public class IntegrationTest {
 		expected += "\n";
 		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":23,\"minute\":59,\"second\":0},\"name\":\"do housekeeping\",\"id\":2,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
-		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"homework next fri\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"assignment\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":13,\"hourOfDay\":13,\"minute\":0,\"second\":0},\"name\":\"project\",\"id\":5,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":13,\"hourOfDay\":18,\"minute\":0,\"second\":0},\"name\":\"camp\",\"id\":6,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":10,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":12,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "\n";
+		expected += "{\"name\":\"dinner with parents\",\"id\":9,\"isCompleted\":false,\"tags\":[],\"taskType\":\"FLOATING_TASK\"}";
 		assertEquals(expected, output);
 
 		clear();
@@ -286,13 +410,15 @@ public class IntegrationTest {
 		expected += "\n";
 		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":23,\"minute\":59,\"second\":0},\"name\":\"do housekeeping\",\"id\":2,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
-		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"homework next fri\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"assignment\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":13,\"hourOfDay\":13,\"minute\":0,\"second\":0},\"name\":\"project\",\"id\":5,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":13,\"hourOfDay\":18,\"minute\":0,\"second\":0},\"name\":\"camp\",\"id\":6,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":10,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":12,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "\n";
+		expected += "{\"name\":\"dinner with parents\",\"id\":9,\"isCompleted\":false,\"tags\":[],\"taskType\":\"FLOATING_TASK\"}";
 		assertEquals(expected, output);
 
 		clear();
@@ -310,13 +436,15 @@ public class IntegrationTest {
 		expected += "\n";
 		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":23,\"minute\":59,\"second\":0},\"name\":\"do housekeeping\",\"id\":2,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
-		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"homework next fri\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"assignment\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":13,\"hourOfDay\":13,\"minute\":0,\"second\":0},\"name\":\"project\",\"id\":5,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":13,\"hourOfDay\":18,\"minute\":0,\"second\":0},\"name\":\"camp\",\"id\":6,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":10,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":12,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "\n";
+		expected += "{\"name\":\"dinner with parents\",\"id\":9,\"isCompleted\":false,\"tags\":[],\"taskType\":\"FLOATING_TASK\"}";
 		assertEquals(expected, output);
 
 		clear();
@@ -333,13 +461,15 @@ public class IntegrationTest {
 		expected += "\n";
 		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":23,\"minute\":59,\"second\":0},\"name\":\"do housekeeping\",\"id\":2,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
-		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"homework next fri\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"assignment\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":13,\"hourOfDay\":13,\"minute\":0,\"second\":0},\"name\":\"project\",\"id\":5,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":13,\"hourOfDay\":18,\"minute\":0,\"second\":0},\"name\":\"camp\",\"id\":6,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":10,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":12,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "\n";
+		expected += "{\"name\":\"dinner with parents\",\"id\":9,\"isCompleted\":false,\"tags\":[],\"taskType\":\"FLOATING_TASK\"}";
 		assertEquals(expected, output);
 
 		clear();
@@ -357,20 +487,23 @@ public class IntegrationTest {
 		expected += "\n";
 		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":23,\"hourOfDay\":16,\"minute\":0,\"second\":0},\"name\":\"do housekeeping\",\"id\":2,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
-		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"homework next fri\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"assignment\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":13,\"hourOfDay\":13,\"minute\":0,\"second\":0},\"name\":\"project\",\"id\":5,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":13,\"hourOfDay\":18,\"minute\":0,\"second\":0},\"name\":\"camp\",\"id\":6,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":10,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":12,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "\n";
+		expected += "{\"name\":\"dinner with parents\",\"id\":9,\"isCompleted\":false,\"tags\":[],\"taskType\":\"FLOATING_TASK\"}";
 		assertEquals(expected, output);
 
 		clear();
 
-		logic.executeCommand(MyParser.parseCommand("edit 2 by 23/12 @1500"));
+		logic.executeCommand(MyParser
+				.parseCommand("edit 7 18/12 2pm 20/12 12am"));
 		output = model.getConsoleMessage();
-		expected = "do housekeeping updated";
+		expected = "meeting john updated";
 		assertEquals(expected, output);
 
 		clear();
@@ -378,19 +511,70 @@ public class IntegrationTest {
 		output = readFile(dataFilePath);
 		expected += "{\"name\":\"homework\",\"id\":1,\"isCompleted\":false,\"tags\":[\"mustTodo\",\"veryHard\"],\"taskType\":\"FLOATING_TASK\"}";
 		expected += "\n";
-		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":23,\"hourOfDay\":23,\"minute\":59,\"second\":0},\"name\":\"do housekeeping\",\"id\":2,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":23,\"hourOfDay\":16,\"minute\":0,\"second\":0},\"name\":\"do housekeeping\",\"id\":2,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
-		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"homework next fri\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"assignment\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":13,\"hourOfDay\":13,\"minute\":0,\"second\":0},\"name\":\"project\",\"id\":5,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":13,\"hourOfDay\":18,\"minute\":0,\"second\":0},\"name\":\"camp\",\"id\":6,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
-		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":10,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":12,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":18,\"hourOfDay\":14,\"minute\":0,\"second\":0},\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":20,\"hourOfDay\":0,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "\n";
+		expected += "{\"name\":\"dinner with parents\",\"id\":9,\"isCompleted\":false,\"tags\":[],\"taskType\":\"FLOATING_TASK\"}";
 		assertEquals(expected, output);
 
 		clear();
 
+		logic.executeCommand(MyParser.parseCommand("edit 7 16/12/15 8pm"));
+		output = model.getConsoleMessage();
+		expected = "meeting john updated";
+		assertEquals(expected, output);
+
+		clear();
+
+		output = readFile(dataFilePath);
+		expected += "{\"name\":\"homework\",\"id\":1,\"isCompleted\":false,\"tags\":[\"mustTodo\",\"veryHard\"],\"taskType\":\"FLOATING_TASK\"}";
+		expected += "\n";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":23,\"hourOfDay\":16,\"minute\":0,\"second\":0},\"name\":\"do housekeeping\",\"id\":2,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"assignment\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":13,\"hourOfDay\":13,\"minute\":0,\"second\":0},\"name\":\"project\",\"id\":5,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "\n";
+		expected += "{\"start\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":13,\"hourOfDay\":18,\"minute\":0,\"second\":0},\"name\":\"camp\",\"id\":6,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "\n";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":16,\"hourOfDay\":20,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"name\":\"dinner with parents\",\"id\":9,\"isCompleted\":false,\"tags\":[],\"taskType\":\"FLOATING_TASK\"}";
+		assertEquals(expected, output);
+
+		clear();
+
+		logic.executeCommand(MyParser.parseCommand("e; 1 by 18/12 11:59pm"));
+		output = model.getConsoleMessage();
+		expected = "homework updated";
+		assertEquals(expected, output);
+
+		clear();
+
+		output = readFile(dataFilePath);
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":18,\"hourOfDay\":23,\"minute\":59,\"second\":0},\"name\":\"homework\",\"id\":1,\"isCompleted\":false,\"tags\":[\"mustTodo\",\"veryHard\"],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":23,\"hourOfDay\":16,\"minute\":0,\"second\":0},\"name\":\"do housekeeping\",\"id\":2,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"assignment\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":13,\"hourOfDay\":13,\"minute\":0,\"second\":0},\"name\":\"project\",\"id\":5,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "\n";
+		expected += "{\"start\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":13,\"hourOfDay\":18,\"minute\":0,\"second\":0},\"name\":\"camp\",\"id\":6,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "\n";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":16,\"hourOfDay\":20,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"name\":\"dinner with parents\",\"id\":9,\"isCompleted\":false,\"tags\":[],\"taskType\":\"FLOATING_TASK\"}";
+		assertEquals(expected, output);
+
+		clear();
 	}
 
 	// Mark
@@ -408,17 +592,19 @@ public class IntegrationTest {
 		clear();
 
 		output = readFile(dataFilePath);
-		expected += "{\"name\":\"homework\",\"id\":1,\"isCompleted\":true,\"tags\":[\"mustTodo\",\"veryHard\"],\"taskType\":\"FLOATING_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":18,\"hourOfDay\":23,\"minute\":59,\"second\":0},\"name\":\"homework\",\"id\":1,\"isCompleted\":true,\"tags\":[\"mustTodo\",\"veryHard\"],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
-		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":23,\"hourOfDay\":23,\"minute\":59,\"second\":0},\"name\":\"do housekeeping\",\"id\":2,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":23,\"hourOfDay\":16,\"minute\":0,\"second\":0},\"name\":\"do housekeeping\",\"id\":2,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
-		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"homework next fri\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"assignment\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":13,\"hourOfDay\":13,\"minute\":0,\"second\":0},\"name\":\"project\",\"id\":5,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":13,\"hourOfDay\":18,\"minute\":0,\"second\":0},\"name\":\"camp\",\"id\":6,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
-		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":10,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":12,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":16,\"hourOfDay\":20,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"name\":\"dinner with parents\",\"id\":9,\"isCompleted\":false,\"tags\":[],\"taskType\":\"FLOATING_TASK\"}";
 		assertEquals(expected, output);
 
 		clear();
@@ -433,17 +619,19 @@ public class IntegrationTest {
 		clear();
 
 		output = readFile(dataFilePath);
-		expected += "{\"name\":\"homework\",\"id\":1,\"isCompleted\":true,\"tags\":[\"mustTodo\",\"veryHard\"],\"taskType\":\"FLOATING_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":18,\"hourOfDay\":23,\"minute\":59,\"second\":0},\"name\":\"homework\",\"id\":1,\"isCompleted\":true,\"tags\":[\"mustTodo\",\"veryHard\"],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
-		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":23,\"hourOfDay\":23,\"minute\":59,\"second\":0},\"name\":\"do housekeeping\",\"id\":2,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":23,\"hourOfDay\":16,\"minute\":0,\"second\":0},\"name\":\"do housekeeping\",\"id\":2,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
-		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"homework next fri\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"assignment\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":13,\"hourOfDay\":13,\"minute\":0,\"second\":0},\"name\":\"project\",\"id\":5,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":13,\"hourOfDay\":18,\"minute\":0,\"second\":0},\"name\":\"camp\",\"id\":6,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
-		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":10,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":12,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":16,\"hourOfDay\":20,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"name\":\"dinner with parents\",\"id\":9,\"isCompleted\":false,\"tags\":[],\"taskType\":\"FLOATING_TASK\"}";
 		assertEquals(expected, output);
 
 		clear();
@@ -457,23 +645,24 @@ public class IntegrationTest {
 		clear();
 
 		output = readFile(dataFilePath);
-		expected += "{\"name\":\"homework\",\"id\":1,\"isCompleted\":false,\"tags\":[\"mustTodo\",\"veryHard\"],\"taskType\":\"FLOATING_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":18,\"hourOfDay\":23,\"minute\":59,\"second\":0},\"name\":\"homework\",\"id\":1,\"isCompleted\":false,\"tags\":[\"mustTodo\",\"veryHard\"],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
-		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":23,\"hourOfDay\":23,\"minute\":59,\"second\":0},\"name\":\"do housekeeping\",\"id\":2,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":23,\"hourOfDay\":16,\"minute\":0,\"second\":0},\"name\":\"do housekeeping\",\"id\":2,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
-		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"homework next fri\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"assignment\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":13,\"hourOfDay\":13,\"minute\":0,\"second\":0},\"name\":\"project\",\"id\":5,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":13,\"hourOfDay\":18,\"minute\":0,\"second\":0},\"name\":\"camp\",\"id\":6,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
-		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":10,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":12,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":16,\"hourOfDay\":20,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"name\":\"dinner with parents\",\"id\":9,\"isCompleted\":false,\"tags\":[],\"taskType\":\"FLOATING_TASK\"}";
 		assertEquals(expected, output);
 
 		clear();
 
 		// Mark task as t6odo by using invalid taskID
-
 		logic.executeCommand(MyParser.parseCommand("mark todo 23"));
 		output = model.getConsoleMessage();
 		expected = "Error: Invalid TaskID";
@@ -482,17 +671,45 @@ public class IntegrationTest {
 		clear();
 
 		output = readFile(dataFilePath);
-		expected += "{\"name\":\"homework\",\"id\":1,\"isCompleted\":false,\"tags\":[\"mustTodo\",\"veryHard\"],\"taskType\":\"FLOATING_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":18,\"hourOfDay\":23,\"minute\":59,\"second\":0},\"name\":\"homework\",\"id\":1,\"isCompleted\":false,\"tags\":[\"mustTodo\",\"veryHard\"],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
-		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":23,\"hourOfDay\":23,\"minute\":59,\"second\":0},\"name\":\"do housekeeping\",\"id\":2,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":23,\"hourOfDay\":16,\"minute\":0,\"second\":0},\"name\":\"do housekeeping\",\"id\":2,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
-		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"homework next fri\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"assignment\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":13,\"hourOfDay\":13,\"minute\":0,\"second\":0},\"name\":\"project\",\"id\":5,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":13,\"hourOfDay\":18,\"minute\":0,\"second\":0},\"name\":\"camp\",\"id\":6,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
-		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":10,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":12,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":16,\"hourOfDay\":20,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"name\":\"dinner with parents\",\"id\":9,\"isCompleted\":false,\"tags\":[],\"taskType\":\"FLOATING_TASK\"}";
+		assertEquals(expected, output);
+
+		clear();
+
+		// Mark task as todo by using shortcut command
+		logic.executeCommand(MyParser.parseCommand("v 2"));
+		output = model.getConsoleMessage();
+		expected = "do housekeeping updated";
+		assertEquals(expected, output);
+
+		clear();
+
+		output = readFile(dataFilePath);
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":18,\"hourOfDay\":23,\"minute\":59,\"second\":0},\"name\":\"homework\",\"id\":1,\"isCompleted\":false,\"tags\":[\"mustTodo\",\"veryHard\"],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":23,\"hourOfDay\":16,\"minute\":0,\"second\":0},\"name\":\"do housekeeping\",\"id\":2,\"isCompleted\":true,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"assignment\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":13,\"hourOfDay\":13,\"minute\":0,\"second\":0},\"name\":\"project\",\"id\":5,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "\n";
+		expected += "{\"start\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":13,\"hourOfDay\":18,\"minute\":0,\"second\":0},\"name\":\"camp\",\"id\":6,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "\n";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":16,\"hourOfDay\":20,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"name\":\"dinner with parents\",\"id\":9,\"isCompleted\":false,\"tags\":[],\"taskType\":\"FLOATING_TASK\"}";
 		assertEquals(expected, output);
 
 		clear();
@@ -504,7 +721,6 @@ public class IntegrationTest {
 	public void testE() throws UnrecognisedCommandException {
 		getConfigDetails();
 
-		// Mark task as completed
 		logic.executeCommand(MyParser.parseCommand("undo"));
 		output = model.getConsoleMessage();
 		expected = "Undo Successful";
@@ -513,17 +729,19 @@ public class IntegrationTest {
 		clear();
 
 		output = readFile(dataFilePath);
-		expected += "{\"name\":\"homework\",\"id\":1,\"isCompleted\":true,\"tags\":[\"mustTodo\",\"veryHard\"],\"taskType\":\"FLOATING_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":18,\"hourOfDay\":23,\"minute\":59,\"second\":0},\"name\":\"homework\",\"id\":1,\"isCompleted\":false,\"tags\":[\"mustTodo\",\"veryHard\"],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
-		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":23,\"hourOfDay\":23,\"minute\":59,\"second\":0},\"name\":\"do housekeeping\",\"id\":2,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":23,\"hourOfDay\":16,\"minute\":0,\"second\":0},\"name\":\"do housekeeping\",\"id\":2,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
-		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"homework next fri\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"assignment\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":13,\"hourOfDay\":13,\"minute\":0,\"second\":0},\"name\":\"project\",\"id\":5,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":13,\"hourOfDay\":18,\"minute\":0,\"second\":0},\"name\":\"camp\",\"id\":6,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
-		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":10,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":12,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":16,\"hourOfDay\":20,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"name\":\"dinner with parents\",\"id\":9,\"isCompleted\":false,\"tags\":[],\"taskType\":\"FLOATING_TASK\"}";
 		assertEquals(expected, output);
 
 		clear();
@@ -536,7 +754,7 @@ public class IntegrationTest {
 		// Search keyword
 		logic.executeCommand(MyParser.parseCommand("search homework"));
 		output = model.getConsoleMessage();
-		expected = "2 results found";
+		expected = "1 result found";
 		assertEquals(expected, output);
 
 		clear();
@@ -548,13 +766,6 @@ public class IntegrationTest {
 
 		clear();
 
-		// invalid command
-		/*
-		 * logic.executeCommand(MyParser.parseCommand("search")); output =
-		 * model.getConsoleMessage(); expected = ""; assertEquals(expected,
-		 * output); clear();
-		 */
-
 		// search date
 		logic.executeCommand(MyParser.parseCommand("search 23/12"));
 		output = model.getConsoleMessage();
@@ -564,13 +775,11 @@ public class IntegrationTest {
 		clear();
 
 		// search taskID
-		/*
-		 * logic.executeCommand(MyParser.parseCommand("search 1")); output =
-		 * model.getConsoleMessage(); expected = "1 result found";
-		 * assertEquals(expected, output);
-		 * 
-		 * clear();
-		 */
+		logic.executeCommand(MyParser.parseCommand("search 1"));
+		output = model.getConsoleMessage();
+		expected = "1 result found";
+		assertEquals(expected, output);
+		clear();
 
 		// search completed
 		logic.executeCommand(MyParser.parseCommand("search completed"));
@@ -585,6 +794,15 @@ public class IntegrationTest {
 				.parseCommand("search housekeeping homework #mustTodo"));
 		output = model.getConsoleMessage();
 		expected = "1 result found";
+		assertEquals(expected, output);
+
+		clear();
+
+		// search 2 or more than 2 keywords
+		logic.executeCommand(MyParser
+				.parseCommand("search housekeeping homework mustTodo"));
+		output = model.getConsoleMessage();
+		expected = "2 results found";
 		assertEquals(expected, output);
 
 		clear();
@@ -608,7 +826,7 @@ public class IntegrationTest {
 		getConfigDetails();
 
 		output = readFile(CONFIG_FILENAME);
-		expected += "C:\\Users\\jiaminn\\Desktop\\Eclipse\\MyWorkspace\\main\\temp\\Data.txt";
+		expected += dataFilePath;
 		expected += "\n";
 		expected += "avatar.png";
 		expected += "\n";
@@ -618,17 +836,19 @@ public class IntegrationTest {
 		clear();
 
 		output = readFile(dataFilePath);
-		expected += "{\"name\":\"homework\",\"id\":1,\"isCompleted\":true,\"tags\":[\"mustTodo\",\"veryHard\"],\"taskType\":\"FLOATING_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":18,\"hourOfDay\":23,\"minute\":59,\"second\":0},\"name\":\"homework\",\"id\":1,\"isCompleted\":false,\"tags\":[\"mustTodo\",\"veryHard\"],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
-		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":23,\"hourOfDay\":23,\"minute\":59,\"second\":0},\"name\":\"do housekeeping\",\"id\":2,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":23,\"hourOfDay\":16,\"minute\":0,\"second\":0},\"name\":\"do housekeeping\",\"id\":2,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
-		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"homework next fri\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"assignment\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":13,\"hourOfDay\":13,\"minute\":0,\"second\":0},\"name\":\"project\",\"id\":5,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":13,\"hourOfDay\":18,\"minute\":0,\"second\":0},\"name\":\"camp\",\"id\":6,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
-		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":10,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":12,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":16,\"hourOfDay\":20,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"name\":\"dinner with parents\",\"id\":9,\"isCompleted\":false,\"tags\":[],\"taskType\":\"FLOATING_TASK\"}";
 		assertEquals(expected, output);
 
 		clear();
@@ -644,7 +864,7 @@ public class IntegrationTest {
 		getConfigDetails();
 
 		output = readFile(CONFIG_FILENAME);
-		expected += "C:\\Users\\jiaminn\\Desktop\\Eclipse\\MyWorkspace\\main\\temp\\Data.txt";
+		expected += dataFilePath;
 		expected += "\n";
 		expected += "avatar.png";
 		expected += "\n";
@@ -654,17 +874,19 @@ public class IntegrationTest {
 		clear();
 
 		output = readFile(dataFilePath);
-		expected += "{\"name\":\"homework\",\"id\":1,\"isCompleted\":true,\"tags\":[\"mustTodo\",\"veryHard\"],\"taskType\":\"FLOATING_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":18,\"hourOfDay\":23,\"minute\":59,\"second\":0},\"name\":\"homework\",\"id\":1,\"isCompleted\":false,\"tags\":[\"mustTodo\",\"veryHard\"],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
-		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":23,\"hourOfDay\":23,\"minute\":59,\"second\":0},\"name\":\"do housekeeping\",\"id\":2,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":23,\"hourOfDay\":16,\"minute\":0,\"second\":0},\"name\":\"do housekeeping\",\"id\":2,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
-		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"homework next fri\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":10,\"dayOfMonth\":13,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"name\":\"assignment\",\"id\":4,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":13,\"hourOfDay\":13,\"minute\":0,\"second\":0},\"name\":\"project\",\"id\":5,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":10,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":13,\"hourOfDay\":18,\"minute\":0,\"second\":0},\"name\":\"camp\",\"id\":6,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
 		expected += "\n";
-		expected += "{\"start\":{\"year\":2015,\"month\":11,\"dayOfMonth\":10,\"hourOfDay\":22,\"minute\":0,\"second\":0},\"end\":{\"year\":2016,\"month\":9,\"dayOfMonth\":12,\"hourOfDay\":12,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"EVENT\"}";
+		expected += "{\"end\":{\"year\":2015,\"month\":11,\"dayOfMonth\":16,\"hourOfDay\":20,\"minute\":0,\"second\":0},\"name\":\"meeting john\",\"id\":7,\"isCompleted\":false,\"tags\":[],\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"name\":\"dinner with parents\",\"id\":9,\"isCompleted\":false,\"tags\":[],\"taskType\":\"FLOATING_TASK\"}";
 		assertEquals(expected, output);
 
 		clear();
@@ -695,7 +917,7 @@ public class IntegrationTest {
 		 */
 
 		logic.executeCommand(MyParser
-				.parseCommand("set avatar C:\\Users\\jiaminn\\Desktop\\Eclipse\\MyWorkspace\\main\\gui\\avatar2.png"));
+				.parseCommand("set avatar \\main\\gui\\avatar2.png"));
 		output = model.getConsoleMessage();
 		expected = "Avatar switched";
 		assertEquals(expected, output);

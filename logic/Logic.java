@@ -2,10 +2,7 @@ package logic;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Calendar;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import org.apache.lucene.queryparser.classic.ParseException;
 
@@ -13,9 +10,11 @@ import parser.ParsedCommand;
 import parser.ParsedCommand.ConfigType;
 import storage.Storage;
 
+//@author A0124777W
 public class Logic {
 
-	public static final SimpleDateFormat dateFormatter = new SimpleDateFormat("E, dd-MM-yyyy, hh:mm");
+	// Date formatter for
+	public static final SimpleDateFormat displayDateFormatter = new SimpleDateFormat("dd-MM-yyyy, HH:mm");
 
 	// Error Messages
 	public static final String ERROR_INVALID_ID = "Error: Invalid ID";
@@ -112,11 +111,7 @@ public class Logic {
 		String consoleMessage = MESSAGE_FAILED_TO_SET_NEW_PATH;
 		try {
 			ParsedCommand.ConfigType type = parsedCommand.getConfigType();
-			if (type == ConfigType.BACKGROUND) {
-				model.setBackgroundLocation(parsedCommand.getConfigPath());
-				consoleMessage = MESSAGE_BACKGROUND_SWITCHED;
-
-			} else if (type == ConfigType.AVATAR) {
+			if (type == ConfigType.AVATAR) {
 				model.setAvatarLocation(parsedCommand.getConfigPath());
 				consoleMessage = MESSAGE_AVATAR_SWITCHED;
 			}
@@ -148,8 +143,8 @@ public class Logic {
 	}
 
 	private Model executeSearch(ParsedCommand parsedCommand) {
-		List<Task> tasksToDisplay = null;
-		String consoleMessage = "Search failed";
+		List<Task> tasksToDisplay;
+		String consoleMessage;
 		try {
 			Search search = new Search();
 			tasksToDisplay = search.multiSearch(storage.getAllTasks(), parsedCommand);
@@ -275,7 +270,10 @@ public class Logic {
 			toCal.set(Calendar.MINUTE, TODAY_LAST_MINUTE);
 			toCal.set(Calendar.SECOND, TODAY_LAST_SECOND);
 
-			return Search.searchDate(storage.getAllTasks(), fromCal, toCal);
+			List<Task> todayList = Search.searchDate(storage.getAllTasks(), fromCal, toCal);
+			Collections.sort(todayList,Task.compareByDate);
+
+			return todayList;
 		} catch (ParseException e) {
 
 			e.printStackTrace();
@@ -288,17 +286,20 @@ public class Logic {
 	}
 
 	/*
-	 *	Updates the Event tab
+	 *	Updates the To-do tab
 	 */
 	public static List<Task> updateMainList() {
 		try {
 			Storage storage = new Storage();
 			Calendar fromCal = Calendar.getInstance();
-
 			Calendar toCal = Calendar.getInstance();
 			toCal.setTime(new Date(Long.MAX_VALUE));
 
-			return Search.searchDate(storage.getAllTasks(), fromCal, toCal);
+			List<Task> mainList = Search.searchDate(storage.getAllTasks(), fromCal, toCal);
+			Collections.sort(mainList,Task.compareByDate);
+
+			return mainList;
+
 		} catch (ParseException e) {
 
 			e.printStackTrace();
@@ -315,6 +316,7 @@ public class Logic {
 			Storage storage = new Storage();
 
 			return Search.search(storage.getAllTasks(), FLOATING_TASKS);
+
 		} catch (ParseException e) {
 
 			e.printStackTrace();
@@ -335,8 +337,11 @@ public class Logic {
 			Calendar fromCal = Calendar.getInstance();
 			fromCal.setTime(new Date(0));
 
-			List<Task> overdue = Search.searchDate(storage.getAllTasks(), fromCal, toCal);
-			return Search.search(overdue, INCOMPLTETED_TASKS);
+			List<Task> incompleteOverdue = Search.searchDate(storage.getAllTasks(), fromCal, toCal);
+			List<Task> overdue = Search.search(incompleteOverdue, INCOMPLTETED_TASKS);
+			Collections.sort(overdue,Task.compareByDate);
+
+			return overdue;
 
 		} catch (ParseException e) {
 
@@ -352,8 +357,8 @@ public class Logic {
 	public static List<Task> updateCompletedList() {
 		try {
 			Storage storage = new Storage();
-
 			return Search.search(storage.getAllTasks(), COMPLETED_TASKS);
+
 		} catch (ParseException e) {
 
 			e.printStackTrace();

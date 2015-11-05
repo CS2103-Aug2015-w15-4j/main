@@ -24,6 +24,7 @@ import logic.Event;
 import logic.Task;
 import parser.ParsedCommand.TaskType;
 
+//@author A0122534R
 public class TaskList {
 	public int listNumber = -1;
 	public String listName = "";
@@ -70,17 +71,17 @@ public class TaskList {
 	final static double DATE_WIDTH = 280.0;
 	public static SimpleDateFormat format;
 	
+	protected static Image[] imageCompletion = null;
+	protected final static String DONE = "resources/Check.png";
+	protected final static String NOT_DONE = "resources/Delete.png";
+	protected final static int DONE_IMAGE_SIZE = 16; 
+	
 	protected VBox master; // the overall TaskList manager
 	protected Button name; // button to press;
 	protected ListView<Node> listView; // the list of tasks
 	protected ObservableList<Node> items; // the items within the list
 	protected List<Task> listOfTasks = new ArrayList<Task>(); // currently displayed tasks
 	protected ScrollPane detailedView;
-	
-	protected static Image[] imageCompletion = new Image[2];
-	protected final static String DONE = "resources/Check.png";
-	protected final static String NOT_DONE = "resources/Delete.png";
-	protected final static int DONE_IMAGE_SIZE = 16; 
 	
 	public final int INVALID_SELECTION = -1; 
 	protected boolean isChanging = false;
@@ -100,11 +101,13 @@ public class TaskList {
 		listView.getStyleClass().add(GUIController.STYLE_TRANSPARENT);
 		master.getChildren().add(listView);
 		listView.prefWidthProperty().bind(master.widthProperty());
-		/*listView.prefHeightProperty().bind(
-				Bindings.size(items).multiply(ROW_CELL_HEIGHT).add(BORDER_HEIGHT));//*/
+		
 	    // define the images for done and not done
-	    imageCompletion[0] = new Image(TaskList.class.getResourceAsStream(NOT_DONE),DONE_IMAGE_SIZE, DONE_IMAGE_SIZE, true, true);
-	    imageCompletion[1] = new Image(TaskList.class.getResourceAsStream(DONE),DONE_IMAGE_SIZE, DONE_IMAGE_SIZE, true, true);
+		if (imageCompletion==null) {
+			imageCompletion = new Image[2];
+			imageCompletion[0] = new Image(TaskList.class.getResourceAsStream(NOT_DONE),DONE_IMAGE_SIZE, DONE_IMAGE_SIZE, true, true);
+			imageCompletion[1] = new Image(TaskList.class.getResourceAsStream(DONE),DONE_IMAGE_SIZE, DONE_IMAGE_SIZE, true, true);
+		}
 	    
 	    // scrollpane
 	    detailedView = new ScrollPane();
@@ -460,32 +463,34 @@ public class TaskList {
 	 * @return VBox with Name and ID
 	 *///*// old version using the arraylist from Logic
 	public static GridPane createDetailedDisplay(Task task) {
-		
 		GridPane grid = new GridPane();
 	    grid.getColumnConstraints().add(new ColumnConstraints(GRID_COL_HEADER_FINAL_LENGTH)); 
 		grid.setPadding(new Insets(0, 9, 0, 0));
+		
 		// ID content
+		//*
 		Label id = createLabel(Integer.toString(task.getId()));
 		id.setPadding(new Insets(0,5,0,5));
 		id.getStyleClass().add(getTaskStyle(task.getTaskType())); // set colour based on type
-		grid.add(id, SIDEBAR_COL_ID, ROW_NAME);
-
+		grid.add(id, SIDEBAR_COL_ID, ROW_NAME);//*/
+		/*
 		HBox header = new HBox();
-		header.prefWidthProperty().bind(grid.widthProperty().subtract(id.widthProperty()).subtract(IMAGE_SIZE)); // 8 is size of image
+		header.prefWidthProperty().bind(grid.widthProperty().
+				subtract(GRID_COL_HEADER_FINAL_LENGTH).subtract(IMAGE_SIZE)); // 8 is size of image
 		header.setAlignment(Pos.CENTER_LEFT);
-		grid.add(header, SIDEBAR_COL_NAME, ROW_NAME, 2, 1);
+		grid.add(header, SIDEBAR_COL_NAME, ROW_NAME, 2, 1);//*/
 		
 		// Set name
 		Label label = createLabel(task.getName());
-		label.prefWidthProperty().bind(header.widthProperty());
-		label.setWrapText(false);
+		label.prefWidthProperty().bind(grid.widthProperty());
+		label.setWrapText(true);
 		label.setStyle("-fx-font-weight: bold");
-		header.getChildren().add(label);
+		//header.getChildren().add(label);
+		grid.add(label, SIDEBAR_COL_NAME, ROW_NAME, 2, 1);
 		HBox.setHgrow(label, Priority.ALWAYS);
 
 		// add whether completed
 		grid.add(getTaskCompletion(task.getIsCompleted()), SIDEBAR_COL_DONE, ROW_NAME); // only need up to 1 row
-		
 		
 		ArrayList<String[]> details = task.getTaskDetails();
 		
@@ -523,7 +528,8 @@ public class TaskList {
 		grid.add(id, SIDEBAR_COL_ID, ROW_NAME);
 
 		HBox header = new HBox();
-		header.prefWidthProperty().bind(grid.widthProperty().subtract(id.widthProperty()).subtract(IMAGE_SIZE)); // 8 is size of image
+		header.prefWidthProperty().bind(grid.widthProperty().
+				subtract(GRID_COL_HEADER_FINAL_LENGTH).subtract(IMAGE_SIZE)); // 8 is size of image
 		header.setAlignment(Pos.CENTER_LEFT);
 		grid.add(header, SIDEBAR_COL_NAME, ROW_NAME, 2, 1);
 		

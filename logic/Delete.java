@@ -5,6 +5,7 @@ import java.util.List;
 import parser.ParsedCommand;
 import storage.Storage;
 
+//@author A0124777W
 public class Delete implements Command {
 
 	private Task toDelete;
@@ -44,6 +45,7 @@ public class Delete implements Command {
 		int idToCheck = specifications.getTaskId();
 		if (!Logic.checkID(idToCheck)) {
 			model.setConsoleMessage(Logic.ERROR_INVALID_ID);
+			return false;
 		}
 		return true;
 	}

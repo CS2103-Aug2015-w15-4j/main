@@ -1,12 +1,24 @@
 package logic;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 import org.apache.lucene.queryparser.classic.ParseException;
 import parser.ParsedCommand;
 
+//@author A0124777W
 public class Task implements Comparable<Task> {
 
+	// Task Type Enums
+	private static ParsedCommand.TaskType DEADLINE_TASK = ParsedCommand.TaskType.DEADLINE_TASK;
+	private static ParsedCommand.TaskType EVENT = ParsedCommand.TaskType.EVENT;
+
+	// Comparator constants
+	public static final int LESSER = -1;
+	public static final int GREATER = 1;
+	public static final int NO_DATE = 999;
+
+	// Class fields
 	private String name;
 	private String details;
 	private int id;
@@ -135,5 +147,55 @@ public class Task implements Comparable<Task> {
 		return ((Integer)id).compareTo(o.getId());
 	}
 
+
+	/*
+	 * 	Comparator to sort by date. Sorts by end date if Task is an event.
+	 */
+	public static final Comparator<Task> compareByDate = new Comparator<Task>() {
+
+		@Override
+		public int compare(Task task1, Task task2) {
+
+			if(task1.getTaskType() == DEADLINE_TASK && task2.getTaskType() == DEADLINE_TASK) {
+				DeadlineTask dlTask1 = (DeadlineTask) task1;
+				DeadlineTask dlTask2 = (DeadlineTask) task2;
+
+				if (dlTask1.getEnd().before(dlTask2.getEnd())) {
+					return LESSER;
+				} else {
+					return GREATER;
+				}
+			} else if (task1.getTaskType() == EVENT && task2.getTaskType() == EVENT) {
+				Event event1 = (Event) task1;
+				Event event2 = (Event) task2;
+
+				if (event1.getEnd().before(event2.getEnd())) {
+					return LESSER;
+				} else {
+					return GREATER;
+				}
+			} else if (task1.getTaskType() == EVENT && task2.getTaskType() == DEADLINE_TASK) {
+				Event event1 = (Event) task1;
+				DeadlineTask dlTask2 = (DeadlineTask) task2;
+
+				if (event1.getEnd().before(dlTask2.getEnd())) {
+					return LESSER;
+				} else {
+					return GREATER;
+				}
+			} else if (task1.getTaskType() == DEADLINE_TASK && task2.getTaskType() == EVENT) {
+				DeadlineTask dlTask1 = (DeadlineTask) task1;
+				Event event2 = (Event) task2;
+
+				if (dlTask1.getEnd().before(event2.getEnd())) {
+					return LESSER;
+				} else {
+					return GREATER;
+				}
+			} else {
+				return NO_DATE;
+			}
+		}
+	};
 
 }

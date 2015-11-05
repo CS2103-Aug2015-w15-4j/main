@@ -32,6 +32,7 @@ import org.jnativehook.NativeHookException;
 import org.jnativehook.keyboard.NativeKeyEvent;
 import org.jnativehook.keyboard.NativeKeyListener;
 
+//@author A0122534R
 public class GUIController extends Application {
 	public static class TaskListCustom extends TaskList {
 		public TaskListCustom() {
@@ -163,6 +164,7 @@ public class GUIController extends Application {
 	public static MainWindow center;
 	public static logic.Model model;
 	public static VBox pinnedWindow;
+	public static HelpMenu help;
 
 	public static HBox bottomBar; // bottomMost bar
 	public static TextField userTextField;
@@ -221,7 +223,10 @@ public class GUIController extends Application {
 		pane.setBottom(textboxObject.getNode());
 
 		// create the Log tab
-		logObject = createLogTab();		
+		logObject = createLogTab();
+		
+		// create the help menu
+		help = new HelpMenu();
 
 		// create the button to switch windows with
 		windowSwitch = new Button(MSG_WINDOWSWITCH);
@@ -274,6 +279,7 @@ public class GUIController extends Application {
 		if (!taskLists.get(TASKLIST_OVERDUE).isListEmpty()) {
 			pinWindow(taskLists.get(TASKLIST_OVERDUE));
 		}//*/
+		openList(TASKLIST_TODAY); // open today first
 	}
 	/**
 	 * Global Handlers
@@ -395,53 +401,23 @@ public class GUIController extends Application {
 		scene.setOnKeyPressed((new EventHandler<KeyEvent>() {
 			@Override
 			public void handle(KeyEvent keyEvent) {
-				//System.out.println(keyEvent.getCode().toString());
 				if(keyEvent.getCode()==KeyCode.T) {
+					// Shortcut for jumping to userTextField
 					if (keyEvent.isControlDown()){
 						userTextField.requestFocus();
 						userTextField.end(); // set cursor behind last chara
 					} else if (keyEvent.isAltDown()) {
-						// switch
+						// Shortcut for switch
 						switchWindow();
 					}
 				}
-
+				
+				// Focus Mode
 				if(keyEvent.getCode()==KeyCode.BACK_SLASH) { // zoom in on a task
-					if (TASKLIST_PINNED!=TASKLIST_INVALID&&isPinnedFocused(scene)) {
-						// check if the pinned window is the focus of the scene
-						taskLists.get(TASKLIST_PINNED).focusTask();
-						taskLists.get(TASKLIST_PINNED).closeList();
-					} else if (TASKLIST_OPENED!=TASKLIST_INVALID) {
-						pinFocusView(taskLists.get(TASKLIST_OPENED).getFocusTask());
-					} else {
-						/*
-						listLoop: for (TaskList list : taskLists) {
-							for (Node node : list.getNode().getChildren()) {
-								if (node.isFocused()) {
-									list.focusTask();
-									openList(list);
-									break listLoop;
-								}
-							}
-						}//*/
-						Node focused = scene.getFocusOwner();
-						if (focused!=null) {
-							listLoop: for (TaskList list : taskLists) {
-								Node node = focused;
-								for (int i=0;i<NESTED_NODE_NUM;i++) {
-									if (list.getNode().equals(node)) {
-										openList(list);
-										list.selectFirstNode();
-										pinFocusView(list.getFocusTask());
-										break listLoop;
-									}
-									node = node.getParent();
-								}
-							}
-						}
-					}
+					showFocusTask(false);
 				}
 
+				// Focus Mode clear
 				if ((keyEvent.getCode()==KeyCode.BACK_SLASH&&keyEvent.isShiftDown())||
 						keyEvent.getCode()==KeyCode.BACK_SPACE) { // see the main list again
 					if (TASKLIST_PINNED!=TASKLIST_INVALID) { // if there is pinned window, open that
@@ -451,16 +427,24 @@ public class GUIController extends Application {
 					}
 				}
 
+				// Undo shortcut
 				if (keyEvent.getCode()==KeyCode.Z&&
 						(keyEvent.isControlDown()||keyEvent.isAltDown())) { // undo the last command
 					executeCommand("undo");
 				}
-				
+				 
+				// Search shortcut
 				if (keyEvent.getCode()==KeyCode.F&&
-						(keyEvent.isControlDown())) { // undo the last command
+						(keyEvent.isControlDown())) {
 					userTextField.requestFocus();
 					userTextField.setText(CMD_SEARCH+" ");
 					userTextField.end(); // set cursor behind last chara
+				}
+				
+				// Unpin shortcut
+				if (keyEvent.getCode()==KeyCode.U&&
+						(keyEvent.isControlDown())) { 
+					unpinWindow();
 				}
 			}
 		}));//*/
@@ -529,7 +513,9 @@ public class GUIController extends Application {
 			TaskList pinnedList = taskLists.get(pinned);
 			Region node = pinnedList.getNode();
 			pinnedList.isPinnedWindow = false;
-			closeList(pinnedList);
+			// force it to close
+			pinnedList.openList();
+			pinnedList.closeList();
 			node.prefWidthProperty().unbind();
 			node.prefHeightProperty().unbind();
 			node.setPrefHeight(Region.USE_COMPUTED_SIZE);
@@ -617,18 +603,7 @@ public class GUIController extends Application {
 		try {
 			switch (command) {
 			case GUI_SHOW: // show a specific task in the pinned window
-				if (TASKLIST_PINNED!=TASKLIST_INVALID) {
-					TaskList list = taskLists.get(TASKLIST_PINNED);
-					if (list.isListOpen) {
-						list.focusTask();
-					} else {
-						openList(list);
-					}
-					return true;
-				} else if (TASKLIST_OPENED!=TASKLIST_INVALID) {
-					pinFocusView(taskLists.get(TASKLIST_OPENED).getFocusTask());
-					return true;
-				}
+				return showFocusTask(true);
 			case GUI_SWITCH:
 				switchWindow();
 				return true;
@@ -705,7 +680,10 @@ public class GUIController extends Application {
 				focusOnTaskID(parsedCommand.getTaskId());
 				break;
 			case HELP:
-				// help menu?
+				// help menu
+				if (!help.getNode().isShowing()) {
+					help.getNode().show(stage);
+				}
 				break;
 			case CONFIG_IMG:
 				// if it had been a Set function, it might have been an avatar or background, so reload them
@@ -726,8 +704,9 @@ public class GUIController extends Application {
 				TaskList search = taskLists.get(TASKLIST_SEARCH);
 				if (!search.isListEmpty()) { // if it is not empty
 					// deactivate focus view
-					unpinWindow();
-					isFocusView = false; 
+					if (isFocusView) {
+						unpinWindow();
+					}
 					openList(TASKLIST_SEARCH); // focus on search 
 					// then modify the Search List name to include the search term
 					String keywords = parsedCommand.getKeywords();
@@ -977,6 +956,40 @@ public class GUIController extends Application {
 					return true;
 				}
 				focused = focused.getParent();
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Opens the focus Task view if valid
+	 * @param isFromShow is it from the show command?
+	 */
+	protected boolean showFocusTask(boolean isFromShow) {
+		if (TASKLIST_PINNED!=TASKLIST_INVALID&&
+				(isPinnedFocused(stage.getScene())||isFromShow)) {
+			// check if the pinned window is the focus of the scene
+			taskLists.get(TASKLIST_PINNED).focusTask();
+			taskLists.get(TASKLIST_PINNED).closeList();
+			return true;
+		} else if (TASKLIST_OPENED!=TASKLIST_INVALID) {
+			pinFocusView(taskLists.get(TASKLIST_OPENED).getFocusTask());
+			return true;
+		} else {
+			Node focused = stage.getScene().getFocusOwner();
+			if (focused!=null) {
+				listLoop: for (TaskList list : taskLists) {
+					Node node = focused;
+					for (int i=0;i<NESTED_NODE_NUM;i++) {
+						if (list.getNode().equals(node)) {
+							openList(list);
+							list.selectFirstNode();
+							pinFocusView(list.getFocusTask());
+							return true;
+						}
+						node = node.getParent();
+					}
+				}
 			}
 		}
 		return false;

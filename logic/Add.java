@@ -4,6 +4,7 @@ import parser.ParsedCommand;
 import parser.ParsedCommand.TaskType;
 import storage.Storage;
 
+//@author A0124777W
 public class Add implements Command {
 
 	private static final TaskType TASK = TaskType.FLOATING_TASK;

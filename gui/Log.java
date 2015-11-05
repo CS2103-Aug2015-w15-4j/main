@@ -12,6 +12,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
+//@author A0122534R
 public class Log {
 	public static final int PADDING = 8;
 	
