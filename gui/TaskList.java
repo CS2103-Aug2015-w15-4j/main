@@ -71,17 +71,17 @@ public class TaskList {
 	final static double DATE_WIDTH = 280.0;
 	public static SimpleDateFormat format;
 	
+	protected static Image[] imageCompletion = null;
+	protected final static String DONE = "resources/Check.png";
+	protected final static String NOT_DONE = "resources/Delete.png";
+	protected final static int DONE_IMAGE_SIZE = 16; 
+	
 	protected VBox master; // the overall TaskList manager
 	protected Button name; // button to press;
 	protected ListView<Node> listView; // the list of tasks
 	protected ObservableList<Node> items; // the items within the list
 	protected List<Task> listOfTasks = new ArrayList<Task>(); // currently displayed tasks
 	protected ScrollPane detailedView;
-	
-	protected static Image[] imageCompletion = new Image[2];
-	protected final static String DONE = "resources/Check.png";
-	protected final static String NOT_DONE = "resources/Delete.png";
-	protected final static int DONE_IMAGE_SIZE = 16; 
 	
 	public final int INVALID_SELECTION = -1; 
 	protected boolean isChanging = false;
@@ -101,11 +101,13 @@ public class TaskList {
 		listView.getStyleClass().add(GUIController.STYLE_TRANSPARENT);
 		master.getChildren().add(listView);
 		listView.prefWidthProperty().bind(master.widthProperty());
-		/*listView.prefHeightProperty().bind(
-				Bindings.size(items).multiply(ROW_CELL_HEIGHT).add(BORDER_HEIGHT));//*/
+		
 	    // define the images for done and not done
-	    imageCompletion[0] = new Image(TaskList.class.getResourceAsStream(NOT_DONE),DONE_IMAGE_SIZE, DONE_IMAGE_SIZE, true, true);
-	    imageCompletion[1] = new Image(TaskList.class.getResourceAsStream(DONE),DONE_IMAGE_SIZE, DONE_IMAGE_SIZE, true, true);
+		if (imageCompletion==null) {
+			imageCompletion = new Image[2];
+			imageCompletion[0] = new Image(TaskList.class.getResourceAsStream(NOT_DONE),DONE_IMAGE_SIZE, DONE_IMAGE_SIZE, true, true);
+			imageCompletion[1] = new Image(TaskList.class.getResourceAsStream(DONE),DONE_IMAGE_SIZE, DONE_IMAGE_SIZE, true, true);
+		}
 	    
 	    // scrollpane
 	    detailedView = new ScrollPane();

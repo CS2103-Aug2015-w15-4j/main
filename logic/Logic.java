@@ -111,11 +111,7 @@ public class Logic {
 		String consoleMessage = MESSAGE_FAILED_TO_SET_NEW_PATH;
 		try {
 			ParsedCommand.ConfigType type = parsedCommand.getConfigType();
-			if (type == ConfigType.BACKGROUND) {
-				model.setBackgroundLocation(parsedCommand.getConfigPath());
-				consoleMessage = MESSAGE_BACKGROUND_SWITCHED;
-
-			} else if (type == ConfigType.AVATAR) {
+			if (type == ConfigType.AVATAR) {
 				model.setAvatarLocation(parsedCommand.getConfigPath());
 				consoleMessage = MESSAGE_AVATAR_SWITCHED;
 			}

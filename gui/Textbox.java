@@ -169,7 +169,6 @@ public class Textbox {
 				return true;
 			}
 		} catch (FileNotFoundException e) {
-			// do nothing
 			if (avatar==null) {
 				hbox.getChildren().remove(frame);
 			}

@@ -164,6 +164,7 @@ public class GUIController extends Application {
 	public static MainWindow center;
 	public static logic.Model model;
 	public static VBox pinnedWindow;
+	public static HelpMenu help;
 
 	public static HBox bottomBar; // bottomMost bar
 	public static TextField userTextField;
@@ -222,7 +223,10 @@ public class GUIController extends Application {
 		pane.setBottom(textboxObject.getNode());
 
 		// create the Log tab
-		logObject = createLogTab();		
+		logObject = createLogTab();
+		
+		// create the help menu
+		help = new HelpMenu();
 
 		// create the button to switch windows with
 		windowSwitch = new Button(MSG_WINDOWSWITCH);
@@ -397,21 +401,23 @@ public class GUIController extends Application {
 		scene.setOnKeyPressed((new EventHandler<KeyEvent>() {
 			@Override
 			public void handle(KeyEvent keyEvent) {
-				//System.out.println(keyEvent.getCode().toString());
 				if(keyEvent.getCode()==KeyCode.T) {
+					// Shortcut for jumping to userTextField
 					if (keyEvent.isControlDown()){
 						userTextField.requestFocus();
 						userTextField.end(); // set cursor behind last chara
 					} else if (keyEvent.isAltDown()) {
-						// switch
+						// Shortcut for switch
 						switchWindow();
 					}
 				}
-
+				
+				// Focus Mode
 				if(keyEvent.getCode()==KeyCode.BACK_SLASH) { // zoom in on a task
 					showFocusTask(false);
 				}
 
+				// Focus Mode clear
 				if ((keyEvent.getCode()==KeyCode.BACK_SLASH&&keyEvent.isShiftDown())||
 						keyEvent.getCode()==KeyCode.BACK_SPACE) { // see the main list again
 					if (TASKLIST_PINNED!=TASKLIST_INVALID) { // if there is pinned window, open that
@@ -421,16 +427,24 @@ public class GUIController extends Application {
 					}
 				}
 
+				// Undo shortcut
 				if (keyEvent.getCode()==KeyCode.Z&&
 						(keyEvent.isControlDown()||keyEvent.isAltDown())) { // undo the last command
 					executeCommand("undo");
 				}
-				
+				 
+				// Search shortcut
 				if (keyEvent.getCode()==KeyCode.F&&
-						(keyEvent.isControlDown())) { // undo the last command
+						(keyEvent.isControlDown())) {
 					userTextField.requestFocus();
 					userTextField.setText(CMD_SEARCH+" ");
 					userTextField.end(); // set cursor behind last chara
+				}
+				
+				// Unpin shortcut
+				if (keyEvent.getCode()==KeyCode.U&&
+						(keyEvent.isControlDown())) { 
+					unpinWindow();
 				}
 			}
 		}));//*/
@@ -666,7 +680,10 @@ public class GUIController extends Application {
 				focusOnTaskID(parsedCommand.getTaskId());
 				break;
 			case HELP:
-				// help menu?
+				// help menu
+				if (!help.getNode().isShowing()) {
+					help.getNode().show(stage);
+				}
 				break;
 			case CONFIG_IMG:
 				// if it had been a Set function, it might have been an avatar or background, so reload them

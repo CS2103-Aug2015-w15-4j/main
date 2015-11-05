@@ -25,7 +25,6 @@ public class Model {
 	private List<Task> completedList;
 	private int focusId;
 	private String avatarLocation;
-	private String backgroundLocation;
 	private ParsedCommand searchQuery;
 	
 	private Storage storage;
@@ -45,7 +44,6 @@ public class Model {
 		this.mainList = Logic.updateMainList();
 		this.allTasks = storage.getAllTasks();
 		avatarLocation = storage.getAvatarPath();
-		backgroundLocation = storage.getBackgroundPath();
 	}
 
 	public String getAvatarLocation() {
@@ -54,14 +52,6 @@ public class Model {
 
 	public void setAvatarLocation(String newLocation) {
 		avatarLocation = newLocation;
-	}
-
-	public String getBackgroundLocation() {
-		return backgroundLocation;
-	}
-
-	public void setBackgroundLocation(String newLocation) {
-		backgroundLocation = newLocation;
 	}
 
 	public String getConsoleMessage() {
