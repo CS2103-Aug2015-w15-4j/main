@@ -7,7 +7,7 @@ import java.util.HashMap;
 public class MyParser {
 
 	public enum CommandType {
-		ADD, DELETE, EDIT, DISPLAY, ERROR, UNDO, FLAG, DONE, TODO, HELP, INVALID, CONFIG_DATA, CONFIG_IMG, 
+		ADD, DELETE, EDIT, DISPLAY, ERROR, UNDO, REDO, FLAG, DONE, TODO, HELP, INVALID, CONFIG_DATA, CONFIG_IMG, 
 		EXIT, CONFIG, SEARCH, SHOW, 
 		GUI_OPEN, GUI_CLOSE, GUI_PIN, GUI_UNPIN, GUI_SHOW, GUI_SWITCH, GUI_LOG, GUI_MAIN, GUI_OPEN_ALL, GUI_CLOSE_ALL;
 	}
@@ -22,6 +22,7 @@ public class MyParser {
 		new Pair(MyParser.CommandType.SHOW, new String[] {"show", "search", "find", "s;"}),
 		new Pair(MyParser.CommandType.EXIT, new String[] {"exit", "quit", "q;"}),
 		new Pair(MyParser.CommandType.UNDO, new String[] {"undo"}),
+		new Pair(MyParser.CommandType.REDO, new String[] {"redo"}),
 		new Pair(MyParser.CommandType.DONE, new String[] {"done", "finished", "completed", "v"}),
 		new Pair(MyParser.CommandType.FLAG, new String[] {"flag", "mark", "f;"}),
 		new Pair(MyParser.CommandType.TODO, new String[] {"todo", "do"}),
@@ -87,8 +88,10 @@ public class MyParser {
 					return ip.parse(input);
 					
 				case UNDO:
-					return InputParser.createParsedCommand(MyParser.CommandType.UNDO);
+					return InputParser.createParsedCommand(CommandType.UNDO);
 	
+				case REDO:
+					return InputParser.createParsedCommand(CommandType.REDO);
 				case GUI_OPEN:
 					ip = new OpenParser();
 					return ip.parse(input);
