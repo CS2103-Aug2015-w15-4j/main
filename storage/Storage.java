@@ -193,11 +193,7 @@ public class Storage {
 	public boolean setFileLocation(String filePath) throws Exception {
 
 		if (filePath.startsWith("/") || filePath.startsWith("\\")) {
-			if (filePath.length() == 1) {
-				throw new Exception();
-			} else {
-				filePath = "." + filePath;
-			}
+			filePath = "." + filePath;
 		}
 
 		File newFile = new java.io.File(filePath);
