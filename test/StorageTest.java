@@ -10,7 +10,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -44,6 +43,10 @@ public class StorageTest {
 	private static String dataFilePathTemp;
 	private String avatarFilePath;
 	private static boolean hasConfigFile = false;
+	private static boolean hasDataFile = false;
+
+	static InputStream inStream = null;
+	static OutputStream outStream = null;
 
 	static File dataTemp;
 	static File configTemp;
@@ -57,6 +60,7 @@ public class StorageTest {
 	public static void init() {
 		setUp();
 		storage = new Storage();
+		storage.clearList();
 	}
 
 	@Test
@@ -130,6 +134,9 @@ public class StorageTest {
 		boolean output = storage.setFileLocation(".\\");
 		assertEquals(true, output);
 
+		output = storage.setFileLocation(".//");
+		assertEquals(true, output);
+
 		output = storage.setFileLocation("//");
 		assertEquals(true, output);
 
@@ -143,30 +150,12 @@ public class StorageTest {
 		assertEquals(true, output);
 
 		// folder is not exist
-		output = storage
-				.setFileLocation("C:\\Users\\jiaminn\\Desktop\\Eclipse\\MyWorkspace\\main\\temp");
+		output = storage.setFileLocation(".\\temp");
 		assertEquals(true, output);
 
 		getConfigDetails();
 		String path = readFile(dataFilePath);
 		String expected = "{\"name\":\"dinner with friends\",\"details\":\"at centrepoint\",\"id\":1,\"isCompleted\":false,\"taskType\":\"FLOATING_TASK\"}";
-		expected += "\n";
-		expected += "{\"start\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"end\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"name\":\"dinner with friends\",\"details\":\"at centrepoint\",\"id\":2,\"isCompleted\":false,\"taskType\":\"EVENT\"}";
-		expected += "\n";
-		expected += "{\"end\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"name\":\"meeting Luxola\",\"details\":\"at centrepoint\",\"id\":3,\"isCompleted\":false,\"taskType\":\"DEADLINE_TASK\"}";
-		assertEquals(expected, path);
-
-		output = storage.setFileLocation(".//");
-		assertEquals(true, output);
-
-		// folder exists
-		output = storage.setFileLocation("C:\\Users\\jiaminn\\Desktop\\temp");
-		assertEquals(true, output);
-
-		expected = "";
-		getConfigDetails();
-		path = readFile(dataFilePath);
-		expected = "{\"name\":\"dinner with friends\",\"details\":\"at centrepoint\",\"id\":1,\"isCompleted\":false,\"taskType\":\"FLOATING_TASK\"}";
 		expected += "\n";
 		expected += "{\"start\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"end\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"name\":\"dinner with friends\",\"details\":\"at centrepoint\",\"id\":2,\"isCompleted\":false,\"taskType\":\"EVENT\"}";
 		expected += "\n";
@@ -181,20 +170,16 @@ public class StorageTest {
 		boolean output = storage.setAvatar("c:\\");
 		assertEquals(false, output);
 
-		output = storage
-				.setAvatar("C:\\Users\\jiaminn\\Desktop\\Eclipse\\MyWorkspace\\main\\gui\\Log.java");
+		output = storage.setAvatar(".\\gui\\Log.java");
 		assertEquals(false, output);
 
-		output = storage
-				.setAvatar("C:\\Users\\jiaminn\\Desktop\\Eclipse\\MyWorkspace\\main\\gui\\testing.jpg");
+		output = storage.setAvatar(".\\gui\\testing.jpg");
 		assertEquals(false, output);
 
-		output = storage
-				.setAvatar("C:\\Users\\jiaminn\\Desktop\\Eclipse\\MyWorkspace\\main\\gui\\avatar2.png");
+		output = storage.setAvatar(".\\gui\\avatar2.png");
 		assertEquals(true, output);
 
-		output = storage
-				.setAvatar("C:\\Users\\jiaminn\\Desktop\\Eclipse\\MyWorkspace\\main\\gui\\avatar.jpg");
+		output = storage.setAvatar(".\\gui\\avatar.jpg");
 		assertEquals(true, output);
 
 	}
@@ -205,13 +190,11 @@ public class StorageTest {
 	}
 
 	public static void setUp() {
-		InputStream inStream = null;
-		OutputStream outStream = null;
 		File dataCopy = null, configCopy = null;
 		try {
 
 			configCopy = new File("./config"); // original path
-
+			dataCopy = new File("./Data.txt"); // original path for DATA.txt
 			if (configCopy.exists()) {
 
 				BufferedReader reader = new BufferedReader(new FileReader(
@@ -220,39 +203,16 @@ public class StorageTest {
 				reader.close();
 
 				dataCopy = new File(dataFilePathTemp);
-				dataTemp = File.createTempFile("data", ".tmp");
-				inStream = new FileInputStream(dataCopy);
-				outStream = new FileOutputStream(dataTemp);
-
-				byte[] buffer = new byte[65536];
-
-				int length;
-				// copy the file content in bytes
-				while ((length = inStream.read(buffer)) > 0) {
-					outStream.write(buffer, 0, length);
-				}
-
-				inStream.close();
-				outStream.close();
-
-				dataCopy.delete();
-
-				configTemp = File.createTempFile("config", ".tmp");
-				inStream = new FileInputStream(configCopy);
-				outStream = new FileOutputStream(configTemp);
-
-				buffer = new byte[65536];
-
-				length = 0;
-				// copy the file content in bytes
-				while ((length = inStream.read(buffer)) > 0) {
-					outStream.write(buffer, 0, length);
-				}
-
-				inStream.close();
-				outStream.close();
+				setDataFile(dataCopy);
+				setConfigFile(configCopy);
 
 				hasConfigFile = true;
+				hasDataFile = true;
+			} else if (!configCopy.exists() && dataCopy.exists()) {
+				dataFilePathTemp = "./Data.txt";
+				dataCopy = new File(dataFilePathTemp);
+				setDataFile(dataCopy);
+				hasDataFile = true;
 			}
 
 		} catch (IOException e) {
@@ -269,7 +229,7 @@ public class StorageTest {
 
 			File configCopy = new File("./config"); // original path
 			configCopy.delete();
-			if (hasConfigFile == true) {
+			if (hasConfigFile == true && hasDataFile == true) {
 				configCopy.createNewFile();
 				inStream = new FileInputStream(dataTemp);
 				File out = new File(dataFilePathTemp);
@@ -294,8 +254,7 @@ public class StorageTest {
 				outStream.close();
 
 				dataTemp.delete();
-				File temp = new File(
-						"C:\\Users\\jiaminn\\Desktop\\temp\\Data.txt");
+				File temp = new File(".\\temp\\Data.txt");
 				temp.delete();
 				String absolutePath = temp.getAbsolutePath();
 				String filePath = absolutePath.substring(0,
@@ -320,8 +279,7 @@ public class StorageTest {
 				configTemp.delete();
 				hasConfigFile = false;
 			} else if (hasConfigFile == false) {
-				File temp = new File(
-						"C:\\Users\\jiaminn\\Desktop\\temp\\Data.txt");
+				File temp = new File(".\\temp\\Data.txt");
 				temp.delete();
 				String absolutePath = temp.getAbsolutePath();
 				String filePath = absolutePath.substring(0,
@@ -330,6 +288,31 @@ public class StorageTest {
 				Files.delete(paths);
 
 				configCopy.delete();
+				if (hasDataFile = true) {
+					inStream = new FileInputStream(dataTemp);
+					File out = new File(dataFilePathTemp);
+					File parent = out.getParentFile();
+					if (dataFilePathTemp.equals("Data.txt")) {
+						out.createNewFile();
+					} else if (!parent.exists()) {
+						out.getParentFile().mkdir();
+						out.createNewFile();
+					}
+
+					outStream = new FileOutputStream(out);
+
+					byte[] buffer = new byte[65536];
+
+					int length;
+					while ((length = inStream.read(buffer)) > 0) {
+						outStream.write(buffer, 0, length);
+					}
+
+					inStream.close();
+					outStream.close();
+
+					dataTemp.delete();
+				}
 			}
 
 		} catch (IOException e) {
@@ -375,14 +358,43 @@ public class StorageTest {
 		return result.toString();
 	}
 
-	public void clearText(String fileName) {
-		try {
-			FileWriter fw = new FileWriter(fileName);
-			fw.flush();
-			fw.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+	private static void setDataFile(File dataCopy) throws IOException {
+		String path = dataCopy.toString();
+		if (path.contains("Data.txt") || path.contains("/temp/Data.txt")) {
+			dataTemp = File.createTempFile("data", ".tmp");
+			inStream = new FileInputStream(dataCopy);
+			outStream = new FileOutputStream(dataTemp);
+
+			byte[] buffer = new byte[65536];
+
+			int length;
+			// copy the file content in bytes
+			while ((length = inStream.read(buffer)) > 0) {
+				outStream.write(buffer, 0, length);
+			}
+
+			inStream.close();
+			outStream.close();
+
+			dataCopy.delete();
 		}
+	}
+
+	private static void setConfigFile(File configCopy) throws IOException {
+		configTemp = File.createTempFile("config", ".tmp");
+		inStream = new FileInputStream(configCopy);
+		outStream = new FileOutputStream(configTemp);
+
+		byte[] buffer = new byte[65536];
+
+		int length = 0;
+		// copy the file content in bytes
+		while ((length = inStream.read(buffer)) > 0) {
+			outStream.write(buffer, 0, length);
+		}
+
+		inStream.close();
+		outStream.close();
 	}
 
 }
