@@ -24,58 +24,63 @@ import logic.Event;
 import logic.Task;
 import parser.ParsedCommand.TaskType;
 
-//@author A0122534R
+//@@author A0122534R
 public class TaskList {
-	public int listNumber = -1;
-	public String listName = "";
-	public int listSize = 0;
-	final static String NAME_FORMAT = "%1$s (%2$d)";
+	// details about the TaskList's type
+	protected int listNumber = -1;
+	protected String listName = "";
+	protected int listSize = 0;
+	public final int INVALID_SELECTION = -1; // invalid number for selected item in list
+
+	// default messages/formats
+	protected final static String MSG_NO_CONTENT = "No Content";
+	protected final static String FORMAT_TIME = "HH:mm, dd/MM E";
+	protected final static String FORMAT_NAME = "%1$s (%2$d)";
 	
-	final static int PADDING = 6;
+	// default alignments and displayable settings
+	protected final static ScrollBarPolicy V_POLICY = ScrollBarPolicy.NEVER;
+	protected final static ScrollBarPolicy H_POLICY = ScrollBarPolicy.NEVER;
+	protected final static Pos ALIGNMENT = Pos.TOP_LEFT;
+	protected final static int PADDING = 6;
 	
-	final static ScrollBarPolicy V_POLICY = ScrollBarPolicy.NEVER;
-	final static ScrollBarPolicy H_POLICY = ScrollBarPolicy.NEVER;
-	final static Pos ALIGNMENT = Pos.TOP_LEFT;
-	
-	final static String ID_GRID = "taskGrid";
-	final static String STYLE_TEXT = GUIController.STYLE_TEXT;
-	final static String STYLE_FLOATING = "floating";
-	final static String STYLE_DEADLINE = "deadline";
-	final static String STYLE_EVENT = "todo";
-	
-	final static String STYLE_CURVED = "-fx-background-radius: 9,8,5,4;";
+	protected final static String STYLE_FLOATING = "floating";
+	protected final static String STYLE_DEADLINE = "deadline";
+	protected final static String STYLE_EVENT = "todo";
+	protected final static String STYLE_CURVED = "-fx-background-radius: 9,8,5,4;";
 	
 	// grid locations
-	final static int COL_HEADER = 0;
-	final static int COL_CONTENT = 1;
-	final static int COL_CONTENT_SIZE = 2;
-	final static int COL_SIZE = 2;
-	final static int ROW_NAME = 0;
-	final static int ROW_ID = 1;
-	final static int ROW_TAGS = 2;
-	final static int ROW_DATE = 3;
-	final static int SIDEBAR_COL_ID = 0;
-	final static int SIDEBAR_COL_NAME = 1;
-	final static int SIDEBAR_COL_DATE = 2;
-	final static int SIDEBAR_COL_DONE = 3;
-	final static int SIDEBAR_COL_SIZE = 4; 
-	final static VPos GRID_HEADER_VERT_ALIGNMENT = VPos.TOP;
-	final static int GRID_COL_HEADER_FINAL_LENGTH = 70; // header col's fixed length
+	protected final static int COL_HEADER = 0;
+	protected final static int COL_CONTENT = 1;
+	protected final static int COL_CONTENT_SIZE = 2;
+	protected final static int COL_SIZE = 2;
+	protected final static int ROW_NAME = 0;
+	protected final static int ROW_ID = 1;
+	protected final static int ROW_TAGS = 2;
+	protected final static int ROW_DATE = 3;
+	protected final static int SIDEBAR_COL_ID = 0;
+	protected final static int SIDEBAR_COL_NAME = 1;
+	protected final static int SIDEBAR_COL_DATE = 2;
+	protected final static int SIDEBAR_COL_DONE = 3;
+	protected final static int SIDEBAR_COL_SIZE = 4; 
+	protected final static VPos GRID_HEADER_VERT_ALIGNMENT = VPos.TOP;
+	protected final static int GRID_COL_HEADER_FINAL_LENGTH = 70; // header col's fixed length
 	
-	final static String COLOR_OVERDUE = "-fx-text-fill: rgba(255, 0, 0, 1);";
-	final static String COLOR_HEADER = "rgba(255, 255, 0, 0.9)";
-	final static Color COLOR_LABEL = Color.BLACK;
-	final static double ROW_CELL_HEIGHT = 33.3;
-	final static double BORDER_HEIGHT = 2.0;
-	final static double IMAGE_SIZE = 10.0;
-	final static double DATE_WIDTH = 280.0;
-	public static SimpleDateFormat format;
+	// asthetic settings
+	protected final static String COLOR_OVERDUE = "-fx-text-fill: rgba(255, 0, 0, 1);";
+	protected final static String COLOR_HEADER = "rgba(255, 255, 0, 0.9)";
+	protected final static Color COLOR_LABEL = Color.BLACK;
+	protected final static double ROW_CELL_HEIGHT = 33.3;
+	protected final static double BORDER_HEIGHT = 2.0;
+	protected final static double IMAGE_SIZE = 10.0;
+	protected final static double DATE_WIDTH = 280.0;
 	
+	// images for done and not done
 	protected static Image[] imageCompletion = null;
 	protected final static String DONE = "resources/Check.png";
 	protected final static String NOT_DONE = "resources/Delete.png";
 	protected final static int DONE_IMAGE_SIZE = 16; 
 	
+	// displayables
 	protected VBox master; // the overall TaskList manager
 	protected Button name; // button to press;
 	protected ListView<Node> listView; // the list of tasks
@@ -83,110 +88,26 @@ public class TaskList {
 	protected List<Task> listOfTasks = new ArrayList<Task>(); // currently displayed tasks
 	protected ScrollPane detailedView;
 	
-	public final int INVALID_SELECTION = -1; 
+	protected static SimpleDateFormat format;
 	protected boolean isChanging = false;
-	public boolean isPinnedWindow = false; // by default assume that it is not pinned 
-	public boolean isListOpen = true; // open by default
+	protected boolean isPinnedWindow = false; // by default assume that it is not pinned 
+	protected boolean isListOpen = true; // open by default
 	
 	public TaskList() {
 		master = new VBox();
-		name = new Button();
-		name.prefWidthProperty().bind(master.widthProperty());
-		name.setAlignment(Pos.CENTER);
 		
-		// sidebar
-		items = FXCollections.observableArrayList();
-		listView = new ListView<Node>();
-		listView.setPlaceholder(new Label("No Content"));
-		listView.getStyleClass().add(GUIController.STYLE_TRANSPARENT);
+		initDoneImages();
+		initNameButton();
+		initListView();
+		initScrollPane();
+		
+		// add the Nodes to master
 		master.getChildren().add(listView);
-		listView.prefWidthProperty().bind(master.widthProperty());
-		
-	    // define the images for done and not done
-		if (imageCompletion==null) {
-			imageCompletion = new Image[2];
-			imageCompletion[0] = new Image(TaskList.class.getResourceAsStream(NOT_DONE),DONE_IMAGE_SIZE, DONE_IMAGE_SIZE, true, true);
-			imageCompletion[1] = new Image(TaskList.class.getResourceAsStream(DONE),DONE_IMAGE_SIZE, DONE_IMAGE_SIZE, true, true);
-		}
 	    
-	    // scrollpane
-	    detailedView = new ScrollPane();
-		//detailedView.setFitToHeight(true);
-		detailedView.setVbarPolicy(V_POLICY);
-		detailedView.setHbarPolicy(H_POLICY);
-		detailedView.setPadding(new Insets(0, PADDING, 0, PADDING)); // left and right padding only
-		detailedView.prefWidthProperty().bind(master.widthProperty());
-		detailedView.prefHeightProperty().bind(master.heightProperty());
-		detailedView.getStyleClass().add(GUIController.STYLE_TRANSPARENT);
-		
 		// Time
-		format = new SimpleDateFormat("HH:mm, dd/MM E");
+		format = new SimpleDateFormat(FORMAT_TIME);
 	    
 		addHandlers();
-	}
-	
-	/**
-	 * Function to hold all handlers and listeners
-	 */
-	protected void addHandlers() {
-	    name.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				if (isListOpen) {
-					// focusTask(); // removed due to real time focus 
-					closeList();
-				} else {
-					openList();
-				}
-			}
-	    });
-	    
-	    items.addListener(new ListChangeListener<Node>() {
-			@Override
-			public void onChanged(javafx.collections.ListChangeListener.Change<? extends Node> c) {
-				listSize = items.size();
-				if (isListEmpty()) {
-					name.setText(listName);
-				} else {
-					name.setText(String.format(NAME_FORMAT, listName, listSize));
-				}
-			}
-		});//*/
-
-		listView.getSelectionModel().selectedItemProperty().addListener(
-			new ChangeListener<Node>() {
-				public void changed(ObservableValue<? extends Node> ov, Node old_val, Node new_val) {
-					if (isListOpen) { // if the list is open, generate the focus task in real time
-						focusTask(); // generate a focus view
-					}
-				}
-			});
-		
-
-	    /*
-	    name.addEventHandler(MouseEvent.MOUSE_ENTERED, 
-	    		new EventHandler<MouseEvent>() {
-	    	@Override public void handle(MouseEvent e) {
-	    		// change to close/open list
-	    		if (isListOpen) {
-	    			if (isPinnedWindow) {
-						name.setText("Focus on highlighted task!");
-					} else {
-						name.setText("Close list!");
-					}
-				} else {
-					name.setText("Open list!");
-				}
-	    	}
-	    });
-	    //Removing the shadow when the mouse cursor is off
-	    name.addEventHandler(MouseEvent.MOUSE_EXITED, 
-	    		new EventHandler<MouseEvent>() {
-	    	@Override public void handle(MouseEvent e) {
-	    		// change back to default
-	    		name.setText(GUIController.taskListNames[listNumber]);
-	    	}
-	    });//*/		
 	}
 	
 	/**
@@ -218,7 +139,7 @@ public class TaskList {
 		listName = _name.trim();
 		name.setText(listName);
 		if (master.getChildren().size()==1) { // add the name if it does not exist
-			master.getChildren().add(0,name);
+			master.getChildren().add(0,name); // add on top of any other node already in master
 		}
 	}
 	
@@ -227,6 +148,97 @@ public class TaskList {
 	 */
 	public VBox getNode() { 
 		return master;
+	}
+	
+	/**
+	 * Initialises the name Button node and binds it to the parent node of this TaskList
+	 * @param name
+	 */
+	protected void initNameButton() {
+		name = new Button();
+		name.prefWidthProperty().bind(getNode().widthProperty());
+		name.setAlignment(Pos.CENTER);
+	}
+	
+	/**
+	 * Initialisation of the image for Done and Not Done if they are not yet initialised
+	 * @param imageCompletion
+	 */
+	protected void initDoneImages() {
+		// define the images for done and not done if not defined
+		if (imageCompletion==null) {
+			imageCompletion = new Image[2];
+			imageCompletion[0] = new Image(TaskList.class.getResourceAsStream(NOT_DONE),DONE_IMAGE_SIZE, DONE_IMAGE_SIZE, true, true);
+			imageCompletion[1] = new Image(TaskList.class.getResourceAsStream(DONE),DONE_IMAGE_SIZE, DONE_IMAGE_SIZE, true, true);
+		}
+	}
+	
+	/**
+	 *  Initialises the main list and binds it to the parent node
+	 *  @param items
+	 *  @param listView
+	 */
+	protected void initListView() {
+		items = FXCollections.observableArrayList();
+		listView = new ListView<Node>();
+		listView.setPlaceholder(new Label(MSG_NO_CONTENT));
+		listView.getStyleClass().add(GUIController.CSS_STYLE_TRANSPARENT);
+		listView.prefWidthProperty().bind(getNode().widthProperty());
+	}
+	
+	/**
+	 * Initialises the ScrollPane in which focus view is located in
+	 * @param detailedView
+	 */
+	protected void initScrollPane() {
+	    detailedView = new ScrollPane();
+		//detailedView.setFitToHeight(true);
+		detailedView.setVbarPolicy(V_POLICY);
+		detailedView.setHbarPolicy(H_POLICY);
+		detailedView.setPadding(new Insets(0, PADDING, 0, PADDING)); // left and right padding only
+		detailedView.prefWidthProperty().bind(getNode().widthProperty());
+		detailedView.prefHeightProperty().bind(getNode().heightProperty());
+		detailedView.getStyleClass().add(GUIController.CSS_STYLE_TRANSPARENT);
+	}
+	
+	/**
+	 * Function to hold all handlers and listeners
+	 */
+	protected void addHandlers() {
+		// When name button is clicked, open/close the list
+	    name.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				if (isListOpen) { 
+					closeList();
+				} else {
+					openList();
+				}
+			}
+	    });
+	    
+	    // Dynamically change the item size located on name button when list is modified
+	    items.addListener(new ListChangeListener<Node>() {
+			@Override
+			public void onChanged(javafx.collections.ListChangeListener.Change<? extends Node> c) {
+				listSize = items.size();
+				if (isListEmpty()) {
+					name.setText(listName);
+				} else {
+					name.setText(String.format(FORMAT_NAME, listName, listSize));
+				}
+			}
+		});//*/
+
+		listView.getSelectionModel().selectedItemProperty().addListener(
+			new ChangeListener<Node>() {
+				public void changed(ObservableValue<? extends Node> ov, Node old_val, Node new_val) {
+					if (isListOpen||isPinnedWindow) { 
+						// if the list is open or is pinned, generate the focus task in real time
+						focusTask(); // generate a focus view
+					}
+				}
+			});
 	}
 	
 	/**
@@ -269,6 +281,13 @@ public class TaskList {
 	}
 	
 	/**
+	 * @return true if a selection in the listView already exists 
+	 */
+	public boolean hasSelection() {
+		return !listView.getSelectionModel().isEmpty();
+	}
+	
+	/**
 	 * Highlights/Selects the first node in the list
 	 */
 	public void selectFirstNode() {
@@ -295,7 +314,7 @@ public class TaskList {
 			int selected = listView.getSelectionModel().getSelectedIndex();
 			items.clear();
 			for (Task task : listOfTasks) {
-				items.add(createSidebarDisplay(task));
+				items.add(createMinimisedDisplay(task));
 			}
 			listView.getSelectionModel().select(selected);
 			refresh();
@@ -333,7 +352,7 @@ public class TaskList {
 	public void addTask(Task task, boolean refresh) {
 		if (task!=null) {
 			listOfTasks.add(task);
-			items.add(createSidebarDisplay(task));
+			items.add(createMinimisedDisplay(task));
 			// then change focus to task tab
 			
 			if (refresh) {
@@ -344,19 +363,29 @@ public class TaskList {
 	}
 	
 	/**
+	 * 
+	 */
+	/**
 	 * Takes in a list and adds them all to the display
 	 * @param tasks List of Tasks to be added
+	 * @param newList if true, means old data is deleted
+	 */
+	public void addAllTasks(List<Task> tasks, boolean newList) {
+		int selected = listView.getSelectionModel().getSelectedIndex();
+		deleteAllTasks();
+		addAllTasks(tasks);
+		listView.getSelectionModel().clearAndSelect(selected);
+	}
+	
+	/**
+	 * Takes in a list and adds them all to the display
+	 * @param tasks list of Tasks to be added
 	 */
 	public void addAllTasks(List<Task> tasks) {
-		if (tasks!=null) {
-			int selected = listView.getSelectionModel().getSelectedIndex();
-			deleteAllTasks();
-			
+		if (tasks!=null) {			
 			for(Task task : tasks) {
 				addTask(task, false);
 			}
-			
-			listView.getSelectionModel().select(selected);
 			refresh();
 		}
 	}
@@ -396,7 +425,7 @@ public class TaskList {
 	}
 	
 	/**
-	 * Creates a detailed view in the list
+	 * Creates a new more detailed object of the highlighted task and adds it to detailedView
 	 */
 	public void focusTask() {
 		int selected = listView.getSelectionModel().getSelectedIndex();
@@ -406,56 +435,15 @@ public class TaskList {
 		}
 	}
 	
+	/**
+	 * Adds a node to the detailedView and binds its properties to it
+	 * @param node
+	 */
 	public void updateDetailedView(Region node) {
 		detailedView.setContent(node);
 		node.prefWidthProperty().bind(detailedView.widthProperty().subtract(2*PADDING));
+		node.prefHeightProperty().bind(detailedView.heightProperty().subtract(2*PADDING));
 	}
-	
-	/**
-	 * Create a focused view that shows all details of the task 
-	 * @param task Task to take information from
-	 * @return VBox with Name and ID
-	 *//*
-	public static GridPane createDetailedDisplay(Task task) {
-		GridPane grid = new GridPane();
-	    grid.getColumnConstraints().add(new ColumnConstraints(GRID_COL_HEADER_FINAL_LENGTH)); 
-		grid.setPadding(new Insets(0, 9, 0, 0));
-		
-		// Set name
-		Label label = createLabel(task.getName());
-		label.setText(" " + label.getText());
-		label.setWrapText(false);
-		label.setStyle(String.format(GUIController.STYLE_COLOR, COLOR_HEADER)+
-				STYLE_CURVED+"-fx-font-weight: bold;");
-		grid.add(label, COL_CONTENT, ROW_NAME); 
-		// add id
-		Label id = createLabel(Integer.toString(task.getId()));
-		id.setPadding(new Insets(0,5,0,5));
-		id.getStyleClass().add(getTaskStyle(task.getTaskType())); // set colour based on type
-		grid.add(id, COL_HEADER, ROW_NAME); 
-		
-		// add id
-		TextFlow tagFlow = new TextFlow();
-		
-		// consider using flowpane
-		
-		
-		
-		tagFlow.prefWidthProperty().bind(grid.widthProperty());
-		grid.add(tagFlow, COL_HEADER, ROW_TAGS, COL_SIZE, 1); // span 2 col and 1 row
-		Label type = createLabel(task.getTaskType().toString());
-		type.setPadding(new Insets(0,5,0,5));
-		type.getStyleClass().add("label-tags"); // set colour based on type
-		tagFlow.getChildren().add(type);
-		
-		for (String tag : task.getTags()) {
-			type = createLabel("#"+tag);
-			type.getStyleClass().add("label-tags"); // set colour based on type
-			tagFlow.getChildren().add(type);
-		}
-		
-		return grid;
-	}//*/
 	
 	/**
 	 * Create a focused view that shows all details of the task 
@@ -463,39 +451,31 @@ public class TaskList {
 	 * @return VBox with Name and ID
 	 *///*// old version using the arraylist from Logic
 	public static GridPane createDetailedDisplay(Task task) {
+		// Create an object ot return and set its borders/constraints
 		GridPane grid = new GridPane();
 	    grid.getColumnConstraints().add(new ColumnConstraints(GRID_COL_HEADER_FINAL_LENGTH)); 
-		grid.setPadding(new Insets(0, 9, 0, 0));
+		grid.setPadding(new Insets(0, PADDING, 0, 0)); // set some buffer to the right
 		
 		// ID content
-		//*
 		Label id = createLabel(Integer.toString(task.getId()));
-		id.setPadding(new Insets(0,5,0,5));
+		id.setPadding(new Insets(0,PADDING,0,PADDING));
 		id.getStyleClass().add(getTaskStyle(task.getTaskType())); // set colour based on type
-		grid.add(id, SIDEBAR_COL_ID, ROW_NAME);//*/
-		/*
-		HBox header = new HBox();
-		header.prefWidthProperty().bind(grid.widthProperty().
-				subtract(GRID_COL_HEADER_FINAL_LENGTH).subtract(IMAGE_SIZE)); // 8 is size of image
-		header.setAlignment(Pos.CENTER_LEFT);
-		grid.add(header, SIDEBAR_COL_NAME, ROW_NAME, 2, 1);//*/
+		grid.add(id, SIDEBAR_COL_ID, ROW_NAME);
 		
 		// Set name
 		Label label = createLabel(task.getName());
 		label.prefWidthProperty().bind(grid.widthProperty());
 		label.setWrapText(true);
 		label.setStyle("-fx-font-weight: bold");
-		//header.getChildren().add(label);
 		grid.add(label, SIDEBAR_COL_NAME, ROW_NAME, 2, 1);
-		HBox.setHgrow(label, Priority.ALWAYS);
 
 		// add whether completed
 		grid.add(getTaskCompletion(task.getIsCompleted()), SIDEBAR_COL_DONE, ROW_NAME); // only need up to 1 row
 		
-		ArrayList<String[]> details = task.getTaskDetails();
-		
+		// Get the details from task details and display them
+		ArrayList<String[]> details = task.getTaskDetails();		
 		String[] array;
-		for (int i=1;i<details.size();i++) { // skip name element
+		for (int i=1;i<details.size();i++) { // i=1 to skip name element
 			array = details.get(i);
 			label = createLabel(array[COL_HEADER]);
 			grid.add(label, COL_HEADER, i);
@@ -516,22 +496,23 @@ public class TaskList {
 	 * @param task Task to take information from
 	 * @return GridPane with ID, Name, (Date, if available), Done/NotDone
 	 */
-	protected GridPane createSidebarDisplay(Task task) {
+	protected GridPane createMinimisedDisplay(Task task) {
 		GridPane grid = new GridPane();
 		grid.prefWidthProperty().bind(listView.widthProperty().subtract(100));
 		grid.getColumnConstraints().add(new ColumnConstraints(GRID_COL_HEADER_FINAL_LENGTH));
 		
 		// ID content
 		Label id = createLabel(Integer.toString(task.getId()));
-		id.setPadding(new Insets(0,5,0,5));
+		id.setPadding(new Insets(0,PADDING,0,PADDING));
 		id.getStyleClass().add(getTaskStyle(task.getTaskType())); // set colour based on type
 		grid.add(id, SIDEBAR_COL_ID, ROW_NAME);
-
+		
+		// Wrap the later content in a HBox
 		HBox header = new HBox();
 		header.prefWidthProperty().bind(grid.widthProperty().
-				subtract(GRID_COL_HEADER_FINAL_LENGTH).subtract(IMAGE_SIZE)); // 8 is size of image
+				subtract(GRID_COL_HEADER_FINAL_LENGTH).subtract(IMAGE_SIZE));
 		header.setAlignment(Pos.CENTER_LEFT);
-		grid.add(header, SIDEBAR_COL_NAME, ROW_NAME, 2, 1);
+		grid.add(header, SIDEBAR_COL_NAME, ROW_NAME, 2, 1); // span 2 col and 1 row
 		
 		// Set name
 		Label label = createLabel(task.getName());
@@ -540,10 +521,10 @@ public class TaskList {
 		header.getChildren().add(label);
 		HBox.setHgrow(label, Priority.ALWAYS);
 		
-		
 		// set date if exists
 		try {
 			try {
+				// Try to check for Event first, since Event is Deadline's child
 				label = createLabel(format.format(((Event) task).getStart().getTime()));
 			} catch (ClassCastException e) {
 				// if fail to cast to Event, try DeadlineTask
@@ -557,14 +538,14 @@ public class TaskList {
 			label.prefWidthProperty().bind(header.widthProperty());
 			header.getChildren().add(label);
 		} catch (ClassCastException e) {
-			// do nothing
+			// else do nothing
 		} catch (Exception e) {
+			// if it is not a class cast exception, something else went wrong
 			e.printStackTrace();
 		}
 		
 		// add whether completed
-		grid.add(getTaskCompletion(task.getIsCompleted()), SIDEBAR_COL_DONE, ROW_NAME); // only need up to 1 row 
-		// old settings: , COL_SIZE, 1); // span 2 col and 1 row
+		grid.add(getTaskCompletion(task.getIsCompleted()), SIDEBAR_COL_DONE, ROW_NAME);
 		
 		return grid;
 	}

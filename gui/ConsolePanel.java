@@ -24,27 +24,26 @@ import javafx.scene.layout.Priority;
 import javafx.scene.media.AudioClip;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
-import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
 
-//@author A0122534R
-public class Textbox {
-	public final static String TAG = GUIController.TAG_BOTTOMBAR;
-	public final static String TAG_TEXTBOX = GUIController.TAG_TEXTBOX;
-	public final static String WELCOME_MESSAGE = "Welcome!";
+//@@author A0122534R
+public class ConsolePanel {
+	protected final static String CSSTAG = GUIController.CSS_TAG_BOTTOMBAR;
+	protected final static String CSSTAG_TEXTBOX = GUIController.CSS_TAG_TEXTBOX;
+	protected final static String WELCOME_MESSAGE = "Welcome!";
 	
-	public final static int WIDTH = 100;//GUIController.MINIMUM_WINDOW_SIZE/GUIController.TEXTBOX_RATIO;
-	public final static int CLOCK_WIDTH = 140;
-	public final static int CLOCK_HEIGHT = 100;
-	public final static int PADDING = 10;
-	public final static Pos ORIENTATION = Pos.CENTER_RIGHT;
+	protected final static int IMAGE_SIZE = 100;
+	protected final static int CLOCK_WIDTH = 140;
+	protected final static int CLOCK_HEIGHT = 100;
+	protected final static int PADDING = 10;
+	protected final static Pos ORIENTATION = Pos.CENTER_RIGHT;
 	
-	public final static int POS_AVATAR = 0;
-	public final static int POS_TEXTBOX = 1;
-	public final static int POS_CLOCK = 2;
+	protected final static int POS_AVATAR = 0;
+	protected final static int POS_TEXTBOX = 1;
+	protected final static int POS_CLOCK = 2;
+	protected final static double AUDIO_VOLUME = 0.5; // not yet customisable
 	
-	protected TextFlow textflow; // list of messages from application
-	protected Label label;
+	protected Label console; // contains the output from the application
 	protected HBox hbox;
 	
 	// Avatar
@@ -56,7 +55,7 @@ public class Textbox {
 	protected Random randomGen;
 	protected ArrayList<AudioClip> audioClips;
 	protected AudioClip currentlyPlaying = null;
-	public final String[] audioClipNames = {
+	protected static String[] audioClipNames = {
 			"resources/pika_happy.mp3",
 			"resources/pika_piiikachu.mp3",
 			"resources/pikaaaa.mp3",
@@ -65,58 +64,104 @@ public class Textbox {
 	
 	// Real time clock
 	protected Button clock; // button so that it can be clicked for a more indepth date view later
-	LocalDateTime time;
-	DateTimeFormatter formatter;
+	protected LocalDateTime time;
+	protected DateTimeFormatter formatter;
 
-	public Textbox() {
-		hbox = new HBox();
+	public ConsolePanel() {
+		initHBox();
+		initClock();
+		initMessageBox();
+		initAvatar(); // loads avatar into hbox by default
+		initAudioClips();
+
+		hbox.getChildren().add(console);
+		hbox.getChildren().add(clock);
 		
-		// create the clock
+		addHandlers();
+	}
+	
+	/**
+	 * @return the master/parent node for this object
+	 */
+	public HBox getNode() {
+		return hbox;
+	}
+	
+	/**
+	 * Initialises the master node
+	 * @param hbox
+	 */
+	protected void initHBox() {
+		hbox = new HBox();
+		hbox.setPadding(new Insets(PADDING));
+		hbox.setSpacing(PADDING);
+		hbox.setAlignment(ORIENTATION);
+		hbox.getStyleClass().add(CSSTAG);
+	}
+	
+	/**
+	 * Initialises the Clock
+	 * @param clock
+	 * @param formatter
+	 */
+	protected void initClock() {
 		clock = new Button();
-		clock.getStyleClass().add(GUIController.STYLE_CURVED_LABEL);
+		clock.getStyleClass().add(GUIController.CSS_STYLE_CURVED_LABEL);
 		formatter = DateTimeFormatter.ofPattern("E\ndd/MM/yyyy\nHH:mm");
 		updateTime();
-		//clock.prefWidthProperty().bind(hbox.widthProperty());
 		clock.setMinHeight(CLOCK_HEIGHT);
-		//clock.setMaxWidth(CLOCK_WIDTH);
 		clock.setMinWidth(CLOCK_WIDTH);
 		clock.setTextAlignment(TextAlignment.CENTER);
 		clock.setAlignment(Pos.CENTER);
 		HBox.setHgrow(clock, Priority.SOMETIMES);
-		
-		// create the avatar
+	}
+	
+	/**
+	 * Creates the message box for the console output
+	 * @param console
+	 */
+	protected void initMessageBox() {
+		console = new Label(WELCOME_MESSAGE);
+		console.setWrapText(true);
+		console.prefWidthProperty().bind(getNode().widthProperty());
+		console.prefHeightProperty().bind(getNode().heightProperty());
+		console.setTextFill(Color.WHITE);
+		console.setEffect(new DropShadow());
+		console.setTextAlignment(TextAlignment.LEFT);
+		console.setPadding(new Insets(PADDING));
+		HBox.setHgrow(console, Priority.ALWAYS);
+	}
+	
+	/**
+	 * Initialises the avatar image
+	 * @param avatar
+	 * @param avatarView
+	 * @param frame
+	 */
+	protected void initAvatar() {
 		avatarView = new ImageView();
 		avatarView.setEffect(new DropShadow());
 		frame = new Button();
 		frame.setGraphic(avatarView);
-		hbox.getChildren().add(frame);
 		loadAvatar(); // loads an image from file into avatarView
-		
-		// now create the audio clips and random generator
+	}
+	/**
+	 * Initialises the audio clips and its random generator
+	 * @param randomGen
+	 * @param audioClips
+	 */
+	protected void initAudioClips() {
+		// create the audio clips and random generator
 		randomGen = new Random();
 		randomGen.setSeed(time.getNano()); // set random seed
 		loadAudioClips();
-		
-		// create the message box
-		label = new Label(WELCOME_MESSAGE);
-		label.setWrapText(true);
-		label.prefWidthProperty().bind(hbox.widthProperty());
-		label.prefHeightProperty().bind(hbox.heightProperty());
-		label.setTextFill(Color.WHITE);
-		label.setEffect(new DropShadow());
-		label.setTextAlignment(TextAlignment.LEFT);
-		//label.setStyle("-fx-border-color: #4E443C;");
-		label.setPadding(new Insets(PADDING));
-		HBox.setHgrow(label, Priority.ALWAYS);
-		
-		hbox.setPadding(new Insets(PADDING));
-		hbox.setSpacing(PADDING);
-		hbox.setAlignment(ORIENTATION);
-		hbox.getStyleClass().add(TAG);
-		hbox.getChildren().add(label);
-		hbox.getChildren().add(clock);
-		
-		// time
+	}
+	
+	/**
+	 * Listeners and handlers
+	 */
+	protected void addHandlers() {
+		// constantly update the clock
         final Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), new EventHandler<ActionEvent>() {  
         	@Override
         	public void handle(ActionEvent event) {
@@ -126,7 +171,7 @@ public class Textbox {
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
         
-        // clicking on avatar
+        // clicking on avatar results in audio
         frame.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
@@ -141,7 +186,7 @@ public class Textbox {
 								currentlyPlaying.equals(randomClip) // if it is same, keep looping
 								); // while they are the same, keep looping
 						currentlyPlaying = randomClip;
-						currentlyPlaying.setVolume(GUIConfig.AUDIO_VOLUME);
+						currentlyPlaying.setVolume(AUDIO_VOLUME);
 						currentlyPlaying.play();
 					}
 				}
@@ -158,7 +203,7 @@ public class Textbox {
 		try {
 			stream = new FileInputStream(new File(GUIController.AVATAR_IMAGENAME));
 			if (stream!=null) {
-				Image image = new Image(stream,WIDTH, WIDTH, true,true);
+				Image image = new Image(stream,IMAGE_SIZE, IMAGE_SIZE, true,true);
 				if (image!=null) {
 					avatar = image;
 					avatarView.setImage(avatar);
@@ -168,7 +213,8 @@ public class Textbox {
 				}
 				return true;
 			}
-		} catch (FileNotFoundException e) {
+		} catch (Exception e) { 
+			// any kind of failure, FileNotFoundException or NullPointerException, do this
 			if (avatar==null) {
 				hbox.getChildren().remove(frame);
 			}
@@ -180,25 +226,21 @@ public class Textbox {
 	 * Loads all audio clips in voiceClips
 	 * @return true if successful
 	 */
-	public boolean loadAudioClips() {
+	public void loadAudioClips() {
 		audioClips = new ArrayList<AudioClip>();
 		File file;
-		try {
-			for (int i=0;i<audioClipNames.length;i++) {
+		for (int i=0;i<audioClipNames.length;i++) {
+			try {
 				file = new File(audioClipNames[i]);
 				if (file.exists()) {
 					audioClips.add(new AudioClip(file.toURI().toString()));
 				} else {
-					System.err.println("AudioClip not found at: " + file.toURI().toString());
+					throw new FileNotFoundException("AudioClip not found at: " + file.toURI().toString()); 
 				}
+			} catch (Exception e) { 
+				e.printStackTrace();
 			}
-			return true;
-		} catch (Exception e) {
-			// do nothing
-			System.out.println("Unable to load AudioClips");
-			e.printStackTrace();
 		}
-		return false;
 	}
 	
 	/**
@@ -216,13 +258,10 @@ public class Textbox {
 	}
 	
 	/**
-	 * @return the master/parent node for this object
+	 * Adds the message to the console output
+	 * @param message
 	 */
-	public HBox getNode() {
-		return hbox;
-	}
-	
-	public void addToTextbox(String input) {
-		label.setText(input.trim());
+	public void addToConsole(String message) {
+		console.setText(message.trim());
 	}
 }
