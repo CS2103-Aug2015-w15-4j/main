@@ -81,14 +81,17 @@ public class GUIController extends Application {
 					(e.getModifiers()==NativeKeyEvent.CTRL_L_MASK||
 					e.getModifiers()==NativeKeyEvent.CTRL_R_MASK)) { // alt
 				Platform.runLater(new Runnable() {
+					@SuppressWarnings("deprecation")
 					@Override
 					public void run() {
-						if (stage.isFocused()) {
-							stage.setIconified(true);
-						} else {
-							stage.setIconified(false);
-							stage.setAlwaysOnTop(true);
-							stage.setAlwaysOnTop(false);
+						if (stage!=null) { // in case the buttons were triggered during loading screen
+							if (stage.isFocused()) {
+								stage.setIconified(true); // minimise
+							} else {
+								stage.setIconified(true); 
+								// if it was behind another window, this allows it to regain focus when brought up
+								stage.setIconified(false); 
+							}
 						}
 					}
 				});
@@ -176,8 +179,8 @@ public class GUIController extends Application {
 	 */	
 	// the overall managers/parents
 	protected static final Pane window = new VBox();
-	protected static Stage stage;
-	protected static Scene scene;  
+	protected static Stage stage = null;
+	protected static Scene scene = null;  
 
 	// the help menu
 	protected static final HelpMenu help = new HelpMenu();
@@ -199,11 +202,12 @@ public class GUIController extends Application {
 	protected static Button windowSwitch;
 
 	public static void main(String[] args) {
+		// launch the GUIController with a PreloaderWindow
 		LauncherImpl.launchApplication(GUIController.class, PreloaderWindow.class, args);
 	}
 
 	@Override
-	public void init() {		
+	public void init() {
 		// initialise data variables
 		initCoreComponents(); // if fail, system will exit
 
@@ -227,10 +231,10 @@ public class GUIController extends Application {
 		stage.setTitle(APP_TITLE);
 		stage.getIcons().add(new Image(
 				GUIController.class.getResourceAsStream( ICON_IMAGE )));
+		addStageHandlers();
 		stage.show();
 		stage.setMinWidth(stage.getWidth());
 		stage.setMinHeight(stage.getHeight());
-		addStageHandlers();
 	}
 
 	/**
@@ -410,7 +414,7 @@ public class GUIController extends Application {
 	 * 
 	 * 
 	 */
-	public void addSceneHandlers() {
+	protected void addSceneHandlers() {
 		// event handler for userTextField
 		userInputField.setOnAction((ActionEvent event) -> processUserTextField());
 		userInputField.setOnKeyPressed(new EventHandler<KeyEvent>() {
@@ -490,7 +494,7 @@ public class GUIController extends Application {
 	 * @param stage
 	 * 
 	 */
-	public void addStageHandlers() {
+	protected void addStageHandlers() {
 		// create global hook
 		try {
 			// Get the logger for "org.jnativehook" and set the level to off to remove log from it
@@ -934,6 +938,14 @@ public class GUIController extends Application {
 	}
 
 	/**
+	 * Closes this list
+	 * @param list
+	 */
+	protected static void closeList(TaskList list) {
+		closeList(list.listNumber);
+	}
+
+	/**
 	 * Closes all lists except the pinned list
 	 */
 	protected static void closeAllLists() {
@@ -942,14 +954,6 @@ public class GUIController extends Application {
 				closeList(list);
 			}
 		}
-	}
-
-	/**
-	 * Closes this list
-	 * @param list
-	 */
-	protected static void closeList(TaskList list) {
-		closeList(list.listNumber);
 	}
 
 	/**
