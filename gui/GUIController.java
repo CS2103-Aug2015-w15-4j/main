@@ -123,7 +123,7 @@ public class GUIController extends Application {
 	protected final static String MSG_WINDOWSWITCH = "Switch"; // name for Switch button
 	protected final static String ERR_TASKID = "ERROR: Task ID not found";
 	protected final static String EMPTY_STRING = "";
-	protected final static String CMD_SEARCH = "search"; // for Ctrl+F and searching
+	protected final static String CMD_SEARCH = "search "; // for Ctrl+F and searching
 
 	// TaskList variables
 	// static because there should only be one list of TaskLists at any point of time
@@ -446,57 +446,40 @@ public class GUIController extends Application {
 		scene.setOnKeyPressed((new EventHandler<KeyEvent>() {
 			@Override
 			public void handle(KeyEvent keyEvent) {
-				if(keyEvent.getCode()==KeyCode.T) {
-					// Shortcut for jumping to userTextField
-					if (keyEvent.isControlDown()){
-						userInputField.requestFocus();
-						userInputField.end(); // set cursor behind last chara
-					} else if (keyEvent.isAltDown()) {
-						// Shortcut for switch
-						switchWindow();
-					}
-				}
-
-				// Focus Mode
-				if(keyEvent.getCode()==KeyCode.BACK_SLASH) { // zoom in on a task
+				switch (ShortcutManager.processKeyEvent(keyEvent)) {
+				case FOCUS_MODE: 
 					showFocusTask(false);
-				}
-
-				// Focus Mode clear
-				if ((keyEvent.getCode()==KeyCode.BACK_SLASH&&keyEvent.isShiftDown())||
-						keyEvent.getCode()==KeyCode.BACK_SPACE) { // see the main list again
+					break;
+				case FOCUS_MODE_CLEAR:
 					if (TASKLIST_PINNED!=TASKLIST_INVALID) { // if there is pinned window, open that
 						openList(TASKLIST_PINNED);
 					} else {
 						unpinWindow(); // else clear the focus task
 					}
-				}
-
-				// Undo shortcut
-				if (keyEvent.getCode()==KeyCode.Z&&
-						(keyEvent.isControlDown()||keyEvent.isAltDown())) { // undo the last command
-					executeCommand("undo");
-				}
-
-				// Search shortcut
-				if (keyEvent.getCode()==KeyCode.F&&
-						(keyEvent.isControlDown())) {
+					break;
+				case HELP:
+					showHelpMenu();
+					break;
+				case SEARCH:
 					userInputField.requestFocus();
-					userInputField.setText(CMD_SEARCH+" ");
+					userInputField.setText(CMD_SEARCH); 
 					userInputField.end(); // set cursor behind last chara
-				}
-
-				// Unpin shortcut
-				if (keyEvent.getCode()==KeyCode.U&&
-						(keyEvent.isControlDown())) { 
+					break;
+				case SWITCH:
+					switchWindow();
+					break;
+				case INPUT_FIELD:
+					userInputField.requestFocus();
+					userInputField.end(); // set cursor behind last chara
+					break;
+				case UNDO:
+					executeCommand("undo");
+					break;
+				case UNPIN:
 					unpinWindow();
-				}
-
-				// Help shortcut
-				if (keyEvent.getCode()==KeyCode.F1) { 
-					if (!help.getNode().isShowing()) {
-						help.getNode().show(stage);
-					}
+					break;
+				default:
+					break;
 				}
 			}
 		}));//*/
@@ -541,13 +524,13 @@ public class GUIController extends Application {
 		stage.widthProperty().addListener(listener);
 		stage.heightProperty().addListener(listener);
 	}
-
+	
 	/**
-	 * Recalculates the size of the pined window
+	 * Activates the help menu
 	 */
-	protected void recalculatePinned() {
-		if (TASKLIST_PINNED!=TASKLIST_INVALID) {
-			taskLists.get(TASKLIST_PINNED).recalculate();
+	protected void showHelpMenu() {
+		if (!help.getNode().isShowing()) {
+			help.getNode().show(stage);
 		}
 	}
 
@@ -630,6 +613,15 @@ public class GUIController extends Application {
 		}
 		pane.setTop(null);
 
+	}
+	
+	/**
+	 * Recalculates the size of the pined window
+	 */
+	protected void recalculatePinned() {
+		if (TASKLIST_PINNED!=TASKLIST_INVALID) {
+			taskLists.get(TASKLIST_PINNED).recalculate();
+		}
 	}
 
 	/**
