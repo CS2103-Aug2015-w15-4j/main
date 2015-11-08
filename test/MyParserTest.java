@@ -5,6 +5,8 @@ import static org.junit.Assert.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -368,6 +370,74 @@ public class MyParserTest {
 		assertEquals(null, pcDisplay.isCompleted());
 		assertEquals(null, pcDisplay.getTaskType());
 		assertEquals(true, pcDisplay.isOverdue());
+		
+		
+	}
+	
+	public static Date parseStringToDate(String input) {
+		Date date = new Date();
+			SimpleDateFormat format = new SimpleDateFormat(
+					"EEE MMM dd HH:mm:ss zzz yyyy");
+			try {
+				date = format.parse(input);
+			} catch (ParseException e) {
+				return null;
+			}
+			return date;
+	}
+	
+	@Test
+	public void testCreateParsedCommandShowSearch() {
+		ArrayList<String> tags = new ArrayList<String>();
+		tags.add("tag");
+		ParsedCommand pcShow = MyParser.parseCommand(" show my search keywords from 1/4/16 3pm to 5pm #tag \"description\"");
+		assertEquals(CommandType.SEARCH, pcShow.getCommandType());
+		assertEquals("my search keywords", pcShow.getKeywords());
+		assertEquals(parseStringToDate("Fri Apr 1 15:00:00 SGT 2016"), pcShow.getFirstDate().getTime());
+		assertEquals(parseStringToDate("Fri Apr 1 17:00:00 SGT 2016"), pcShow.getSecondDate().getTime());
+		assertEquals(tags, pcShow.getTags());		
+
+		pcShow = MyParser.parseCommand("Search my search keywords #tag \"description\"");
+		assertEquals(CommandType.SEARCH, pcShow.getCommandType());
+		assertEquals("my search keywords", pcShow.getKeywords());
+		assertEquals(null, pcShow.getFirstDate());
+		assertEquals(null, pcShow.getSecondDate());
+		assertEquals(tags, pcShow.getTags());		
+
+		pcShow = MyParser.parseCommand("diSplay my search keywords on apr 1 #tag \"description\"");
+		assertEquals(CommandType.SEARCH, pcShow.getCommandType());
+		assertEquals("my search keywords", pcShow.getKeywords());
+		assertEquals(parseStringToDate("Wed Apr 1 00:00:00 SGT 2015"), pcShow.getFirstDate().getTime());
+		assertEquals(parseStringToDate("Wed Apr 1 23:59:00 SGT 2015"), pcShow.getSecondDate().getTime());
+		assertEquals(tags, pcShow.getTags());		
+
+		pcShow = MyParser.parseCommand("shoW my search keywords from 1/4/16 3pm to 2/4/16 5pm #tag \"description\"");
+		assertEquals(CommandType.SEARCH, pcShow.getCommandType());
+		assertEquals("my search keywords", pcShow.getKeywords());
+		assertEquals(parseStringToDate("Fri Apr 1 15:00:00 SGT 2016"), pcShow.getFirstDate().getTime());
+		assertEquals(parseStringToDate("Sat Apr 2 17:00:00 SGT 2016"), pcShow.getSecondDate().getTime());
+		assertEquals(tags, pcShow.getTags());		
+
+
+		pcShow = MyParser.parseCommand("search my search keywords from 31/4/16 3pm to 5pm #tag \"description\"");
+		assertEquals(CommandType.ERROR, pcShow.getCommandType());
+		assertEquals("Error: Invalid date(s) input", pcShow.getErrorMessage());
+	}
+
+	@Test
+	public void testCreateParsedCommandShowDisplay() {
+		ParsedCommand pcShow = MyParser.parseCommand("show 234");
+		assertEquals(MyParser.CommandType.DISPLAY, pcShow.getCommandType());
+		assertEquals(234, pcShow.getTaskId());
+		
+		pcShow = MyParser.parseCommand("display 0");
+		assertEquals(MyParser.CommandType.DISPLAY, pcShow.getCommandType());
+		assertEquals(0, pcShow.getTaskId());
+
+		pcShow = MyParser.parseCommand("show -1");
+		assertEquals(MyParser.CommandType.SEARCH, pcShow.getCommandType());
+		assertEquals("-1", pcShow.getKeywords());
+
 	}
 
 	@Test

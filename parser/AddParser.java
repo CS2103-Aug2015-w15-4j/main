@@ -15,7 +15,7 @@ public class AddParser extends InputParser {
 			try {
 				String parsedTitle = getTitleWithKeywordsFromString(inputArgs);
 				Calendar[] parsedTimes = getStandardDatesTimes(inputArgs);
-				if (parsedTimes != null && parsedTimes.length > 2) { // date keyword used for date input
+				if (parsedTimes != null && parsedTimes[0] != null && parsedTimes.length > 2) { // date keyword used for date input
 					parsedTitle = removeKeywordSection(parsedTitle);
 				}
 				String parsedDescription = getDescriptionFromString(inputArgs);

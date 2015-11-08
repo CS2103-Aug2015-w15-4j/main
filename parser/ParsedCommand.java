@@ -340,6 +340,7 @@ public class ParsedCommand {
 		}
 
 		private void validateTaskId() throws InvalidArgumentsForParsedCommandException {
+			System.out.println("taskId");
 			if (this.taskId < 0) {
 				throw new InvalidArgumentsForParsedCommandException(InputParser.ERROR_INVALID_TASKID);
 			}

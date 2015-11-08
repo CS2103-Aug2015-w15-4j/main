@@ -16,6 +16,7 @@ public class ShowParser extends InputParser {
 		} else {
 			String inputArgs = input[INDEX_FOR_ARGS];
 			int taskId = getTaskIdFromString(inputArgs);
+			System.out.println("taskId: " + taskId);
 			if (hasTaskId(taskId)) { // show task details
 				return createParsedCommandDisplay(taskId);
 			} else { // search	
@@ -31,7 +32,7 @@ public class ShowParser extends InputParser {
 			String parsedKeywords = getSearchKeywordsWithDateKeywordsFromString(inputArgs);
 			System.out.println("KEYWORDS: " + parsedKeywords);
 			Calendar[] parsedTimes = getSearchDatesTimes(inputArgs);
-			if (parsedTimes != null && parsedTimes.length > 2) { // date keyword used for date input
+			if (parsedTimes != null && parsedTimes[0] != null && parsedTimes.length > 2) { // date keyword used for date input
 				parsedKeywords = removeKeywordSection(parsedKeywords);
 			}
 			ArrayList<String> parsedTags = getTagsFromString(inputArgs);

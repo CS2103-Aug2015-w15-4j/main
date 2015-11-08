@@ -42,6 +42,7 @@ public class DateTime {
     private Calendar endDateTime;
     private String unparsed;
 	private Boolean isValid;
+	private ParserType parser;
     
     public DateTime(DateTimeBuilder builder) {
     	 this.startDate = builder.startDate;
@@ -56,6 +57,7 @@ public class DateTime {
     	 this.endDateTime = builder.endDateTime;
     	 this.unparsed = builder.unparsed;
  		 this.isValid = builder.isValid;
+ 		 this.parser = builder.parser;
 	}
 
 	Calendar[] getSearchDatesTimes() {
@@ -139,8 +141,10 @@ public class DateTime {
 						if (startDate[INDEX_FOR_YEAR_ARR] == null) {
 						    setNextValidYear(startDate, false);
 					    }
-					    if (endDate[INDEX_FOR_DATE_ARR] != null) {
-						    setYearAfter(endDate, startDate);
+						if (isAfter(endDate, startDate)) {
+							endDate[INDEX_FOR_YEAR_ARR] = startDate[INDEX_FOR_YEAR_ARR];
+						} else {
+							setYearAfter(endDate, startDate);
 					    }
 					}
 				}
@@ -149,7 +153,7 @@ public class DateTime {
 	}
 	
 	private static void setYearAfter(String[] secondDate, String[] firstDate) {
-		secondDate[INDEX_FOR_YEAR_ARR] = String.valueOf(firstDate[INDEX_FOR_YEAR_ARR] + 1);	
+		secondDate[INDEX_FOR_YEAR_ARR] = String.valueOf(Integer.parseInt(firstDate[INDEX_FOR_YEAR_ARR]) + 1);	
 	}
 
 	private static Boolean isAfter(String[] secondDate, String[] firstDate) {
@@ -261,13 +265,20 @@ public class DateTime {
 		}
 		String month = dateArr[INDEX_FOR_MONTH_ARR];
 		String year = dateArr[INDEX_FOR_YEAR_ARR];
-		return date + "/" + month + "/" + year + " " + time;
+		String std = date + "/" + month + "/" + year + " " + time;
+		System.out.println(std);
+		return std;
 	}
 
 	
 	
 	public Calendar[] getCalendarDates() {
-		Calendar[] calTimes = new Calendar[2];
+		Calendar[] calTimes;
+		if (parser == ParserType.NATTY_PARSER) {
+			calTimes = new Calendar[3];
+		} else {
+			calTimes = new Calendar[2];
+		}
 		
 		Calendar startCal = Calendar.getInstance();
 		Calendar endCal = Calendar.getInstance();
@@ -312,6 +323,7 @@ public class DateTime {
         private Calendar endDateTime;
 		private String unparsed;
 		private Boolean isValid = null;
+		private ParserType parser;
 
 		public DateTimeBuilder(String input) {
 			this.unparsed = input;
@@ -357,6 +369,7 @@ public class DateTime {
 				String[] start = {String.valueOf(startD), String.valueOf(startM), String.valueOf(startY)};
 				this.startDate = start;
 				this.isValid = true;
+				this.parser = ParserType.NATTY_PARSER;
 			} else {
 				this.startDate = null;
 			}

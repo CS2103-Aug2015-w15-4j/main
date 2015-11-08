@@ -98,11 +98,9 @@ public class InputParserTest {
 		assertEquals(null, InputParser.getStandardDatesTimes("Meet John about proposal 1200 #cs2103 #cs2101")[0]);
 		assertEquals(null, InputParser.getStandardDatesTimes("Meet John about proposal 1200 #cs2103 #cs2101")[1]);
 		
-		System.out.println("+============================================================");
 		// Check support for flexible start date no time
 		assertEquals(parseStringToDate("Fri Apr 1 23:59:00 SGT 2016"), InputParser.getStandardDatesTimes("Add meeting with john on 1st April")[0].getTime());
 		assertEquals(null, InputParser.getStandardDatesTimes("Add meeting with john on 1st April")[1]);
-		System.out.println("+============================================================");
 
 		// Check support for natty start date no time, keyword
 		LocalDateTime dt = LocalDateTime.now();
@@ -122,6 +120,10 @@ public class InputParserTest {
 				InputParser.getStandardDatesTimes("Meet John about proposal on feb 12 2013 12:00 #cs2103 #cs2101")[0].getTime());
 		assertEquals(null, InputParser.getStandardDatesTimes("Meet John about proposal on feb 12 2013 12:00 #cs2103 #cs2101")[1]);
 		
+		// Check support for flexible start date and time, keyword
+		assertEquals(StringParser.parseStringToDate("Tue Jan 12 12:00:00 SGT 2016"), InputParser.getStandardDatesTimes("Meet John about proposal on JAN 12th 12:00 til dec 31 #cs2103 #cs2101")[0].getTime());
+		assertEquals(StringParser.parseStringToDate("Sat Dec 31 23:59:00 SGT 2016"), InputParser.getStandardDatesTimes("Meet John about proposal on JAN 12th 12:00 til dec 31 #cs2103 #cs2101")[1].getTime());
+				
 		// Check support for flexible start date and time, no keyword
 		assertEquals(StringParser.parseStringToDate("Tue Feb 12 12:00:00 SGT 2013"),
 				InputParser.getStandardDatesTimes("Meet John about proposal feb 12 2013 12:00 #cs2103 #cs2101")[0].getTime());
@@ -153,7 +155,44 @@ public class InputParserTest {
 		// Consider support for if only time indicated, assume is today
 				
 	}
-
+	
+	@Test
+	public void testGetSearchDatesTimesFromString() {
+		// Check supported formats
+		
+		// Check support for flexible start date no time
+		assertEquals(parseStringToDate("Wed Apr 1 00:00:00 SGT 2015"), InputParser.getSearchDatesTimes("Add meeting with john on 1st April")[0].getTime());
+		assertEquals(parseStringToDate("Wed Apr 1 23:59:00 SGT 2015"), InputParser.getSearchDatesTimes("Add meeting with john on 1st April")[1].getTime());
+		
+		// Check support for formatted input (has start and end time) out of order
+		assertEquals(StringParser.parseStringToDate("Tue Feb 12 12:00:00 SGT 2013"),
+				InputParser.getSearchDatesTimes("12/2/13 Meet John about proposal #cs2103 12:00-13:30")[0].getTime());
+		assertEquals(StringParser.parseStringToDate("Tue Feb 12 13:30:00 SGT 2013"), 
+				InputParser.getSearchDatesTimes("12/2/13 Meet John about proposal #cs2103 12:00h -13:30 H")[1].getTime());		
+		
+		// Check support for flexible start date and time, keyword
+		assertEquals(StringParser.parseStringToDate("Tue Feb 12 12:00:00 SGT 2013"),
+				InputParser.getSearchDatesTimes("Meet John about proposal on feb 12 2013 12:00 #cs2103 #cs2101")[0].getTime());
+		assertEquals(StringParser.parseStringToDate("Tue Feb 12 23:59:00 SGT 2013"), InputParser.getSearchDatesTimes("Meet John about proposal on feb 12 2013 12:00 #cs2103 #cs2101")[1].getTime());
+		
+		// Check support for flexible start date and time, keyword
+		assertEquals(StringParser.parseStringToDate("Tue Jan 12 12:00:00 SGT 2015"), InputParser.getSearchDatesTimes("Meet John about proposal on JAN 12th 12:00 til dec 31 #cs2103 #cs2101")[0].getTime());
+		assertEquals(StringParser.parseStringToDate("Sat Dec 31 23:59:00 SGT 2015"), InputParser.getSearchDatesTimes("Meet John about proposal on JAN 12th 12:00 til dec 31 #cs2103 #cs2101")[1].getTime());
+				
+		// Check support for flexible start date and time
+		assertEquals(StringParser.parseStringToDate("Tue Feb 12 23:59:00 SGT 2013"),
+				InputParser.getSearchDatesTimes("Meet John about proposal feb 12 2013 23:59 #cs2103 #cs2101")[0].getTime());
+		assertEquals(StringParser.parseStringToDate("Tue Feb 12 23:59:00 SGT 2013"), InputParser.getSearchDatesTimes("Meet John about proposal feb 12 2013 12:00 #cs2103 #cs2101")[1].getTime());
+				
+		// Auto-add date should be upcoming date, not current year
+		// Check invalid date detection
+		// Natty cannot handle events!!!
+		
+		// Remove from/to etc from title for no keyword
+		// Consider support for if only time indicated, assume is today
+				
+	}
+	
 	@Test
 	public void testGetDescriptionFromString() {
 		assertEquals("and this my description", InputParser.getDescriptionFromString("this is my task \"and this my description\" blah blah 23/3/12"));

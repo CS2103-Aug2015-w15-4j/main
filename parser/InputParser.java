@@ -29,12 +29,12 @@ public abstract class InputParser {
 	protected static final String TASK_ID_REGEX = "(^[0-9]+(?=\\s|$))";
 	protected static final String TAG_REGEX = "(?<=\\s|^)#(\\w+)";
 	protected static final String DESCRIPTION_REGEX = "(?<!\\\\)\"(.*)(?<!\\\\)\"(?!.*((?<!\\\\)\"))";
-	protected static final String TASK_STATUS_REGEX = "(?<=//s|^)(todo|done|overdue)(?=\\s|$)";
+	protected static final String TASK_STATUS_REGEX = "(?<=\\s|^)(todo|done|overdue)(?=\\s|$)";
 	protected static final String TASK_TYPE_REGEX = "(?<=\\s|^)(floating(?:task)?|deadline(?:task)?|event(?:task)?)(?:s)?(?=\\s|$)";
 	protected static final String OVERDUE_REGEX = "(?<=[^//s])(overdue)(?=\\s|$)";
 	
 	
-	protected static final String NOT_TITLE_REGEX_KEYWORD_OK = "(" + "((?<=\\s|^)(from |fr |at |to |til |until |by |on |- ))?" + DateTimeParser.NO_KEYWORD_DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|(" + TASK_STATUS_REGEX + ")|((?<=\\s|^)(on )?((tmr|tomorrow|tomorow).*)(?=\\s|$)))";  	
+	protected static final String NOT_TITLE_REGEX_KEYWORD_OK = "(" + "((?<=\\s|^)(from |fr |at |to |til |until |by |on |- ))?" + DateTimeParser.NO_KEYWORD_DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|" + TASK_STATUS_REGEX + "|((?<=\\s|^)(on )?((tmr|tomorrow|tomorow).*)(?=\\s|$)))";  	
 	protected static final String NOT_TITLE_REGEX = "(" + "( from | fr | at | to | til | until | by | on | - )?" + DateTimeParser.DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|(" + TASK_STATUS_REGEX + "))";  	
 	
 	// private static final Logger logger = Logger.getLogger(StringParser.class.getName() );
@@ -76,7 +76,7 @@ public abstract class InputParser {
 	}
 	
 	static String getSearchKeywordsWithDateKeywordsFromString(String inputArgs) {
-		inputArgs = removeRegexPatternFromString(inputArgs, NOT_TITLE_REGEX_KEYWORD_OK + "|" + TASK_TYPE_REGEX);
+		inputArgs = removeRegexPatternFromString(inputArgs, NOT_TITLE_REGEX_KEYWORD_OK + "|" + TASK_TYPE_REGEX  +"|" + TASK_STATUS_REGEX);
 		return inputArgs.trim();
 	}
 	
@@ -196,7 +196,6 @@ public abstract class InputParser {
 	
 	static Calendar[] getStandardDatesTimes(String input) {
 		DateTime parsedDatesTimes = getDatesTimesFromString(input);
-		System.out.println("DONE");
 		Calendar[] dates = parsedDatesTimes.getStdDatesTimes();
 		return dates;
 	}
@@ -211,7 +210,7 @@ public abstract class InputParser {
 	
 	static DateTime getDatesTimesFromString(String input) {
 		DateTimeParser dateTimeParserChain = getChainOfParsers();
-		String dateSection = DateTimeParser.extractDateTimeSectionFromString(input).toLowerCase();
+		String dateSection = DateTimeParser.extractDateTimeSectionFromString(input.toLowerCase());
 		DateTimeBuilder toParse = new DateTimeBuilder(dateSection);
 		DateTime datesTimes = dateTimeParserChain.getDatesTimes(toParse);
 		return datesTimes;

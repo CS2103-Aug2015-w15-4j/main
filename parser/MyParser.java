@@ -19,7 +19,7 @@ public class MyParser {
 		new Pair(MyParser.CommandType.ADD, new String[] {"add", "insert", "+"}),
 		new Pair(MyParser.CommandType.DELETE, new String[] {"delete", "del", "remove", "cancel", "x"}),
 		new Pair(MyParser.CommandType.EDIT, new String[] {"edit", "change", "update", "e;"}),
-		new Pair(MyParser.CommandType.SHOW, new String[] {"show", "search", "find", "s;"}),
+		new Pair(MyParser.CommandType.SHOW, new String[] {"show", "search", "find", "s;", "display"}),
 		new Pair(MyParser.CommandType.EXIT, new String[] {"exit", "quit", "q;"}),
 		new Pair(MyParser.CommandType.UNDO, new String[] {"undo"}),
 		new Pair(MyParser.CommandType.REDO, new String[] {"redo"}),
