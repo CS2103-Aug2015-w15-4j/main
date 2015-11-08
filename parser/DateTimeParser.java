@@ -8,13 +8,9 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import parser.DateTime.DateTimeBuilder;
+
 public abstract class DateTimeParser {
-	private static final String DEFAULT_TWENTYFOUR_HOUR_TIME = "23:59";
-	private static final String DEFAULT_TWELVE_HR__TIME = "11:59pm";
-	private static final int INDEX_FOR_END = 1;
-	private static final int INDEX_FOR_START = 0;
-	private static final int INDEX_FOR_TIME_FORMAT = 2;
-	private static final int INDEX_FOR_DATE_FORMAT = 2;
 	static String DATE_KEYWORD_REGEX = "(?<=\\s|^)(on|by)\\s(?!.*( on | by ))([^\"#]*)";
 	private static Pattern DATE_KEYWORD_PATTERN = Pattern.compile(DATE_KEYWORD_REGEX);
 	
@@ -30,11 +26,7 @@ public abstract class DateTimeParser {
 	
 	protected DateTimeParser nextParser;
 	
-	abstract String getUnparsedInput();
-	abstract String[] getParsedTimes();
-	abstract String[] getParsedDates();
-
-	abstract protected Calendar[] parse(String input, String[] parsedDates, String[] parsedTimes);
+	abstract protected DateTimeBuilder parse(DateTimeBuilder currentlyParsed);
 
 	private static final Logger logger = Logger.getLogger(DateTimeParser.class.getName() );
 	
@@ -94,78 +86,18 @@ public abstract class DateTimeParser {
 		this.nextParser = nextParser;
 	}
 	
-	public Calendar[] getDatesTimes(String input, String[] parsedDates, String[] parsedTimes) {
-		Calendar[] datesTimes = new Calendar[2];
-		datesTimes = parse(input, parsedDates, parsedTimes);
-		if (datesTimes == null) { // error
-			return null;
-		} else if (datesTimes[0] == null) { // not detected
+	public DateTime getDatesTimes(DateTimeBuilder currentlyParsed) {
+		DateTimeBuilder datesTimes = parse(currentlyParsed);
+		if (datesTimes.isDoneParsing()) { // error
+			return datesTimes.build();
+		} else { // not detected
 			if (nextParser != null) {
-				return nextParser.getDatesTimes(getUnparsedInput(), getParsedDates(), getParsedTimes());
+				return nextParser.getDatesTimes(currentlyParsed);
 			}
 		}
-		return datesTimes;
+		return datesTimes.build();
 	}
 	
 		
-	public static Calendar[] convertStringToCalendar(String[] dates, String[] times) {
-		Calendar[] calTimes = new Calendar[2];
-		Calendar startCal = Calendar.getInstance();
-		Calendar endCal = Calendar.getInstance();
-		String dateFormat = dates[INDEX_FOR_DATE_FORMAT];
-		String timeFormat = times[INDEX_FOR_TIME_FORMAT];
-		SimpleDateFormat dateTimeFormat = new SimpleDateFormat(dateFormat + " " + timeFormat);
-		
-		try {
-			if (dates[INDEX_FOR_START] == null) { // no date and time
-				startCal = null;
-				endCal = null;
-			} else { // has start date
-				dateTimeFormat.setLenient(false);
-				if (times[INDEX_FOR_START] == null) { // no start time, assume deadline 2359h
-					String startDate = dates[INDEX_FOR_START] + " ";
-					startDate = addDefaultTime(timeFormat, startDate);
-					startCal.setTime(dateTimeFormat.parse(startDate));
-				} else { // has start date and time
-					String startDateTime = dates[INDEX_FOR_START] + " " + times[INDEX_FOR_START];
-					startCal.setTime(dateTimeFormat.parse(startDateTime));
-				}
-				
-				if (dates[INDEX_FOR_END] != null) { // has end date
-					if (times[INDEX_FOR_END] == null) { // no end time, assume deadline 2359h
-						String endDate = dates[INDEX_FOR_END] + " ";
-						endDate = addDefaultTime(timeFormat, endDate);
-						endCal.setTime(dateTimeFormat.parse(endDate));
-					} else { // has end date and time
-						String endDateTime = dates[INDEX_FOR_END] + " " + times[INDEX_FOR_END];
-						endCal.setTime(dateTimeFormat.parse(endDateTime));
-					}	
-				} else { // no end date
-					if (times[INDEX_FOR_END] != null) { // but has end time
-						String endDateTime = dates[INDEX_FOR_START] + " " + times[INDEX_FOR_END]; // end date same as start date
-						endCal.setTime(dateTimeFormat.parse(endDateTime));
-					} else { // no end date and no end time
-						endCal = null;
-					}
-				}
-			}
-		} catch (java.text.ParseException e) {
-			e.printStackTrace();
-			return null; // failed to parse
-		}
-		
-		calTimes[0] = startCal;
-		calTimes[1] = endCal;
-
-		return calTimes;
-	}
 	
-	private static String addDefaultTime(String timeFormat, String endDate) {
-		if (timeFormat.equals(TimeParser.TWELVE_HR_FORMAT)) {
-			endDate = endDate + DEFAULT_TWELVE_HR__TIME;
-		} else {
-			endDate = endDate + DEFAULT_TWENTYFOUR_HOUR_TIME;
-		}
-		return endDate;
-	}
 }

@@ -10,7 +10,7 @@ public class DeleteParser extends InputParser {
 			try {
 				String inputArgs = input[INDEX_FOR_ARGS].trim();
 				int taskId = getTaskIdFromString(inputArgs);
-				ParsedCommand pc = new ParsedCommand.Builder(MyParser.CommandType.DELETE)
+				ParsedCommand pc = new ParsedCommand.ParsedCommandBuilder(MyParser.CommandType.DELETE)
 													.taskId(taskId)
 													.build();
 				return pc;

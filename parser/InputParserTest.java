@@ -95,52 +95,55 @@ public class InputParserTest {
 		// Check supported formats
 		
 		// Check support for no date & time
-		assertEquals(null, InputParser.getDatesTimesFromString("Meet John about proposal 1200 #cs2103 #cs2101")[0]);
-		assertEquals(null, InputParser.getDatesTimesFromString("Meet John about proposal 1200 #cs2103 #cs2101")[1]);
+		assertEquals(null, InputParser.getStandardDatesTimes("Meet John about proposal 1200 #cs2103 #cs2101")[0]);
+		assertEquals(null, InputParser.getStandardDatesTimes("Meet John about proposal 1200 #cs2103 #cs2101")[1]);
 		
+		System.out.println("+============================================================");
 		// Check support for flexible start date no time
-		assertEquals(parseStringToDate("Fri Apr 1 23:59:00 SGT 2016"), InputParser.getDatesTimesFromString("Add meeting with john on 1st April")[0].getTime());
-		assertEquals(null, InputParser.getDatesTimesFromString("Add meeting with john on 1st April")[1]);
+		assertEquals(parseStringToDate("Fri Apr 1 23:59:00 SGT 2016"), InputParser.getStandardDatesTimes("Add meeting with john on 1st April")[0].getTime());
+		assertEquals(null, InputParser.getStandardDatesTimes("Add meeting with john on 1st April")[1]);
+		System.out.println("+============================================================");
 
 		// Check support for natty start date no time, keyword
 		LocalDateTime dt = LocalDateTime.now();
 		dt = LocalDateTime.from(dt.plusDays(1));
 		dt = dt.withHour(23).withMinute(59).withSecond(0);
-		assertEquals(Date.from(dt.atZone(ZoneId.systemDefault()).toInstant()).toString(), InputParser.getDatesTimesFromString("finish homework by tmr")[0].getTime().toString());
-		assertEquals(null, InputParser.getDatesTimesFromString("finish homework by tmr")[1]);
+		assertEquals(Date.from(dt.atZone(ZoneId.systemDefault()).toInstant()).toString(), InputParser.getStandardDatesTimes("finish homework by tmr")[0].getTime().toString());
+		assertEquals(null, InputParser.getStandardDatesTimes("finish homework by tmr")[1]);
 		
 		// Check support for formatted input (has start and end time) out of order
 		assertEquals(StringParser.parseStringToDate("Tue Feb 12 12:00:00 SGT 2013"),
-				InputParser.getDatesTimesFromString("12/2/13 Meet John about proposal #cs2103 12:00-13:30")[0].getTime());
+				InputParser.getStandardDatesTimes("12/2/13 Meet John about proposal #cs2103 12:00-13:30")[0].getTime());
 		assertEquals(StringParser.parseStringToDate("Tue Feb 12 13:30:00 SGT 2013"), 
-				InputParser.getDatesTimesFromString("12/2/13 Meet John about proposal #cs2103 12:00h -13:30 H")[1].getTime());		
+				InputParser.getStandardDatesTimes("12/2/13 Meet John about proposal #cs2103 12:00h -13:30 H")[1].getTime());		
 		
 		// Check support for flexible start date and time, keyword
 		assertEquals(StringParser.parseStringToDate("Tue Feb 12 12:00:00 SGT 2013"),
-				InputParser.getDatesTimesFromString("Meet John about proposal on feb 12 2013 12:00 #cs2103 #cs2101")[0].getTime());
-		assertEquals(null, InputParser.getDatesTimesFromString("Meet John about proposal on feb 12 2013 12:00 #cs2103 #cs2101")[1]);
+				InputParser.getStandardDatesTimes("Meet John about proposal on feb 12 2013 12:00 #cs2103 #cs2101")[0].getTime());
+		assertEquals(null, InputParser.getStandardDatesTimes("Meet John about proposal on feb 12 2013 12:00 #cs2103 #cs2101")[1]);
 		
 		// Check support for flexible start date and time, no keyword
 		assertEquals(StringParser.parseStringToDate("Tue Feb 12 12:00:00 SGT 2013"),
-				InputParser.getDatesTimesFromString("Meet John about proposal feb 12 2013 12:00 #cs2103 #cs2101")[0].getTime());
-		assertEquals(null, InputParser.getDatesTimesFromString("Meet John about proposal feb 12 2013 12:00 #cs2103 #cs2101")[1]);
+				InputParser.getStandardDatesTimes("Meet John about proposal feb 12 2013 12:00 #cs2103 #cs2101")[0].getTime());
+		assertEquals(null, InputParser.getStandardDatesTimes("Meet John about proposal feb 12 2013 12:00 #cs2103 #cs2101")[1]);
 		
 		// NO SUPPORT FOR NATTY EVENT!
 		// Check support for Natty input start date & time
 		dt = LocalDateTime.now();
 		dt = LocalDateTime.from(dt.plusDays(1));
 		dt = dt.withHour(14).withMinute(0).withSecond(0);
-		assertEquals(Date.from(dt.atZone(ZoneId.systemDefault()).toInstant()).toString(), InputParser.getDatesTimesFromString("Meet John about proposal by tmr 2pm #cs2103 #cs2101")[0].getTime().toString());
-		assertEquals(null, InputParser.getDatesTimesFromString("Meet John about proposal by tmr 2pm #cs2101")[1]);
+		assertEquals(Date.from(dt.atZone(ZoneId.systemDefault()).toInstant()).toString(), InputParser.getStandardDatesTimes("Meet John about proposal by tmr 2pm #cs2103 #cs2101")[0].getTime().toString());
+		assertEquals(null, InputParser.getStandardDatesTimes("Meet John about proposal by tmr 2pm #cs2101")[1]);
 				
+		System.out.println("_____________________________________________________________________");
 		// Check invalid time for Natty input
-		assertArrayEquals(null, InputParser.getDatesTimesFromString("Meet John about proposal by tmr 32pm #cs2101"));
+		assertArrayEquals(null, InputParser.getStandardDatesTimes("Meet John about proposal by tmr 32pm #cs2101"));
 				
 		// Check support for flexible invalid date
-		assertArrayEquals(null, InputParser.getDatesTimesFromString("Add meeting with john on 31st April"));
+		assertArrayEquals(null, InputParser.getStandardDatesTimes("Add meeting with john on 31st April"));
 
 		// Check support for formatted input invalid time
-		assertArrayEquals(null, InputParser.getDatesTimesFromString("12/2/13 Meet John about proposal #cs2103 52:00-13:30"));		
+		assertArrayEquals(null, InputParser.getStandardDatesTimes("12/2/13 Meet John about proposal #cs2103 52:00-13:30"));		
 				
 		// Auto-add date should be upcoming date, not current year
 		// Check invalid date detection
@@ -155,7 +158,7 @@ public class InputParserTest {
 	public void testGetDescriptionFromString() {
 		assertEquals("and this my description", InputParser.getDescriptionFromString("this is my task \"and this my description\" blah blah 23/3/12"));
 		assertEquals("my desc\" #cs2101 \"lalala", InputParser.getDescriptionFromString("Meet John about proposal @1200 #cs2103 \"my desc\" #cs2101 \"lalala\""));
-		assertEquals(null, InputParser.getDescriptionFromString("Meet John about proposal @1200 #cs2103 #cs2101"));
+		assertEquals("", InputParser.getDescriptionFromString("Meet John about proposal @1200 #cs2103 #cs2101"));
 	}
 
 	@Test
@@ -205,6 +208,14 @@ public class InputParserTest {
 		assertEquals(null, InputParser.getTaskTypeFromString("lalaevent lalala"));
 		assertEquals(null, InputParser.getTaskTypeFromString("eventsal"));
 
+	}
+	
+	@Test
+	public void test() {
+		InputParser.getTitleWithKeywordsFromString("title by nov 22");
+		InputParser.getTitleWithKeywordsFromString("title on 22/2");
+		InputParser.getTitleWithKeywordsFromString("title on today");
+		InputParser.getTitleWithKeywordsFromString("title tmr to next fri #tag");
 	}
 
 }

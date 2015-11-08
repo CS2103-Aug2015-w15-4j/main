@@ -119,7 +119,7 @@ public class MyParserTest {
 		pcAdd = MyParser.parseCommand("Add meeting with \\\"john\\\" on software requirements #cs2103 #proj #cs2101");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with \"john\" on software requirements", pcAdd.getTitle());
-		assertEquals(null, pcAdd.getDescription());
+		assertEquals("", pcAdd.getDescription());
 		assertEquals(null, pcAdd.getFirstDate());
 		assertEquals(null, pcAdd.getSecondDate());
 		assertEquals(taskTags, pcAdd.getTags());
@@ -129,7 +129,7 @@ public class MyParserTest {
 		pcAdd = MyParser.parseCommand("Add meeting with john on 3 software requirements #cs2103 #proj #cs2101");
 		assertEquals(CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john on 3 software requirements", pcAdd.getTitle());
-		assertEquals(null, pcAdd.getDescription());
+		assertEquals("", pcAdd.getDescription());
 		assertEquals(null, pcAdd.getFirstDate());
 		assertEquals(null, pcAdd.getSecondDate());
 		assertEquals(taskTags, pcAdd.getTags());
@@ -141,17 +141,18 @@ public class MyParserTest {
 		pcAdd = MyParser.parseCommand("INSERT meeting with john 1/4/15 from 3pm to 7.30pm");
 		assertEquals(MyParser.CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
-		assertEquals(null, pcAdd.getDescription());
+		assertEquals("", pcAdd.getDescription());
 		assertEquals(StringParser.parseStringToDate("Wed Apr 1 15:00:00 SGT 2015"), pcAdd.getFirstDate().getTime());
 		assertEquals(StringParser.parseStringToDate("Wed Apr 1 19:30:00 SGT 2015"), pcAdd.getSecondDate().getTime());
 		assertEquals(emptyArrayList, pcAdd.getTags());
 		assertEquals(TaskType.EVENT, pcAdd.getTaskType());
 		
+		System.out.println("________________________________________________________________________________________");
 		// Check support for deadline task natty
 		pcAdd = MyParser.parseCommand("+ meeting with john on tmr at 12pm");
 		assertEquals(MyParser.CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
-		assertEquals(null, pcAdd.getDescription());
+		assertEquals("", pcAdd.getDescription());
 		LocalDateTime dt = LocalDateTime.now();
 		dt = LocalDateTime.from(dt.plusDays(1));
 		dt = dt.withHour(12).withMinute(0).withSecond(0);
@@ -164,7 +165,7 @@ public class MyParserTest {
 		pcAdd = MyParser.parseCommand("Add meeting with john on tmr");
 		assertEquals(MyParser.CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
-		assertEquals(null, pcAdd.getDescription());
+		assertEquals("", pcAdd.getDescription());
 		dt = LocalDateTime.now();
 		dt = LocalDateTime.from(dt.plusDays(1));
 		dt = dt.withHour(23).withMinute(59).withSecond(0);
@@ -177,7 +178,7 @@ public class MyParserTest {
 		pcAdd = MyParser.parseCommand("add meeting with john 23/11/10 12:00h to 24/11/10 13:30H  #cs2103 #proj #cs2101");
 		assertEquals(MyParser.CommandType.ADD, pcAdd.getCommandType());
 		assertEquals("meeting with john", pcAdd.getTitle());
-		assertEquals(null, pcAdd.getDescription());
+		assertEquals("", pcAdd.getDescription());
 		assertEquals(StringParser.parseStringToDate("Tue Nov 23 12:00:00 SGT 2010"), pcAdd.getFirstDate().getTime());
 		assertEquals(StringParser.parseStringToDate("Wed Nov 24 13:30:00 SGT 2010"), pcAdd.getSecondDate().getTime());
 		assertEquals(TaskType.EVENT, pcAdd.getTaskType());
@@ -232,6 +233,59 @@ public class MyParserTest {
 		pcAdd = MyParser.parseCommand("Add on tmr 3pm \"hello hello\" #tag1 #tag2");
 		assertEquals(MyParser.CommandType.ERROR, pcAdd.getCommandType());
 		assertEquals("Error: Missing task title", pcAdd.getErrorMessage());
+
+	
+		// Check escape character usage
+		// Check missing fields detected even with escape character
+		pcAdd = MyParser.parseCommand("Add \\");
+		assertEquals(MyParser.CommandType.ERROR, pcAdd.getCommandType());
+		assertEquals("Error: Missing task title", pcAdd.getErrorMessage());
+		
+		// Check escape character can be escaped
+		pcAdd = MyParser.parseCommand("Add \\\\");
+		assertEquals(MyParser.CommandType.ADD, pcAdd.getCommandType());
+		assertEquals("\\", pcAdd.getTitle());
+		
+		// Check support for event spanning 2 days
+		pcAdd = MyParser.parseCommand("add meeting with john \\23/11/10 12:00h to 24/11/10 13:30H  #cs2103 #proj #cs2101");
+		assertEquals(MyParser.CommandType.ADD, pcAdd.getCommandType());
+		assertEquals("meeting with john 23/11/10", pcAdd.getTitle());
+		assertEquals("", pcAdd.getDescription());
+		assertEquals(StringParser.parseStringToDate("Wed Nov 24 12:00:00 SGT 2010"), pcAdd.getFirstDate().getTime());
+		assertEquals(StringParser.parseStringToDate("Wed Nov 24 13:30:00 SGT 2010"), pcAdd.getSecondDate().getTime());
+		assertEquals(TaskType.EVENT, pcAdd.getTaskType());
+		assertEquals(taskTags, pcAdd.getTags());
+
+		// Check support for event spanning 2 days
+		pcAdd = MyParser.parseCommand("add meeting with john 23/11/10 \\12:00h to 24/11/10  #cs2103 #proj #cs2101");
+		assertEquals(MyParser.CommandType.ADD, pcAdd.getCommandType());
+		assertEquals("meeting with john  12:00h", pcAdd.getTitle());
+		assertEquals("", pcAdd.getDescription());
+		assertEquals(StringParser.parseStringToDate("Tue Nov 23 00:00:00 SGT 2010"), pcAdd.getFirstDate().getTime());
+		assertEquals(StringParser.parseStringToDate("Wed Nov 24 23:59:00 SGT 2010"), pcAdd.getSecondDate().getTime());
+		assertEquals(TaskType.EVENT, pcAdd.getTaskType());
+		assertEquals(taskTags, pcAdd.getTags());
+				
+		// Check support for event spanning 2 days
+		pcAdd = MyParser.parseCommand("add meeting with john 23/11/10 \\\"description\\\" \\12:00h to 24/11/10  #cs2103 #proj #cs2101");
+		assertEquals(MyParser.CommandType.ADD, pcAdd.getCommandType());
+		assertEquals("meeting with john  \"description\" 12:00h", pcAdd.getTitle());
+		assertEquals("", pcAdd.getDescription());
+		assertEquals(StringParser.parseStringToDate("Tue Nov 23 00:00:00 SGT 2010"), pcAdd.getFirstDate().getTime());
+		assertEquals(StringParser.parseStringToDate("Wed Nov 24 23:59:00 SGT 2010"), pcAdd.getSecondDate().getTime());
+		assertEquals(TaskType.EVENT, pcAdd.getTaskType());
+		assertEquals(taskTags, pcAdd.getTags());
+		
+		// Check support for event spanning 2 days
+		pcAdd = MyParser.parseCommand("add meeting with john on 21 days after nov 2010  #cs2103 #proj #cs2101");
+		assertEquals(MyParser.CommandType.ADD, pcAdd.getCommandType());
+		//assertEquals("meeting with john  12:00h", pcAdd.getTitle());
+		assertEquals("", pcAdd.getDescription());
+		assertEquals(StringParser.parseStringToDate("Sun Nov 29 23:59:00 SGT 2015"), pcAdd.getFirstDate().getTime());
+		assertEquals(null, pcAdd.getSecondDate());
+		assertEquals(TaskType.DEADLINE_TASK, pcAdd.getTaskType());
+		assertEquals(taskTags, pcAdd.getTags());
+				
 	}
 
 	@Test
@@ -272,7 +326,7 @@ public class MyParserTest {
 		pcDisplay = MyParser.parseCommand("show");
 		assertEquals(MyParser.CommandType.GUI_SHOW, pcDisplay.getCommandType());
 		
-		pcDisplay = MyParser.parseCommand("search 23/11/15");
+		pcDisplay = MyParser.parseCommand("search 23/11");
 		assertEquals(MyParser.CommandType.SEARCH, pcDisplay.getCommandType());
 		//assertEquals("meeting", pcDisplay.getKeywords());
 		assertEquals(StringParser.parseStringToDate("Mon Nov 23 00:00:00 SGT 2015"), pcDisplay.getFirstDate().getTime());
@@ -289,7 +343,7 @@ public class MyParserTest {
 		assertEquals(list, pcDisplay.getTags());
 		assertEquals(false, pcDisplay.isCompleted());
 		assertEquals(TaskType.DEADLINE_TASK, pcDisplay.getTaskType());
-		
+		System.out.println("...............................................................");
 		// Check search function works
 		pcDisplay = MyParser.parseCommand("show meeting 23/11/15 23:59 #tag todo");
 		assertEquals(MyParser.CommandType.SEARCH, pcDisplay.getCommandType());
@@ -332,7 +386,7 @@ public class MyParserTest {
 		list.add("tag");
 		assertEquals(list, pcEdit.getTags());
 		assertEquals("meeting", pcEdit.getTitle());
-		
+
 		// Check support for edit description, date, time, tag (flexible)
 		pcEdit = MyParser.parseCommand("Edit 234 by nov 23 1-3pm \"hello\" #tag");
 		assertEquals(MyParser.CommandType.EDIT, pcEdit.getCommandType());
@@ -481,6 +535,7 @@ public class MyParserTest {
 	
 	@Test
 	public void testGuiCommands() {
+		System.out.println("*********************************************************");
 		pcGui = MyParser.parseCommand("Open 1");
 		assertEquals(CommandType.GUI_OPEN, pcGui.getCommandType());
 		assertEquals("0", pcGui.getGuiType());

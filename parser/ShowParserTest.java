@@ -35,7 +35,7 @@ public class ShowParserTest {
 	public void testContainsOnlyTaskId() {
 		fail("Not yet implemented");
 	}
-
+	/*
 	@Test
 	public void testCreateParsedCommandShowSearch() {
 		ArrayList<String> tags = new ArrayList<String>();
@@ -89,5 +89,5 @@ public class ShowParserTest {
 		assertEquals("Error: Invalid/Missing taskId", pc.getErrorMessage());
 
 	}
-
+	*/
 }

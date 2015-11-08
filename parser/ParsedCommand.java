@@ -59,7 +59,7 @@ public class ParsedCommand {
      * @param taskId TaskId of task for edit, delete.
      * @param taskType Type of task, 1 for task, 2 for deadline task, 3 for event.
      */
-	public ParsedCommand(Builder builder) {
+	public ParsedCommand(ParsedCommandBuilder builder) {
 		this.cmdType = builder.cmdType;
 		this.title = builder.title;
 		this.errorMessage = builder.errorMessage;
@@ -207,7 +207,7 @@ public class ParsedCommand {
 		return this.searchKeywords;
 	}
 	
-	static class Builder {
+	static class ParsedCommandBuilder {
 		private static final String ERROR_MISSING_ERROR_MESSAGE = "Error: Missing error message";
 
 		private MyParser.CommandType cmdType;
@@ -230,21 +230,21 @@ public class ParsedCommand {
 		static final String ESC_CHAR_REGEX = "(?<!\\\\)(\\\\)";
 		
 
-		public Builder(MyParser.CommandType cmdType) {
+		public ParsedCommandBuilder(MyParser.CommandType cmdType) {
 			this.cmdType = cmdType;
 		}
 		
-		public Builder title(String title) {
+		public ParsedCommandBuilder title(String title) {
 			this.title = removeEscapeChars(title);
 			return this;
 		}
 		
-		public Builder description(String description) {
+		public ParsedCommandBuilder description(String description) {
 			this.description = description;
 			return this;
 		}
 		
-		public Builder times(Calendar[] times) throws InvalidArgumentsForParsedCommandException {
+		public ParsedCommandBuilder times(Calendar[] times) throws InvalidArgumentsForParsedCommandException {
 			if (times == null) {
 				throw new InvalidArgumentsForParsedCommandException(ERROR_INVALID_DATE);
 			}
@@ -253,12 +253,12 @@ public class ParsedCommand {
 			return this;
 		}
 		
-		public Builder tags(ArrayList<String> tags) {
+		public ParsedCommandBuilder tags(ArrayList<String> tags) {
 			this.tags = tags;
 			return this;
 		}
 		
-		public Builder taskId(int taskId) throws InvalidArgumentsForParsedCommandException {
+		public ParsedCommandBuilder taskId(int taskId) throws InvalidArgumentsForParsedCommandException {
 			if (taskId < 0) {
 				throw new InvalidArgumentsForParsedCommandException(InputParser.ERROR_INVALID_TASKID);
 			}
@@ -266,22 +266,22 @@ public class ParsedCommand {
 			return this;
 		}
 		
-		public Builder guiType(String gui) {
+		public ParsedCommandBuilder guiType(String gui) {
 			this.guiType = gui;
 			return this;
 		}
 		
-		public Builder errorMessage(String msg) {
+		public ParsedCommandBuilder errorMessage(String msg) {
 			this.errorMessage = msg;
 			return this;
 		}
 		
-		public Builder configType(ConfigType configType) {
+		public ParsedCommandBuilder configType(ConfigType configType) {
 			this.configType = configType;
 			return this;
 		}
 		
-		public Builder configPath(String path) throws InvalidArgumentsForParsedCommandException {
+		public ParsedCommandBuilder configPath(String path) throws InvalidArgumentsForParsedCommandException {
 			if (path.equals("")) {
 				throw new InvalidArgumentsForParsedCommandException(InputParser.ERROR_MISSING_ARGS);
 			}
@@ -289,22 +289,22 @@ public class ParsedCommand {
 			return this;
 		}
 		
-		public Builder isCompleted(Boolean status) {
+		public ParsedCommandBuilder isCompleted(Boolean status) {
 			this.isCompleted = status;
 			return this;
 		}
 		
-		public Builder isOverdue(Boolean status) {
+		public ParsedCommandBuilder isOverdue(Boolean status) {
 			this.isOverdue = status;
 			return this;
 		}
 		
-		public Builder searchKeywords(String keywords) {
+		public ParsedCommandBuilder searchKeywords(String keywords) {
 			this.searchKeywords = removeEscapeChars(keywords);
 			return this;
 		}
 		
-		public Builder taskType(TaskType type) {
+		public ParsedCommandBuilder taskType(TaskType type) {
 			this.taskType = type;
 			return this;
 		}

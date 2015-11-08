@@ -12,7 +12,7 @@ public abstract class GuiParser extends InputParser {
 		} else {
 			String tab = input[INDEX_FOR_ARGS];
 			try {
-				return new ParsedCommand.Builder(cmd)
+				return new ParsedCommand.ParsedCommandBuilder(cmd)
 										.guiType(tab)
 										.build();
 			} catch (InvalidArgumentsForParsedCommandException e) {

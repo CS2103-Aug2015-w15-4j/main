@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import parser.DateTime.DateTimeBuilder;
 import parser.MyParser.CommandType;
 import parser.ParsedCommand.TaskType;
 
@@ -47,7 +48,7 @@ public abstract class InputParser {
 	static ParsedCommand createParsedCommandError(String errorMsg) {
 		ParsedCommand pc;
 		try {
-			pc = new ParsedCommand.Builder(MyParser.CommandType.ERROR)
+			pc = new ParsedCommand.ParsedCommandBuilder(MyParser.CommandType.ERROR)
 						 		  .errorMessage(errorMsg)
 						 		  .build();
 			return pc;
@@ -58,7 +59,7 @@ public abstract class InputParser {
 
 	static ParsedCommand createParsedCommand(CommandType cmd) {
 		try {
-			return new ParsedCommand.Builder(cmd).build();
+			return new ParsedCommand.ParsedCommandBuilder(cmd).build();
 		} catch (InvalidArgumentsForParsedCommandException e) {
 			return InputParser.createParsedCommandError(e.getMessage());
 		}
@@ -67,7 +68,7 @@ public abstract class InputParser {
     
 	// Methods to extract fields from string
 	
-	public static String getTitleWithKeywordsFromString(String inputArgs) {
+	static String getTitleWithKeywordsFromString(String inputArgs) {
 		// System.out.print("Parsing: " + inputArgs);
 		inputArgs = removeRegexPatternFromString(inputArgs, NOT_TITLE_REGEX_KEYWORD_OK);
 		// System.out.println(" to : " + inputArgs);
@@ -82,7 +83,7 @@ public abstract class InputParser {
 	static String getDescriptionFromString(String inputArgs) {
 		Pattern descriptionPattern = Pattern.compile(DESCRIPTION_REGEX);
 		Matcher m = descriptionPattern.matcher(inputArgs);
-		String description = null;
+		String description = "";
 		
 		if (m.find()) {
 			description = m.group(1);
@@ -193,24 +194,38 @@ public abstract class InputParser {
 		return input.length < 2;
 	}
 	
-
+	static Calendar[] getStandardDatesTimes(String input) {
+		DateTime parsedDatesTimes = getDatesTimesFromString(input);
+		System.out.println("DONE");
+		Calendar[] dates = parsedDatesTimes.getStdDatesTimes();
+		return dates;
+	}
+	
+	static Calendar[] getSearchDatesTimes(String input) {
+		DateTime parsedDatesTimes = getDatesTimesFromString(input);
+		Calendar[] dates = parsedDatesTimes.getSearchDatesTimes();
+		return dates;
+	}
+	
 	// Date time parsing using chain of responsibility pattern
 	
-	static Calendar[] getDatesTimesFromString(String input) {
+	static DateTime getDatesTimesFromString(String input) {
 		DateTimeParser dateTimeParserChain = getChainOfParsers();
-		String[] emptyArr = new String[4];
-		String dateSection = DateTimeParser.extractDateTimeSectionFromString(input);
-		Calendar[] datesTimes = dateTimeParserChain.getDatesTimes(dateSection, emptyArr, emptyArr);
+		String dateSection = DateTimeParser.extractDateTimeSectionFromString(input).toLowerCase();
+		DateTimeBuilder toParse = new DateTimeBuilder(dateSection);
+		DateTime datesTimes = dateTimeParserChain.getDatesTimes(toParse);
 		return datesTimes;
 	}
 	
 	private static DateTimeParser getChainOfParsers() {
+		DateTimeParser timeParser = new TimeParser();
 		DateTimeParser formattedParser = new FormattedDateTimeParser();
 		DateTimeParser flexibleParser = new FlexibleDateTimeParser();
 		DateTimeParser nattyParser = new NattyDateTimeParser();
 		
+		timeParser.setNextParser(formattedParser);
 		formattedParser.setNextParser(flexibleParser);
 		flexibleParser.setNextParser(nattyParser);
-		return formattedParser;
+		return timeParser;
 	}
 }

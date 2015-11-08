@@ -13,10 +13,10 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import parser.DateTime.DateTimeBuilder;
+import parser.DateTime.ParserType;
+
 public class FlexibleDateTimeParser extends DateTimeParser {
-	private String[] flexibleDates;
-	private String[] flexibleTimes;
-	private String unparsedInput;
 	
 	private enum DateFormat {
 		DATE_MONTH, MONTH_DATE;
@@ -58,25 +58,26 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 	
 	private static final Logger logger = Logger.getLogger(FlexibleDateTimeParser.class.getName() );
 	
-	private static String[] getDateMonthFromString(String input) {
+	private static String[][] getDateMonthFromString(String input) {
 		String[][] temp = parseStringToDateArray(input, DateFormat.DATE_MONTH);
-		String[] dateArr = convertDateArrayToStdForm(temp);
-		setDateFormatToFlexDateFormat(dateArr);
+		String[][] dateArr = convertDateArrayToStdForm(temp);
 		setUnparsedInput(DateFormat.DATE_MONTH, input, dateArr);
+		// System.out.println("DM");
 		// System.out.println(dateArr[0]);
 		// System.out.println(dateArr[1]);
-		logger.log(Level.FINE, "DM start: " + dateArr[0] + " end: " + dateArr[1] + " format: " + dateArr[2] + " unparsed: " + dateArr[3]);
+		//logger.log(Level.FINE, "DM start: " + dateArr[0] + " end: " + dateArr[1] + " format: " + dateArr[2] + " unparsed: " + dateArr[3]);
 		return dateArr;
 	}
 
-	private static String[] getMonthDateFromString(String input) {
+	private static String[][] getMonthDateFromString(String input) {
 		String[][] tempDateArr = parseStringToDateArray(input, DateFormat.MONTH_DATE);
-		String[] dateArr = convertDateArrayToStdForm(tempDateArr);
-		setDateFormatToFlexDateFormat(dateArr);
+		String[][] dateArr = convertDateArrayToStdForm(tempDateArr);
+		// setDateFormatToFlexDateFormat(dateArr);
 		setUnparsedInput(DateFormat.MONTH_DATE, input, dateArr);
+		// System.out.println("MD");
 		// System.out.println(dateArr[0]);
 		// System.out.println(dateArr[1]);
-		logger.log(Level.FINE, "MD start: " + dateArr[0] + " end: " + dateArr[1] + " format: " + dateArr[2] + " unparsed: " + dateArr[3]);		
+		// logger.log(Level.FINE, "MD start: " + dateArr[0] + " end: " + dateArr[1] + " format: " + dateArr[2] + " unparsed: " + dateArr[3]);		
 		return dateArr;
 	}
 
@@ -87,34 +88,36 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 		temp[i][INDEX_FOR_YEAR_ARR] = year;
 	}
 
-	private static String[] convertDateArrayToStdForm(String[][] temp) {
-		String[] dateArr = new String[4];
-		if (temp[INDEX_FOR_START][INDEX_FOR_DATE_ARR] == null) { // has no start date
-			setStartAndEndDate(dateArr, null, null);
-		} else { // flexible date detected
-			String startDate = dateArrToStdString(temp, INDEX_FOR_START); // standard flexible date
-			String endDate;
-			if (temp[INDEX_FOR_END][INDEX_FOR_DATE_ARR] == null) { // no end date detected
-				endDate = null;
-			} else {
-				endDate = dateArrToStdString(temp, INDEX_FOR_END);		
-			}
-			setStartAndEndDate(dateArr, startDate, endDate);
-		}
+	private static String[][] convertDateArrayToStdForm(String[][] temp) {
+		String[][] dateArr = new String[3][3];
+		dateArr[0] = convertToStandardDateFormat(temp[0]);
+		dateArr[1] = convertToStandardDateFormat(temp[1]);
 		return dateArr;
 	}
 
-	private static void setStartAndEndDate(String[] dateArr, String startDate, String endDate) {
-		dateArr[INDEX_FOR_START] = startDate;
-		dateArr[INDEX_FOR_END] = endDate;
-	}
-
-	private static String dateArrToStdString(String[][] temp, int dateIndex) {
-		return temp[dateIndex][INDEX_FOR_DATE_ARR] + " " + temp[dateIndex][INDEX_FOR_MONTH_ARR] + " " 
-				+ temp[dateIndex][INDEX_FOR_YEAR_ARR];
+	private static String[] convertToStandardDateFormat(String[] date) {
+		date[INDEX_FOR_MONTH_ARR] = convertMonthToInt(date[INDEX_FOR_MONTH_ARR]);
+		return date;
 	}
 	
-	private static void setYears(String[][] temp) {
+	private static String convertMonthToInt(String monthName) {
+		int month = -1;
+		if (monthName == null) {
+			return null;
+		}
+		try {
+			Date date = new SimpleDateFormat("MMM").parse(monthName);
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(date);
+			month = cal.get(Calendar.MONTH) + 1;		    
+		} catch (ParseException e) {
+			// is never reached
+			// do nothing
+		}
+		return String.valueOf(month);
+	}
+
+	/*private static void setYears(String[][] temp) {
 		if (temp[INDEX_FOR_END][INDEX_FOR_YEAR_ARR] != null) { // has year
 			if (temp[INDEX_FOR_START][INDEX_FOR_YEAR_ARR] == null) { // start date has no year
 				temp[INDEX_FOR_START][INDEX_FOR_YEAR_ARR] = temp[INDEX_FOR_END][INDEX_FOR_YEAR_ARR]; // set start year = end year
@@ -145,7 +148,7 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 		} catch (ParseException e){
 			date = null;
 		}
-	}
+	}*/
 
 	private static String[][] parseStringToDateArray(String input, DateFormat df) {
 		input = input.toLowerCase();
@@ -156,7 +159,9 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 		if (df == DateFormat.MONTH_DATE) {
 			m = MMMD.matcher(input);
 			dmyIndices = MD_INDICES;
+			System.out.println("In month date");
 		} else if (df == DateFormat.DATE_MONTH) {
+			System.out.println("In date month");
 			m = DMMM.matcher(input);
 			dmyIndices = DM_INDICES;
 		} else {
@@ -170,8 +175,9 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 			String year = m.group(dmyIndices[INDEX_FOR_YEAR_ARR]);
 			updateDateArray(temp, i, date, month, year);
 			i++;
+			System.out.println("FOUND date month!");
 		}
-		setYears(temp);
+		// setYears(temp);
 		return temp;
 	}
 
@@ -184,49 +190,32 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 		return InputParser.removeRegexPatternFromString(input, MONTH_DATE_REGEX);
 	}
 	
-	private static void setUnparsedInput(DateFormat df, String input, String[] dateArr) {
+	private static void setUnparsedInput(DateFormat df, String input, String[][] dateArr) {
 		if (df == DateFormat.MONTH_DATE) {
-			dateArr[3] = removeMonthDateFromString(input);
+			dateArr[2][0] = removeMonthDateFromString(input);
 		} else if (df == DateFormat.DATE_MONTH) {
-			dateArr[3] = removeDateMonthFromString(input);
+			dateArr[2][0] = removeDateMonthFromString(input);
 		}
 	}
 	
-	private static void setDateFormatToFlexDateFormat(String[] dateArr) {
-		dateArr[2] = STANDARD_FLEXIBLE_DATE_FORMAT;
+	@Override
+	protected DateTimeBuilder parse(DateTimeBuilder currentlyParsed) {
+		String input = currentlyParsed.getUnparsedInput();
+		System.out.println("Flexible: " + input);
+		String[][] flexibleDates = getStandardFlexibleDates(input);
+		System.out.println("Parsed start: " + flexibleDates[0][0] +"/" + flexibleDates[0][1]);
+		currentlyParsed = currentlyParsed.dates(flexibleDates);
+		return currentlyParsed;
 	}
 
-
-	@Override
-	protected String[] getParsedDates() {
-		return flexibleDates;
-	}
-	
-	@Override
-	protected String[] getParsedTimes() {
-		return flexibleTimes;
-	}
-	
-	@Override
-	protected String getUnparsedInput() {
-		return unparsedInput;
-	}
-	
-	@Override
-	protected Calendar[] parse(String input, String[] parsedDates, String[] parsedTimes) {
-		flexibleTimes = parsedTimes; // all time parsing done previously
-		flexibleDates = getStandardFlexibleDates(input);
-		unparsedInput = flexibleDates[3];
-		return convertStringToCalendar(flexibleDates, flexibleTimes);
-	}
-
-	public static String[] getStandardFlexibleDates(String input) {
-		String[] dates = new String[4];
+	private static String[][] getStandardFlexibleDates(String input) {
+		String[][] dates = new String[3][3];
 		dates = getMonthDateFromString(input);
-		if (dates[INDEX_FOR_START] == null) { // no MMM d detected
+		System.out.println("Month date result: " + dates[0]);
+		if (dates[INDEX_FOR_START][0] == null) { // no MMM d detected
 			dates = getDateMonthFromString(input);
+			System.out.println("date month: " + dates[0][0]);
 		}
-		dates[2] = STANDARD_FLEXIBLE_DATE_FORMAT;
 		return dates;
 	}
 	

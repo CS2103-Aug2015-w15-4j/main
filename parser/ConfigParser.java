@@ -28,7 +28,7 @@ public class ConfigParser extends InputParser {
 			}
 			try {
 				String fileName = input[INDEX_FOR_SUBARGS];
-				ParsedCommand pc = new ParsedCommand.Builder(CommandType.CONFIG_IMG)
+				ParsedCommand pc = new ParsedCommand.ParsedCommandBuilder(CommandType.CONFIG_IMG)
 													.configType(configType)
 													.configPath(fileName)
 													.build();
@@ -47,7 +47,7 @@ public class ConfigParser extends InputParser {
 		} else {
 			try {
 				String fileName = input[INDEX_FOR_SUBARGS];
-				ParsedCommand pc = new ParsedCommand.Builder(MyParser.CommandType.CONFIG_DATA)
+				ParsedCommand pc = new ParsedCommand.ParsedCommandBuilder(MyParser.CommandType.CONFIG_DATA)
 						  			  				.configPath(fileName)
 						  			  				.build();
 				return pc;

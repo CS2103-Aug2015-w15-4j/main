@@ -14,31 +14,31 @@ public class TimeParserTest {
 	public void testGetStandardTimesFromString() {
 		// Partition 1: 12 hr times
 		// Test 12 hr format complete (formatted times), time at end
-		assertEquals("12:30pm", TimeParser.getStandardTimesFromString("hello i have 10 class tmr 12.30pm-2.30pm")[0]);
-		assertEquals("2:30pm", TimeParser.getStandardTimesFromString("hello i have 10 class tmr 12.30pm-2.30pm 1322")[1]);
+		assertEquals("12:30", TimeParser.getStandardTimesFromString("hello i have 10 class tmr 12.30pm-2.30pm")[0]);
+		assertEquals("14:30", TimeParser.getStandardTimesFromString("hello i have 10 class tmr 12.30pm-2.30pm 1322")[1]);
 		
 		// Test 12 hr format, no am/pm for first time, whitespace (formatted times) 
-		assertEquals("12:30pm", TimeParser.getStandardTimesFromString("hello i have class tmr 12.30 - 2.30 pm")[0]);
-		assertEquals("2:30pm", TimeParser.getStandardTimesFromString("hello i have class tmr 12.30 - 2.30 pm")[1]);
+		assertEquals("12:30", TimeParser.getStandardTimesFromString("hello i have class tmr 12.30 - 2.30 pm")[0]);
+		assertEquals("14:30", TimeParser.getStandardTimesFromString("hello i have class tmr 12.30 - 2.30 pm")[1]);
 		
 		// Test no minutes indicated (start), am & pm (formatted times), time in middle
-		assertEquals("8:00am", TimeParser.getStandardTimesFromString("hello i have 8am-2.30pm test")[0]);
-		assertEquals("2:30pm", TimeParser.getStandardTimesFromString("hello i have 8am-2.30pm test")[1]);
+		assertEquals("08:00", TimeParser.getStandardTimesFromString("hello i have 8am-2.30pm test")[0]);
+		assertEquals("14:30", TimeParser.getStandardTimesFromString("hello i have 8am-2.30pm test")[1]);
 		
 		// Test no minutes indicated (end), whitespace (formatted times), time at the beginning
-		assertEquals("9:30am", TimeParser.getStandardTimesFromString("9.30 - 11am on 2 feb")[0]);
-		assertEquals("11:00am", TimeParser.getStandardTimesFromString("9.30 - 11am on 2 feb")[1]);
+		assertEquals("09:30", TimeParser.getStandardTimesFromString("9.30 - 11am on 2 feb")[0]);
+		assertEquals("11:00", TimeParser.getStandardTimesFromString("9.30 - 11am on 2 feb")[1]);
 		
 		// Test 'to' is acceptable delimiter, don't need am/pm
-		assertEquals("8:00pm", TimeParser.getStandardTimesFromString("8 to 3pm")[0]);
-		assertEquals("3:00pm", TimeParser.getStandardTimesFromString("8 to 3pm")[1]);
+		assertEquals("20:00", TimeParser.getStandardTimesFromString("8 to 3pm")[0]);
+		assertEquals("15:00", TimeParser.getStandardTimesFromString("8 to 3pm")[1]);
 		
 		// Test separated times, only am/pm times are detected
-		assertEquals("11:00am", TimeParser.getStandardTimesFromString("tmr 9.30 hello lala 11am test 3.30pm")[0]);
-		assertEquals("3:30pm", TimeParser.getStandardTimesFromString("tmr 9.30 hello lala 11am test 3.30pm")[1]);
+		assertEquals("11:00", TimeParser.getStandardTimesFromString("tmr 9.30 hello lala 11am test 3.30pm")[0]);
+		assertEquals("15:30", TimeParser.getStandardTimesFromString("tmr 9.30 hello lala 11am test 3.30pm")[1]);
 		
 		// Test start time only
-		assertEquals("9:30am", TimeParser.getStandardTimesFromString("hello i have class tmr 9.30 am")[0]);
+		assertEquals("09:30", TimeParser.getStandardTimesFromString("hello i have class tmr 9.30 am")[0]);
 		assertEquals(null, TimeParser.getStandardTimesFromString("hello i have class tmr 9.30 am")[1]);
 		
 		
@@ -68,7 +68,7 @@ public class TimeParserTest {
 		
 		// Partition 4: Invalid times 
 		// Test invalid 12h times are accepted
-		assertEquals("12:30pm", TimeParser.getStandardTimesFromString("hello i have class tmr 12:30-14:30pm")[0]);
+		assertEquals("12:30", TimeParser.getStandardTimesFromString("hello i have class tmr 12:30-14:30pm")[0]);
 		assertEquals("14:30pm", TimeParser.getStandardTimesFromString("hello i have class tmr 12:30-14:30pm")[1]);
 
 		// Test invalid 24h times are accepted
@@ -108,8 +108,8 @@ public class TimeParserTest {
 	
 	@Test
 	public void testGetStandardTimesFromStringNatty() {
-		assertEquals("next monday  to next friday", TimeParser.getStandardTimesFromString("next monday 12.30pm to next friday 2.30pm")[3]);
-		assertEquals("next tuesday", TimeParser.getStandardTimesFromString("next tuesday 3 until 7pm")[3]);
+		assertEquals("next monday  to next friday", TimeParser.getStandardTimesFromString("next monday 12.30pm to next friday 2.30pm")[2]);
+		assertEquals("next tuesday", TimeParser.getStandardTimesFromString("next tuesday 3 until 7pm")[2]);
 	}
 		
 		

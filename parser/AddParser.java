@@ -14,14 +14,14 @@ public class AddParser extends InputParser {
 			
 			try {
 				String parsedTitle = getTitleWithKeywordsFromString(inputArgs);
-				Calendar[] parsedTimes = getDatesTimesFromString(inputArgs);
+				Calendar[] parsedTimes = getStandardDatesTimes(inputArgs);
 				if (parsedTimes != null && parsedTimes.length > 2) { // date keyword used for date input
 					parsedTitle = removeKeywordSection(parsedTitle);
 				}
 				String parsedDescription = getDescriptionFromString(inputArgs);
 				ArrayList<String> parsedTags = getTagsFromString(inputArgs);
 				
-				ParsedCommand pc = new ParsedCommand.Builder(MyParser.CommandType.ADD)
+				ParsedCommand pc = new ParsedCommand.ParsedCommandBuilder(MyParser.CommandType.ADD)
 													.title(parsedTitle)
 													.times(parsedTimes)
 													.description(parsedDescription)

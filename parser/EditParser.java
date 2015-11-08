@@ -19,14 +19,14 @@ public class EditParser extends InputParser {
 					String changes = inputArgs[1];
 					int parsedTaskId = getTaskIdFromString(task);
 					String parsedTitle = getTitleWithKeywordsFromString(changes);
-					Calendar[] parsedTimes = getDatesTimesFromString(changes);
+					Calendar[] parsedTimes = getStandardDatesTimes(changes);
 					if (parsedTimes != null && parsedTimes.length > 2) { // date keyword used for date input
 						parsedTitle = removeKeywordSection(parsedTitle);
 					}
 					String parsedDescription = getDescriptionFromString(changes);
 					ArrayList<String> parsedTags = getTagsFromString(changes);
 				
-					ParsedCommand pc = new ParsedCommand.Builder(MyParser.CommandType.EDIT)
+					ParsedCommand pc = new ParsedCommand.ParsedCommandBuilder(MyParser.CommandType.EDIT)
 														.taskId(parsedTaskId)
 														.title(parsedTitle)
 														.times(parsedTimes)

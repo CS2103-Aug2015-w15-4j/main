@@ -27,7 +27,7 @@ public class FlagParser extends InputParser {
 			String inputArgs = input[INDEX_FOR_ARGS].trim();
 			try {
 				int taskId = getTaskIdFromString(inputArgs);
-				ParsedCommand pc = new ParsedCommand.Builder(MyParser.CommandType.FLAG)
+				ParsedCommand pc = new ParsedCommand.ParsedCommandBuilder(MyParser.CommandType.FLAG)
 													.taskId(taskId)
 													.isCompleted(status)
 													.build();
