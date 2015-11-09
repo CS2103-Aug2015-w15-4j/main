@@ -9,11 +9,12 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import gui.ShortcutManager.CommandType;
 
-public class GUIShortcutTests {
+public class GUIShortcutTest {
 	boolean isShiftDown = false; 
 	boolean isControlDown = false; 
 	boolean isAltDown = false; 
 	KeyEvent keyEvent = null;
+	
 	@Test
 	public void focusModeTest01() {
 		// BACK_SLASH (\) only
@@ -89,5 +90,13 @@ public class GUIShortcutTests {
 		isControlDown = true;
 		keyEvent = new KeyEvent(null, null, null, KeyCode.U, isShiftDown, isControlDown, isAltDown, false);
 		assertEquals(CommandType.UNPIN, ShortcutManager.processKeyEvent(keyEvent));
+	}
+	
+	@Test
+	public void invalidTest01() {
+		// Ctrl + P only
+		isControlDown = true;
+		keyEvent = new KeyEvent(null, null, null, KeyCode.P, isShiftDown, isControlDown, isAltDown, false);
+		assertEquals(CommandType.NONE, ShortcutManager.processKeyEvent(keyEvent));
 	}
 }

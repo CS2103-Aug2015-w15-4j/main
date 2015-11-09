@@ -14,7 +14,7 @@ import java.util.Calendar;
 import java.util.List;
 import static org.junit.Assert.*;
 
-//@@author A012477W
+//@@author A0124777W
 public class SearchTest {
 
 
