@@ -7,7 +7,7 @@ import java.util.Calendar;
 
 public class AddParser extends InputParser {
 
-	ParsedCommand parse(String[] input) {
+	protected ParsedCommand parse(String[] input) {
 		if (isMissingArguments(input)) {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
@@ -16,7 +16,7 @@ public class AddParser extends InputParser {
 			try {
 				String parsedTitle = getTitleWithDateKeywords(inputArgs);
 				Calendar[] parsedTimes = getStandardDatesTimes(inputArgs);
-				if (mustRemoveDateKeywordSection(parsedTimes)) { 
+				if (mustRemoveDateKeywordSection(parsedTimes, inputArgs)) { 
 					parsedTitle = removeDateKeywordSection(parsedTitle);
 				}
 				String parsedDescription = getDescriptionFromString(inputArgs);

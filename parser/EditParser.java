@@ -6,7 +6,7 @@ import java.util.Calendar;
 
 public class EditParser extends InputParser {
 
-	ParsedCommand parse(String[] input) {
+	protected ParsedCommand parse(String[] input) {
 		if (isMissingArguments(input)) {
 			return InputParser.createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {
@@ -20,7 +20,7 @@ public class EditParser extends InputParser {
 					int parsedTaskId = getTaskIdFromString(task);
 					String parsedTitle = getTitleWithDateKeywords(changes);
 					Calendar[] parsedTimes = getStandardDatesTimes(changes);
-					if (mustRemoveDateKeywordSection(parsedTimes)) { // date keyword used for date input
+					if (mustRemoveDateKeywordSection(parsedTimes, changes)) { // date keyword used for date input
 						parsedTitle = removeDateKeywordSection(parsedTitle);
 					}
 					String parsedDescription = getDescriptionFromString(changes);

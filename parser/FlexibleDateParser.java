@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 import parser.DateTime.DateTimeBuilder;
 import parser.DateTime.ParserType;
 
-public class FlexibleDateTimeParser extends DateTimeParser {
+public class FlexibleDateParser extends DateTimeParser {
 	
 	private static final int INDEX_FOR_UNPARSED = 2;
 
@@ -54,7 +54,7 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 	private static final int[] DM_INDICES = {DM_INDEX_FOR_DATE, DM_INDEX_FOR_MONTH, DM_INDEX_FOR_YEAR};
 	private static final int[] MD_INDICES = {MD_INDEX_FOR_DATE, MD_INDEX_FOR_MONTH, MD_INDEX_FOR_YEAR};
 	
-	private static final Logger logger = Logger.getLogger(FlexibleDateTimeParser.class.getName() );
+	private static final Logger logger = Logger.getLogger(FlexibleDateParser.class.getName() );
 	
 	@Override
 	protected DateTimeBuilder parse(DateTimeBuilder currentlyParsed) {

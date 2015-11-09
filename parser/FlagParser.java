@@ -4,7 +4,7 @@ package parser;
 
 public class FlagParser extends InputParser {
 
-	ParsedCommand parse(String[] input) {
+	protected ParsedCommand parse(String[] input) {
 		if (isMissingArguments(input)) {
 			return createParsedCommandError(ERROR_MISSING_ARGS);
 		} else {

@@ -7,11 +7,14 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ 
-	MyParserTest.class, 
-	DateTimeParserTest.class,
-	test.InputParserTest.class
+	AddTest.class,
+	TaskTest.class,
+	UpdateTest.class,
+	LogicTest.class,
+	SearchTest.class
 })
 
-public class ParserTestSuite {
+
+public class LogicTestSuite {
 
 }

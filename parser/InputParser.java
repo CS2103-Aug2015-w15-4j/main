@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import parser.DateTime.DateTimeBuilder;
 import parser.MyParser.CommandType;
 import parser.ParsedCommand.TaskType;
+import test.ParserTestingMethods;
 
 public abstract class InputParser {
 	static final String ERROR_INVALID_COMMAND = "Error: Invalid command";
@@ -28,24 +29,24 @@ public abstract class InputParser {
 	static final String TO_REGEX = "-|to|until|till";
 		
 	static final String TASK_ID_REGEX = "(^[0-9]+(?=\\s|$))";
+	static final String SEARCH_TASK_ID_REGEX = "(^[0-9]+\\s*(?=$))";
 	static final String TAG_REGEX = "(?<=\\s|^)#(\\w+)";
-	private static final String DESCRIPTION_REGEX = "(?<!\\\\)\"(.*)(?<!\\\\)\"(?!.*((?<!\\\\)\"))";
+	static final String DESCRIPTION_REGEX = "(?<!\\\\)\"(.*)(?<!\\\\)\"(?!.*((?<!\\\\)\"))";
 	private static final String TASK_STATUS_REGEX = "(?<=\\s|^)(todo|done|overdue)(?=\\s|$)";
 	private static final String TASK_TYPE_REGEX = "(?<=\\s|^)(floating(?:task)?|deadline(?:task)?|event(?:task)?)(?:s)?(?=\\s|$)";
 	private static final String OVERDUE_REGEX = "(?<=[^//s])(overdue)(?=\\s|$)";
 	
-	
 	protected static final String NOT_TITLE_REGEX_KEYWORD_OK = "(" + "((?<=\\s|^)(from |fr |at |to |til |until |by |on |- ))?" + DateTimeParser.NO_KEYWORD_DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX + ")";  	
 	
-	static final Logger logger = Logger.getLogger(StringParser.class.getName() );
+	static final Logger logger = Logger.getLogger(ParserTestingMethods.class.getName() );
 	public static final String ERROR_INVALID_TABID = "Error: Invalid tab ID";
 	
 	protected static final int INDEX_FOR_START = 0;
 	protected static final int INDEX_FOR_END = 1;
 
-	abstract ParsedCommand parse(String[] input);
+	protected abstract ParsedCommand parse(String[] input);
 	
-	static ParsedCommand createParsedCommandError(String errorMsg) {
+	protected static ParsedCommand createParsedCommandError(String errorMsg) {
 		ParsedCommand pc;
 		try {
 			pc = new ParsedCommand.ParsedCommandBuilder(MyParser.CommandType.ERROR)
@@ -57,7 +58,7 @@ public abstract class InputParser {
 		}
 	}
 
-	static ParsedCommand createParsedCommand(CommandType cmd) {
+	protected static ParsedCommand createParsedCommand(CommandType cmd) {
 		try {
 			return new ParsedCommand.ParsedCommandBuilder(cmd).build();
 		} catch (InvalidArgumentsForParsedCommandException e) {
@@ -68,7 +69,7 @@ public abstract class InputParser {
     
 	// Methods to extract fields from string
 	
-	static String getTitleWithDateKeywords(String inputArgs) {
+	protected static String getTitleWithDateKeywords(String inputArgs) {
 		if (inputArgs == null) {
 			return null;
 		}
@@ -81,7 +82,7 @@ public abstract class InputParser {
 		return inputArgs.trim();
 	}
 	
-	static String getDescriptionFromString(String inputArgs) {
+	protected static String getDescriptionFromString(String inputArgs) {
 		if (inputArgs == null) {
 			return null;
 		}
@@ -96,7 +97,7 @@ public abstract class InputParser {
 		return description;
 	}
 
-	static int getTaskIdFromString(String inputArgs) {
+	protected static int getTaskIdFromString(String inputArgs) {
 		Pattern taskIdPattern = Pattern.compile(TASK_ID_REGEX);
 		Matcher m = taskIdPattern.matcher(inputArgs);
 		int taskId = -1;
@@ -107,8 +108,20 @@ public abstract class InputParser {
 
 		return taskId;
 	}
+	
+	static int getSearchTaskIdFromString(String inputArgs) {
+		Pattern taskIdPattern = Pattern.compile(SEARCH_TASK_ID_REGEX);
+		Matcher m = taskIdPattern.matcher(inputArgs);
+		int taskId = -1;
 
-	static ArrayList<String> getTagsFromString(String inputArgs) {
+		if (m.find()) {
+			taskId = Integer.parseInt(m.group());
+		}
+
+		return taskId;
+	}
+
+	protected static ArrayList<String> getTagsFromString(String inputArgs) {
 		Pattern tagsPattern = Pattern.compile(TAG_REGEX);
 		Matcher m = tagsPattern.matcher(inputArgs);
 		ArrayList<String> tags = new ArrayList<String>();
@@ -121,7 +134,7 @@ public abstract class InputParser {
 		return tags;
 	}
 
-	static Boolean getTaskStatusFromString(String inputArgs) {
+	protected static Boolean getTaskStatusFromString(String inputArgs) {
 		inputArgs = inputArgs.toLowerCase();
 		Pattern taskStatusPattern = Pattern.compile(TASK_STATUS_REGEX);
 		Matcher m = taskStatusPattern.matcher(inputArgs);
@@ -134,7 +147,7 @@ public abstract class InputParser {
 		return determineTaskStatus(status);
 	}
 	
-	static Boolean getIsOverdueFromString(String inputArgs) {
+	protected static Boolean getIsOverdueFromString(String inputArgs) {
 		inputArgs = inputArgs.toLowerCase();
 		Pattern taskStatusPattern = Pattern.compile(OVERDUE_REGEX);
 		Matcher m = taskStatusPattern.matcher(inputArgs);
@@ -146,7 +159,7 @@ public abstract class InputParser {
 		return false;
 	}
 
-	static TaskType getTaskTypeFromString(String inputArgs) {
+	protected static TaskType getTaskTypeFromString(String inputArgs) {
 		inputArgs = inputArgs.toLowerCase();
 		Pattern taskTypePattern = Pattern.compile(TASK_TYPE_REGEX);
 		Matcher m = taskTypePattern.matcher(inputArgs);
@@ -184,7 +197,7 @@ public abstract class InputParser {
 	}
 	
 	
-	static String removeDateKeywordSection(String input) {
+	protected static String removeDateKeywordSection(String input) {
 		input = removeRegexPatternFromString(input, DateTimeParser.DATE_KEYWORD_REGEX);
 		return input;
 	}
@@ -197,28 +210,39 @@ public abstract class InputParser {
 		return input.trim();
 	}
 	
-	static boolean isMissingArguments(String[] input) {
+	protected static boolean isMissingArguments(String[] input) {
 		return input.length < 2;
 	}
 	
-	static Calendar[] getStandardDatesTimes(String input) {
+	protected static Calendar[] getStandardDatesTimes(String input) {
 		DateTime parsedDatesTimes = getDatesTimesFromString(input);
 		Calendar[] dates = parsedDatesTimes.getStdDatesTimes();
 		return dates;
 	}
 	
-	static Calendar[] getSearchDatesTimes(String input) {
+	protected static Calendar[] getSearchDatesTimes(String input) {
 		DateTime parsedDatesTimes = getDatesTimesFromString(input);
 		Calendar[] dates = parsedDatesTimes.getSearchDatesTimes();
 		return dates;
 	}
 	
-	boolean mustRemoveDateKeywordSection(Calendar[] parsedTimes) {
-		return parsedTimes != null && parsedTimes[0] != null && parsedTimes.length > 2;
+	boolean mustRemoveDateKeywordSection(Calendar[] parsedTimes, String input) {
+		return parsedTimes != null && parsedTimes[0] != null && parsedTimes.length > 2 && !containsTmr(input);
+	}
+	
+	private boolean containsTmr(String input) {
+		input = input.toLowerCase();
+		Pattern taskTypePattern = Pattern.compile(DateTimeParser.TOMORROW_REGEX);
+		Matcher m = taskTypePattern.matcher(input);
+
+		if (m.find()) {
+			return true;
+		}
+		
+		return false;
 	}
 	
 	// Date time parsing using chain of responsibility pattern
-	
 	private static DateTime getDatesTimesFromString(String input) {
 		DateTimeParser dateTimeParserChain = getChainOfParsers();
 		String dateSection = DateTimeParser.extractDateTimeSectionFromString(input.toLowerCase());
@@ -229,9 +253,9 @@ public abstract class InputParser {
 	
 	private static DateTimeParser getChainOfParsers() {
 		DateTimeParser timeParser = new TimeParser();
-		DateTimeParser formattedParser = new FormattedDateTimeParser();
-		DateTimeParser flexibleParser = new FlexibleDateTimeParser();
-		DateTimeParser nattyParser = new NattyDateTimeParser();
+		DateTimeParser formattedParser = new FormattedDateParser();
+		DateTimeParser flexibleParser = new FlexibleDateParser();
+		DateTimeParser nattyParser = new NattyDateParser();
 		
 		timeParser.setNextParser(formattedParser);
 		formattedParser.setNextParser(flexibleParser);

@@ -1,4 +1,4 @@
-package test.LogicTests;
+package test;
 
 import logic.DeadlineTask;
 import logic.Event;

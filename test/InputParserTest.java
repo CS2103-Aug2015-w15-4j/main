@@ -1,45 +1,20 @@
 //@@author A0114620X
 
-package parser;
+package test;
 
 import static org.junit.Assert.*;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
-
+import org.junit.Before;
 import org.junit.Test;
 
+import parser.InputParser;
+import parser.MyParser;
+import parser.ParsedCommand;
 import parser.MyParser.CommandType;
 import parser.ParsedCommand.TaskType;
 
-public class InputParserTest {
-	
-	private static Date parseStringToDate(String input) {
-		if (input == null) {
-			return null;
-		}
-		Date date = new Date();
-			SimpleDateFormat format = new SimpleDateFormat("d/M/yy HH:mm");
-			try {
-				date = format.parse(input);
-			} catch (ParseException e) {
-				return null;
-			}
-			return date;
-	}
-	
-	private static String inNDays(int n, int h, int m) {
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/M/yy HH:mm");
-		LocalDateTime date = LocalDateTime.now();
-		date = LocalDateTime.from(date.plusDays(n));
-		date = date.withHour(h).withMinute(m).withSecond(0);
-		return date.format(formatter);
-	}
+public class InputParserTest extends InputParser {
 
 	private static void checkTitleWithKeywords(String expected, String input) {
 		assertEquals(expected, InputParser.getTitleWithDateKeywords(input));
@@ -51,15 +26,19 @@ public class InputParserTest {
 
 	private static void checkStdDatesTimes(String expectedStart, String expectedEnd, String received) {
 		if (expectedStart == null) {
-			assertEquals(parseStringToDate(expectedStart), InputParser.getStandardDatesTimes(received)[0]);
+			assertEquals(ParserTestingMethods.parseStringToDate(expectedStart), 
+					     InputParser.getStandardDatesTimes(received)[0]);
 		} else {
-			assertEquals(parseStringToDate(expectedStart), InputParser.getStandardDatesTimes(received)[0].getTime());
+			assertEquals(ParserTestingMethods.parseStringToDate(expectedStart), 
+					     InputParser.getStandardDatesTimes(received)[0].getTime());
 		}
 		
 		if (expectedEnd == null) {
-			assertEquals(parseStringToDate(expectedEnd), InputParser.getStandardDatesTimes(received)[1]);
+			assertEquals(ParserTestingMethods.parseStringToDate(expectedEnd), 
+					     InputParser.getStandardDatesTimes(received)[1]);
 		} else {
-			assertEquals(parseStringToDate(expectedEnd), InputParser.getStandardDatesTimes(received)[1].getTime());
+			assertEquals(ParserTestingMethods.parseStringToDate(expectedEnd), 
+					     InputParser.getStandardDatesTimes(received)[1].getTime());
 		}
 	}
 	
@@ -69,15 +48,19 @@ public class InputParserTest {
 	
 	private static void checkSearchDatesTimes(String expectedStart, String expectedEnd, String input) {
 		if (expectedStart == null) {
-			assertEquals(parseStringToDate(expectedStart), InputParser.getSearchDatesTimes(input)[0]);
+			assertEquals(ParserTestingMethods.parseStringToDate(expectedStart), 
+					     InputParser.getSearchDatesTimes(input)[0]);
 		} else {
-			assertEquals(parseStringToDate(expectedStart), InputParser.getSearchDatesTimes(input)[0].getTime());
+			assertEquals(ParserTestingMethods.parseStringToDate(expectedStart), 
+					     InputParser.getSearchDatesTimes(input)[0].getTime());
 		}
 		
 		if (expectedEnd == null) {
-			assertEquals(parseStringToDate(expectedEnd), InputParser.getSearchDatesTimes(input)[1]);
+			assertEquals(ParserTestingMethods.parseStringToDate(expectedEnd), 
+					     InputParser.getSearchDatesTimes(input)[1]);
 		} else {
-			assertEquals(parseStringToDate(expectedEnd), InputParser.getSearchDatesTimes(input)[1].getTime());
+			assertEquals(ParserTestingMethods.parseStringToDate(expectedEnd), 
+					     InputParser.getSearchDatesTimes(input)[1].getTime());
 		}
 	}
 	
@@ -88,6 +71,12 @@ public class InputParserTest {
 	private static void checkDescription(String expected, String input) {
 		assertEquals(expected, InputParser.getDescriptionFromString(input));
 	}
+	
+	@Before
+	public void setUp() throws Exception {
+	    ParserTestingMethods.initLogging();
+	}
+
 	
 	@Test
 	public void testCreateParsedCommandError() {
@@ -138,18 +127,19 @@ public class InputParserTest {
 		
 		// formatted date, date keywords removed
 		checkTitleWithKeywords("hello this is     my task", " hello this is By 12/12/12 5pm until 13/12/12 8am my task");
-		checkTitleWithKeywords("hello  task", " hello \"this is my\" task 12:00pm 24/2");
-		checkTitleWithKeywords("Meet John about proposal", "12.2-13 Meet John about proposal #cs2103 12:00h");
-		checkTitleWithKeywords("Meet John about proposal", "#cs2101 Meet John about proposal on 23 jan #cs2103 at 12:00 12/2/13");
+		checkTitleWithKeywords("hello  task \\12:00pm", " hello \"this is my\" task \\12:00pm 24/2");
+		checkTitleWithKeywords("\\12.2-13 Meet John about proposal", "\\12.2-13 Meet John about proposal #cs2103 12:00h");
+		checkTitleWithKeywords("Meet John about proposal", "#cs2101 Meet John about proposal on 23 jan #cs2103 at 12:00 12-2.13");
 		checkTitleWithKeywords("", "23/1/15 2pm \"description\" #tAg1 #tag2");
 		checkTitleWithKeywords("Meet John about proposal", "#cs2101 Meet John about proposal #cs2103 12:00 until 15:30 12/2/13");
 		
 		// flexible date, date keywords removed
 		checkTitleWithKeywords("hello this is my task", " hello this is my task 2 feb 12:00 \"description\" #tags #tag1");
-		checkTitleWithKeywords("Meet John about proposal", "#cs2101 Meet John about proposal 23 jan #cs2103 from 12:00");
+		checkTitleWithKeywords("Meet John about proposal \\23 Jan", "#cs2101 Meet John about proposal \\23 Jan #cs2103 from 12:00");
 				
 		// natty, date keywords not removed except for tmr
 		checkTitleWithKeywords("watch", "watch tmr");
+		checkTitleWithKeywords("watch on \\tmr", "watch on \\tmr");
 		checkTitleWithKeywords("watch", "watch on Tomorrow");
 		checkTitleWithKeywords("watch movie On next Fri", "watch movie On next Fri");
 
@@ -204,13 +194,13 @@ public class InputParserTest {
 		checkStdDatesTimes("12/1/16 12:00", "31/12/16 23:59", "Meet John about proposal JAN 12th 12:00 til dec 31 #cs2103 #cs2101");
 		
 		// Check support for natty start date no time, default time is 2359
-		checkStdDatesTimes(inNDays(1, 23, 59), null, "finish homework by tmr");
+		checkStdDatesTimes(ParserTestingMethods.inNDays(1, 23, 59), null, "finish homework by tmr");
 		
 		// Check support for Natty input start date & time
-		checkStdDatesTimes(inNDays(1, 14, 0), null, "Meet John about proposal by tmr 2pm #cs2103 #cs2101");
+		checkStdDatesTimes(ParserTestingMethods.inNDays(1, 14, 0), null, "Meet John about proposal by tmr 2pm #cs2103 #cs2101");
 		
 		// Check support for Natty events
-		checkStdDatesTimes(inNDays(1, 12, 0), inNDays(3, 13, 0), "event on tmr 12pm to 3 days 1pm");
+		checkStdDatesTimes(ParserTestingMethods.inNDays(1, 12, 0), ParserTestingMethods.inNDays(3, 13, 0), "event on tmr 12pm to 3 days 1pm");
 		
 		// Check invalid time for Natty input
 		checkStdDatesTimesError("Meet John about proposal by tmr 32pm #cs2101");
@@ -253,13 +243,13 @@ public class InputParserTest {
 		checkSearchDatesTimes("12/1/15 12:00", "31/12/15 23:59", "Meet John about proposal JAN 12th 12:00 til dec 31 #cs2103 #cs2101");
 		
 		// Check support for natty start date no time, default time is 0000 - 2359
-		checkSearchDatesTimes(inNDays(1, 0, 0), inNDays(1, 23, 59), "finish homework by tmr");
+		checkSearchDatesTimes(ParserTestingMethods.inNDays(1, 0, 0), ParserTestingMethods.inNDays(1, 23, 59), "finish homework by tmr");
 		
 		// Check support for Natty input start date & time
-		checkSearchDatesTimes(inNDays(1, 14, 0), inNDays(1, 23, 59), "Meet John about proposal by tmr 2pm #cs2103 #cs2101");
+		checkSearchDatesTimes(ParserTestingMethods.inNDays(1, 14, 0), ParserTestingMethods.inNDays(1, 23, 59), "Meet John about proposal by tmr 2pm #cs2103 #cs2101");
 		
 		// Check support for Natty events
-		checkSearchDatesTimes(inNDays(1, 12, 0), inNDays(3, 13, 0), "event on tmr 12pm to 3 days 1pm");
+		checkSearchDatesTimes(ParserTestingMethods.inNDays(1, 12, 0), ParserTestingMethods.inNDays(3, 13, 0), "event on tmr 12pm to 3 days 1pm");
 		
 		// Check invalid time for Natty input
 		checkSearchDatesTimesError("Meet John about proposal by tmr 32pm #cs2101");
@@ -352,4 +342,10 @@ public class InputParserTest {
 		assertEquals(null, InputParser.getTaskTypeFromString("eventsal"));
 
 	}
+	
+	// For testing to be able to access InputParser protected methods 
+	protected ParsedCommand parse(String[] input) {
+		return null;
+	}
+	
 }

@@ -12,15 +12,15 @@ import parser.DateTime.DateTimeBuilder;
 public abstract class DateTimeParser {
 	static String DATE_KEYWORD_REGEX = "(?<=\\s|^)(on|by)\\s(?!.*( on | by ))([^\"#]*)";
 	private static Pattern DATE_KEYWORD_PATTERN = Pattern.compile(DATE_KEYWORD_REGEX);
-	
-	private static final String TAG_OR_DESCRIPTION_REGEX = "(" + StringParser.TAG_REGEX + "|" + StringParser.DESCRIPTION_REGEX + ")";  	                                        
-	private static final String NO_KEYWORD_DATE_REGEX = FormattedDateTimeParser.FORMATTED_DATE_REGEX + "|" + FlexibleDateTimeParser.FLEXIBLE_DATE_REGEX + "|((?<=\\s|^)(tmr|tomorrow|tomorow).*(?=\\s|$))";
+	static final String TOMORROW_REGEX = "((?<=\\s|^)(tmr|tomorrow|tomorow).*(?=\\s|$))";
+	private static final String TAG_OR_DESCRIPTION_REGEX = "(" + InputParser.TAG_REGEX + "|" + InputParser.DESCRIPTION_REGEX + ")";  	                                        
+	private static final String NO_KEYWORD_DATE_REGEX = FormattedDateParser.FORMATTED_DATE_REGEX + "|" + FlexibleDateParser.FLEXIBLE_DATE_REGEX + "|" + TOMORROW_REGEX;
 	private static final Pattern NO_KEYWORD_DATE_PATTERN = Pattern.compile(NO_KEYWORD_DATE_REGEX);
 	
 	static final String NO_KEYWORD_DATE_TIME_REGEX = "(" + TimeParser.TIME_REGEX + "|" + NO_KEYWORD_DATE_REGEX + ")";
 	static final Pattern NO_KEYWORD_DATE_TIME_PATTERN = Pattern.compile(NO_KEYWORD_DATE_TIME_REGEX);
 
-	static final String DATE_TIME_REGEX = "(" + TimeParser.TIME_REGEX + "|" + FormattedDateTimeParser.FORMATTED_DATE_WITH_YEAR_REGEX + "|" + FlexibleDateTimeParser.FLEXIBLE_DATE_REGEX + "|" + DATE_KEYWORD_REGEX + "|((?<=\\s|^)(tmr|tomorrow|tomorow).*(?=\\s|$)))";
+	static final String DATE_TIME_REGEX = "(" + TimeParser.TIME_REGEX + "|" + FormattedDateParser.FORMATTED_DATE_WITH_YEAR_REGEX + "|" + FlexibleDateParser.FLEXIBLE_DATE_REGEX + "|" + DATE_KEYWORD_REGEX + "|" + TOMORROW_REGEX + ")";
 																				   
 	protected DateTimeParser nextParser;
 	

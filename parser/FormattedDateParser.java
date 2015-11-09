@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 import parser.DateTime.DateTimeBuilder;
 import parser.DateTime.ParserType;
 
-public class FormattedDateTimeParser extends DateTimeParser{
+public class FormattedDateParser extends DateTimeParser{
 	
 	private static final String DELIM = "-/.";
 	static final String START = "(?<=^|\\s)";
@@ -36,7 +36,7 @@ public class FormattedDateTimeParser extends DateTimeParser{
 	private static Pattern ddmmyy = Pattern.compile(FORMATTED_DATE_WITH_YEAR_REGEX);
 	private static Pattern ddmm = Pattern.compile(NO_YEAR_FORMATTED_DATE_REGEX);
 	
-	private static final Logger logger = Logger.getLogger(FormattedDateTimeParser.class.getName() );
+	private static final Logger logger = Logger.getLogger(FormattedDateParser.class.getName() );
 	
 	private static final int INDEX_FOR_START = 0;
 	private static final int INDEX_FOR_END = 1;

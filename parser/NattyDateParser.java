@@ -16,7 +16,7 @@ import com.joestelmach.natty.Parser;
 import parser.DateTime.DateTimeBuilder;
 import parser.DateTime.ParserType;
 
-public class NattyDateTimeParser extends DateTimeParser{
+public class NattyDateParser extends DateTimeParser{
 	//private static Pattern parantheses = Pattern.compile("([(]([a-zA-Z0-9.\\s]+)[)])");
 
 	private static final String DAYS = "(mon(day)?|tue?(sday)?|tues|wed(nesday)?|thur(sday)?|thu|thurs|fri(day)?|sat(urday)?|sun(day)?|tmr|tomorrow|tomorow|today|tdy|ytd|yesterday)s?";
@@ -28,7 +28,7 @@ public class NattyDateTimeParser extends DateTimeParser{
 	private static final String NATTY_REGEX = "(?<=\\s|^)(" + NUMBERS + "|" + RELATIVE_WORDS + "|" + DURATION + "|" + DAYS + "|to)(?=\\s|$)";
 	private static final Pattern NATTY_DATES = Pattern.compile(NATTY_REGEX);
 	
-	private static final Logger logger = Logger.getLogger(NattyDateTimeParser.class.getName() );
+	private static final Logger logger = Logger.getLogger(NattyDateParser.class.getName() );
 	private static final int INDEX_FOR_END = 1;
 	
 	@Override

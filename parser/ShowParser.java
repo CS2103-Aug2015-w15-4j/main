@@ -11,12 +11,12 @@ import parser.MyParser.CommandType;
 import parser.ParsedCommand.TaskType;
 
 public class ShowParser extends InputParser {
-	ParsedCommand parse(String[] input) {
+	protected ParsedCommand parse(String[] input) {
 		if (isMissingArguments(input)) {
 			return createParsedCommand(CommandType.GUI_SHOW);
 		} else {
 			String inputArgs = input[INDEX_FOR_ARGS];
-			int taskId = getTaskIdFromString(inputArgs);
+			int taskId = getSearchTaskIdFromString(inputArgs);
 			if (hasTaskId(taskId)) { 
 				return createParsedCommandDisplay(taskId);
 			} else { 
@@ -25,14 +25,13 @@ public class ShowParser extends InputParser {
 		}
 	}
 
-	private static ParsedCommand createParsedCommandSearch(String inputArgs) {
+	private ParsedCommand createParsedCommandSearch(String inputArgs) {
 		ParsedCommand pc;
 		try {
-			// System.out.println(inputArgs);
 			String parsedKeywords = getSearchKeywordsWithDateKeywords(inputArgs);
 			logger.log(Level.FINE, "Search keywords: " + parsedKeywords);
 			Calendar[] parsedTimes = getSearchDatesTimes(inputArgs);
-			if (parsedTimes != null && parsedTimes[0] != null && parsedTimes.length > 2) { // date keyword used for date input
+			if (mustRemoveDateKeywordSection(parsedTimes, inputArgs)) { // date keyword used for date input
 				parsedKeywords = removeDateKeywordSection(parsedKeywords);
 			}
 			ArrayList<String> parsedTags = getTagsFromString(inputArgs);
@@ -54,7 +53,7 @@ public class ShowParser extends InputParser {
 		}
 	}
 	
-	private static ParsedCommand createParsedCommandDisplay(int taskId) {
+	private ParsedCommand createParsedCommandDisplay(int taskId) {
 		ParsedCommand pc;
 		try {
 			pc = new ParsedCommand.ParsedCommandBuilder(CommandType.DISPLAY)

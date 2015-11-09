@@ -1,8 +1,6 @@
-package test.LogicTests;
+package test;
 
 import logic.Add;
-import logic.Delete;
-import logic.Logic;
 import logic.Model;
 import org.junit.After;
 import org.junit.Before;
