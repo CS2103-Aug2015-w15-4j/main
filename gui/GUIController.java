@@ -180,15 +180,15 @@ public class GUIController extends Application {
 	protected static Scene scene = null;  
 
 	// the help menu
-	protected static final HelpMenu help = new HelpMenu();
+	protected static HelpMenu help;
 
 	// the log tab
 	protected static VBox log;
 	protected static Log logCommands;
 	protected static Log logConsole;
 
-	// pane, the default view with all TaskLists 
-	protected static BorderPane pane;
+	// borderPane, the default view with all TaskLists 
+	protected static BorderPane borderPane;
 	protected static PinnedPanel pinnedPanel;
 	protected static CenterPanel centerPanel;
 	protected static ConsolePanel consolePanel;
@@ -209,6 +209,7 @@ public class GUIController extends Application {
 		initCoreComponents(); // if fail, system will exit
 
 		// initialise displayables
+		initHelpMenu();
 		initPane();
 		initLogTab();
 		initBottomBar();
@@ -287,60 +288,72 @@ public class GUIController extends Application {
 		}//*/
 		openList(TASKLIST_TODAY); // open today first
 	}
+	
+	/**
+	 * Initialises the help menu
+	 */
+	protected void initHelpMenu() {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				help = new HelpMenu();
+			}
+		});
+	}
 
 	/**
-	 * Initalises the pinned window's frame
+	 * Initialises the pinned window's frame
 	 * @param pinnedPanel
 	 */
 	protected void initPinnedPanel() {
 		pinnedPanel = new PinnedPanel();
-		pinnedPanel.getNode().prefWidthProperty().bind(pane.widthProperty());
-		pinnedPanel.getNode().prefHeightProperty().bind(pane.heightProperty().divide(PINNED_WINDOW_RATIO));
+		pinnedPanel.getNode().prefWidthProperty().bind(borderPane.widthProperty());
+		pinnedPanel.getNode().prefHeightProperty().bind(borderPane.heightProperty().divide(PINNED_WINDOW_RATIO));
 		pinnedPanel.getNode().getStyleClass().add(CSS_STYLE_CURVED_VBOX);
 	}
 
 	/**
 	 * Initialises the displayables in the center 
 	 * @param centerPanel Binds to the next node object below
-	 * @param pane
+	 * @param borderPane
 	 */
 	protected void initCenter() {
 		centerPanel = new CenterPanel();
-		centerPanel.getNode().prefWidthProperty().bind(pane.widthProperty());
-		centerPanel.getNode().maxWidthProperty().bind(pane.widthProperty());
+		centerPanel.getNode().prefWidthProperty().bind(borderPane.widthProperty());
+		centerPanel.getNode().maxWidthProperty().bind(borderPane.widthProperty());
 	}
 
 	/**
 	 * Initialises the bottom panel
 	 * @param consolePanel Binds to the next node object below
-	 * @param pane
+	 * @param borderPane
 	 */
 	protected void initConsolePanel() {
 		consolePanel = new ConsolePanel();
-		consolePanel.getNode().prefWidthProperty().bind(pane.widthProperty());
-		consolePanel.getNode().maxWidthProperty().bind(pane.widthProperty());
-		consolePanel.getNode().maxHeightProperty().bind(pane.heightProperty().divide(TEXTBOX_RATIO));
-		consolePanel.getNode().prefHeightProperty().bind(pane.heightProperty().divide(TEXTBOX_RATIO));
+		consolePanel.getNode().prefWidthProperty().bind(borderPane.widthProperty());
+		consolePanel.getNode().maxWidthProperty().bind(borderPane.widthProperty());
+		consolePanel.getNode().maxHeightProperty().bind(borderPane.heightProperty().divide(TEXTBOX_RATIO));
+		consolePanel.getNode().prefHeightProperty().bind(borderPane.heightProperty().divide(TEXTBOX_RATIO));
 	}
 
 	/**
 	 * Initialises the default Pane, which is where all the TaskLists are displayed
-	 * @param pane Binds to the next node object below
+	 * @param borderPane Binds to the next node object below
 	 * @param window
 	 */
 	protected void initPane() {
-		pane = new BorderPane();
+		borderPane = new BorderPane();
 		initPinnedPanel();
 		initCenter();
 		initConsolePanel();
 
-		// add the other panels except for pinnedWindow to the pane
-		pane.setCenter(centerPanel.getNode());
-		pane.setBottom(consolePanel.getNode());
+		// add the other panels except for pinnedWindow to the borderPane
+		borderPane.setCenter(centerPanel.getNode());
+		borderPane.setBottom(consolePanel.getNode());
 
 		// Bind to window
-		pane.prefWidthProperty().bind(window.widthProperty());
-		pane.prefHeightProperty().bind(window.heightProperty());
+		borderPane.prefWidthProperty().bind(window.widthProperty());
+		borderPane.prefHeightProperty().bind(window.heightProperty());
 	}
 
 	/**
@@ -383,7 +396,7 @@ public class GUIController extends Application {
 		HBox.setHgrow(userInputField, Priority.ALWAYS);
 		bottomBar.getChildren().add(userInputField);
 
-		// then create the switch button to toggle between log and pane
+		// then create the switch button to toggle between log and borderPane
 		windowSwitch = new Button(MSG_WINDOWSWITCH);
 		bottomBar.getChildren().add(windowSwitch);
 
@@ -394,14 +407,14 @@ public class GUIController extends Application {
 	/**
 	 * Initialises the main container for everything
 	 * @window Adds the following objects below to the window
-	 * @pane
+	 * @borderPane
 	 * @bottomBar
 	 */
 	protected void initMainWindow() {
 		window.setMinWidth(MINIMUM_WINDOW_WIDTH);
 		window.setMinHeight(MINIMUM_WINDOW_HEIGHT);
 		// add the nodes to window
-		window.getChildren().add(pane);
+		window.getChildren().add(borderPane);
 		window.getChildren().add(bottomBar);
 	}
 
@@ -533,7 +546,7 @@ public class GUIController extends Application {
 	protected void switchWindow() {
 		window.getChildren().clear();
 		if (!isMainWindow) {
-			window.getChildren().add(pane);
+			window.getChildren().add(borderPane);
 		} else {
 			window.getChildren().add(log);
 		}
@@ -559,7 +572,7 @@ public class GUIController extends Application {
 			unpin();
 			pinnedPanel.pin(list);
 			TASKLIST_PINNED = list.listNumber;
-			pane.setTop(pinnedPanel.getNode());
+			borderPane.setTop(pinnedPanel.getNode());
 			openList(list); // open the list to see the main list
 			refreshLists();
 		}
@@ -574,7 +587,7 @@ public class GUIController extends Application {
 			unpin();
 			pinnedPanel.pin(focusedTask);
 			isFocusView = true;
-			pane.setTop(pinnedPanel.getNode());
+			borderPane.setTop(pinnedPanel.getNode());
 		}
 	}
 	
@@ -585,7 +598,7 @@ public class GUIController extends Application {
 		pinnedPanel.unpin();
 		TASKLIST_PINNED = TASKLIST_INVALID;
 		isFocusView = false;
-		pane.setTop(null);
+		borderPane.setTop(null);
 		refreshLists(); // re-add the newly freed list into the center panel
 	}
 	
