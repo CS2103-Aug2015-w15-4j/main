@@ -21,6 +21,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import logic.DeadlineTask;
 import logic.Event;
@@ -31,21 +33,19 @@ import com.google.gson.Gson;
 
 public class Storage {
 
-	private static final String DEFAULT_BACKGROUND_FILEPATH = "background.jpg";
-	private static final String DEFAULT_AVATAR_FILEPATH = "avatar.png";
-	private static final String DEFAULT_LASTOPENTAB = "0";
-	private static final String CONFIG_FILENAME = "config";
-	private static final String DATA_FILENAME = "Data.txt";
+	private static final String DEFAULT_AVATAR_FILENAME = "avatar.png";
+	private static final String DEFAULT_CONFIG_FILENAME = "config";
+	private static final String DEFAULT_DATA_FILENAME = "Data.txt";
 	private static final boolean OVERWRITE = false;
 	private static final boolean APPEND = true;
 	private List<Task> taskList;
 
 	private String dataFilePath;
 	private String avatarFilePath;
-	private String backgroundFilePath;
-	private String lastOpenTab;
 
 	private static String fileName;
+
+	private static Logger logger = Logger.getLogger("Storage");
 
 	public Storage() {
 		taskList = new ArrayList<Task>();
@@ -65,7 +65,6 @@ public class Storage {
 			Collections.sort(taskList);
 			rewriteFile();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -86,6 +85,7 @@ public class Storage {
 	}
 
 	public void rewriteFile() {
+		logger.log(Level.INFO, "going to start processing");
 		try {
 			Gson gson = new Gson();
 			FileWriter writer = new FileWriter(dataFilePath, OVERWRITE);
@@ -94,9 +94,12 @@ public class Storage {
 				writer.write("\r\n");
 			}
 			writer.close();
+
+			logger.log(Level.INFO, "rewrite successfully");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		logger.log(Level.INFO, "end of processing");
 	}
 
 	public List<Task> getAllTasks() {
@@ -104,21 +107,13 @@ public class Storage {
 	}
 
 	public void clearList() {
-		taskList.clear();
+		taskList = new ArrayList<Task>();
 	}
-
-	/*
-	 * public void clearAllList() { searchList.clear(); todayList.clear();
-	 * mainList.clear(); allTasks.clear(); }
-	 */
 
 	public String getAvatarPath() {
 		return avatarFilePath;
 	}
 
-	/*
-	 * TODO ? : Maybe copy file into storage folder instead
-	 */
 	public boolean setAvatar(String path) {
 		File file = new File(path);
 		if (file.exists()) {
@@ -131,34 +126,23 @@ public class Storage {
 		return false;
 	}
 
-	public String getLastOpenTab() {
-		return lastOpenTab;
-	}
-
-	public void setLastOpenTab(String number) {
-		lastOpenTab = number;
-	}
-
+	// Retrieve the config details
 	public void getConfigDetails() {
-		File configFile = new File(CONFIG_FILENAME);
+		File configFile = new File(DEFAULT_CONFIG_FILENAME);
 
 		if (!configFile.exists()) {
-			if (createFile(CONFIG_FILENAME)) {
-				this.dataFilePath = DATA_FILENAME;
-				this.avatarFilePath = DEFAULT_AVATAR_FILEPATH;
-				this.backgroundFilePath = DEFAULT_BACKGROUND_FILEPATH;
-				// this.lastOpenTab = DEFAULT_LASTOPENTAB;
+			if (createFile(DEFAULT_CONFIG_FILENAME)) {
+				this.dataFilePath = DEFAULT_DATA_FILENAME;
+				this.avatarFilePath = DEFAULT_AVATAR_FILENAME;
 				writeConfigDetails();
 			}
 		} else {
 			try {
 				BufferedReader reader = new BufferedReader(new FileReader(
-						CONFIG_FILENAME));
+						DEFAULT_CONFIG_FILENAME));
 
 				this.dataFilePath = reader.readLine();
 				this.avatarFilePath = reader.readLine();
-				this.backgroundFilePath = reader.readLine();
-				// this.lastOpenTab = reader.readLine();
 
 				reader.close();
 
@@ -170,19 +154,16 @@ public class Storage {
 		}
 	}
 
+	// Write the details to config
 	public void writeConfigDetails() {
 		try {
-			File configFile = new File(CONFIG_FILENAME);
+			File configFile = new File(DEFAULT_CONFIG_FILENAME);
 
 			FileWriter writer = new FileWriter(configFile, OVERWRITE);
 			writer.write(dataFilePath);
 			writer.write("\r\n");
 			writer.write(avatarFilePath);
 			writer.write("\r\n");
-			writer.write(backgroundFilePath);
-			writer.write("\r\n");
-			// writer.write(lastOpenTab);
-			// writer.write("\r\n");
 
 			writer.close();
 		} catch (IOException e) {
@@ -190,6 +171,7 @@ public class Storage {
 		}
 	}
 
+	// Set folder location
 	public boolean setFileLocation(String filePath) throws Exception {
 
 		if (filePath.startsWith("/") || filePath.startsWith("\\")) {
@@ -201,18 +183,16 @@ public class Storage {
 		String path = null, finalPath = null;
 
 		if (!newFile.exists()) {
+
 			newFile.mkdirs();
 			path = newFile.getPath();
-			finalPath = path + separator + DATA_FILENAME;
+			finalPath = path + separator + DEFAULT_DATA_FILENAME;
 			File newPath = new File(finalPath);
 			try {
 				if (createFile(finalPath)) {
 					if (newPath.canWrite()) {
-						filePath = (newPath.toPath()).toString();
-
 						this.dataFilePath = copyAndDelete(dataFilePath,
 								finalPath);
-						;
 						writeConfigDetails();
 						return true;
 					}
@@ -220,18 +200,17 @@ public class Storage {
 			} catch (SecurityException se) {
 				throw new Exception();
 			}
+
 		} else {
 			if (newFile.isDirectory()) {
 				path = newFile.getPath();
-				finalPath = path + separator + DATA_FILENAME;
+				finalPath = path + separator + DEFAULT_DATA_FILENAME;
 				try {
 					if (newFile.canWrite()) {
 						if (createFile(finalPath)) {
 							createFile(finalPath);
-							filePath = copyAndDelete(dataFilePath, finalPath);
-							;
-
-							this.dataFilePath = filePath;
+							this.dataFilePath = copyAndDelete(dataFilePath,
+									finalPath);
 							writeConfigDetails();
 							return true;
 						}
@@ -240,7 +219,8 @@ public class Storage {
 					throw new Exception();
 				}
 			} else if (newFile.isFile()) {
-				copyAndDelete(dataFilePath, filePath);
+				this.dataFilePath = copyAndDelete(dataFilePath, filePath);
+				writeConfigDetails();
 				return true;
 			}
 		}
@@ -253,7 +233,7 @@ public class Storage {
 
 		Gson gson = new Gson();
 		Task task = new Task();
-
+		assert (!dataFilePath.equals(""));
 		if (createFile(dataFilePath)) {
 			try {
 				BufferedReader reader = new BufferedReader(new FileReader(
@@ -261,7 +241,6 @@ public class Storage {
 				String currentLine = reader.readLine();
 				while (currentLine != null) {
 					task = gson.fromJson(currentLine, Task.class);
-
 					if (task.getTaskType().equals(
 							ParsedCommand.TaskType.DEADLINE_TASK)) {
 						task = (Task) gson.fromJson(currentLine,
@@ -307,9 +286,6 @@ public class Storage {
 
 			inStream.close();
 			outStream.close();
-
-			// System.out.println("afile : " + afile.getCanonicalFile());
-			// System.out.println("bfile : " + bfile.getCanonicalFile());
 
 			// delete the original file
 			if (!afile.getCanonicalFile().equals(bfile.getCanonicalFile())) {

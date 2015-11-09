@@ -3,7 +3,7 @@ package gui;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.*;
-import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.image.WritableImage;
@@ -14,45 +14,30 @@ import javafx.scene.text.TextFlow;
 
 //@author A0122534R
 public class Log {
-	public static final int PADDING = 8;
+	protected final static int MAXSIZE = 100; 
+	// maximum size of the Log
 	
-	public static final ScrollBarPolicy V_POLICY = ScrollBarPolicy.AS_NEEDED;
-	public static final ScrollBarPolicy H_POLICY = ScrollBarPolicy.NEVER;
-	public static final Pos ALIGNMENT = Pos.BOTTOM_LEFT;
-	public static final String ID_VBOX = "logVbox";
-	public static final String ID_SCROLL = "logScroll";
-	public static final int MAXSIZE = 100;
+	protected final static int PADDING = 8;
+	
+	protected final static ScrollBarPolicy V_POLICY = ScrollBarPolicy.AS_NEEDED;
+	protected final static ScrollBarPolicy H_POLICY = ScrollBarPolicy.NEVER;
+	protected final static Pos ALIGNMENT = Pos.BOTTOM_LEFT;
+	protected final static String ID_VBOX = "logVbox";
+	protected final static String ID_SCROLL = "logScroll";
 	
 	protected VBox vbox;
 	protected ScrollPane sp;
-	protected TextFlow textbox; // the storage for the log
+	protected TextFlow textFlow; // the storage for the log
 	protected VBox master;
-	protected Button name;
+	protected Label name;
 	
 	public Log() {
-		textbox = new TextFlow();
-		vbox = new VBox();
-		vbox.setAlignment(ALIGNMENT);
-		vbox.setId(ID_VBOX);
-		vbox.getChildren().add(textbox);
-		sp = new ScrollPane(vbox);
-		vbox.prefWidthProperty().bind(sp.widthProperty());
-		vbox.prefHeightProperty().bind(sp.heightProperty());
-		
-		sp.setFitToHeight(true);
-		sp.setVbarPolicy(V_POLICY);
-		sp.setHbarPolicy(H_POLICY);
-		sp.setId(ID_SCROLL);
-		
 		master = new VBox();
+		textFlow = new TextFlow();
+		
 		master.setPadding(new Insets(PADDING));
-		name = new Button();
-		name.setFocusTraversable(false);
-		name.setAlignment(Pos.CENTER);
-		master.getChildren().add(sp);
-		sp.prefWidthProperty().bind(master.widthProperty());
-		name.prefWidthProperty().bind(master.widthProperty());
-		VBox.setVgrow(sp, Priority.ALWAYS);
+		master.getChildren().add(initContainer());
+		initHeader();
 	}
 	
 	/**
@@ -72,6 +57,41 @@ public class Log {
 	}
 	
 	/**
+	 * Initialises the vbox and sp container for the Log
+	 * @param vbox
+	 * @param sp
+	 * @return the initalised parent node of this container
+	 */
+	protected ScrollPane initContainer() {
+		vbox = new VBox();
+		vbox.setAlignment(ALIGNMENT);
+		vbox.setId(ID_VBOX);
+		vbox.getChildren().add(textFlow);
+		sp = new ScrollPane(vbox);
+		vbox.prefWidthProperty().bind(sp.widthProperty());
+		vbox.prefHeightProperty().bind(sp.heightProperty());
+		
+		sp.setFitToHeight(true);
+		sp.setVbarPolicy(V_POLICY);
+		sp.setHbarPolicy(H_POLICY);
+		sp.setId(ID_SCROLL);
+		sp.prefWidthProperty().bind(getNode().widthProperty());
+		VBox.setVgrow(sp, Priority.ALWAYS);
+		return sp;
+	}
+	
+	/**
+	 * Initialises the header for the Log
+	 * @param name
+	 */
+	protected void initHeader() {
+		name = new Label();
+		name.getStyleClass().add(GUIController.CSS_STYLE_CURVED_LABEL);
+		name.setAlignment(Pos.CENTER);
+		name.prefWidthProperty().bind(getNode().widthProperty());
+	}
+	
+	/**
 	 * Set name of the log tab
 	 */
 	public void setName(String _name) {
@@ -86,18 +106,18 @@ public class Log {
 	 */
 	public void refresh() {
 		sp.snapshot(new SnapshotParameters(), new WritableImage(1, 1));
-		sp.setVvalue(sp.getVmax());
+		sp.setVvalue(sp.getVmax()); // scroll to the bottom after refresh
 	}
 	
 	/**
 	 * Adds a string to the log
 	 * @param input String to be added
 	 */
-	public void addToTextbox(String input) {
-		textbox.getChildren().add(new Text(">"+input.trim()+"\n"));
+	public void addToLog(String input) {
+		textFlow.getChildren().add(new Text(">"+input.trim()+"\n"));
 		// if size exceed, delete first item
-		if (textbox.getChildren().size()>MAXSIZE) {
-			textbox.getChildren().remove(0);
+		if (textFlow.getChildren().size()>MAXSIZE) {
+			textFlow.getChildren().remove(0);
 		}
 		refresh();
 	}
@@ -106,7 +126,7 @@ public class Log {
 	 * Gets the stored log data in the form of an iterator
 	 */
 	public TextFlow getLog() {
-		return textbox;
+		return textFlow;
 	}
 	
 }
