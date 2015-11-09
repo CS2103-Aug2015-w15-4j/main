@@ -201,10 +201,10 @@ public class ConsolePanel {
 	public boolean loadAvatar() {
 		InputStream stream;
 		try {
-			stream = new FileInputStream(new File(GuiController.AVATAR_IMAGENAME));
+			stream = new FileInputStream(new File(GuiController.avatarImageName));
 			if (stream!=null) {
 				Image image = new Image(stream,IMAGE_SIZE, IMAGE_SIZE, true,true);
-				if (image!=null) {
+				if (image!=null&&!image.isError()) {
 					avatar = image;
 					avatarView.setImage(avatar);
 					if (!hbox.getChildren().contains(frame)) { // if it was removed, add it back

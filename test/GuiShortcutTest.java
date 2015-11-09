@@ -9,6 +9,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import gui.ShortcutManager.CommandType;
 
+//@@author A0122534
 public class GuiShortcutTest {
 	boolean isShiftDown = false; 
 	boolean isControlDown = false; 
@@ -82,6 +83,14 @@ public class GuiShortcutTest {
 		isControlDown = true;
 		keyEvent = new KeyEvent(null, null, null, KeyCode.Z, isShiftDown, isControlDown, isAltDown, false);
 		assertEquals(CommandType.UNDO, ShortcutManager.processKeyEvent(keyEvent));
+	}
+	
+	@Test
+	public void pinTest01() {
+		// Ctrl + P only
+		isControlDown = true;
+		keyEvent = new KeyEvent(null, null, null, KeyCode.P, isShiftDown, isControlDown, isAltDown, false);
+		assertEquals(CommandType.UNPIN, ShortcutManager.processKeyEvent(keyEvent));
 	}
 	
 	@Test

@@ -148,11 +148,11 @@ public class GuiController extends Application {
 	protected final static int TASKLIST_TODO = 3;
 	protected final static int TASKLIST_SEARCH = 4;
 	public final static int TASKLIST_INVALID = -1;
-	public static int TASKLIST_PINNED = TASKLIST_INVALID;
-	public static int TASKLIST_OPENED = TASKLIST_INVALID; // task list last opened
+	public static int taskListPinned = TASKLIST_INVALID;
+	public static int taskListOpened = TASKLIST_INVALID; // task list last opened
 
-	public static String AVATAR_IMAGENAME;
-	public static String ICON_IMAGE = "icon.png";
+	public static String avatarImageName;
+	public final static String ICON_IMAGE = "resources/icon.png";
 	public static boolean isMainWindow = true; // true = main pane window, false = logObject
 
 	// Window sizes and ratios
@@ -175,7 +175,7 @@ public class GuiController extends Application {
 	 * Displayables
 	 */	
 	// the overall managers/parents
-	protected static final Pane window = new VBox();
+	protected static Pane window = new VBox();
 	protected static Stage stage = null;
 	protected static Scene scene = null;  
 
@@ -254,13 +254,16 @@ public class GuiController extends Application {
 	 * The following are initialised: 
 	 * @param logic
 	 * @param model
-	 * @param AVATAR_IMAGENAME
+	 * @param avatarImageName
 	 */
 	protected void initCoreComponents() {
 		try {
 			logic = new Logic();
 			model = logic.executeCommand(null);
-			AVATAR_IMAGENAME = model.getAvatarLocation(); 
+			avatarImageName = model.getAvatarLocation();
+			assert(logic!=null);
+			assert(model!=null);
+			assert(avatarImageName!=null);
 		} catch (Exception e) {
 			// if fail to initialise terminate program
 			System.err.println("Unable to create logic components");
@@ -465,9 +468,9 @@ public class GuiController extends Application {
 					showFocusTask(isPinnedFocused(stage.getScene()) );
 					break;
 				case FOCUS_MODE_CLEAR:
-					if (TASKLIST_PINNED!=TASKLIST_INVALID) { // if there is pinned window, open that
-						openList(TASKLIST_PINNED);
-						taskLists.get(TASKLIST_PINNED).requestFocus();
+					if (taskListPinned!=TASKLIST_INVALID) { // if there is pinned window, open that
+						openList(taskListPinned);
+						taskLists.get(taskListPinned).requestFocus();
 					} else {
 						unpin(); // else clear the focus task
 					}
@@ -489,6 +492,11 @@ public class GuiController extends Application {
 					break;
 				case UNDO:
 					executeCommand("undo");
+					break;
+				case PIN:
+					if (taskListOpened!=TASKLIST_INVALID) {
+						pin(taskLists.get(taskListOpened));
+					}
 					break;
 				case UNPIN:
 					unpin();
@@ -571,7 +579,7 @@ public class GuiController extends Application {
 		if (list!=null) {
 			unpin();
 			pinnedPanel.pin(list);
-			TASKLIST_PINNED = list.listNumber;
+			taskListPinned = list.listNumber;
 			borderPane.setTop(pinnedPanel.getNode());
 			openList(list); // open the list to see the main list
 			refreshLists();
@@ -596,7 +604,7 @@ public class GuiController extends Application {
 	 */
 	protected static void unpin() {
 		pinnedPanel.unpin();
-		TASKLIST_PINNED = TASKLIST_INVALID;
+		taskListPinned = TASKLIST_INVALID;
 		isFocusView = false;
 		borderPane.setTop(null);
 		refreshLists(); // re-add the newly freed list into the center panel
@@ -663,13 +671,13 @@ public class GuiController extends Application {
 				// means that it should have been validated by parser. Can return immediately
 				return i+taskListNames.length; 
 			} else { // it must be a number inputted by the user based on the location of items on the screen
-				if (TASKLIST_PINNED!=TASKLIST_INVALID&&i==0) { 
+				if (taskListPinned!=TASKLIST_INVALID&&i==0) { 
 					// if there is a pinned window and is first element
-					return TASKLIST_PINNED;
+					return taskListPinned;
 				} else {
 					// if no pinned window, order is same as initial
 					// if there is pinned panel and not zero, means one of the center panel
-					if (TASKLIST_PINNED!=TASKLIST_INVALID) { 
+					if (taskListPinned!=TASKLIST_INVALID) { 
 						i--;  // i-1 because exclude pinned
 					}
 					return getTaskListNumberFromLocationInCenterPanel(i); 
@@ -758,8 +766,8 @@ public class GuiController extends Application {
 				focusOnTaskID(model.getFocusId());
 				break;
 			case DELETE:
-				if (TASKLIST_PINNED!=TASKLIST_INVALID) { // open the list to prevent focus on deleted item
-					openList(TASKLIST_PINNED);
+				if (taskListPinned!=TASKLIST_INVALID) { // open the list to prevent focus on deleted item
+					openList(taskListPinned);
 				} else {
 					unpin(); // unpin to prevent focus on deleted item
 				}
@@ -778,14 +786,14 @@ public class GuiController extends Application {
 				break;
 			case CONFIG_IMG:
 				// if it had been a Set function, it might have been an avatar or background, so reload them
-				AVATAR_IMAGENAME = model.getAvatarLocation();
+				avatarImageName = model.getAvatarLocation();
 				if(!consolePanel.loadAvatar()) {
 					output = "Cannot find new avatar specified";
 				}
 				break;
 			case UNDO:
-				if (TASKLIST_PINNED!=TASKLIST_INVALID) { // same as delete
-					openList(TASKLIST_PINNED);
+				if (taskListPinned!=TASKLIST_INVALID) { // same as delete
+					openList(taskListPinned);
 				} else {
 					unpin();
 				}
@@ -893,10 +901,10 @@ public class GuiController extends Application {
 		
 		// Add the lists to the centerPanel
 		if (centerPanel!=null) {
-			int open = TASKLIST_OPENED;
+			int open = taskListOpened;
 			centerPanel.removeAllFromList();
 			for (int i=0; i<taskLists.size();i++) {
-				if (i!=TASKLIST_PINNED) {
+				if (i!=taskListPinned) {
 					centerPanel.addToList(taskLists.get(i));
 				}
 			}
@@ -910,15 +918,15 @@ public class GuiController extends Application {
 	 */
 	public static void openList(int listNumber) {
 		if (listNumber>TASKLIST_INVALID&&listNumber<taskListNames.length) { // if valid
-			if (listNumber!=TASKLIST_PINNED) {
+			if (listNumber!=taskListPinned) {
 				// if it is for pinned window, no need to close anything
 				// else close everything
 				closeAllLists();
-				TASKLIST_OPENED = listNumber;
+				taskListOpened = listNumber;
 			}
 			TaskList list = taskLists.get(listNumber);
 			list.openList();
-			if (isFocusView&&TASKLIST_PINNED==TASKLIST_INVALID) { // if there had been a previously opened focus view
+			if (isFocusView&&taskListPinned==TASKLIST_INVALID) { // if there had been a previously opened focus view
 				if (!list.hasSelection()) { // if the list has none selected, select first
 					list.selectFirstNode();
 				}
@@ -942,8 +950,8 @@ public class GuiController extends Application {
 	protected static void closeList(int listNumber) {
 		if (listNumber>=0&&listNumber<taskListNames.length) { // if valid
 			taskLists.get(listNumber).closeList();
-			if (listNumber!=TASKLIST_PINNED) {
-				TASKLIST_OPENED = TASKLIST_INVALID;
+			if (listNumber!=taskListPinned) {
+				taskListOpened = TASKLIST_INVALID;
 			}
 		}
 	}
@@ -961,7 +969,7 @@ public class GuiController extends Application {
 	 */
 	protected static void closeAllLists() {
 		for (TaskList list : taskLists) {
-			if (list.listNumber!=TASKLIST_PINNED) {
+			if (list.listNumber!=taskListPinned) {
 				closeList(list);
 			}
 		}
@@ -992,7 +1000,7 @@ public class GuiController extends Application {
 	protected boolean isPinnedFocused(Scene scene) {
 		Node focused = scene.getFocusOwner();
 		if (focused!=null) {
-			TaskList list = taskLists.get(TASKLIST_PINNED);
+			TaskList list = taskLists.get(taskListPinned);
 			for (int i=0;i<NESTED_NODE_NUM;i++) {
 				if (focused==list.getNode()) {
 					return true;
@@ -1013,15 +1021,15 @@ public class GuiController extends Application {
 	 * @return true if successful in focus
 	 */
 	protected boolean showFocusTask(boolean focusPinned) {
-		if (TASKLIST_PINNED!=TASKLIST_INVALID&&focusPinned) {
+		if (taskListPinned!=TASKLIST_INVALID&&focusPinned) {
 			// check if the pinned window is the focus of the scene
-			TaskList pinned = taskLists.get(TASKLIST_PINNED);
+			TaskList pinned = taskLists.get(taskListPinned);
 			pinned.focusTask();
 			pinned.closeList();
 			pinned.getNode().requestFocus();
 			return true;
-		} else if (TASKLIST_OPENED!=TASKLIST_INVALID) {
-			pinFocusTask(taskLists.get(TASKLIST_OPENED).getFocusTask());
+		} else if (taskListOpened!=TASKLIST_INVALID) {
+			pinFocusTask(taskLists.get(taskListOpened).getFocusTask());
 			return true;
 		} else {
 			Node focused = stage.getScene().getFocusOwner();

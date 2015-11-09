@@ -13,6 +13,7 @@ import parser.MyParser.CommandType;
 import parser.ParsedCommand.TaskType;
 import test.ParserTestingMethods;
 
+@SuppressWarnings("unused")
 public abstract class InputParser {
 	static final String ERROR_INVALID_COMMAND = "Error: Invalid command";
 	static final String ERROR_NO_INPUT = "Error: No user input";
