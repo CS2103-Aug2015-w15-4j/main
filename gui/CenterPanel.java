@@ -2,29 +2,17 @@ package gui;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.layout.VBox;
 
-//@author A0122534R
-public class MainWindow {
-	private boolean isChanging = false;
-	protected int previouslySelected = 0;
+//@@author A0122534R
+public class CenterPanel {
+	protected boolean isChanging = false; // is the list being editted at the moment?
+	protected int previouslySelected = 0; // last selected item in the list
 	protected List<TaskList> listOfTaskLists = new ArrayList<TaskList>();	
-
-	final static ScrollBarPolicy V_POLICY = ScrollBarPolicy.NEVER;
-	final static ScrollBarPolicy H_POLICY = ScrollBarPolicy.NEVER;
-	protected ScrollPane sp;
 	protected VBox master;
 	
-	public MainWindow() {
+	public CenterPanel() {
 		master = new VBox();
-		/*
-		sp = new ScrollPane(master);
-		sp.setVbarPolicy(V_POLICY);
-		sp.setHbarPolicy(H_POLICY);
-		master.prefWidthProperty().bind(sp.widthProperty());//*/
 	}
 	
 	/**
@@ -32,14 +20,11 @@ public class MainWindow {
 	 */
 	public VBox getNode() { 
 		return master;
-	}/*
-	public ScrollPane getNode() { 
-		return sp;
-	}//*/
+	}
 	
 	/**
-	 * Adds a node to the list
-	 * @param item Must be an item that can set bind its width
+	 * Adds a TaskList to the MainWindow
+	 * @param list TaskList to be added
 	 */
 	public void addToList(TaskList list) {
 		if (list.listSize>0) {// add only if it has more than one item

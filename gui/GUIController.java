@@ -32,259 +32,48 @@ import org.jnativehook.NativeHookException;
 import org.jnativehook.keyboard.NativeKeyEvent;
 import org.jnativehook.keyboard.NativeKeyListener;
 
-//@author A0122534R
+import com.sun.javafx.application.LauncherImpl;
+
+//@@author A0122534R
 public class GUIController extends Application {
-	public static class TaskListCustom extends TaskList {
+	/**
+	 * Create a child of the TaskList class to use GUIController's class's functions for openList and closeList 
+	 */
+	protected static class TaskListCustom extends TaskList {
 		public TaskListCustom() {
 			super();
 			rebindMouseAction();
 		}
-		
+
 		public TaskListCustom(String _name) {
 			super(_name);
 			rebindMouseAction();
 		}
-		
+
 		public TaskListCustom(int num) {
 			super(num);
 			rebindMouseAction();
 		}
-		
-		public void rebindMouseAction() {
+
+		protected void rebindMouseAction() {
 			name.onActionProperty().unbind();
 			name.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent event) {
 					if (isListOpen) {
-						// focusTask(); // removed due to real time focus
-						GUIController.closeList(listNumber);
+						GUIController.closeList(listNumber); // new line that is changed from original
 					} else {
-						GUIController.openList(listNumber);// new line that changes everything
+						GUIController.openList(listNumber);// new line that is changed from original
 					}
 				}
-		    });
+			});
 		}
 	}
 
-	final public static String[] taskListNames = {
-			"Overdue",
-			"To-do",
-			"Today",
-			"Floating",
-			"Search list"
-	};
-	final static int TASKLIST_OVERDUE = 0;
-	final static int TASKLIST_TODO = 1;
-	final static int TASKLIST_TODAY = 2;
-	final static int TASKLIST_FLOATING = 3;
-	final static int TASKLIST_SEARCH = 4;
-	final static int TASKLIST_INVALID = -1;
-	public static int TASKLIST_PINNED = TASKLIST_INVALID;
-	public static int TASKLIST_OPENED = TASKLIST_INVALID; // task list last opened
-	
-	final public static String[] STYLE_BUTTON_NAMES = {
-			"button-overdue",
-			"button-todo",
-			"button-today",
-			"button-floating",
-			"button-search"
-	};
-	
-	final static String APP_TITLE = "OraCle";
-	final static String FILE_CSS = "application.css";
-
-	final static String TAG_BOTTOMBAR = "bottombar";
-	final static String TAG_TEXTBOX = "textbox";
-	final static String TAG_TABPANE = "tabpane";
-
-	final static String STYLE_CURVED_VBOX = "vbox-curved";
-	final static String STYLE_CURVED_LABEL = "label-curved";
-	final static String STYLE_HEADING = "heading";
-	final static String STYLE_TRANSPARENT = "transparent";
-	final static String STYLE_TEXT = "label";
-	final static String STYLE_COLOR = "-fx-background-color: %1$s;";
-
-	final static String SEARCH_LIST_FORMAT = "%1$s (%2$d) - \"%3$s\""; // name, list size, keywords
-	final static String MSG_SUGGESTED_COMMAND_FORMAT = "Did you mean the \"%1$s\" command?";
-	final static String MSG_PROMPT = "Type command here";
-	final static String MSG_WINDOWSWITCH = "Switch"; // name for button
-	final static String ERR_TASKID = "ERROR: Task ID not found";
-
-	// gui commands 
-	public enum GUICommandType {
-		CLEAR, PIN, OPEN, CLOSE, CLOSEALL, SHOW, SWITCH 
-	}
-	final static String CMD_CLEAR = "clear"; // clears all log
-	final static String CMD_PIN = "pin"; // pin XXX: pins a selected task list
-	final static String CMD_UNPIN = "unpin"; // pin XXX: pins a selected task list
-	final static String CMD_OPEN = "open"; // open XXX: opens a selected task list
-	final static String CMD_CLOSE = "close"; // close XXX: closes a selected task list
-	final static String CMD_OPENALL = "open all"; // opens all task lists
-	final static String CMD_CLOSEALL = "close all"; // closes all open task lists
-	final static String CMD_SHOW = "show"; // focuses on a selected task in the main view
-	final static String CMD_SEARCH = "search"; // for Ctrl+F and searching 
-	final static String CMD_SWITCH = "switch"; // switches between the log and the main window
-	final static String CMD_LOG = "log"; // switches to the log
-	final static String CMD_MAIN = "main"; // switches to the main window
-
-	public static String AVATAR_IMAGENAME;
-	public static String ICON_IMAGE = "icon.png";
-	public static boolean isMainWindow = true; // true = main pane window, false = logObject
-
-	final static int MINIMUM_WINDOW_WIDTH = 600;
-	final static int MINIMUM_WINDOW_HEIGHT = 650;
-	final static int PADDING = 6;
-
-	// 1/ratio, ratio being the number to divide by
-	final static int PINNED_WINDOW_RATIO = 3;
-	final static int TEXTBOX_RATIO = 8;
-
-	// Stores all lists
-	public static ArrayList<TaskList> taskLists = new ArrayList<TaskList>();
-	
-	// for getting old commands
-	public static ListIterator<Node> commandIterator;
-	final static boolean PREVIOUS = false;
-	final static boolean NEXT = true;
-	final static int NESTED_NODE_NUM = 3; // number of nesting nodes possible
-	final static String EMPTY_STRING = "";
-	
-	// for activating focus view
-	public static boolean isFocusView = false;
-	
-	
-	// javafx nodes
-	public static Stage stage; 
-	final static Pane window = new VBox();
-	public static Log logCommands;
-	public static Log logConsole;
-	public static VBox logObject;
-	public static Textbox textboxObject;
-	public static BorderPane pane;
-	public static MainWindow center;
-	public static logic.Model model;
-	public static VBox pinnedWindow;
-	public static HelpMenu help;
-
-	public static HBox bottomBar; // bottomMost bar
-	public static TextField userTextField;
-	public static Button windowSwitch;
-	//public static TabPane tabPane;
-	public static Logic controller = new Logic();
-
-
-	public static void main(String[] args) {
-		launch(args);
-	}
-	
-	@Override
-	public void start(Stage primaryStage) {
-		stage = primaryStage;
-		// prevent resizing?
-		//primaryStage.setResizable(false); // allow resizing?
-
-		/**
-		 * main interface manager
-		 * Splits the different sections apart
-		 */
-		pane = new BorderPane();
-
-		/**
-		 * Initialise the Model
-		 */
-		try {
-			model = controller.executeCommand(null);
-		} catch (Logic.UnrecognisedCommandException e) {
-		}
-		AVATAR_IMAGENAME = model.getAvatarLocation();
-
-		for (int i=0; i<taskListNames.length;i++) {
-			TaskList list = new TaskListCustom(i);
-			taskLists.add(list); // use this version to allow to close all other task lists
-			list.name.getStyleClass().add(STYLE_BUTTON_NAMES[i]);
-		}
-		
-		// intialise the all task lists
-		refreshLists();
-
-		// then pin it as the first task window
-		pinnedWindow = new VBox();
-		pinnedWindow.prefWidthProperty().bind(pane.widthProperty());
-		pinnedWindow.prefHeightProperty().bind(pane.heightProperty().divide(PINNED_WINDOW_RATIO));
-		pinnedWindow.getStyleClass().add(STYLE_CURVED_VBOX);
-
-		// create the text
-		textboxObject = new Textbox();
-		textboxObject.getNode().prefWidthProperty().bind(pane.widthProperty());
-		textboxObject.getNode().maxWidthProperty().bind(pane.widthProperty());
-		textboxObject.getNode().maxHeightProperty().bind(pane.heightProperty().divide(TEXTBOX_RATIO));
-		//textboxObject.getNode().minHeightProperty().bind(pane.heightProperty().divide(TEXTBOX_RATIO));
-		textboxObject.getNode().prefHeightProperty().bind(pane.heightProperty().divide(TEXTBOX_RATIO));
-		pane.setBottom(textboxObject.getNode());
-
-		// create the Log tab
-		logObject = createLogTab();
-		
-		// create the help menu
-		help = new HelpMenu();
-
-		// create the button to switch windows with
-		windowSwitch = new Button(MSG_WINDOWSWITCH);
-
-		// create input field
-		userTextField = new TextField();
-		//userTextField.setMinWidth(TABPANE_WIDTH);
-		userTextField.setPromptText(MSG_PROMPT);
-		//userTextField.prefWidthProperty().bind(window.widthProperty());
-
-		// create the bottom bar
-		bottomBar = new HBox();
-		bottomBar.getChildren().add(userTextField);
-		bottomBar.getChildren().add(windowSwitch);
-		bottomBar.prefWidthProperty().bind(window.widthProperty());
-		HBox.setHgrow(userTextField, Priority.ALWAYS);
-
-		// add all lists to to the center
-		center = new MainWindow();
-		refreshLists();
-		center.getNode().prefWidthProperty().bind(pane.widthProperty());
-		center.getNode().maxWidthProperty().bind(pane.widthProperty());
-		pane.setCenter(center.getNode());
-
-		pane.prefWidthProperty().bind(window.widthProperty());
-		pane.prefHeightProperty().bind(window.heightProperty());
-		window.setMinWidth(MINIMUM_WINDOW_WIDTH);
-		window.setMinHeight(MINIMUM_WINDOW_HEIGHT);
-
-		window.getChildren().add(pane);
-		window.getChildren().add(bottomBar);
-		Scene scene = new Scene(window, window.getPrefWidth(), window.getPrefHeight()); //WINDOW_WIDTH+10, WINDOW_HEIGHT+10);
-		//scene.getRoot().setStyle("-fx-background-image: url(\"" + BACKGROUND_NAME + "\");");
-		userTextField.requestFocus();
-		
-		// Activate the scene
-		primaryStage.setScene(scene);
-		primaryStage.setTitle(APP_TITLE);
-		scene.getStylesheets().add(GUIController.class.getResource(FILE_CSS).toExternalForm());
-		primaryStage.getIcons().add(new Image(
-				GUIController.class.getResourceAsStream( ICON_IMAGE )));
-		primaryStage.show();
-		primaryStage.setMinWidth(primaryStage.getWidth());
-		primaryStage.setMinHeight(primaryStage.getHeight());
-		
-		// Add handlers
-		addHandlers(scene);
-
-		// After showing the scene, pin the overdue tab if not empty
-		if (!taskLists.get(TASKLIST_OVERDUE).isListEmpty()) {
-			pinWindow(taskLists.get(TASKLIST_OVERDUE));
-		}//*/
-		openList(TASKLIST_TODAY); // open today first
-	}
 	/**
-	 * Global Handlers
+	 * Class to handle Global Handlers
 	 */
-	public static class GlobalListener implements NativeKeyListener {
+	protected static class GlobalListener implements NativeKeyListener {
 		// NativeKeyListeners
 		@Override
 		public void nativeKeyPressed(NativeKeyEvent e) {
@@ -292,86 +81,358 @@ public class GUIController extends Application {
 					(e.getModifiers()==NativeKeyEvent.CTRL_L_MASK||
 					e.getModifiers()==NativeKeyEvent.CTRL_R_MASK)) { // alt
 				Platform.runLater(new Runnable() {
+					@SuppressWarnings("deprecation")
 					@Override
 					public void run() {
-						if (stage.isFocused()) {
-							stage.setIconified(true);
-						} else {
-							stage.setIconified(false);
+						if (stage!=null) { // in case the buttons were triggered during loading screen
+							if (stage.isFocused()) {
+								stage.setIconified(true); // minimise
+							} else {
+								stage.setIconified(true); 
+								// if it was behind another window, this allows it to regain focus when brought up
+								stage.setIconified(false); 
+							}
 						}
 					}
-		        });
+				});
 			}
 		}
-		
+
 		// Unused methods
 		@Override public void nativeKeyReleased(NativeKeyEvent e) {}
 		@Override public void nativeKeyTyped(NativeKeyEvent e) {}
 	}
-	
+
+	// Logic components
+	protected static Logic logic;
+	protected static logic.Model model;
+
+	protected final static String APP_TITLE = "OraCle";
+	protected final static String FILE_CSS = "application.css";
+
+	protected final static String CSS_TAG_BOTTOMBAR = "bottombar";
+	protected final static String CSS_TAG_TEXTBOX = "textbox";
+
+	protected final static String CSS_STYLE_CURVED_VBOX = "vbox-curved";
+	protected final static String CSS_STYLE_CURVED_LABEL = "label-curved";
+	protected final static String CSS_STYLE_HEADING = "heading";
+	protected final static String CSS_STYLE_TRANSPARENT = "transparent";
+	protected final static String CSS_STYLE_COLOR = "-fx-background-color: %1$s;";
+
+	// Formats and default messages
+	protected final static String SEARCH_LIST_FORMAT = "%1$s (%2$d) - \"%3$s\""; // name, list size, keywords
+	protected final static String MSG_SUGGESTED_COMMAND_FORMAT = "Did you mean the \"%1$s\" command?";
+	protected final static String MSG_PROMPT = "Type command here";
+	protected final static String MSG_WINDOWSWITCH = "Switch"; // name for Switch button
+	protected final static String ERR_TASKID = "ERROR: Task ID not found";
+	protected final static String EMPTY_STRING = "";
+	protected final static String CMD_SEARCH = "search "; // for Ctrl+F and searching
+
+	// TaskList variables
+	// static because there should only be one list of TaskLists at any point of time
+	protected static ArrayList<TaskList> taskLists = new ArrayList<TaskList>();
+	public final static String[] taskListNames = {
+			"Overdue",
+			"Today",
+			"Floating",
+			"To-do",
+			"Search list"
+	};
+	public final static String[] STYLE_BUTTON_NAMES = {
+			"button-overdue",
+			"button-today",
+			"button-floating",
+			"button-todo",
+			"button-search"
+	};
+	protected final static int TASKLIST_OVERDUE = 0;
+	protected final static int TASKLIST_TODAY = 1;
+	protected final static int TASKLIST_FLOATING = 2;
+	protected final static int TASKLIST_TODO = 3;
+	protected final static int TASKLIST_SEARCH = 4;
+	public final static int TASKLIST_INVALID = -1;
+	public static int TASKLIST_PINNED = TASKLIST_INVALID;
+	public static int TASKLIST_OPENED = TASKLIST_INVALID; // task list last opened
+
+	public static String AVATAR_IMAGENAME;
+	public static String ICON_IMAGE = "icon.png";
+	public static boolean isMainWindow = true; // true = main pane window, false = logObject
+
+	// Window sizes and ratios
+	protected final static int PINNED_WINDOW_RATIO = 3; // 1/ratio, ratio being the number to divide by
+	protected final static int TEXTBOX_RATIO = 8; // 1/ratio, ratio being the number to divide by
+	protected final static int MINIMUM_WINDOW_WIDTH = 600;
+	protected final static int MINIMUM_WINDOW_HEIGHT = 650;
+	protected final static int PADDING = 6;
+
+	// for getting previous commands
+	protected static ListIterator<Node> commandIterator;
+	protected final static boolean PREVIOUS = false;
+	protected final static boolean NEXT = true;
+	protected final static int NESTED_NODE_NUM = 3; // number of nested nodes possible
+
+	// for activating focus view
+	protected static boolean isFocusView = false;
+
+	/**
+	 * Displayables
+	 */	
+	// the overall managers/parents
+	protected static final Pane window = new VBox();
+	protected static Stage stage = null;
+	protected static Scene scene = null;  
+
+	// the help menu
+	protected static final HelpMenu help = new HelpMenu();
+
+	// the log tab
+	protected static VBox logObject;
+	protected static Log logCommands;
+	protected static Log logConsole;
+
+	// pane, the default view with all TaskLists 
+	protected static BorderPane pane;
+	protected static VBox pinnedPanel;
+	protected static CenterPanel centerPanel;
+	protected static ConsolePanel consolePanel;
+
+	// the bar under pane/log
+	protected static HBox bottomBar;
+	protected static TextField userInputField;
+	protected static Button windowSwitch;
+
+	public static void main(String[] args) {
+		// launch the GUIController with a PreloaderWindow
+		LauncherImpl.launchApplication(GUIController.class, PreloaderWindow.class, args);
+	}
+
+	@Override
+	public void init() {
+		// initialise data variables
+		initCoreComponents(); // if fail, system will exit
+
+		// initialise displayables
+		initPane();
+		initLogTab();
+		initBottomBar();
+		initMainWindow();
+
+		// initialise the taskLists after displayables are ready
+		initTaskLists();
+
+		initScene();
+		addSceneHandlers();
+	}
+
+	@Override
+	public void start(Stage primaryStage) {
+		stage = primaryStage;
+		stage.setScene(scene);
+		stage.setTitle(APP_TITLE);
+		stage.getIcons().add(new Image(
+				GUIController.class.getResourceAsStream( ICON_IMAGE )));
+		addStageHandlers();
+		stage.show();
+		stage.setMinWidth(stage.getWidth());
+		stage.setMinHeight(stage.getHeight());
+	}
+
+	/**
+	 * @return the master/parent node for this object
+	 */
+	public Pane getWindow() {
+		return window;
+	}
+
+	/**
+	 * Initialises the scene so that things can be added to it
+	 */
+	protected void initScene() {
+		scene = new Scene(window, window.getPrefWidth(), window.getPrefHeight());
+		scene.getStylesheets().add(GUIController.class.getResource(FILE_CSS).toExternalForm());
+	}
+
+	/**
+	 * The following are initialised: 
+	 * @param logic
+	 * @param model
+	 * @param AVATAR_IMAGENAME
+	 */
+	protected void initCoreComponents() {
+		try {
+			logic = new Logic();
+			model = logic.executeCommand(null);
+			AVATAR_IMAGENAME = model.getAvatarLocation(); 
+		} catch (Exception e) {
+			// if fail to initialise terminate program
+			System.err.println("Unable to create logic components");
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+
+	/**
+	 * Initialises the TaskLists and gets the information for them from the model
+	 * @taskLists
+	 */
+	protected void initTaskLists() {
+		// Create the list of TaskLists
+		for (int i=0; i<taskListNames.length;i++) {
+			TaskList list = new TaskListCustom(i); // use the new child instead
+			taskLists.add(list); // use this version to allow to close all other task lists
+			list.name.getStyleClass().add(STYLE_BUTTON_NAMES[i]);
+		}
+		refreshLists(); // initalise all lists
+
+		// pin the overdue tab if not empty
+		if (!taskLists.get(TASKLIST_OVERDUE).isListEmpty()) {
+			pinWindow(taskLists.get(TASKLIST_OVERDUE));
+		}//*/
+		openList(TASKLIST_TODAY); // open today first
+	}
+
+	/**
+	 * Initalises the pinned window's frame
+	 * @param pinnedPanel
+	 */
+	protected void initPinnedPanel() {
+		pinnedPanel = new VBox();
+		pinnedPanel.prefWidthProperty().bind(pane.widthProperty());
+		pinnedPanel.prefHeightProperty().bind(pane.heightProperty().divide(PINNED_WINDOW_RATIO));
+		pinnedPanel.getStyleClass().add(CSS_STYLE_CURVED_VBOX);
+	}
+
+	/**
+	 * Initialises the displayables in the center 
+	 * @param centerPanel Binds to the next node object below
+	 * @param pane
+	 */
+	protected void initCenter() {
+		centerPanel = new CenterPanel();
+		centerPanel.getNode().prefWidthProperty().bind(pane.widthProperty());
+		centerPanel.getNode().maxWidthProperty().bind(pane.widthProperty());
+	}
+
+	/**
+	 * Initialises the bottom panel
+	 * @param consolePanel Binds to the next node object below
+	 * @param pane
+	 */
+	protected void initConsolePanel() {
+		consolePanel = new ConsolePanel();
+		consolePanel.getNode().prefWidthProperty().bind(pane.widthProperty());
+		consolePanel.getNode().maxWidthProperty().bind(pane.widthProperty());
+		consolePanel.getNode().maxHeightProperty().bind(pane.heightProperty().divide(TEXTBOX_RATIO));
+		consolePanel.getNode().prefHeightProperty().bind(pane.heightProperty().divide(TEXTBOX_RATIO));
+	}
+
+	/**
+	 * Initialises the default Pane, which is where all the TaskLists are displayed
+	 * @param pane Binds to the next node object below
+	 * @param window
+	 */
+	protected void initPane() {
+		pane = new BorderPane();
+		initPinnedPanel();
+		initCenter();
+		initConsolePanel();
+
+		// add the other panels except for pinnedWindow to the pane
+		pane.setCenter(centerPanel.getNode());
+		pane.setBottom(consolePanel.getNode());
+
+		// Bind to window
+		pane.prefWidthProperty().bind(window.widthProperty());
+		pane.prefHeightProperty().bind(window.heightProperty());
+	}
+
+	/**
+	 * Initialises the Log page of the application
+	 * @param logObject
+	 * @param logConsole
+	 * @param logCommands
+	 */
+	protected void initLogTab() {
+		logObject = new VBox();
+		logConsole = new Log("Console");
+		logCommands = new Log("Commands");
+		logObject.getChildren().add(logConsole.getNode());
+		logObject.getChildren().add(logCommands.getNode());
+		logConsole.getNode().prefHeightProperty().bind(logObject.heightProperty().divide(2));
+		logConsole.getNode().prefWidthProperty().bind(logObject.widthProperty());
+		logCommands.getNode().prefHeightProperty().bind(logObject.heightProperty().divide(2));
+		logCommands.getNode().prefWidthProperty().bind(logObject.widthProperty());
+		logObject.prefWidthProperty().bind(window.widthProperty());
+		logObject.maxWidthProperty().bind(window.widthProperty());
+		logObject.prefHeightProperty().bind(window.heightProperty());
+		logObject.maxHeightProperty().bind(window.heightProperty());
+		VBox.setVgrow(logObject, Priority.ALWAYS);
+		VBox.setVgrow(logCommands.getNode(), Priority.ALWAYS);
+		VBox.setVgrow(logConsole.getNode(), Priority.ALWAYS);
+	}
+
+	/**
+	 * Initialises displayables under the ConsolePanel
+	 * @param userInputField Added to bottomBar
+	 * @param windowSwitch Added to bottomBar
+	 * @param bottomBar Binds to the next node object below
+	 * @param window
+	 */
+	protected void initBottomBar() {
+		bottomBar = new HBox();
+		// initialise the input field
+		userInputField = new TextField();
+		userInputField.setPromptText(MSG_PROMPT);
+		HBox.setHgrow(userInputField, Priority.ALWAYS);
+		bottomBar.getChildren().add(userInputField);
+
+		// then create the switch button to toggle between log and pane
+		windowSwitch = new Button(MSG_WINDOWSWITCH);
+		bottomBar.getChildren().add(windowSwitch);
+
+		// bind to main window
+		bottomBar.prefWidthProperty().bind(window.widthProperty());
+	}
+
+	/**
+	 * Initialises the main container for everything
+	 * @window Adds the following objects below to the window
+	 * @pane
+	 * @bottomBar
+	 */
+	protected void initMainWindow() {
+		window.setMinWidth(MINIMUM_WINDOW_WIDTH);
+		window.setMinHeight(MINIMUM_WINDOW_HEIGHT);
+		// add the nodes to window
+		window.getChildren().add(pane);
+		window.getChildren().add(bottomBar);
+	}
+
 	/**
 	 * Adds handlers to the scene
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
+	 * @scene
 	 * 
 	 * 
 	 */
-	public void addHandlers(Scene scene) {
-		// create global hook
-		try {
-			// Get the logger for "org.jnativehook" and set the level to off to remove log from it
-			Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
-			logger.setLevel(Level.OFF);
-			// Activate the global listener and add it
-			GlobalScreen.registerNativeHook();
-			GlobalScreen.addNativeKeyListener(new GlobalListener());// Clear previous logging configurations.
-		} catch (NativeHookException ex) {
-			// if there was a problem ignore the native hook and don't support it
-        }
-		
-		// unhook it when application closing
-		stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-			public void handle(WindowEvent we) {
-				try {
-					GlobalScreen.unregisterNativeHook();
-				} catch (NativeHookException e) {
-				}
-			}
-		});
-		/*
-		isWindowShortcutTriggered.addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-				if (stage.isFocused()) {
-					stage.hide();
-				} else {
-					stage.requestFocus();
-				}
-				isWindowShortcutTriggered.setValue(false);
-            }
-        });//*/
-		
+	protected void addSceneHandlers() {
 		// event handler for userTextField
-		userTextField.setOnAction((ActionEvent event) -> processUserTextField(userTextField));
-		userTextField.setOnKeyPressed(new EventHandler<KeyEvent>() {
+		userInputField.setOnAction((ActionEvent event) -> processUserTextField());
+		userInputField.setOnKeyPressed(new EventHandler<KeyEvent>() {
 			@Override
 			public void handle(KeyEvent keyEvent) {
 				if (keyEvent.getCode()==KeyCode.UP) { // get last item typed in, unless it is first
 					String lastCommand = getCommandLog(PREVIOUS); // get previous
 					if (!lastCommand.isEmpty()) { // if not empty, replace current userTextField data
-						userTextField.setText(lastCommand);
-						userTextField.end(); // set cursor behind last chara
+						userInputField.setText(lastCommand);
+						userInputField.end(); // set cursor behind last chara
 					}
 				}
-				
+
 				if (keyEvent.getCode()==KeyCode.DOWN) { // get next item typed in, unless it is last
 					String lastCommand = getCommandLog(NEXT); // get next item
 					if (!lastCommand.isEmpty()) { // if not empty, replace current userTextField data
-						userTextField.setText(lastCommand);
-						userTextField.end(); // set cursor behind last chara
+						userInputField.setText(lastCommand);
+						userInputField.end(); // set cursor behind last chara
 					}
 				}
 			}
@@ -385,69 +446,96 @@ public class GUIController extends Application {
 			}
 		});
 
-		// Scene resize listener
-		ChangeListener<Number> listener = new ChangeListener<Number>() {
-			@Override
-			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				// TODO Auto-generated method stub				
-				taskLists.get(TASKLIST_TODO).recalculate();
-				center.recalculate();
-			}
-		};
-		scene.widthProperty().addListener(listener);
-		scene.heightProperty().addListener(listener);
-
 		// Scene event handler for shortcuts
 		scene.setOnKeyPressed((new EventHandler<KeyEvent>() {
 			@Override
 			public void handle(KeyEvent keyEvent) {
-				if(keyEvent.getCode()==KeyCode.T) {
-					// Shortcut for jumping to userTextField
-					if (keyEvent.isControlDown()){
-						userTextField.requestFocus();
-						userTextField.end(); // set cursor behind last chara
-					} else if (keyEvent.isAltDown()) {
-						// Shortcut for switch
-						switchWindow();
-					}
-				}
-				
-				// Focus Mode
-				if(keyEvent.getCode()==KeyCode.BACK_SLASH) { // zoom in on a task
+				switch (ShortcutManager.processKeyEvent(keyEvent)) {
+				case FOCUS_MODE: 
 					showFocusTask(false);
-				}
-
-				// Focus Mode clear
-				if ((keyEvent.getCode()==KeyCode.BACK_SLASH&&keyEvent.isShiftDown())||
-						keyEvent.getCode()==KeyCode.BACK_SPACE) { // see the main list again
+					break;
+				case FOCUS_MODE_CLEAR:
 					if (TASKLIST_PINNED!=TASKLIST_INVALID) { // if there is pinned window, open that
 						openList(TASKLIST_PINNED);
 					} else {
 						unpinWindow(); // else clear the focus task
 					}
-				}
-
-				// Undo shortcut
-				if (keyEvent.getCode()==KeyCode.Z&&
-						(keyEvent.isControlDown()||keyEvent.isAltDown())) { // undo the last command
+					break;
+				case HELP:
+					showHelpMenu();
+					break;
+				case SEARCH:
+					userInputField.requestFocus();
+					userInputField.setText(CMD_SEARCH); 
+					userInputField.end(); // set cursor behind last chara
+					break;
+				case SWITCH:
+					switchWindow();
+					break;
+				case INPUT_FIELD:
+					userInputField.requestFocus();
+					userInputField.end(); // set cursor behind last chara
+					break;
+				case UNDO:
 					executeCommand("undo");
-				}
-				 
-				// Search shortcut
-				if (keyEvent.getCode()==KeyCode.F&&
-						(keyEvent.isControlDown())) {
-					userTextField.requestFocus();
-					userTextField.setText(CMD_SEARCH+" ");
-					userTextField.end(); // set cursor behind last chara
-				}
-				
-				// Unpin shortcut
-				if (keyEvent.getCode()==KeyCode.U&&
-						(keyEvent.isControlDown())) { 
+					break;
+				case UNPIN:
 					unpinWindow();
+					break;
+				default:
+					break;
 				}
 			}
 		}));//*/
+	}
+
+	/**
+	 * Add handlers for the stage
+	 * @param stage
+	 * 
+	 */
+	protected void addStageHandlers() {
+		// create global hook
+		try {
+			// Get the logger for "org.jnativehook" and set the level to off to remove log from it
+			Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
+			logger.setLevel(Level.OFF);
+			// Activate the global listener and add it
+			GlobalScreen.registerNativeHook();
+			GlobalScreen.addNativeKeyListener(new GlobalListener());// Clear previous logging configurations.
+		} catch (NativeHookException ex) {
+			// if there was a problem ignore the native hook and don't support it
+		}
+
+		// unhook it when application closing
+		stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+			public void handle(WindowEvent we) {
+				try {
+					GlobalScreen.unregisterNativeHook();
+				} catch (NativeHookException e) {
+				}
+			}
+		});
+
+		// Scene resize listener
+		ChangeListener<Number> listener = new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				recalculatePinned();
+				centerPanel.recalculate();
+			}
+		};
+		stage.widthProperty().addListener(listener);
+		stage.heightProperty().addListener(listener);
+	}
+	
+	/**
+	 * Activates the help menu
+	 */
+	protected void showHelpMenu() {
+		if (!help.getNode().isShowing()) {
+			help.getNode().show(stage);
+		}
 	}
 
 	/**
@@ -457,8 +545,8 @@ public class GUIController extends Application {
 	protected void pinWindow(TaskList list) {
 		if (list!=null) {
 			unpinWindow(list);
-			pane.setTop(pinnedWindow);
-	
+			pane.setTop(pinnedPanel);
+
 			TASKLIST_PINNED = list.listNumber;
 			list.isPinnedWindow = true;
 			list.selectFirstNode(); // select the first node, since it is moving up now
@@ -467,13 +555,13 @@ public class GUIController extends Application {
 			Region node = list.getNode();
 			node.prefWidthProperty().unbind();
 			node.prefHeightProperty().unbind();
-			node.prefWidthProperty().bind(pinnedWindow.widthProperty());
-			node.prefHeightProperty().bind(pinnedWindow.heightProperty());
-			pinnedWindow.getChildren().clear();
-			pinnedWindow.getChildren().add(node);
+			node.prefWidthProperty().bind(pinnedPanel.widthProperty());
+			node.prefHeightProperty().bind(pinnedPanel.heightProperty());
+			pinnedPanel.getChildren().clear();
+			pinnedPanel.getChildren().add(node);
 		}
 	}
-	
+
 	/**
 	 * Pins a focused Task into the window
 	 * @param Task to be pinned
@@ -481,14 +569,14 @@ public class GUIController extends Application {
 	protected static void pinFocusView(Region focusedTask) {
 		if (focusedTask!=null) {
 			unpinWindow();
-			pane.setTop(pinnedWindow);
+			pane.setTop(pinnedPanel);
 			focusedTask.prefWidthProperty().unbind();
 			focusedTask.prefHeightProperty().unbind();
-			focusedTask.prefWidthProperty().bind(pinnedWindow.widthProperty());
-			focusedTask.prefHeightProperty().bind(pinnedWindow.heightProperty());
+			focusedTask.prefWidthProperty().bind(pinnedPanel.widthProperty());
+			focusedTask.prefHeightProperty().bind(pinnedPanel.heightProperty());
 			focusedTask.setPadding(new Insets(0, PADDING, 0, PADDING));
-			pinnedWindow.getChildren().clear();
-			pinnedWindow.getChildren().add(focusedTask);
+			pinnedPanel.getChildren().clear();
+			pinnedPanel.getChildren().add(focusedTask);
 			isFocusView = true;
 		}
 	}
@@ -523,34 +611,23 @@ public class GUIController extends Application {
 			if (list!=null) {
 				TASKLIST_PINNED = list.listNumber; // to avoid being added during refreshList()
 			}
-			
+
 			// then update the center's list
 			refreshLists();
 		}
 		pane.setTop(null);
-		
-	}
 
-	public VBox createLogTab() {
-		logObject = new VBox();
-		logConsole = new Log("Console");
-		logCommands = new Log("Commands");
-		logObject.getChildren().add(logConsole.getNode());
-		logObject.getChildren().add(logCommands.getNode());
-		logConsole.getNode().prefHeightProperty().bind(logObject.heightProperty().divide(2));
-		logConsole.getNode().prefWidthProperty().bind(logObject.widthProperty());
-		logCommands.getNode().prefHeightProperty().bind(logObject.heightProperty().divide(2));
-		logCommands.getNode().prefWidthProperty().bind(logObject.widthProperty());
-		logObject.prefWidthProperty().bind(window.widthProperty());
-		logObject.maxWidthProperty().bind(window.widthProperty());
-		logObject.prefHeightProperty().bind(window.heightProperty());
-		logObject.maxHeightProperty().bind(window.heightProperty());
-		VBox.setVgrow(logObject, Priority.ALWAYS);
-		VBox.setVgrow(logCommands.getNode(), Priority.ALWAYS);
-		VBox.setVgrow(logConsole.getNode(), Priority.ALWAYS);
-		return logObject;
 	}
 	
+	/**
+	 * Recalculates the size of the pined window
+	 */
+	protected void recalculatePinned() {
+		if (TASKLIST_PINNED!=TASKLIST_INVALID) {
+			taskLists.get(TASKLIST_PINNED).recalculate();
+		}
+	}
+
 	/**
 	 * Returns the string from the command log. 
 	 * @param next if true, get next command. If false, get previous command
@@ -565,7 +642,7 @@ public class GUIController extends Application {
 			} else if (next==PREVIOUS&&commandIterator.hasPrevious()) {
 				command = (Text)commandIterator.previous();
 			} // if there are no valid commands, do nothing
-			
+
 			if (command!=null) {
 				output = command.getText().replaceFirst(">",""); // delete the > in the log
 			}
@@ -587,14 +664,17 @@ public class GUIController extends Application {
 		isMainWindow = !isMainWindow;
 	}
 
-	public void processUserTextField(TextField userTextField) {
-		String temp = userTextField.getText();
-		userTextField.clear();
+	/**
+	 * Takes the data from userInputField and processes it in executeCommand()
+	 */
+	public void processUserTextField() {
+		String temp = userInputField.getText();
+		userInputField.clear();
 		executeCommand(temp);
 	}
 
 	/**
-	 * Performs an action based on the command. GUI only comamnds are processed here
+	 * Performs an action based on the command. GUI only commands are processed here
 	 * @param parsedCommand Command after being parsed by Parser
 	 * @return true if GUI has performed the necessary action, false if it needs to be passed to Logic for further action
 	 */
@@ -688,7 +768,7 @@ public class GUIController extends Application {
 			case CONFIG_IMG:
 				// if it had been a Set function, it might have been an avatar or background, so reload them
 				AVATAR_IMAGENAME = model.getAvatarLocation();
-				if(!textboxObject.loadAvatar()) {
+				if(!consolePanel.loadAvatar()) {
 					output = "Cannot find new avatar specified";
 				}
 				break;
@@ -716,7 +796,7 @@ public class GUIController extends Application {
 										taskListNames[TASKLIST_SEARCH],
 										search.listSize,
 										keywords)
-							);
+								);
 					}
 				}
 				break;
@@ -730,6 +810,7 @@ public class GUIController extends Application {
 		}
 		return output;
 	}//*/
+
 	/**
 	 * Runs the command input. 
 	 * @param input 
@@ -740,28 +821,28 @@ public class GUIController extends Application {
 			ParsedCommand parsedCommand = MyParser.parseCommand(input.trim());
 			if (!checkForGuiActions(parsedCommand)) {
 				try {
-					model = controller.executeCommand(parsedCommand);
+					model = logic.executeCommand(parsedCommand);
 					// refresh log command, and get new iterator
-					logCommands.addToTextbox(input);
+					logCommands.addToLog(input);
 					commandIterator = logCommands.getLog().getChildren().listIterator(
 							logCommands.getLog().getChildren().size()); // get last item
-					
+
 					refreshLists(); // only needed if sent to logic
 				} catch (Logic.UnrecognisedCommandException e) {
 					//model.setConsoleMessage(output);
 				}
-				
+
 				String output = checkCommandType(parsedCommand);
 				if (!output.isEmpty()) { // override previous error
 					model.setConsoleMessage(output);
 				}
 			}
-			
+
 			// output console message
 			outputToScreen();
 		}
 	}
-	
+
 	/**
 	 * Output to console and store consoleMessage
 	 */
@@ -769,8 +850,8 @@ public class GUIController extends Application {
 		if (model.getConsoleMessage()==null) {
 			model.setConsoleMessage(EMPTY_STRING);
 		}
-		textboxObject.addToTextbox(model.getConsoleMessage());
-		logConsole.addToTextbox(model.getConsoleMessage());
+		consolePanel.addToConsole(model.getConsoleMessage());
+		logConsole.addToLog(model.getConsoleMessage());
 	}
 
 	/**
@@ -780,56 +861,38 @@ public class GUIController extends Application {
 		for (TaskList list : taskLists) {
 			switch(list.listNumber) {
 			case TASKLIST_TODO: // all tasks tab
-				taskLists.get(TASKLIST_TODO).addAllTasks(model.getMainList());;
+				taskLists.get(TASKLIST_TODO).addAllTasks(model.getMainList(),true);;
 				break;
 			case TASKLIST_SEARCH: // search list
-				list.addAllTasks(model.getSearchList());
+				list.addAllTasks(model.getSearchList(),true);
 				break;
 			case TASKLIST_OVERDUE: // overdue list
-				list.addAllTasks(model.getOverdueList());
+				list.addAllTasks(model.getOverdueList(),true);
 				break;
 			case TASKLIST_FLOATING: // floating tasks list
-				list.addAllTasks(model.getFloatingList());
+				list.addAllTasks(model.getFloatingList(),true);
 				break;
 			case TASKLIST_TODAY:// today list 
-				list.addAllTasks(model.getTodayList());
+				list.addAllTasks(model.getTodayList(),true);
 				break;
 			default:
 				break;
 			}
 		}
 		
-		if (center!=null) {
+		// Add the lists to the centerPanel
+		if (centerPanel!=null) {
 			int open = TASKLIST_OPENED;
-			center.removeAllFromList();
+			centerPanel.removeAllFromList();
 			for (int i=0; i<taskLists.size();i++) {
 				if (i!=TASKLIST_PINNED) {
-					center.addToList(taskLists.get(i));
+					centerPanel.addToList(taskLists.get(i));
 				}
 			}
 			openList(open); // keep the list that was previously opened open
 		}
 	}
 
-	/**
-	 * 
-	 * @param text Sets this text to FancyText css style
-	 */
-	public static void setHeading(Label text) {
-		text.getStyleClass().add(STYLE_HEADING);
-	}
-	
-	/**
-	 * Closes all lists except the pinned list
-	 */
-	protected static void closeAllLists() {
-		for (TaskList list : taskLists) {
-			if (list.listNumber!=TASKLIST_PINNED) {
-				closeList(list);
-			}
-		}
-	}
-	
 	/**
 	 * Opens a specified list and closes all other lists at the same time
 	 * @param listNumber list to open
@@ -845,12 +908,14 @@ public class GUIController extends Application {
 			TaskList list = taskLists.get(listNumber);
 			list.openList();
 			if (isFocusView) { // if there had been a previously opened focus view
-				list.selectFirstNode();
+				if (!list.hasSelection()) {
+					list.selectFirstNode();
+				}
 				pinFocusView(list.getFocusTask());
 			}
 		}
 	}
-	
+
 	/**
 	 * Opens a specified list and closes all other lists at the same time
 	 * @param list list to open
@@ -858,7 +923,7 @@ public class GUIController extends Application {
 	public static void openList(TaskList list) {
 		openList(list.listNumber);
 	}
-	
+
 	/**
 	 * Opens a specified list and closes all other lists at the same time
 	 * @param listNumber list to open
@@ -871,7 +936,7 @@ public class GUIController extends Application {
 			}
 		}
 	}
-	
+
 	/**
 	 * Closes this list
 	 * @param list
@@ -879,7 +944,28 @@ public class GUIController extends Application {
 	protected static void closeList(TaskList list) {
 		closeList(list.listNumber);
 	}
-	
+
+	/**
+	 * Closes all lists except the pinned list
+	 */
+	protected static void closeAllLists() {
+		for (TaskList list : taskLists) {
+			if (list.listNumber!=TASKLIST_PINNED) {
+				closeList(list);
+			}
+		}
+	}
+
+	/**
+	 * Returns the task number of the item indicated in the Main Window
+	 * @param mainWindowLocation
+	 * @return the TaskList's number
+	 * @throws IndexOutOfBoundsException 
+	 */
+	protected int getTaskListNumberFromMainWindowLocation(int mainWindowLocation) throws IndexOutOfBoundsException {
+		return centerPanel.listOfTaskLists.get(mainWindowLocation).listNumber;
+	}
+
 	/**
 	 * Gets task list number from the input by user
 	 * @param processedString
@@ -900,7 +986,7 @@ public class GUIController extends Application {
 					// if there is a pinned window and is first element
 					return TASKLIST_PINNED;
 				} else if (TASKLIST_PINNED!=TASKLIST_INVALID) {
-					// if there is pinned window and not zero, means one of the main window
+					// if there is pinned panel and not zero, means one of the center panel
 					return getTaskListNumberFromMainWindowLocation(i-1);
 				}
 			}
@@ -909,21 +995,10 @@ public class GUIController extends Application {
 			throw new Logic.UnrecognisedCommandException("Unable to parse integer"); 
 		} catch (IndexOutOfBoundsException e) {
 			model.setConsoleMessage("Unable to find selected tab");
-			//throw new Logic.UnrecognisedCommandException("Unable to parse integer");
 		}
 		return TASKLIST_INVALID; // return invalid otherwise
 	}
-	
-	/**
-	 * Returns the task number of the item indicated in the location
-	 * @param mainWindowLocation
-	 * @return
-	 * @throws Exception 
-	 */
-	protected int getTaskListNumberFromMainWindowLocation(int mainWindowLocation) throws IndexOutOfBoundsException {
-		return center.listOfTaskLists.get(mainWindowLocation).listNumber;
-	}
-	
+
 	/**
 	 * Creates a focusView for the id number selected
 	 */
@@ -935,7 +1010,7 @@ public class GUIController extends Application {
 			sp.setVbarPolicy(ScrollBarPolicy.NEVER);
 			sp.setHbarPolicy(ScrollBarPolicy.NEVER);
 			sp.setPadding(new Insets(0, PADDING, 0, PADDING));
-			sp.getStyleClass().add(STYLE_TRANSPARENT);
+			sp.getStyleClass().add(CSS_STYLE_TRANSPARENT);
 			grid.prefWidthProperty().bind(sp.widthProperty().subtract(2*PADDING));
 			pinFocusView(sp);
 		} catch (IndexOutOfBoundsException e) {
@@ -943,7 +1018,7 @@ public class GUIController extends Application {
 			model.setConsoleMessage(ERR_TASKID);
 		}
 	}
-	
+
 	/**
 	 * Checked if the pinned window has focus
 	 */
@@ -960,7 +1035,7 @@ public class GUIController extends Application {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Opens the focus Task view if valid
 	 * @param isFromShow is it from the show command?
@@ -978,7 +1053,7 @@ public class GUIController extends Application {
 		} else {
 			Node focused = stage.getScene().getFocusOwner();
 			if (focused!=null) {
-				listLoop: for (TaskList list : taskLists) {
+				for (TaskList list : taskLists) {
 					Node node = focused;
 					for (int i=0;i<NESTED_NODE_NUM;i++) {
 						if (list.getNode().equals(node)) {
