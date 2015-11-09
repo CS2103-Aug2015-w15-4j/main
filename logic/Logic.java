@@ -20,9 +20,9 @@ public class Logic {
 	public static final SimpleDateFormat displayDateFormatter = new SimpleDateFormat("dd-MM-yyyy, HH:mm");
 
 	// Error Messages
-	public static final String ERROR_INVALID_ID = "Oops! Invalid ID!";
-	public static final String ERROR_CANNOT_REDO = "Uh Oh. Cannot redo without first doing an undo!";
-	public static final String ERROR_SEARCH_FAILED = "Oops! Something went wrong, search failed";
+	public static final String ERROR_INVALID_ID = "Error: Invalid ID";
+	public static final String ERROR_CANNOT_REDO = "Error: Cannot redo without first doing an undo";
+	public static final String ERROR_SEARCH_FAILED = "Error: Search Failed";
 
 	// Constants for Searching to end of the day
 	public static final int TODAY_LAST_HOUR = 23;

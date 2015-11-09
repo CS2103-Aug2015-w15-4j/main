@@ -33,7 +33,6 @@ public class Search {
 	private static final TaskType DEADLINETASK = TaskType.DEADLINE_TASK;
 	private static final TaskType EVENT = TaskType.EVENT;
 
-	@SuppressWarnings("deprecation")
 	public List<Task> multiSearch(List<Task> taskList, ParsedCommand toSearch) throws IOException, ParseException{
 		StandardAnalyzer analyzer = new StandardAnalyzer();
 		Directory index = indexTaskList(taskList,analyzer);
@@ -214,9 +213,11 @@ public class Search {
 		    doc.add(new TextField("id",new Integer(task.getId()).toString(), Field.Store.YES));
 		    doc.add(new TextField("isCompleted",new Boolean(task.getIsCompleted()).toString(), Field.Store.YES));
 		    String tagString = "";
-		    for (String tags : task.getTags()) {
-		    	tagString = tagString + tags + " ";
-		    }
+		  	if (task.getTags() != null) {
+				for (String tags : task.getTags()) {
+					tagString = tagString + tags + " ";
+				}
+			}
 		    doc.add(new TextField("tags",tagString, Field.Store.YES));
 		    doc.add(new TextField("taskType",task.getTaskType().toString(), Field.Store.YES));
 		    if (task.getDescription() != null) {
