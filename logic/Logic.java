@@ -145,6 +145,7 @@ public class Logic {
 		try {
 			ParsedCommand.ConfigType type = parsedCommand.getConfigType();
 			 if (type == ConfigType.AVATAR) {
+				 storage.setAvatar(parsedCommand.getConfigPath());
 				model.setAvatarLocation(parsedCommand.getConfigPath());
 				consoleMessage = MESSAGE_AVATAR_SWITCHED;
 			}
