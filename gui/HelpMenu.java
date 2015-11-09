@@ -1,6 +1,5 @@
 package gui;
 
-import java.io.InputStream;
 import java.net.URL;
 
 import javafx.scene.text.FontSmoothingType;
