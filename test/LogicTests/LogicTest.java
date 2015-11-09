@@ -1,11 +1,14 @@
 package test.LogicTests;
 
 import logic.*;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import parser.MyParser;
 import parser.ParsedCommand;
 import storage.Storage;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +17,14 @@ import static org.junit.Assert.*;
 
 //@@author A0124777W
 public class LogicTest {
+
+    @Before
+    public void initialize() {
+        File dataFile = new File("Data.txt");
+        dataFile.renameTo(new File("temp.txt"));
+        File testFile = new File("Test_Data2.txt");
+        testFile.renameTo(new File("Data.txt"));
+    }
 
     @Test
     public void testExecuteCommand() throws Exception {
@@ -35,6 +46,8 @@ public class LogicTest {
         correct.updateModel("task added");
         result = modelChecker(correct,executed);
         assertEquals(true,result);
+
+        System.out.println(storage.getAllTasks().size());
 
         // test add DeadlineTask
         command = MyParser.parseCommand("add DeadlineTask 27/5/2000");
@@ -231,13 +244,68 @@ public class LogicTest {
         result = modelChecker(correct,executed);
         assertEquals(true,result);
 
+        // test undo
+        command = MyParser.parseCommand("undo number 1");
+        logic.executeCommand(command);
+        correct.updateModel(Logic.MESSAGE_UNDO_SUCCESSFUL);
+        result = modelChecker(correct,executed);
+        assertEquals(true,result);
+
+        command = MyParser.parseCommand("undo number 2");
+        logic.executeCommand(command);
+        correct.updateModel(Logic.MESSAGE_UNDO_SUCCESSFUL);
+        result = modelChecker(correct,executed);
+        assertEquals(true,result);
+
+        command = MyParser.parseCommand("undo number 3");
+        logic.executeCommand(command);
+        correct.updateModel(Logic.MESSAGE_UNDO_SUCCESSFUL);
+        result = modelChecker(correct,executed);
+        assertEquals(true,result);
+
+        command = MyParser.parseCommand("undo number 4");
+        logic.executeCommand(command);
+        correct.updateModel(Logic.MESSAGE_UNDO_SUCCESSFUL);
+        result = modelChecker(correct,executed);
+        assertEquals(true,result);
+
+        command = MyParser.parseCommand("undo number 5");
+        logic.executeCommand(command);
+        correct.updateModel(Logic.MESSAGE_UNDO_SUCCESSFUL);
+        result = modelChecker(correct,executed);
+        assertEquals(true,result);
+
+        command = MyParser.parseCommand("undo number 6");
+        logic.executeCommand(command);
+        correct.updateModel(Logic.MESSAGE_UNDO_SUCCESSFUL);
+        result = modelChecker(correct,executed);
+        assertEquals(true,result);
+
+        // Test nothing to undo
+        command = MyParser.parseCommand("undo number 7");
+        logic.executeCommand(command);
+        correct.updateModel(Logic.MESSAGE_NOTHING_TO_UNDO);
+        result = modelChecker(correct,executed);
+        assertEquals(true,result);
     }
 
     @Test
     public void testCheckID() throws Exception {
+        Logic logic = new Logic();
+        ParsedCommand command = MyParser.parseCommand("add task");
+        Model executed = logic.executeCommand(command);
+        executed = logic.executeCommand(command);
+
+        assertEquals(true,Logic.checkID(1));
         assertEquals(true,Logic.checkID(2));
-        //TODO test if deleted id is valid
+        assertEquals(false,Logic.checkID(0));
+        assertEquals(false,Logic.checkID(-1));
         assertEquals(false,Logic.checkID(500));
+
+        command = MyParser.parseCommand("undo");
+        executed = logic.executeCommand(command);
+        executed = logic.executeCommand(command);
+
     }
 
     /*
@@ -247,6 +315,8 @@ public class LogicTest {
         boolean isSame = true;
         if (!model1.getConsoleMessage().equals(model2.getConsoleMessage())) {
             System.out.println("ConsoleMessage different");
+            System.out.println(model1.getConsoleMessage());
+            System.out.println(model2.getConsoleMessage());
             return false;
         }
         if (!model1.getAvatarLocation().equals(model2.getAvatarLocation())) {
@@ -328,4 +398,13 @@ public class LogicTest {
 
         return isSame;
     }
+
+    @After
+    public void reset() {
+        File dataFile = new File("Data.txt");
+        dataFile.renameTo(new File("Test_Data2.txt"));
+        File testFile = new File("temp.txt");
+        testFile.renameTo(new File("Data.txt"));
+    }
 }
+
