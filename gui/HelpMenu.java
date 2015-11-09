@@ -1,5 +1,8 @@
 package gui;
 
+import java.io.InputStream;
+import java.net.URL;
+
 import javafx.scene.text.FontSmoothingType;
 import javafx.scene.web.WebView;
 import javafx.stage.Popup;
@@ -31,8 +34,11 @@ public class HelpMenu {
 	 */
 	protected void initWebView() {
 		webView = new WebView();
-		String url = HelpMenu.class.getResource(HELP_HTML).toExternalForm();
-        webView.getEngine().load(url);
+		URL help = HelpMenu.class.getResource(HELP_HTML);
+		if (help!=null) {
+			String url = help.toExternalForm();
+			webView.getEngine().load(url);
+		}
         webView.setFontSmoothingType(FontSmoothingType.LCD);
         webView.setCache(true); // cache it as a viewable
 	}
