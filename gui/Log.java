@@ -86,7 +86,7 @@ public class Log {
 	 */
 	protected void initHeader() {
 		name = new Label();
-		name.getStyleClass().add(GUIController.CSS_STYLE_CURVED_LABEL);
+		name.getStyleClass().add(GuiController.CSS_STYLE_CURVED_LABEL);
 		name.setAlignment(Pos.CENTER);
 		name.prefWidthProperty().bind(getNode().widthProperty());
 	}

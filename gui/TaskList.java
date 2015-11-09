@@ -127,7 +127,7 @@ public class TaskList {
 		this();
 		if (num>=0) {
 			listNumber = num;
-			setName(GUIController.taskListNames[num]);
+			setName(GuiController.taskListNames[num]);
 		}
 	}
 	
@@ -182,7 +182,7 @@ public class TaskList {
 		items = FXCollections.observableArrayList();
 		listView = new ListView<Node>();
 		listView.setPlaceholder(new Label(MSG_NO_CONTENT));
-		listView.getStyleClass().add(GUIController.CSS_STYLE_TRANSPARENT);
+		listView.getStyleClass().add(GuiController.CSS_STYLE_TRANSPARENT);
 		listView.prefWidthProperty().bind(getNode().widthProperty());
 	}
 	
@@ -206,7 +206,7 @@ public class TaskList {
 		sp.setVbarPolicy(V_POLICY);
 		sp.setHbarPolicy(H_POLICY);
 		sp.setPadding(new Insets(0, PADDING, 0, PADDING)); // left and right padding only
-		sp.getStyleClass().add(GUIController.CSS_STYLE_TRANSPARENT);
+		sp.getStyleClass().add(GuiController.CSS_STYLE_TRANSPARENT);
 	}
 	
 	/**

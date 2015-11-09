@@ -5,7 +5,7 @@ package parser;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import gui.GUIController;
+import gui.GuiController;
 
 public class ParsedCommand {
 	public enum ConfigType {
@@ -348,7 +348,7 @@ public class ParsedCommand {
 		private void validateGuiType() throws InvalidArgumentsForParsedCommandException {
 			try {
 				int tabNumber = Integer.parseInt(guiType);
-				if (tabNumber <= GUIController.taskListNames.length && tabNumber > 0) {
+				if (tabNumber <= GuiController.taskListNames.length && tabNumber > 0) {
 					guiType = Integer.toString(tabNumber - 1); // convert to 0 indexing
 					return;
 				}
@@ -356,9 +356,9 @@ public class ParsedCommand {
 				// do nothing
 			}
 			
-			for (int i = 0; i < GUIController.taskListNames.length; i++) {
-				if (guiType.trim().equalsIgnoreCase(GUIController.taskListNames[i])) {
-					guiType = Integer.toString(i - GUIController.taskListNames.length); // return specific format to indicate name call
+			for (int i = 0; i < GuiController.taskListNames.length; i++) {
+				if (guiType.trim().equalsIgnoreCase(GuiController.taskListNames[i])) {
+					guiType = Integer.toString(i - GuiController.taskListNames.length); // return specific format to indicate name call
 					return;
 				}
 			}

@@ -28,8 +28,8 @@ import javafx.util.Duration;
 
 //@@author A0122534R
 public class ConsolePanel {
-	protected final static String CSSTAG = GUIController.CSS_TAG_BOTTOMBAR;
-	protected final static String CSSTAG_TEXTBOX = GUIController.CSS_TAG_TEXTBOX;
+	protected final static String CSSTAG = GuiController.CSS_TAG_BOTTOMBAR;
+	protected final static String CSSTAG_TEXTBOX = GuiController.CSS_TAG_TEXTBOX;
 	protected final static String WELCOME_MESSAGE = "Welcome!";
 	
 	protected final static int IMAGE_SIZE = 100;
@@ -106,7 +106,7 @@ public class ConsolePanel {
 	 */
 	protected void initClock() {
 		clock = new Button();
-		clock.getStyleClass().add(GUIController.CSS_STYLE_CURVED_LABEL);
+		clock.getStyleClass().add(GuiController.CSS_STYLE_CURVED_LABEL);
 		formatter = DateTimeFormatter.ofPattern("E\ndd/MM/yyyy\nHH:mm");
 		updateTime();
 		clock.setMinHeight(CLOCK_HEIGHT);
@@ -201,7 +201,7 @@ public class ConsolePanel {
 	public boolean loadAvatar() {
 		InputStream stream;
 		try {
-			stream = new FileInputStream(new File(GUIController.AVATAR_IMAGENAME));
+			stream = new FileInputStream(new File(GuiController.AVATAR_IMAGENAME));
 			if (stream!=null) {
 				Image image = new Image(stream,IMAGE_SIZE, IMAGE_SIZE, true,true);
 				if (image!=null) {

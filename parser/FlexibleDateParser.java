@@ -4,8 +4,6 @@ package parser;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Level;
@@ -14,7 +12,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import parser.DateTime.DateTimeBuilder;
-import parser.DateTime.ParserType;
 
 public class FlexibleDateParser extends DateTimeParser {
 	
@@ -49,6 +46,7 @@ public class FlexibleDateParser extends DateTimeParser {
 	private static final int MD_INDEX_FOR_YEAR = 3;
 	
 	private static final int INDEX_FOR_START = 0;
+	@SuppressWarnings("unused")
 	private static final int INDEX_FOR_END = 1;
 	
 	private static final int[] DM_INDICES = {DM_INDEX_FOR_DATE, DM_INDEX_FOR_MONTH, DM_INDEX_FOR_YEAR};

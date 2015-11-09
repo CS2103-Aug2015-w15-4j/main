@@ -6,7 +6,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -18,9 +17,6 @@ import static org.junit.Assert.*;
 
 //@@author A0124777W
 public class UpdateTest {
-
-    private String temp;
-
     @Before
     public void initialize() {
         File dataFile = new File("Data.txt");

@@ -66,8 +66,8 @@ public class TaskTest {
     public void testTaskDetails() throws Exception {
 
         Task task = new Task("Test Setter Name", "Test Setter description", 50, true, tags, ParsedCommand.TaskType.FLOATING_TASK);
-        Task task2 = new Task(MyParser.parseCommand("Add Task"));
-        Task task3 = new Task(task);
+        new Task(MyParser.parseCommand("Add Task"));
+        new Task(task);
 
         int i = 0;
         assertEquals(task.getTaskDetails().get(i++)[0],Task.FIELD_NAME);

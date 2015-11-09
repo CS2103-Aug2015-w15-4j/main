@@ -342,7 +342,6 @@ public class Storage {
 	}
 
 	private boolean isImageFile(String fileName) {
-		File f = new File(fileName);
 		FileNameMap fileNameMap = URLConnection.getFileNameMap();
 		try {
 			String mimetype = fileNameMap.getContentTypeFor(fileName);

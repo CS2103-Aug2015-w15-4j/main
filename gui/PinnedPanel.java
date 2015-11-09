@@ -6,7 +6,7 @@ import javafx.scene.layout.VBox;
 
 //@@author A0122534R
 public class PinnedPanel {
-	protected final static int PADDING = GUIController.PADDING;
+	protected final static int PADDING = GuiController.PADDING;
 
 	protected VBox master;
 	protected TaskList pinnedList;

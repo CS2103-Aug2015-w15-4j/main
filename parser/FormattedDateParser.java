@@ -2,15 +2,12 @@
 
 package parser;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import parser.DateTime.DateTimeBuilder;
-import parser.DateTime.ParserType;
 
 public class FormattedDateParser extends DateTimeParser{
 	

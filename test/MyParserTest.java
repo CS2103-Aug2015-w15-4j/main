@@ -4,18 +4,12 @@ package test;
 
 import static org.junit.Assert.*;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import gui.GUIController;
+import gui.GuiController;
 import parser.MyParser;
 import parser.ParsedCommand;
 import parser.MyParser.CommandType;
@@ -511,7 +505,7 @@ public class MyParserTest {
 		assertEquals(CommandType.GUI_OPEN, pcGui.getCommandType());
 		assertEquals("0", pcGui.getGuiType());
 		
-		String tabName = GUIController.taskListNames[2];
+		String tabName = GuiController.taskListNames[2];
 		pcGui = MyParser.parseCommand("Close " + tabName);
 		assertEquals(CommandType.GUI_CLOSE, pcGui.getCommandType());
 		assertEquals("-3", pcGui.getGuiType());

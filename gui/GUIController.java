@@ -33,9 +33,9 @@ import org.jnativehook.keyboard.NativeKeyListener;
 import com.sun.javafx.application.LauncherImpl;
 
 //@@author A0122534R
-public class GUIController extends Application {
+public class GuiController extends Application {
 	/**
-	 * Create a child of the TaskList class to use GUIController's class's functions for openList and closeList 
+	 * Create a child of the TaskList class to use GuiController's class's functions for openList and closeList 
 	 */
 	protected static class TaskListCustom extends TaskList {
 		public TaskListCustom() {
@@ -59,9 +59,9 @@ public class GUIController extends Application {
 				@Override
 				public void handle(ActionEvent event) {
 					if (isListOpen) {
-						GUIController.closeList(listNumber); // new line that is changed from original
+						GuiController.closeList(listNumber); // new line that is changed from original
 					} else {
-						GUIController.openList(listNumber);// new line that is changed from original
+						GuiController.openList(listNumber);// new line that is changed from original
 					}
 				}
 			});
@@ -199,8 +199,8 @@ public class GUIController extends Application {
 	protected static Button windowSwitch;
 
 	public static void main(String[] args) {
-		// launch the GUIController with a PreloaderWindow
-		LauncherImpl.launchApplication(GUIController.class, PreloaderWindow.class, args);
+		// launch the GuiController with a PreloaderWindow
+		LauncherImpl.launchApplication(GuiController.class, PreloaderWindow.class, args);
 	}
 
 	@Override
@@ -228,7 +228,7 @@ public class GUIController extends Application {
 		stage.setScene(scene);
 		stage.setTitle(APP_TITLE);
 		stage.getIcons().add(new Image(
-				GUIController.class.getResourceAsStream( ICON_IMAGE )));
+				GuiController.class.getResourceAsStream( ICON_IMAGE )));
 		addStageHandlers();
 		stage.show();
 		stage.setMinWidth(stage.getWidth());
@@ -247,7 +247,7 @@ public class GUIController extends Application {
 	 */
 	protected void initScene() {
 		scene = new Scene(window, window.getPrefWidth(), window.getPrefHeight());
-		scene.getStylesheets().add(GUIController.class.getResource(FILE_CSS).toExternalForm());
+		scene.getStylesheets().add(GuiController.class.getResource(FILE_CSS).toExternalForm());
 	}
 
 	/**
