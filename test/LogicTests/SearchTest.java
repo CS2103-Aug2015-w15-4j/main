@@ -219,7 +219,7 @@ public class SearchTest {
         searchList = Search.searchDate(storage.getAllTasks(), command.getFirstDate(), command.getSecondDate());
 
         correctList = new ArrayList<Task>();
-        correctList.add(new Task("important meeting with client 2",null,22,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("important meeting with client 2",null,23,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
 
         result = listChecker( searchList, correctList);
 

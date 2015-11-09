@@ -4,15 +4,38 @@ import logic.Add;
 import logic.Delete;
 import logic.Logic;
 import logic.Model;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import parser.MyParser;
 import parser.ParsedCommand;
 import storage.Storage;
 
+import java.io.File;
+
 import static org.junit.Assert.*;
 
 //@@author A0124777W
 public class AddTest {
+
+
+    @Before
+    public void initialize() {
+        File dataFile = new File("Data.txt");
+        dataFile.renameTo(new File("temp.txt"));
+        File testFile = new File("Test_Data2.txt");
+        testFile.renameTo(new File("Data.txt"));
+
+    }
+
+    @After
+    public void reset() {
+        File dataFile = new File("Data.txt");
+        dataFile.renameTo(new File("Test_Data2.txt"));
+        File testFile = new File("temp.txt");
+        testFile.renameTo(new File("Data.txt"));
+    }
+
 
     @Test
     public void testExecute() throws Exception {
