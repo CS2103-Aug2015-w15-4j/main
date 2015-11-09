@@ -90,6 +90,15 @@ public class GuiControllerTest extends GuiController {
 				commandIterator = logCommands.getLog().getChildren().listIterator(
 						logCommands.getLog().getChildren().size()); // get last item
 				
+				assertEquals(breakfast[3], getCommandLog(PREVIOUS));
+				assertEquals(breakfast[2], getCommandLog(PREVIOUS));
+				assertEquals(breakfast[3], getCommandLog(NEXT));
+				assertEquals(breakfast[3], getCommandLog(NEXT));
+				assertEquals(breakfast[2], getCommandLog(PREVIOUS));
+				assertEquals(breakfast[1], getCommandLog(PREVIOUS));
+				assertEquals(breakfast[0], getCommandLog(PREVIOUS));
+				assertEquals(breakfast[0], getCommandLog(PREVIOUS));
+				assertEquals(breakfast[1], getCommandLog(NEXT));
 			}
 		});
 	}
