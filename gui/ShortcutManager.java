@@ -12,6 +12,7 @@ public class ShortcutManager {
 		SEARCH,  
 		SWITCH,
 		INPUT_FIELD, // gives control to the input Field
+		PIN,
 		UNDO, 
 		UNPIN,
 		NONE
@@ -30,6 +31,8 @@ public class ShortcutManager {
 			return CommandType.SWITCH;
 		} else if (isInputField(keyEvent)) {
 			return CommandType.INPUT_FIELD;
+		} else if (isPin(keyEvent)) {
+			return CommandType.PIN;
 		} else if (isUndo(keyEvent)) {
 			return CommandType.UNDO;
 		} else if (isUnpin(keyEvent)) {
@@ -63,6 +66,11 @@ public class ShortcutManager {
 	
 	public static boolean isInputField(KeyEvent keyEvent) {
 		return ((keyEvent.getCode()==KeyCode.T)&&keyEvent.isControlDown());
+	}
+	
+	public static boolean isPin(KeyEvent keyEvent) {
+		return (keyEvent.getCode()==KeyCode.P&&
+				(keyEvent.isControlDown()));
 	}
 	
 	public static boolean isUndo(KeyEvent keyEvent) {

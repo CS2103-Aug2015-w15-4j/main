@@ -33,6 +33,7 @@ public class Search {
 	private static final TaskType DEADLINETASK = TaskType.DEADLINE_TASK;
 	private static final TaskType EVENT = TaskType.EVENT;
 
+	@SuppressWarnings("deprecation")
 	public List<Task> multiSearch(List<Task> taskList, ParsedCommand toSearch) throws IOException, ParseException{
 		StandardAnalyzer analyzer = new StandardAnalyzer();
 		Directory index = indexTaskList(taskList,analyzer);
