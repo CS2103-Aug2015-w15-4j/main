@@ -35,6 +35,39 @@ public class AddTest {
 
         assertEquals(true,result);
 
+
+        // Test add task with description
+        specifications = MyParser.parseCommand("add test task \"description test\" ");
+
+        add = new Add(specifications,storage,model);
+        add.execute();
+        correct.setConsoleMessage("test task added");
+
+        result = consoleMessageChecker(correct,model);
+        assertEquals(true,result);
+
+        add.undo();
+        result = storage.getAllTasks().size() == 0;
+
+        assertEquals(true,result);
+
+
+        // Test add task with tags
+         specifications = MyParser.parseCommand("add test task #CheckTags");
+
+         add = new Add(specifications,storage,model);
+        add.execute();
+        correct.setConsoleMessage("test task added");
+
+         result = consoleMessageChecker(correct,model);
+        assertEquals(true,result);
+
+        add.undo();
+        result = storage.getAllTasks().size() == 0;
+
+        assertEquals(true,result);
+
+
         // Test add DeadlineTask
         specifications = MyParser.parseCommand("add test deadlinetask 20 november 1990");
 
@@ -49,8 +82,34 @@ public class AddTest {
         result = storage.getAllTasks().size() == 0;
         assertEquals(true,result);
 
+        // Test add task with description
+        specifications = MyParser.parseCommand("add test deadlinetask 20 november 1990 \"description test\"  ");
+
+        add = new Add(specifications,storage,model);
+        add.execute();
+        correct.setConsoleMessage("test deadlinetask added");
+
+        result = consoleMessageChecker(correct,model);
+        assertEquals(true,result);
+
+        add.undo();
+        result = storage.getAllTasks().size() == 0;
+
+        assertEquals(true,result);
+
         // Test add Event
         specifications = MyParser.parseCommand("add test event 20 november 1990 to 20 december 1990");
+
+        add = new Add(specifications,storage,model);
+        add.execute();
+        correct.setConsoleMessage("test event added");
+
+        add.undo();
+        result = storage.getAllTasks().size() == 0;
+        assertEquals(true, result);
+
+        // Test add Event with description
+        specifications = MyParser.parseCommand("add test event 20 november 1990 to 20 december 1990 \"test description\"");
 
         add = new Add(specifications,storage,model);
         add.execute();
@@ -112,8 +171,6 @@ public class AddTest {
     public static boolean consoleMessageChecker(Model model1, Model model2) {
         if (!model1.getConsoleMessage().equals(model2.getConsoleMessage())) {
             System.out.println("ConsoleMessage different");
-            System.out.println(model1.getConsoleMessage());
-            System.out.println(model2.getConsoleMessage());
             return false;
         }
         return true;

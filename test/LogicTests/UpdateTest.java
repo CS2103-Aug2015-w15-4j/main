@@ -1,22 +1,53 @@
 package test.LogicTests;
 
 import logic.*;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 
 import parser.MyParser;
 import parser.ParsedCommand;
+import storage.Storage;
 
 import static org.junit.Assert.*;
 
 //@@author A0124777W
 public class UpdateTest {
 
+    private String temp;
+
+    @Before
+    public void initialize() {
+        File dataFile = new File("Data.txt");
+        dataFile.renameTo(new File("temp.txt"));
+        File testFile = new File("Test_Data.txt");
+        testFile.renameTo(new File("Data.txt"));
+
+    }
+
     @Test
     public void testExecute() throws Exception {
+        Storage storage = new Storage();
+        Model model = new Model(storage);
+        Model correct = new Model();
+
         // test updating 1 field
+        ParsedCommand command = MyParser.parseCommand("Edit 30 new name ");
+        Update update = new Update(command,storage,model);
+
+        update.execute();
+        correct.setConsoleMessage("find firestone updated");
+
+        boolean result = AddTest.consoleMessageChecker(correct, model);
+        assertEquals(true, result);
+
+        update.undo();
+
         // test updating 2 field
         // test updating 3 field
         // test updating 4 field
@@ -110,7 +141,7 @@ public class UpdateTest {
         updated = command.updateTask(title,description,tags,isCompleted,firstDate,secondDate,toUpdate);
         assertEquals(true, taskChecker(correct, updated));
 
-        // test firsDate
+        // test firstDate
         firstDate = Calendar.getInstance(); // test today
         DeadlineTask dlCorrect = new DeadlineTask();
         dlCorrect.setId(1);
@@ -227,5 +258,13 @@ public class UpdateTest {
         // test valid id
         command = MyParser.parseCommand("Edit 1 new name");
         assertEquals(true,Update.checkValid(command,new Model()));
+    }
+
+    @After
+    public void reset() {
+        File dataFile = new File("Data.txt");
+        dataFile.renameTo(new File("Test_Data.txt"));
+        File testFile = new File("temp.txt");
+        testFile.renameTo(new File("Data.txt"));
     }
 }

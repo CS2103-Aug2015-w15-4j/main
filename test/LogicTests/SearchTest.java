@@ -1,12 +1,14 @@
 package test.LogicTests;
 
 import logic.*;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import parser.MyParser;
 import storage.Storage;
 import parser.ParsedCommand;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -16,16 +18,128 @@ import static org.junit.Assert.*;
 public class SearchTest {
 
 
+    @Before
+    public void initialize() {
+        File dataFile = new File("Data.txt");
+        dataFile.renameTo(new File("temp.txt"));
+        File testFile = new File("Test_Data.txt");
+        testFile.renameTo(new File("Data.txt"));
+
+    }
+
     @Test
     public void testMultiSearch() throws Exception {
         Search search = new Search();
         Storage storage = new Storage();
+        // search for index
         ParsedCommand command = MyParser.parseCommand("search 9");
         List<Task> searchList = search.multiSearch(storage.getAllTasks(), command);
 
         ArrayList<Task> correctList = new ArrayList<Task>();
         correctList.add(new Task("Professor Oak Assignement 4",null,9,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
         boolean result = listChecker(searchList, correctList);
+
+        assertEquals(true, result);
+
+        // search for keywords with multiple results
+        command = MyParser.parseCommand("search brock");
+        searchList = search.multiSearch(storage.getAllTasks(), command);
+
+        correctList = new ArrayList<Task>();
+        correctList.add(new Task("GYM battle with Brock",null,1,false,new ArrayList<String>(), ParsedCommand.TaskType.DEADLINE_TASK));
+        correctList.add(new Task("lost Battle with brock 3",null,14,false,new ArrayList<String>(), ParsedCommand.TaskType.EVENT));
+        result = listChecker(searchList, correctList);
+
+        assertEquals(true,result);
+
+        //search for keyword rocket + meeting
+        command = MyParser.parseCommand("search rocket meeting");
+        searchList = search.multiSearch(storage.getAllTasks(), command);
+
+        correctList = new ArrayList<Task>();
+        correctList.add(new Task("Feed Pikachu",null,5,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("Evolve Charizard",null,17,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("find thunderstone",null,18,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("find waterstone",null,21,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("find firestone",null,22,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("find firestone",null,23,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("find firestone",null,24,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("find firestone",null,25,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("find firestone",null,26,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("find firestone",null,27,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        result = listChecker(searchList, correctList);
+
+        assertEquals(true,result);
+
+        //search tags
+        command = MyParser.parseCommand("search #gym");
+        searchList = search.multiSearch(storage.getAllTasks(), command);
+        correctList = new ArrayList<Task>();
+        correctList.add(new Task("GYM battle with Brock",null,1,false,new ArrayList<String>(), ParsedCommand.TaskType.DEADLINE_TASK));
+        result = listChecker(searchList, correctList);
+
+        assertEquals(true,result);
+
+        command = MyParser.parseCommand("search #worth #duck #doesnotexist #empty");
+        searchList = search.multiSearch(storage.getAllTasks(), command);
+        correctList = new ArrayList<Task>();
+        result = listChecker(searchList, correctList);
+
+        assertEquals(true,result);
+
+        command = MyParser.parseCommand("search #lunch");
+        searchList = search.multiSearch(storage.getAllTasks(), command);
+        correctList = new ArrayList<Task>();
+        correctList.add(new Task("Feed Pikachu",null,3,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        result = listChecker(searchList, correctList);
+
+        assertEquals(true,result);
+
+        // search task type
+        command = MyParser.parseCommand("search event");
+        searchList = search.multiSearch(storage.getAllTasks(), command);
+        correctList = new ArrayList<Task>();
+        correctList.add(new Task("Daily meeting with team Rocket",null,5,false,new ArrayList<String>(), ParsedCommand.TaskType.EVENT));
+        correctList.add(new Task("lost Battle with brock 3",null,14,false,new ArrayList<String>(), ParsedCommand.TaskType.EVENT));
+        result = listChecker(searchList, correctList);
+
+        assertEquals(true,result);
+
+        command = MyParser.parseCommand("search floating");
+        searchList = search.multiSearch(storage.getAllTasks(), command);
+        correctList = new ArrayList<Task>();
+        correctList.add(new Task("Feed Pikachu",null,3,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("Evolve Charizard",null,4,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("find thunderstone",null,28,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("find waterstone",null,29,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("find firestone",null,30,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+
+        result = listChecker(searchList, correctList);
+
+        assertEquals(true,result);
+
+        command = MyParser.parseCommand("search deadline");
+        searchList = search.multiSearch(storage.getAllTasks(), command);
+        correctList = new ArrayList<Task>();
+        correctList.add(new Task("Feed Pikachu",null,1,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("Feed Pikachu",null,6,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("Feed Pikachu",null,7,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("Feed Pikachu",null,8,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("Feed Pikachu",null,9,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("Feed Pikachu",null,10,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("Feed Pikachu",null,15,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("Feed Pikachu",null,16,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("Feed Pikachu",null,17,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("Feed Pikachu",null,18,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("Feed Pikachu",null,20,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("Feed Pikachu",null,21,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("Feed Pikachu",null,22,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("Feed Pikachu",null,23,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("Feed Pikachu",null,24,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("Feed Pikachu",null,25,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("Feed Pikachu",null,26,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("Feed Pikachu",null,27,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        result = listChecker(searchList, correctList);
 
         assertEquals(true,result);
     }
@@ -34,8 +148,6 @@ public class SearchTest {
         int index = 0;
         if (list1.size() != list2.size()) {
             System.out.println("list size different");
-            System.out.println(list1.size());
-            System.out.println(list2.size());
             return false;
         }
         for (Task task : list1) {
@@ -74,9 +186,53 @@ public class SearchTest {
         correctList.add(new Task("important meeting with client 4",null,26,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
         correctList.add(new Task("important meeting with client 5",null,27,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
 
-
         boolean result = listChecker( searchList, correctList);
 
         assertEquals(true, result);
+
+        command = MyParser.parseCommand("search 01/11/15 06/11/15");
+        searchList = Search.searchDate(storage.getAllTasks(), command.getFirstDate(), command.getSecondDate());
+
+        correctList = new ArrayList<Task>();
+        correctList.add(new Task("important meeting with client 2",null,22,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("important meeting with client 2",null,23,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("important meeting with client 3",null,24,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("important meeting with client 4",null,25,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("important meeting with client 5",null,26,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+        correctList.add(new Task("important meeting with client 5",null,27,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+
+        result = listChecker( searchList, correctList);
+
+        assertEquals(true, result);
+
+        command = MyParser.parseCommand("search 01/11/15");
+        searchList = Search.searchDate(storage.getAllTasks(), command.getFirstDate(), command.getSecondDate());
+
+        correctList = new ArrayList<Task>();
+        correctList.add(new Task("important meeting with client 2",null,22,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+
+        result = listChecker( searchList, correctList);
+
+        assertEquals(true, result);
+
+        command = MyParser.parseCommand("search 02/11/15");
+        searchList = Search.searchDate(storage.getAllTasks(), command.getFirstDate(), command.getSecondDate());
+
+        correctList = new ArrayList<Task>();
+        correctList.add(new Task("important meeting with client 2",null,22,false,new ArrayList<String>(), ParsedCommand.TaskType.FLOATING_TASK));
+
+        result = listChecker( searchList, correctList);
+
+        assertEquals(true, result);
+
+    }
+
+
+    @After
+    public void reset() {
+        File dataFile = new File("Data.txt");
+        dataFile.renameTo(new File("Test_Data.txt"));
+        File testFile = new File("temp.txt");
+        testFile.renameTo(new File("Data.txt"));
     }
 }
