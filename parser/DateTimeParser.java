@@ -11,22 +11,23 @@ import parser.DateTime.DateTimeBuilder;
 
 public abstract class DateTimeParser {
 	static String DATE_KEYWORD_REGEX = "(?<=\\s|^)(on|by)\\s(?!.*( on | by ))([^\"#]*)";
-	private static Pattern DATE_KEYWORD_PATTERN = Pattern.compile(DATE_KEYWORD_REGEX);
 	static final String TOMORROW_REGEX = "((?<=\\s|^)(tmr|tomorrow|tomorow).*(?=\\s|$))";
-	private static final String TAG_OR_DESCRIPTION_REGEX = "(" + InputParser.TAG_REGEX + "|" + InputParser.DESCRIPTION_REGEX + ")";  	                                        
-	private static final String NO_KEYWORD_DATE_REGEX = FormattedDateParser.FORMATTED_DATE_REGEX + "|" + FlexibleDateParser.FLEXIBLE_DATE_REGEX + "|" + TOMORROW_REGEX;
-	private static final Pattern NO_KEYWORD_DATE_PATTERN = Pattern.compile(NO_KEYWORD_DATE_REGEX);
-	
+	static final String NO_KEYWORD_DATE_REGEX = FormattedDateParser.FORMATTED_DATE_REGEX + "|" 
+												+ FlexibleDateParser.FLEXIBLE_DATE_REGEX + "|" + TOMORROW_REGEX;
 	static final String NO_KEYWORD_DATE_TIME_REGEX = "(" + TimeParser.TIME_REGEX + "|" + NO_KEYWORD_DATE_REGEX + ")";
 	static final Pattern NO_KEYWORD_DATE_TIME_PATTERN = Pattern.compile(NO_KEYWORD_DATE_TIME_REGEX);
 
-	static final String DATE_TIME_REGEX = "(" + TimeParser.TIME_REGEX + "|" + FormattedDateParser.FORMATTED_DATE_WITH_YEAR_REGEX + "|" + FlexibleDateParser.FLEXIBLE_DATE_REGEX + "|" + DATE_KEYWORD_REGEX + "|" + TOMORROW_REGEX + ")";
-																				   
+	private static final Logger logger = Logger.getLogger(DateTimeParser.class.getName() );
+
+	private static Pattern DATE_KEYWORD_PATTERN = Pattern.compile(DATE_KEYWORD_REGEX);
+	private static final String TAG_OR_DESCRIPTION_REGEX = "(" + InputParser.TAG_REGEX + "|" 
+														   + InputParser.DESCRIPTION_REGEX + ")";  	                                        
+	private static final Pattern NO_KEYWORD_DATE_PATTERN = Pattern.compile(NO_KEYWORD_DATE_REGEX);
+	
 	protected DateTimeParser nextParser;
 	
 	abstract protected DateTimeBuilder parse(DateTimeBuilder currentlyParsed);
 
-	private static final Logger logger = Logger.getLogger(DateTimeParser.class.getName() );
 	
 	public static String extractDateTimeSectionFromString(String input) {
 		String extract = removeTagsAndDescriptions(input); // for formatted input
@@ -86,7 +87,5 @@ public abstract class DateTimeParser {
 		}
 		return datesTimes.build();
 	}
-	
-		
 	
 }

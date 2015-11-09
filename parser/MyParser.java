@@ -131,6 +131,7 @@ public class MyParser {
 			
 				default:
 					// is never visited
+					assert(false);
 					throw new Error("ERROR");
 			}
 		}
