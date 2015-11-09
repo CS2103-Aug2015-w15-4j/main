@@ -4,33 +4,37 @@ import javafx.geometry.Insets;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
+//@@author A0122534R
 public class PinnedPanel {
 	protected final static int PADDING = GUIController.PADDING;
-	
-	protected VBox master; 
+
+	protected VBox master;
 	protected TaskList pinnedList;
-	
+
 	public PinnedPanel() {
 		master = new VBox();
 		pinnedList = null;
 	}
-	
+
 	/**
 	 * @return the master/parent node for this object
 	 */
 	public VBox getNode() {
 		return master;
 	}
-	
+
 	/**
 	 * Pins the list to the top window
-	 * @param list list to be pinned
+	 * 
+	 * @param list
+	 *            list to be pinned
 	 */
 	public void pin(TaskList list) {
-		if (list!=null) {
+		if (list != null) {
 			unpin();
 			list.isPinnedWindow = true;
-			list.selectFirstNode(); // select the first node, since it is moving up now
+			list.selectFirstNode(); // select the first node, since it is moving
+									// up now
 			list.focusTask(); // create an instance of zoomed in task
 			Region node = list.getNode();
 			node.prefWidthProperty().unbind();
@@ -44,10 +48,12 @@ public class PinnedPanel {
 
 	/**
 	 * Pins a focused Task into the window
-	 * @param Task to be pinned
+	 * 
+	 * @param Task
+	 *            to be pinned
 	 */
 	public void pin(Region focusedTask) {
-		if (focusedTask!=null) {
+		if (focusedTask != null) {
 			unpin();
 			focusedTask.prefWidthProperty().unbind();
 			focusedTask.prefHeightProperty().unbind();
@@ -62,7 +68,7 @@ public class PinnedPanel {
 	 * Unpins object from the pinnedWindow
 	 */
 	public void unpin() {
-		if (pinnedList!=null){
+		if (pinnedList != null) {
 			// focus view deactivate regardless of pinned window or task
 			pinnedList.isPinnedWindow = false;
 			// force it to close
@@ -75,12 +81,12 @@ public class PinnedPanel {
 		}
 		master.getChildren().clear();
 	}
-	
+
 	/**
 	 * Recalculates the size of the pined window
 	 */
 	protected void recalculate() {
-		if (pinnedList!=null) {
+		if (pinnedList != null) {
 			pinnedList.recalculate();
 		}
 	}

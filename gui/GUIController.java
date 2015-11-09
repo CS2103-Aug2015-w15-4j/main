@@ -183,7 +183,7 @@ public class GUIController extends Application {
 	protected static final HelpMenu help = new HelpMenu();
 
 	// the log tab
-	protected static VBox logObject;
+	protected static VBox log;
 	protected static Log logCommands;
 	protected static Log logConsole;
 
@@ -345,25 +345,25 @@ public class GUIController extends Application {
 
 	/**
 	 * Initialises the Log page of the application
-	 * @param logObject
+	 * @param log
 	 * @param logConsole
 	 * @param logCommands
 	 */
 	protected void initLogTab() {
-		logObject = new VBox();
+		log = new VBox();
 		logConsole = new Log("Console");
 		logCommands = new Log("Commands");
-		logObject.getChildren().add(logConsole.getNode());
-		logObject.getChildren().add(logCommands.getNode());
-		logConsole.getNode().prefHeightProperty().bind(logObject.heightProperty().divide(2));
-		logConsole.getNode().prefWidthProperty().bind(logObject.widthProperty());
-		logCommands.getNode().prefHeightProperty().bind(logObject.heightProperty().divide(2));
-		logCommands.getNode().prefWidthProperty().bind(logObject.widthProperty());
-		logObject.prefWidthProperty().bind(window.widthProperty());
-		logObject.maxWidthProperty().bind(window.widthProperty());
-		logObject.prefHeightProperty().bind(window.heightProperty());
-		logObject.maxHeightProperty().bind(window.heightProperty());
-		VBox.setVgrow(logObject, Priority.ALWAYS);
+		log.getChildren().add(logConsole.getNode());
+		log.getChildren().add(logCommands.getNode());
+		logConsole.getNode().prefHeightProperty().bind(log.heightProperty().divide(2));
+		logConsole.getNode().prefWidthProperty().bind(log.widthProperty());
+		logCommands.getNode().prefHeightProperty().bind(log.heightProperty().divide(2));
+		logCommands.getNode().prefWidthProperty().bind(log.widthProperty());
+		log.prefWidthProperty().bind(window.widthProperty());
+		log.maxWidthProperty().bind(window.widthProperty());
+		log.prefHeightProperty().bind(window.heightProperty());
+		log.maxHeightProperty().bind(window.heightProperty());
+		VBox.setVgrow(log, Priority.ALWAYS);
 		VBox.setVgrow(logCommands.getNode(), Priority.ALWAYS);
 		VBox.setVgrow(logConsole.getNode(), Priority.ALWAYS);
 	}
@@ -526,6 +526,20 @@ public class GUIController extends Application {
 		stage.widthProperty().addListener(listener);
 		stage.heightProperty().addListener(listener);
 	}
+
+	/**
+	 * Switch between the main view and the log view
+	 */
+	protected void switchWindow() {
+		window.getChildren().clear();
+		if (!isMainWindow) {
+			window.getChildren().add(pane);
+		} else {
+			window.getChildren().add(log);
+		}
+		window.getChildren().add(bottomBar);
+		isMainWindow = !isMainWindow;
+	}
 	
 	/**
 	 * Activates the help menu
@@ -602,20 +616,6 @@ public class GUIController extends Application {
 			}
 		}
 		return output;
-	}
-
-	/**
-	 * Switch between the main view and the log view
-	 */
-	protected void switchWindow() {
-		window.getChildren().clear();
-		if (!isMainWindow) {
-			window.getChildren().add(pane);
-		} else {
-			window.getChildren().add(logObject);
-		}
-		window.getChildren().add(bottomBar);
-		isMainWindow = !isMainWindow;
 	}
 
 	/**
@@ -997,6 +997,7 @@ public class GUIController extends Application {
 	/**
 	 * Opens the focus Task view if valid
 	 * @param focusPinned focus on the pinned window if exists?
+	 * @return true if successful in focus
 	 */
 	protected boolean showFocusTask(boolean focusPinned) {
 		if (TASKLIST_PINNED!=TASKLIST_INVALID&&focusPinned) {

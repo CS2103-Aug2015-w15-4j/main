@@ -6,6 +6,7 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+//@@author A0122534R
 public class PreloaderWindow extends Preloader {
 	protected final static int PRELOADER_SIZE = 150;
 	private Stage preloaderStage;
@@ -28,7 +29,8 @@ public class PreloaderWindow extends Preloader {
 	}
 
 	@Override
-	public void handleStateChangeNotification(StateChangeNotification stateChangeNotification) {
+	public void handleStateChangeNotification(
+			StateChangeNotification stateChangeNotification) {
 		if (stateChangeNotification.getType() == StateChangeNotification.Type.BEFORE_START) {
 			preloaderStage.hide();
 		}
