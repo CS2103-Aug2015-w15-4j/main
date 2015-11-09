@@ -26,12 +26,15 @@ import logic.Task;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import parser.ParsedCommand;
 import parser.ParsedCommand.TaskType;
 import storage.Storage;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class StorageTest {
 	private static final TaskType TASK = TaskType.FLOATING_TASK;
 	private static final TaskType DEADLINETASK = TaskType.DEADLINE_TASK;
@@ -63,13 +66,15 @@ public class StorageTest {
 		storage.clearList();
 	}
 
+	// Add
 	@Test
-	public void testAddToFile() throws Exception {
+	public void testA() throws Exception {
+
+		getConfigDetails();
+
 		Task task = new Task("dinner with friends", "at centrepoint", 1, false,
 				null, TASK);
 		storage.add(task);
-
-		getConfigDetails();
 
 		String output = readFile(dataFilePath);
 		String expected = "{\"name\":\"dinner with friends\",\"details\":\"at centrepoint\",\"id\":1,\"isCompleted\":false,\"taskType\":\"FLOATING_TASK\"}";
@@ -104,10 +109,27 @@ public class StorageTest {
 		expected += "{\"end\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"name\":\"meeting Luxola\",\"details\":\"at centrepoint\",\"id\":3,\"isCompleted\":false,\"taskType\":\"DEADLINE_TASK\"}";
 		assertEquals(expected, output);
 
+		deadLine = new DeadlineTask("meeting Luxola", "at centrepoint", 4,
+				false, null, DEADLINETASK, calEnd);
+		Event event2 = new Event(deadLine, calEnd);
+		storage.add(event2);
+		output = "";
+		expected = "";
+		output = readFile(dataFilePath);
+		expected += "{\"name\":\"dinner with friends\",\"details\":\"at centrepoint\",\"id\":1,\"isCompleted\":false,\"taskType\":\"FLOATING_TASK\"}";
+		expected += "\n";
+		expected += "{\"start\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"end\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"name\":\"dinner with friends\",\"details\":\"at centrepoint\",\"id\":2,\"isCompleted\":false,\"taskType\":\"EVENT\"}";
+		expected += "\n";
+		expected += "{\"end\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"name\":\"meeting Luxola\",\"details\":\"at centrepoint\",\"id\":3,\"isCompleted\":false,\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"start\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"end\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"name\":\"meeting Luxola\",\"details\":\"at centrepoint\",\"id\":4,\"isCompleted\":false,\"taskType\":\"EVENT\"}";
+		assertEquals(expected, output);
+
 	}
 
+	// Delete
 	@Test
-	public void testDeleteLine() throws Exception {
+	public void testB() throws Exception {
 		storage.delete(1);
 
 		getConfigDetails();
@@ -116,20 +138,24 @@ public class StorageTest {
 		String expected = "{\"start\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"end\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"name\":\"dinner with friends\",\"details\":\"at centrepoint\",\"id\":2,\"isCompleted\":false,\"taskType\":\"EVENT\"}";
 		expected += "\n";
 		expected += "{\"end\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"name\":\"meeting Luxola\",\"details\":\"at centrepoint\",\"id\":3,\"isCompleted\":false,\"taskType\":\"DEADLINE_TASK\"}";
+		expected += "\n";
+		expected += "{\"start\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"end\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"name\":\"meeting Luxola\",\"details\":\"at centrepoint\",\"id\":4,\"isCompleted\":false,\"taskType\":\"EVENT\"}";
 		assertEquals(expected, output);
 
+		output = "";
 		expected = "";
 		storage.delete(4);
+		output = readFile(dataFilePath);
 		expected += "{\"start\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"end\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"name\":\"dinner with friends\",\"details\":\"at centrepoint\",\"id\":2,\"isCompleted\":false,\"taskType\":\"EVENT\"}";
 		expected += "\n";
 		expected += "{\"end\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"name\":\"meeting Luxola\",\"details\":\"at centrepoint\",\"id\":3,\"isCompleted\":false,\"taskType\":\"DEADLINE_TASK\"}";
 		assertEquals(expected, output);
-		expected = "";
 
 	}
 
+	// Set folder
 	@Test
-	public void testSetFolder() throws Exception {
+	public void testC() throws Exception {
 
 		boolean output = storage.setFileLocation(".\\");
 		assertEquals(true, output);
@@ -155,17 +181,16 @@ public class StorageTest {
 
 		getConfigDetails();
 		String path = readFile(dataFilePath);
-		String expected = "{\"name\":\"dinner with friends\",\"details\":\"at centrepoint\",\"id\":1,\"isCompleted\":false,\"taskType\":\"FLOATING_TASK\"}";
-		expected += "\n";
-		expected += "{\"start\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"end\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"name\":\"dinner with friends\",\"details\":\"at centrepoint\",\"id\":2,\"isCompleted\":false,\"taskType\":\"EVENT\"}";
+		String expected = "{\"start\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"end\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"name\":\"dinner with friends\",\"details\":\"at centrepoint\",\"id\":2,\"isCompleted\":false,\"taskType\":\"EVENT\"}";
 		expected += "\n";
 		expected += "{\"end\":{\"year\":2015,\"month\":2,\"dayOfMonth\":15,\"hourOfDay\":0,\"minute\":2,\"second\":37},\"name\":\"meeting Luxola\",\"details\":\"at centrepoint\",\"id\":3,\"isCompleted\":false,\"taskType\":\"DEADLINE_TASK\"}";
 		assertEquals(expected, path);
 
 	}
 
+	// Set Avatar
 	@Test
-	public void testSetAvatar() throws Exception {
+	public void testD() throws Exception {
 
 		boolean output = storage.setAvatar("c:\\");
 		assertEquals(false, output);

@@ -6,20 +6,24 @@ import java.util.Calendar;
 import parser.ParsedCommand;
 import parser.ParsedCommand.TaskType;
 
-//@author A0124777W
+//@@author A0124777W
 public class Event extends Task {
 
 	protected Calendar start;
 	protected Calendar end;
 
+	public Event() {
+
+	}
+
 	public Event(Task task, Calendar start, Calendar end) {
-		super(task.getName(), task.getDetails(), task.getId(), task.getIsCompleted(), task.getTags(), TaskType.EVENT);
+		super(task.getName(), task.getDescription(), task.getId(), task.getIsCompleted(), task.getTags(), TaskType.EVENT);
 		this.start = start;
 		this.end = end;
 	}
 
 	public Event(DeadlineTask dlTask, Calendar start) {
-		super(dlTask.getName(), dlTask.getDetails(), dlTask.getId(), dlTask.getIsCompleted(), dlTask.getTags(), TaskType.EVENT);
+		super(dlTask.getName(), dlTask.getDescription(), dlTask.getId(), dlTask.getIsCompleted(), dlTask.getTags(), TaskType.EVENT);
 		this.start = start;
 		this.end = dlTask.getEnd();
 	}
@@ -32,7 +36,7 @@ public class Event extends Task {
 	}
 	
 	public Event(Event newTask) {
-		super(newTask.getName(),newTask.getDetails(),newTask.getId(),newTask.getIsCompleted(),newTask.getTags(),newTask.getTaskType());
+		super(newTask.getName(),newTask.getDescription(),newTask.getId(),newTask.getIsCompleted(),newTask.getTags(),newTask.getTaskType());
 		this.start = newTask.getStart();
 		this.end = newTask.getEnd();
 	}

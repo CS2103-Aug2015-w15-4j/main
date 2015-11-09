@@ -1,13 +1,12 @@
 package logic;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
 import parser.ParsedCommand;
 import parser.ParsedCommand.TaskType;
 
-//@author A0124777W
+//@@author A0124777W
 public class DeadlineTask extends Task {
 
 	protected Calendar end;
@@ -17,14 +16,18 @@ public class DeadlineTask extends Task {
 		super(name, details,id,isCompleted,tags,taskType);
 		setEnd(end);
 	}
+
+	public DeadlineTask() {
+
+	}
 	
 	public DeadlineTask(Task task, Calendar end) {
-		super(task.getName(), task.getDetails(), task.getId(), task.getIsCompleted(), task.getTags(), TaskType.DEADLINE_TASK);
+		super(task.getName(), task.getDescription(), task.getId(), task.getIsCompleted(), task.getTags(), TaskType.DEADLINE_TASK);
 		this.end = end;
 	}
 	
 	public DeadlineTask(DeadlineTask newTask) {
-		super(newTask.getName(),newTask.getDetails(),newTask.getId(),newTask.getIsCompleted(),newTask.getTags(),newTask.getTaskType());
+		super(newTask.getName(),newTask.getDescription(),newTask.getId(),newTask.getIsCompleted(),newTask.getTags(),newTask.getTaskType());
 		this.end = newTask.getEnd();
 	}
 	

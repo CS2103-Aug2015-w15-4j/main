@@ -12,7 +12,6 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.store.Directory;
@@ -28,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-//@author A0124777W
+//@@author A0124777W
 public class Search {
 	private static final TaskType TASK = TaskType.FLOATING_TASK;
 	private static final TaskType DEADLINETASK = TaskType.DEADLINE_TASK;
@@ -141,20 +140,7 @@ public class Search {
 	    }
 		return hitList;
 	}
-	
-	/*
-	 * range query that can search through various fields
-	 */
-	public static List<Task> rangeSearch(List<Task> taskList, String field, String upper, String lower) throws IOException {
-		
-		StandardAnalyzer analyzer = new StandardAnalyzer();
-	    Directory index = indexTaskList(taskList,analyzer);
-	    
-		TermRangeQuery rq = TermRangeQuery.newStringRange(field ,upper,lower,true,true);
-		ArrayList<Task> hitList = queryIndex(index, rq);
-		
-		return hitList;
-	}
+
 	
 	/*
 	 * A search involving fields with dates
@@ -232,8 +218,8 @@ public class Search {
 		    }
 		    doc.add(new TextField("tags",tagString, Field.Store.YES));
 		    doc.add(new TextField("taskType",task.getTaskType().toString(), Field.Store.YES));
-		    if (task.getDetails() != null) {
-		    	doc.add(new TextField("details",task.getDetails(), Field.Store.YES));
+		    if (task.getDescription() != null) {
+		    	doc.add(new TextField("details",task.getDescription(), Field.Store.YES));
 		    }
 		    
 		    doc.add(new StringField("json",jsonString,Field.Store.YES));

@@ -10,11 +10,10 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import storage.Storage;
 import parser.ParsedCommand;
 
-//@author A0124777W
+//@@author A0124777W
 public class Model {
 
 	public static final int DEFAULT_FOCUS = 1;
-	private static Model instance = null;
 	private String consoleMessage;
 	private List<Task> searchList;
 	private List<Task> todayList;
@@ -22,20 +21,17 @@ public class Model {
 	private List<Task> mainList;
 	private List<Task> floatingList;
 	private List<Task> overdueList;
-	private List<Task> completedList;
 	private int focusId;
 	private String avatarLocation;
 	private ParsedCommand searchQuery;
 	
 	private Storage storage;
-	public static Model getInstance(Storage storage) {
-		if(instance == null) {
-			instance = new Model(storage);
-		}
-		return instance;
+
+	public Model() {
+
 	}
 
-	protected Model(Storage storage) {
+	public Model(Storage storage) {
 		this.storage = storage;
 		this.consoleMessage = "";
 		this.focusId = DEFAULT_FOCUS;
@@ -115,7 +111,6 @@ public class Model {
 		this.todayList = Logic.updateTodayList();
 		this.floatingList = Logic.updateFloatingList();
 		this.overdueList = Logic.updateOverdueList();
-		this.completedList = Logic.updateCompletedList();
 		if (searchQuery != null) {
 			updateSearchList();
 		}

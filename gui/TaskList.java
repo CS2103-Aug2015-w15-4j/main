@@ -192,13 +192,21 @@ public class TaskList {
 	 */
 	protected void initScrollPane() {
 	    detailedView = new ScrollPane();
-		//detailedView.setFitToHeight(true);
-		detailedView.setVbarPolicy(V_POLICY);
-		detailedView.setHbarPolicy(H_POLICY);
-		detailedView.setPadding(new Insets(0, PADDING, 0, PADDING)); // left and right padding only
+	    setScrollPane(detailedView);
 		detailedView.prefWidthProperty().bind(getNode().widthProperty());
-		detailedView.prefHeightProperty().bind(getNode().heightProperty());
-		detailedView.getStyleClass().add(GUIController.CSS_STYLE_TRANSPARENT);
+		detailedView.prefWidthProperty().bind(getNode().heightProperty());
+	}
+	
+	/**
+	 * Allocates the default detailedView settings to a ScrollPane.
+	 * Allows for external use for other ScrollPanes to gain these settings
+	 */
+	public static void setScrollPane(ScrollPane sp) {
+		sp.setFitToWidth(true);
+		sp.setVbarPolicy(V_POLICY);
+		sp.setHbarPolicy(H_POLICY);
+		sp.setPadding(new Insets(0, PADDING, 0, PADDING)); // left and right padding only
+		sp.getStyleClass().add(GUIController.CSS_STYLE_TRANSPARENT);
 	}
 	
 	/**
@@ -242,19 +250,17 @@ public class TaskList {
 	}
 	
 	/**
-	 * Calls focusTask() in this function
-	 * @return the window of the FocusTask
+	 * Requests focus so that can scroll the listView
 	 */
-	public ScrollPane getFocusTask() {
-		focusTask();
-		return detailedView;
+	public void requestFocus() {
+		listView.requestFocus();
 	}
 	
 	/**
 	 * Closes the excess list by removing it from the VBox
 	 */
 	public void closeList() {
-		if (isListOpen&&!name.getText().isEmpty()) {
+		if (!name.getText().isEmpty()) {
 			master.getChildren().clear();
 			master.getChildren().add(name);
 			isListOpen = false;
@@ -431,18 +437,18 @@ public class TaskList {
 		int selected = listView.getSelectionModel().getSelectedIndex();
 		if (selected>INVALID_SELECTION) {
 			// create the detailed view
-			updateDetailedView(createDetailedDisplay(listOfTasks.get(selected)));
+			detailedView.setContent(createDetailedDisplay(listOfTasks.get(selected)));
+			//node.prefHeightProperty().bind(detailedView.heightProperty().subtract(2*PADDING));
 		}
 	}
-	
+
 	/**
-	 * Adds a node to the detailedView and binds its properties to it
-	 * @param node
+	 * Calls focusTask() in this function
+	 * @return the window of the FocusTask
 	 */
-	public void updateDetailedView(Region node) {
-		detailedView.setContent(node);
-		node.prefWidthProperty().bind(detailedView.widthProperty().subtract(2*PADDING));
-		node.prefHeightProperty().bind(detailedView.heightProperty().subtract(2*PADDING));
+	public ScrollPane getFocusTask() {
+		focusTask();
+		return detailedView;
 	}
 	
 	/**
@@ -463,18 +469,19 @@ public class TaskList {
 		grid.add(id, SIDEBAR_COL_ID, ROW_NAME);
 		
 		// Set name
-		Label label = createLabel(task.getName());
-		label.prefWidthProperty().bind(grid.widthProperty());
-		label.setWrapText(true);
-		label.setStyle("-fx-font-weight: bold");
-		grid.add(label, SIDEBAR_COL_NAME, ROW_NAME, 2, 1);
+		Label name = createLabel(task.getName());
+		name.prefWidthProperty().bind(grid.widthProperty());
+		name.setWrapText(true);
+		name.setStyle("-fx-font-weight: bold");
+		grid.add(name, SIDEBAR_COL_NAME, ROW_NAME, 2, 1);
 
 		// add whether completed
 		grid.add(getTaskCompletion(task.getIsCompleted()), SIDEBAR_COL_DONE, ROW_NAME); // only need up to 1 row
 		
 		// Get the details from task details and display them
-		ArrayList<String[]> details = task.getTaskDetails();		
+		ArrayList<String[]> details = task.getTaskDetails();
 		String[] array;
+		Label label = null;
 		for (int i=1;i<details.size();i++) { // i=1 to skip name element
 			array = details.get(i);
 			label = createLabel(array[COL_HEADER]);
@@ -487,6 +494,9 @@ public class TaskList {
 			}
 			grid.add(label, COL_CONTENT, i, COL_CONTENT_SIZE, 1);
 		}
+		
+		// lock the maximum height
+		grid.maxHeightProperty().bind(name.heightProperty().add(label.heightProperty().multiply(details.size()+10)));
 		
 		return grid;
 	}//*/

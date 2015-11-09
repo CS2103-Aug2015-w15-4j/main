@@ -4,7 +4,7 @@ import parser.ParsedCommand;
 import parser.ParsedCommand.TaskType;
 import storage.Storage;
 
-//@author A0124777W
+//@@author A0124777W
 public class Add implements Command {
 
 	private static final TaskType TASK = TaskType.FLOATING_TASK;
@@ -54,7 +54,8 @@ public class Add implements Command {
 	}
 
 	/*
-	 * Checks whether the parsedInput is valid. Does not check task ID
+	 * Checks whether the parsedInput is valid. Does not check task ID as parser does not
+	 * currently set task id.
 	 */
 	public static boolean checkValid(ParsedCommand parsedInput, Model view) {
 		ParsedCommand.TaskType taskType = parsedInput.getTaskType();
@@ -78,11 +79,17 @@ public class Add implements Command {
 			}
 		} else if (taskType == DEADLINETASK) {
 			if (parsedInput.getSecondDate() != null) { // Error: DeadlineTask Should have no Start Field
-				view.setConsoleMessage("Error: DeadlineTask Should have no start field");
+				view.setConsoleMessage("Error: DeadlineTask Should have no start date");
+				return false;
+			} else if (parsedInput.getFirstDate() == null) {
+				view.setConsoleMessage("Error: DeadlineTask should have an end date");
 				return false;
 			}
 		} else if (taskType == EVENT) {
-
+			if (parsedInput.getFirstDate() == null || parsedInput.getSecondDate() == null) {
+				view.setConsoleMessage("Error: Event should have start and end dates");
+				return false;
+			}
 		}
 
 		return true;
