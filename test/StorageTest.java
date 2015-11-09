@@ -6,9 +6,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -210,139 +208,36 @@ public class StorageTest {
 	}
 
 	@AfterClass
-	public static void end() {
+	public static void end() throws IOException {
 		reset();
 	}
 
 	public static void setUp() {
-		File dataCopy = null, configCopy = null;
-		try {
-
-			configCopy = new File("./config"); // original path
-			dataCopy = new File("./Data.txt"); // original path for DATA.txt
-			if (configCopy.exists()) {
-
-				BufferedReader reader = new BufferedReader(new FileReader(
-						CONFIG_FILENAME));
-				dataFilePathTemp = reader.readLine();
-				reader.close();
-
-				dataCopy = new File(dataFilePathTemp);
-				setDataFile(dataCopy);
-				setConfigFile(configCopy);
-
-				hasConfigFile = true;
-				hasDataFile = true;
-			} else if (!configCopy.exists() && dataCopy.exists()) {
-				dataFilePathTemp = "./Data.txt";
-				dataCopy = new File(dataFilePathTemp);
-				setDataFile(dataCopy);
-				hasDataFile = true;
-			}
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			configCopy.delete();
-		}
+		File dataFile = new File("Data.txt");
+		dataFile.renameTo(new File("temp.txt"));
+		File testFile = new File("Test_Data2.txt");
+		testFile.renameTo(new File("Data.txt"));
+		File configFile = new File("config");
+		configFile.renameTo(new File(("configTemp")));
 	}
 
-	public static void reset() {
-		InputStream inStream = null;
-		OutputStream outStream = null;
-		try {
+	public static void reset() throws IOException {
+		File temp = new File(".\\temp\\Data.txt");
+		temp.delete();
+		String absolutePath = temp.getAbsolutePath();
+		String filePath = absolutePath.substring(0,
+				absolutePath.lastIndexOf(File.separator));
+		Path paths = Paths.get(filePath);
+		Files.delete(paths);
 
-			File configCopy = new File("./config"); // original path
-			configCopy.delete();
-			if (hasConfigFile == true && hasDataFile == true) {
-				configCopy.createNewFile();
-				inStream = new FileInputStream(dataTemp);
-				File out = new File(dataFilePathTemp);
-				File parent = out.getParentFile();
-				if (dataFilePathTemp.equals("Data.txt")) {
-					out.createNewFile();
-				} else if (!parent.exists()) {
-					out.getParentFile().mkdir();
-					out.createNewFile();
-				}
-
-				outStream = new FileOutputStream(out);
-
-				byte[] buffer = new byte[65536];
-
-				int length;
-				while ((length = inStream.read(buffer)) > 0) {
-					outStream.write(buffer, 0, length);
-				}
-
-				inStream.close();
-				outStream.close();
-
-				dataTemp.delete();
-				File temp = new File(".\\temp\\Data.txt");
-				temp.delete();
-				String absolutePath = temp.getAbsolutePath();
-				String filePath = absolutePath.substring(0,
-						absolutePath.lastIndexOf(File.separator));
-				Path paths = Paths.get(filePath);
-				Files.delete(paths);
-
-				inStream = new FileInputStream(configTemp);
-				outStream = new FileOutputStream(configCopy);
-
-				buffer = new byte[65536];
-
-				length = 0;
-				// copy the file content in bytes
-				while ((length = inStream.read(buffer)) > 0) {
-					outStream.write(buffer, 0, length);
-				}
-
-				inStream.close();
-				outStream.close();
-
-				configTemp.delete();
-				hasConfigFile = false;
-			} else if (hasConfigFile == false) {
-				File temp = new File(".\\temp\\Data.txt");
-				temp.delete();
-				String absolutePath = temp.getAbsolutePath();
-				String filePath = absolutePath.substring(0,
-						absolutePath.lastIndexOf(File.separator));
-				Path paths = Paths.get(filePath);
-				Files.delete(paths);
-
-				configCopy.delete();
-				if (hasDataFile = true) {
-					inStream = new FileInputStream(dataTemp);
-					File out = new File(dataFilePathTemp);
-					File parent = out.getParentFile();
-					if (dataFilePathTemp.equals("Data.txt")) {
-						out.createNewFile();
-					} else if (!parent.exists()) {
-						out.getParentFile().mkdir();
-						out.createNewFile();
-					}
-
-					outStream = new FileOutputStream(out);
-
-					byte[] buffer = new byte[65536];
-
-					int length;
-					while ((length = inStream.read(buffer)) > 0) {
-						outStream.write(buffer, 0, length);
-					}
-
-					inStream.close();
-					outStream.close();
-
-					dataTemp.delete();
-				}
-			}
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		File dataFile = new File("Data.txt");
+		dataFile.renameTo(new File("Test_Data2.txt"));
+		File testFile = new File("temp.txt");
+		testFile.renameTo(new File("Data.txt"));
+		File configCopy = new File("config");
+		configCopy.delete();
+		File configFile = new File("configTemp");
+		configFile.renameTo(new File(("config")));
 	}
 
 	public void getConfigDetails() {
@@ -381,45 +276,6 @@ public class StorageTest {
 			e.printStackTrace();
 		}
 		return result.toString();
-	}
-
-	private static void setDataFile(File dataCopy) throws IOException {
-		String path = dataCopy.toString();
-		if (path.contains("Data.txt") || path.contains("/temp/Data.txt")) {
-			dataTemp = File.createTempFile("data", ".tmp");
-			inStream = new FileInputStream(dataCopy);
-			outStream = new FileOutputStream(dataTemp);
-
-			byte[] buffer = new byte[65536];
-
-			int length;
-			// copy the file content in bytes
-			while ((length = inStream.read(buffer)) > 0) {
-				outStream.write(buffer, 0, length);
-			}
-
-			inStream.close();
-			outStream.close();
-
-			dataCopy.delete();
-		}
-	}
-
-	private static void setConfigFile(File configCopy) throws IOException {
-		configTemp = File.createTempFile("config", ".tmp");
-		inStream = new FileInputStream(configCopy);
-		outStream = new FileOutputStream(configTemp);
-
-		byte[] buffer = new byte[65536];
-
-		int length = 0;
-		// copy the file content in bytes
-		while ((length = inStream.read(buffer)) > 0) {
-			outStream.write(buffer, 0, length);
-		}
-
-		inStream.close();
-		outStream.close();
 	}
 
 }
