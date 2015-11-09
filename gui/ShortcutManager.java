@@ -40,7 +40,7 @@ public class ShortcutManager {
 	}
 	
 	public static boolean isFocusMode(KeyEvent keyEvent) {
-		return (keyEvent.getCode()==KeyCode.BACK_SLASH);
+		return (keyEvent.getCode()==KeyCode.BACK_SLASH&&!keyEvent.isShiftDown());
 	}
 	
 	public static boolean isFocusModeClear(KeyEvent keyEvent) {

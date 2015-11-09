@@ -66,7 +66,6 @@ public class PinnedPanel {
 			// focus view deactivate regardless of pinned window or task
 			pinnedList.isPinnedWindow = false;
 			// force it to close
-			pinnedList.openList();
 			pinnedList.closeList();
 			Region node = pinnedList.getNode();
 			node.prefWidthProperty().unbind();
