@@ -16,20 +16,20 @@ import com.joestelmach.natty.Parser;
 import parser.DateTime.DateTimeBuilder;
 
 public class NattyDateParser extends DateTimeParser{
-	//private static Pattern parantheses = Pattern.compile("([(]([a-zA-Z0-9.\\s]+)[)])");
-
-	private static final String DAYS = "(mon(day)?|tue?(sday)?|tues|wed(nesday)?|thur(sday)?|thu|thurs|fri(day)?|sat(urday)?|sun(day)?|tmr|tomorrow|tomorow|today|tdy|ytd|yesterday)s?";
+	private static final String DAYS = "(mon(day)?|tue?(sday)?|tues|wed(nesday)?|thur(sday)?|thu|thurs|"
+										+ "fri(day)?|sat(urday)?|sun(day)?|tmr|tomorrow|tomorow|today|tdy|ytd|yesterday)s?";
 	private static final String RELATIVE_WORDS = "(next|nxt|prev|previous|last|coming|upcoming|before|after)";
 	private static final String DURATION = "(day(s?)|month(s?)|year(s?)|yrs)";
 	private static final String NUMBERS = "(\\d+\\s(" + DURATION + "|" + DAYS + "))";
-	private static final String TO_ALTERNATIVES = "(?<=\\s|^)(until|til|till|-)(?=\\s|$)";
-	
-	private static final String NATTY_REGEX = "(?<=\\s|^)(" + NUMBERS + "|" + RELATIVE_WORDS + "|" + DURATION + "|" + DAYS + "|to)(?=\\s|$)";
+	private static final String TO_ALTERNATIVES = "(?<=\\s|^)(until|til|till|-)(?=\\s|$)";	
+	private static final String NATTY_REGEX = "(?<=\\s|^)(" + NUMBERS + "|" + RELATIVE_WORDS + "|" + DURATION 
+											  + "|" + DAYS + "|to)(?=\\s|$)";
 	private static final Pattern NATTY_DATES = Pattern.compile(NATTY_REGEX);
 	
-	private static final Logger logger = Logger.getLogger(NattyDateParser.class.getName() );
 	private static final int INDEX_FOR_END = 1;
-	
+
+	private static final Logger logger = Logger.getLogger(NattyDateParser.class.getName() );
+
 	@Override
     protected DateTimeBuilder parse(DateTimeBuilder currentlyParsed) {
     	String input = currentlyParsed.getUnparsedInput();

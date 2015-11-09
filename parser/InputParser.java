@@ -16,30 +16,31 @@ import test.ParserTestingMethods;
 public abstract class InputParser {
 	static final String ERROR_INVALID_COMMAND = "Error: Invalid command";
 	static final String ERROR_NO_INPUT = "Error: No user input";
-	static final String ERROR_MISSING_ARGS = "Error: No arguments entered";
+	static final String ERROR_MISSING_ARGS = "Error: No fields entered";
 	static final String ERROR_MISSING_FIELDS = "Error: No fields were entered for editing";
+	static final String ERROR_INVALID_TASKID = "Error: Invalid/Missing taskId";
+	
 	static final int INDEX_FOR_CMD = 0;
 	static final int INDEX_FOR_ARGS = 1;
 	static final int INDEX_FOR_SUBCMD = 0;
 	static final int INDEX_FOR_SUBARGS = 1;
-	static final String ERROR = "TEMP";
-	static final String ERROR_INVALID_TASKID = "Error: Invalid/Missing taskId";
-	
 	
 	static final String TO_REGEX = "-|to|until|till";
-		
 	static final String TASK_ID_REGEX = "(^[0-9]+(?=\\s|$))";
 	static final String SEARCH_TASK_ID_REGEX = "(^[0-9]+\\s*(?=$))";
 	static final String TAG_REGEX = "(?<=\\s|^)#(\\w+)";
 	static final String DESCRIPTION_REGEX = "(?<!\\\\)\"(.*)(?<!\\\\)\"(?!.*((?<!\\\\)\"))";
+	static final String ERROR_INVALID_TABID = "Error: Invalid tab ID";
+	
 	private static final String TASK_STATUS_REGEX = "(?<=\\s|^)(todo|done|overdue)(?=\\s|$)";
 	private static final String TASK_TYPE_REGEX = "(?<=\\s|^)(floating(?:task)?|deadline(?:task)?|event(?:task)?)(?:s)?(?=\\s|$)";
 	private static final String OVERDUE_REGEX = "(?<=[^//s])(overdue)(?=\\s|$)";
+	private static final String NOT_TITLE_REGEX_WITH_KEYWORD = "(" 
+								+ "((?<=\\s|^)(from |fr |at |to |til |till |until |by |on |- ))?" 
+								+ DateTimeParser.NO_KEYWORD_DATE_TIME_REGEX + "|" + TAG_REGEX + "|" 
+								+ DESCRIPTION_REGEX + ")";  	
 	
-	protected static final String NOT_TITLE_REGEX_KEYWORD_OK = "(" + "((?<=\\s|^)(from |fr |at |to |til |until |by |on |- ))?" + DateTimeParser.NO_KEYWORD_DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX + ")";  	
-	
-	static final Logger logger = Logger.getLogger(ParserTestingMethods.class.getName() );
-	public static final String ERROR_INVALID_TABID = "Error: Invalid tab ID";
+	static final Logger logger = Logger.getLogger(InputParser.class.getName() );
 	
 	protected static final int INDEX_FOR_START = 0;
 	protected static final int INDEX_FOR_END = 1;
@@ -73,12 +74,13 @@ public abstract class InputParser {
 		if (inputArgs == null) {
 			return null;
 		}
-		inputArgs = removeRegexPatternFromString(inputArgs, NOT_TITLE_REGEX_KEYWORD_OK);
+		inputArgs = removeRegexPatternFromString(inputArgs, NOT_TITLE_REGEX_WITH_KEYWORD);
 		return inputArgs.trim();
 	}
 	
 	static String getSearchKeywordsWithDateKeywords(String inputArgs) {
-		inputArgs = removeRegexPatternFromString(inputArgs, NOT_TITLE_REGEX_KEYWORD_OK + "|" + TASK_TYPE_REGEX  +"|" + TASK_STATUS_REGEX);
+		inputArgs = removeRegexPatternFromString(inputArgs, 
+					NOT_TITLE_REGEX_WITH_KEYWORD + "|" + TASK_TYPE_REGEX  +"|" + TASK_STATUS_REGEX);
 		return inputArgs.trim();
 	}
 	
