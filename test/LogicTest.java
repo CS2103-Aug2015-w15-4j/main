@@ -9,9 +9,6 @@ import parser.ParsedCommand;
 import storage.Storage;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -36,7 +33,7 @@ public class LogicTest {
 
         // test empty command
         executed = logic.executeCommand(null);
-        correct.updateModel(logic.MESSAGE_INVALID_FORMAT);
+        correct.updateModel(Logic.MESSAGE_INVALID_FORMAT);
         result = modelChecker(correct, executed);
         assertEquals(true, result);
 
@@ -293,8 +290,8 @@ public class LogicTest {
     public void testCheckID() throws Exception {
         Logic logic = new Logic();
         ParsedCommand command = MyParser.parseCommand("add task");
-        Model executed = logic.executeCommand(command);
-        executed = logic.executeCommand(command);
+        logic.executeCommand(command);
+        logic.executeCommand(command);
 
         assertEquals(true,Logic.checkID(1));
         assertEquals(true,Logic.checkID(2));
@@ -303,9 +300,8 @@ public class LogicTest {
         assertEquals(false,Logic.checkID(500));
 
         command = MyParser.parseCommand("undo");
-        executed = logic.executeCommand(command);
-        executed = logic.executeCommand(command);
-
+        logic.executeCommand(command);
+        logic.executeCommand(command);
     }
 
     /*

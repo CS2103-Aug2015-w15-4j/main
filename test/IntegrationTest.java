@@ -34,7 +34,6 @@ import storage.Storage;
 public class IntegrationTest {
 
 	private String dataFilePath = "";
-	private static String dataFilePathTemp;
 
 	static InputStream inStream = null;
 	static OutputStream outStream = null;

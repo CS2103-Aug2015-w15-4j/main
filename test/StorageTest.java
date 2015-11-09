@@ -41,10 +41,8 @@ public class StorageTest {
 	private static final String CONFIG_FILENAME = "config";
 
 	private String dataFilePath;
-	private static String dataFilePathTemp;
+	@SuppressWarnings("unused")
 	private String avatarFilePath;
-	private static boolean hasConfigFile = false;
-	private static boolean hasDataFile = false;
 
 	static InputStream inStream = null;
 	static OutputStream outStream = null;

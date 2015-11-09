@@ -80,6 +80,6 @@ public class CenterPanel {
 	 * Closes all lists in the main window
 	 */
 	protected void closeAllLists() {
-		GUIController.closeAllLists();
+		GuiController.closeAllLists();
 	}
 }
