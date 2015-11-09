@@ -188,10 +188,10 @@ public class MyParserTest {
 		assertEquals(MyParser.CommandType.ERROR, pcAdd.getCommandType());
 		assertEquals("Error: Invalid date(s) input", pcAdd.getErrorMessage());
 		
-		// Check missing arguments returns no arguments error
+		// Check missing fields returns no fields error
 		pcAdd = MyParser.parseCommand("Add");
 		assertEquals(MyParser.CommandType.ERROR, pcAdd.getCommandType());
-		assertEquals("Error: No arguments entered", pcAdd.getErrorMessage());
+		assertEquals("Error: No fields entered", pcAdd.getErrorMessage());
 	
 		// Check missing title returns no title error
 		pcAdd = MyParser.parseCommand("Add 2/3/15 3pm \"hello hello\" #tag1 #tag2");
@@ -227,10 +227,10 @@ public class MyParserTest {
 		assertEquals(MyParser.CommandType.DELETE, pcDelete.getCommandType());
 		assertEquals(234, pcDelete.getTaskId());
 
-		// Check missing arguments returns no arguments error
+		// Check missing fields returns no fields error
 		pcDelete = MyParser.parseCommand("delete");
 		assertEquals(MyParser.CommandType.ERROR, pcDelete.getCommandType());
-		assertEquals("Error: No arguments entered", pcDelete.getErrorMessage());
+		assertEquals("Error: No fields entered", pcDelete.getErrorMessage());
 
 		// Check invalid/missing taskId returns error
 		pcDelete = MyParser.parseCommand("delete abc");
@@ -249,7 +249,7 @@ public class MyParserTest {
 		assertEquals(MyParser.CommandType.DISPLAY, pcDisplay.getCommandType());
 		assertEquals(234, pcDisplay.getTaskId());
 
-		// Check missing arguments returns GUI command
+		// Check missing fields returns GUI command
 		pcDisplay = MyParser.parseCommand("show");
 		assertEquals(MyParser.CommandType.GUI_SHOW, pcDisplay.getCommandType());
 		
@@ -363,10 +363,10 @@ public class MyParserTest {
 		assertEquals(MyParser.CommandType.ERROR, pcEdit.getCommandType());
 		assertEquals("Error: No fields were entered for editing", pcEdit.getErrorMessage());
 
-		// Check missing arguments returns error
+		// Check missing fields returns error
 		pcEdit = MyParser.parseCommand("edit");
 		assertEquals(MyParser.CommandType.ERROR, pcEdit.getCommandType());
-		assertEquals("Error: No arguments entered", pcEdit.getErrorMessage());
+		assertEquals("Error: No fields entered", pcEdit.getErrorMessage());
 
 		// Check invalid taskId returns error
 		pcEdit = MyParser.parseCommand("edit abc #hello");
@@ -432,10 +432,10 @@ public class MyParserTest {
 		assertEquals(true, pcDone.isCompleted());
 		assertEquals(234, pcDone.getTaskId());
 
-		// Check missing arguments returns error
+		// Check missing fields returns error
 		pcDone = MyParser.parseCommand("done ");
 		assertEquals(MyParser.CommandType.ERROR, pcDone.getCommandType());
-		assertEquals("Error: No arguments entered", pcDone.getErrorMessage());
+		assertEquals("Error: No fields entered", pcDone.getErrorMessage());
 
 		// Check invalid/missing taskId returns error
 		pcDone = MyParser.parseCommand("done abc");
@@ -463,7 +463,7 @@ public class MyParserTest {
 		// Check missing config type
 		pcConfig = MyParser.parseCommand("Set");
 		assertEquals(MyParser.CommandType.ERROR, pcConfig.getCommandType());
-		assertEquals("Error: No arguments entered", pcConfig.getErrorMessage());
+		assertEquals("Error: No fields entered", pcConfig.getErrorMessage());
 		
 		// Check invalid config type
 		pcConfig = MyParser.parseCommand("Set file");
@@ -473,12 +473,12 @@ public class MyParserTest {
 		// Check missing path
 		pcConfig = MyParser.parseCommand("set folder");
 		assertEquals(MyParser.CommandType.ERROR, pcConfig.getCommandType());
-		assertEquals("Error: No arguments entered", pcConfig.getErrorMessage());
+		assertEquals("Error: No fields entered", pcConfig.getErrorMessage());
 		
 		// Check missing path
 		pcConfig = MyParser.parseCommand("set background");
 		assertEquals(MyParser.CommandType.ERROR, pcConfig.getCommandType());
-		assertEquals("Error: No arguments entered", pcConfig.getErrorMessage());
+		assertEquals("Error: No fields entered", pcConfig.getErrorMessage());
 				
 		// Check config data
 		pcConfig = MyParser.parseCommand("set folder C:\\file name\\folder");
@@ -516,7 +516,7 @@ public class MyParserTest {
 		
 		pcGui = MyParser.parseCommand("pin");
 		assertEquals(CommandType.ERROR, pcGui.getCommandType());
-		assertEquals("Error: No arguments entered", pcGui.getErrorMessage());
+		assertEquals("Error: No fields entered", pcGui.getErrorMessage());
 		
 		pcGui = MyParser.parseCommand("log");
 		assertEquals(CommandType.GUI_LOG, pcGui.getCommandType());
