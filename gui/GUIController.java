@@ -81,7 +81,6 @@ public class GUIController extends Application {
 					(e.getModifiers()==NativeKeyEvent.CTRL_L_MASK||
 					e.getModifiers()==NativeKeyEvent.CTRL_R_MASK)) { // alt
 				Platform.runLater(new Runnable() {
-					@SuppressWarnings("deprecation")
 					@Override
 					public void run() {
 						if (stage!=null) { // in case the buttons were triggered during loading screen
@@ -192,7 +191,7 @@ public class GUIController extends Application {
 
 	// pane, the default view with all TaskLists 
 	protected static BorderPane pane;
-	protected static VBox pinnedPanel;
+	protected static PinnedPanel pinnedPanel;
 	protected static CenterPanel centerPanel;
 	protected static ConsolePanel consolePanel;
 
@@ -286,7 +285,7 @@ public class GUIController extends Application {
 
 		// pin the overdue tab if not empty
 		if (!taskLists.get(TASKLIST_OVERDUE).isListEmpty()) {
-			pinWindow(taskLists.get(TASKLIST_OVERDUE));
+			pin(taskLists.get(TASKLIST_OVERDUE));
 		}//*/
 		openList(TASKLIST_TODAY); // open today first
 	}
@@ -296,10 +295,10 @@ public class GUIController extends Application {
 	 * @param pinnedPanel
 	 */
 	protected void initPinnedPanel() {
-		pinnedPanel = new VBox();
-		pinnedPanel.prefWidthProperty().bind(pane.widthProperty());
-		pinnedPanel.prefHeightProperty().bind(pane.heightProperty().divide(PINNED_WINDOW_RATIO));
-		pinnedPanel.getStyleClass().add(CSS_STYLE_CURVED_VBOX);
+		pinnedPanel = new PinnedPanel();
+		pinnedPanel.getNode().prefWidthProperty().bind(pane.widthProperty());
+		pinnedPanel.getNode().prefHeightProperty().bind(pane.heightProperty().divide(PINNED_WINDOW_RATIO));
+		pinnedPanel.getNode().getStyleClass().add(CSS_STYLE_CURVED_VBOX);
 	}
 
 	/**
@@ -458,7 +457,7 @@ public class GUIController extends Application {
 					if (TASKLIST_PINNED!=TASKLIST_INVALID) { // if there is pinned window, open that
 						openList(TASKLIST_PINNED);
 					} else {
-						unpinWindow(); // else clear the focus task
+						unpin(); // else clear the focus task
 					}
 					break;
 				case HELP:
@@ -480,7 +479,7 @@ public class GUIController extends Application {
 					executeCommand("undo");
 					break;
 				case UNPIN:
-					unpinWindow();
+					unpin();
 					break;
 				default:
 					break;
@@ -542,90 +541,46 @@ public class GUIController extends Application {
 	 * Pins the list to the top window
 	 * @param list list to be pinned
 	 */
-	protected void pinWindow(TaskList list) {
+	protected void pin(TaskList list) {
 		if (list!=null) {
-			unpinWindow(list);
-			pane.setTop(pinnedPanel);
-
+			unpin();
+			pinnedPanel.pin(list);
 			TASKLIST_PINNED = list.listNumber;
-			list.isPinnedWindow = true;
-			list.selectFirstNode(); // select the first node, since it is moving up now
-			list.focusTask(); // create an instance of zoomed in task
+			pane.setTop(pinnedPanel.getNode());
 			openList(list); // open the list to see the main list
-			Region node = list.getNode();
-			node.prefWidthProperty().unbind();
-			node.prefHeightProperty().unbind();
-			node.prefWidthProperty().bind(pinnedPanel.widthProperty());
-			node.prefHeightProperty().bind(pinnedPanel.heightProperty());
-			pinnedPanel.getChildren().clear();
-			pinnedPanel.getChildren().add(node);
+			refreshLists();
 		}
 	}
-
+	
 	/**
 	 * Pins a focused Task into the window
 	 * @param Task to be pinned
 	 */
-	protected static void pinFocusView(Region focusedTask) {
+	protected static void pin(Region focusedTask) {
 		if (focusedTask!=null) {
-			unpinWindow();
-			pane.setTop(pinnedPanel);
-			focusedTask.prefWidthProperty().unbind();
-			focusedTask.prefHeightProperty().unbind();
-			focusedTask.prefWidthProperty().bind(pinnedPanel.widthProperty());
-			focusedTask.prefHeightProperty().bind(pinnedPanel.heightProperty());
-			focusedTask.setPadding(new Insets(0, PADDING, 0, PADDING));
-			pinnedPanel.getChildren().clear();
-			pinnedPanel.getChildren().add(focusedTask);
+			unpin();
+			pinnedPanel.pin(focusedTask);
 			isFocusView = true;
+			pane.setTop(pinnedPanel.getNode());
 		}
 	}
-
+	
 	/**
-	 * Unpins all windows from the pinnedWindow
+	 * Unpins object from the pinnedWindow
 	 */
-	protected static void unpinWindow() {
-		unpinWindow(null);
-	}
-
-	/**
-	 * Unpins all windows from the pinnedWindow
-	 * @param list List to not unpin
-	 */
-	protected static void unpinWindow(TaskList list) { // list will be left out of unpinned
-		isFocusView = false;
-		int pinned = TASKLIST_PINNED;
+	protected static void unpin() {
+		pinnedPanel.unpin();
 		TASKLIST_PINNED = TASKLIST_INVALID;
-		if (pinned!=TASKLIST_INVALID){//pinnedWindow.getChildren().size()>0) {
-			// focus view deactivate regardless of pinned window or task
-			TaskList pinnedList = taskLists.get(pinned);
-			Region node = pinnedList.getNode();
-			pinnedList.isPinnedWindow = false;
-			// force it to close
-			pinnedList.openList();
-			pinnedList.closeList();
-			node.prefWidthProperty().unbind();
-			node.prefHeightProperty().unbind();
-			node.setPrefHeight(Region.USE_COMPUTED_SIZE);
-
-			if (list!=null) {
-				TASKLIST_PINNED = list.listNumber; // to avoid being added during refreshList()
-			}
-
-			// then update the center's list
-			refreshLists();
-		}
+		isFocusView = false;
+		refreshLists(); // re-add the newly freed list into the center panel
 		pane.setTop(null);
-
 	}
 	
 	/**
 	 * Recalculates the size of the pined window
 	 */
 	protected void recalculatePinned() {
-		if (TASKLIST_PINNED!=TASKLIST_INVALID) {
-			taskLists.get(TASKLIST_PINNED).recalculate();
-		}
+		pinnedPanel.recalculate();
 	}
 
 	/**
@@ -700,10 +655,10 @@ public class GUIController extends Application {
 				}
 				break;
 			case GUI_UNPIN:
-				unpinWindow();
+				unpin();
 				return true;
 			case GUI_PIN:
-				pinWindow(taskLists.get(getTaskListNumber(parsedCommand.getGuiType())));
+				pin(taskLists.get(getTaskListNumber(parsedCommand.getGuiType())));
 				return true;
 			case GUI_OPEN:
 				TaskList list = taskLists.get(getTaskListNumber(parsedCommand.getGuiType()));
@@ -750,7 +705,7 @@ public class GUIController extends Application {
 				if (TASKLIST_PINNED!=TASKLIST_INVALID) { // open the list to prevent focus on deleted item
 					openList(TASKLIST_PINNED);
 				} else {
-					unpinWindow(); // unpin to prevent focus on deleted item
+					unpin(); // unpin to prevent focus on deleted item
 				}
 				break;
 			case EDIT: // focus on editted task
@@ -776,7 +731,7 @@ public class GUIController extends Application {
 				if (TASKLIST_PINNED!=TASKLIST_INVALID) { // same as delete
 					openList(TASKLIST_PINNED);
 				} else {
-					unpinWindow();
+					unpin();
 				}
 				break;
 			case SEARCH: // search function
@@ -785,7 +740,7 @@ public class GUIController extends Application {
 				if (!search.isListEmpty()) { // if it is not empty
 					// deactivate focus view
 					if (isFocusView) {
-						unpinWindow();
+						unpin();
 					}
 					openList(TASKLIST_SEARCH); // focus on search 
 					// then modify the Search List name to include the search term
@@ -911,7 +866,7 @@ public class GUIController extends Application {
 				if (!list.hasSelection()) {
 					list.selectFirstNode();
 				}
-				pinFocusView(list.getFocusTask());
+				pin(list.getFocusTask());
 			}
 		}
 	}
@@ -958,12 +913,12 @@ public class GUIController extends Application {
 
 	/**
 	 * Returns the task number of the item indicated in the Main Window
-	 * @param mainWindowLocation
+	 * @param locationInCenterPanel
 	 * @return the TaskList's number
 	 * @throws IndexOutOfBoundsException 
 	 */
-	protected int getTaskListNumberFromMainWindowLocation(int mainWindowLocation) throws IndexOutOfBoundsException {
-		return centerPanel.listOfTaskLists.get(mainWindowLocation).listNumber;
+	protected int getTaskListNumberFromLocationInCenterPanel(int locationInCenterPanel) throws IndexOutOfBoundsException {
+		return centerPanel.listOfTaskLists.get(locationInCenterPanel).listNumber;
 	}
 
 	/**
@@ -979,15 +934,16 @@ public class GUIController extends Application {
 				// means that it should have been validated by parser. Can return immediately
 				return i+taskListNames.length; 
 			} else { // it must be a number inputted by the user based on the location of items on the screen
-				if (TASKLIST_PINNED==TASKLIST_INVALID) { 
-					// if no pinned window, order is same as initial
-					return getTaskListNumberFromMainWindowLocation(i);
-				} else if (TASKLIST_PINNED!=TASKLIST_INVALID&&i==0) { 
+				if (TASKLIST_PINNED!=TASKLIST_INVALID&&i==0) { 
 					// if there is a pinned window and is first element
 					return TASKLIST_PINNED;
-				} else if (TASKLIST_PINNED!=TASKLIST_INVALID) {
+				} else {
+					// if no pinned window, order is same as initial
 					// if there is pinned panel and not zero, means one of the center panel
-					return getTaskListNumberFromMainWindowLocation(i-1);
+					if (TASKLIST_PINNED!=TASKLIST_INVALID) { 
+						i--;  // i-1 because exclude pinned
+					}
+					return getTaskListNumberFromLocationInCenterPanel(i); 
 				}
 			}
 		} catch (NumberFormatException e) {
@@ -1012,7 +968,7 @@ public class GUIController extends Application {
 			sp.setPadding(new Insets(0, PADDING, 0, PADDING));
 			sp.getStyleClass().add(CSS_STYLE_TRANSPARENT);
 			grid.prefWidthProperty().bind(sp.widthProperty().subtract(2*PADDING));
-			pinFocusView(sp);
+			pin(sp);
 		} catch (IndexOutOfBoundsException e) {
 			// if out of range
 			model.setConsoleMessage(ERR_TASKID);
@@ -1048,7 +1004,7 @@ public class GUIController extends Application {
 			taskLists.get(TASKLIST_PINNED).closeList();
 			return true;
 		} else if (TASKLIST_OPENED!=TASKLIST_INVALID) {
-			pinFocusView(taskLists.get(TASKLIST_OPENED).getFocusTask());
+			pin(taskLists.get(TASKLIST_OPENED).getFocusTask());
 			return true;
 		} else {
 			Node focused = stage.getScene().getFocusOwner();
@@ -1059,7 +1015,7 @@ public class GUIController extends Application {
 						if (list.getNode().equals(node)) {
 							openList(list);
 							list.selectFirstNode();
-							pinFocusView(list.getFocusTask());
+							pin(list.getFocusTask());
 							return true;
 						}
 						node = node.getParent();
