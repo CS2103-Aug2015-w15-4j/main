@@ -35,8 +35,7 @@ public abstract class InputParser {
 	private static final String OVERDUE_REGEX = "(?<=[^//s])(overdue)(?=\\s|$)";
 	
 	
-	protected static final String NOT_TITLE_REGEX_KEYWORD_OK = "(" + "((?<=\\s|^)(from |fr |at |to |til |until |by |on |- ))?" + DateTimeParser.NO_KEYWORD_DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|" + TASK_STATUS_REGEX + ")";  	
-	protected static final String NOT_TITLE_REGEX = "(" + "( from | fr | at | to | til | until | by | on | - )?" + DateTimeParser.DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|(" + TASK_STATUS_REGEX + "))";  	
+	protected static final String NOT_TITLE_REGEX_KEYWORD_OK = "(" + "((?<=\\s|^)(from |fr |at |to |til |until |by |on |- ))?" + DateTimeParser.NO_KEYWORD_DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX + ")";  	
 	
 	static final Logger logger = Logger.getLogger(StringParser.class.getName() );
 	public static final String ERROR_INVALID_TABID = "Error: Invalid tab ID";
@@ -70,6 +69,9 @@ public abstract class InputParser {
 	// Methods to extract fields from string
 	
 	static String getTitleWithDateKeywords(String inputArgs) {
+		if (inputArgs == null) {
+			return null;
+		}
 		inputArgs = removeRegexPatternFromString(inputArgs, NOT_TITLE_REGEX_KEYWORD_OK);
 		return inputArgs.trim();
 	}
@@ -80,6 +82,9 @@ public abstract class InputParser {
 	}
 	
 	static String getDescriptionFromString(String inputArgs) {
+		if (inputArgs == null) {
+			return null;
+		}
 		Pattern descriptionPattern = Pattern.compile(DESCRIPTION_REGEX);
 		Matcher m = descriptionPattern.matcher(inputArgs);
 		String description = "";
@@ -117,6 +122,7 @@ public abstract class InputParser {
 	}
 
 	static Boolean getTaskStatusFromString(String inputArgs) {
+		inputArgs = inputArgs.toLowerCase();
 		Pattern taskStatusPattern = Pattern.compile(TASK_STATUS_REGEX);
 		Matcher m = taskStatusPattern.matcher(inputArgs);
 		String status = "";
@@ -129,6 +135,7 @@ public abstract class InputParser {
 	}
 	
 	static Boolean getIsOverdueFromString(String inputArgs) {
+		inputArgs = inputArgs.toLowerCase();
 		Pattern taskStatusPattern = Pattern.compile(OVERDUE_REGEX);
 		Matcher m = taskStatusPattern.matcher(inputArgs);
 
@@ -140,6 +147,7 @@ public abstract class InputParser {
 	}
 
 	static TaskType getTaskTypeFromString(String inputArgs) {
+		inputArgs = inputArgs.toLowerCase();
 		Pattern taskTypePattern = Pattern.compile(TASK_TYPE_REGEX);
 		Matcher m = taskTypePattern.matcher(inputArgs);
 		String type = "";
@@ -185,7 +193,7 @@ public abstract class InputParser {
 		if (input == null) {
 			return null;
 		}
-		input = input.replaceAll(regex, "");
+		input = input.replaceAll("(?i)" + regex, "");
 		return input.trim();
 	}
 	
@@ -211,7 +219,7 @@ public abstract class InputParser {
 	
 	// Date time parsing using chain of responsibility pattern
 	
-	static DateTime getDatesTimesFromString(String input) {
+	private static DateTime getDatesTimesFromString(String input) {
 		DateTimeParser dateTimeParserChain = getChainOfParsers();
 		String dateSection = DateTimeParser.extractDateTimeSectionFromString(input.toLowerCase());
 		DateTimeBuilder toParse = new DateTimeBuilder(dateSection);
