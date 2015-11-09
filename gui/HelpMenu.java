@@ -7,7 +7,7 @@ import javafx.scene.web.WebView;
 import javafx.stage.Popup;
 
 //@@A0122534R
-public class HelpMenu {
+public class HelpMenu extends Popup {
 	protected final static String HELP_HTML = "resources/help.html";
 	protected final static int POPUP_HEIGHT = 450;
 	
