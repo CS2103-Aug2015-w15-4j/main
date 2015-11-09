@@ -4,6 +4,7 @@ package parser;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,18 +27,18 @@ public abstract class InputParser {
 	
 	static final String TO_REGEX = "-|to|until|till";
 		
-	protected static final String TASK_ID_REGEX = "(^[0-9]+(?=\\s|$))";
-	protected static final String TAG_REGEX = "(?<=\\s|^)#(\\w+)";
-	protected static final String DESCRIPTION_REGEX = "(?<!\\\\)\"(.*)(?<!\\\\)\"(?!.*((?<!\\\\)\"))";
-	protected static final String TASK_STATUS_REGEX = "(?<=\\s|^)(todo|done|overdue)(?=\\s|$)";
-	protected static final String TASK_TYPE_REGEX = "(?<=\\s|^)(floating(?:task)?|deadline(?:task)?|event(?:task)?)(?:s)?(?=\\s|$)";
-	protected static final String OVERDUE_REGEX = "(?<=[^//s])(overdue)(?=\\s|$)";
+	static final String TASK_ID_REGEX = "(^[0-9]+(?=\\s|$))";
+	static final String TAG_REGEX = "(?<=\\s|^)#(\\w+)";
+	private static final String DESCRIPTION_REGEX = "(?<!\\\\)\"(.*)(?<!\\\\)\"(?!.*((?<!\\\\)\"))";
+	private static final String TASK_STATUS_REGEX = "(?<=\\s|^)(todo|done|overdue)(?=\\s|$)";
+	private static final String TASK_TYPE_REGEX = "(?<=\\s|^)(floating(?:task)?|deadline(?:task)?|event(?:task)?)(?:s)?(?=\\s|$)";
+	private static final String OVERDUE_REGEX = "(?<=[^//s])(overdue)(?=\\s|$)";
 	
 	
-	protected static final String NOT_TITLE_REGEX_KEYWORD_OK = "(" + "((?<=\\s|^)(from |fr |at |to |til |until |by |on |- ))?" + DateTimeParser.NO_KEYWORD_DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|" + TASK_STATUS_REGEX + "|((?<=\\s|^)(on )?((tmr|tomorrow|tomorow).*)(?=\\s|$)))";  	
+	protected static final String NOT_TITLE_REGEX_KEYWORD_OK = "(" + "((?<=\\s|^)(from |fr |at |to |til |until |by |on |- ))?" + DateTimeParser.NO_KEYWORD_DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|" + TASK_STATUS_REGEX + ")";  	
 	protected static final String NOT_TITLE_REGEX = "(" + "( from | fr | at | to | til | until | by | on | - )?" + DateTimeParser.DATE_TIME_REGEX + "|" + TAG_REGEX + "|" + DESCRIPTION_REGEX  + "|(" + TASK_STATUS_REGEX + "))";  	
 	
-	// private static final Logger logger = Logger.getLogger(StringParser.class.getName() );
+	static final Logger logger = Logger.getLogger(StringParser.class.getName() );
 	public static final String ERROR_INVALID_TABID = "Error: Invalid tab ID";
 	
 	protected static final int INDEX_FOR_START = 0;
@@ -68,14 +69,12 @@ public abstract class InputParser {
     
 	// Methods to extract fields from string
 	
-	static String getTitleWithKeywordsFromString(String inputArgs) {
-		// System.out.print("Parsing: " + inputArgs);
+	static String getTitleWithDateKeywords(String inputArgs) {
 		inputArgs = removeRegexPatternFromString(inputArgs, NOT_TITLE_REGEX_KEYWORD_OK);
-		// System.out.println(" to : " + inputArgs);
 		return inputArgs.trim();
 	}
 	
-	static String getSearchKeywordsWithDateKeywordsFromString(String inputArgs) {
+	static String getSearchKeywordsWithDateKeywords(String inputArgs) {
 		inputArgs = removeRegexPatternFromString(inputArgs, NOT_TITLE_REGEX_KEYWORD_OK + "|" + TASK_TYPE_REGEX  +"|" + TASK_STATUS_REGEX);
 		return inputArgs.trim();
 	}
@@ -129,7 +128,7 @@ public abstract class InputParser {
 		return determineTaskStatus(status);
 	}
 	
-	static Boolean getOverdueFromString(String inputArgs) {
+	static Boolean getIsOverdueFromString(String inputArgs) {
 		Pattern taskStatusPattern = Pattern.compile(OVERDUE_REGEX);
 		Matcher m = taskStatusPattern.matcher(inputArgs);
 
@@ -177,7 +176,7 @@ public abstract class InputParser {
 	}
 	
 	
-	static String removeKeywordSection(String input) {
+	static String removeDateKeywordSection(String input) {
 		input = removeRegexPatternFromString(input, DateTimeParser.DATE_KEYWORD_REGEX);
 		return input;
 	}
@@ -204,6 +203,10 @@ public abstract class InputParser {
 		DateTime parsedDatesTimes = getDatesTimesFromString(input);
 		Calendar[] dates = parsedDatesTimes.getSearchDatesTimes();
 		return dates;
+	}
+	
+	boolean mustRemoveDateKeywordSection(Calendar[] parsedTimes) {
+		return parsedTimes != null && parsedTimes[0] != null && parsedTimes.length > 2;
 	}
 	
 	// Date time parsing using chain of responsibility pattern

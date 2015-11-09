@@ -18,7 +18,7 @@ public class TimeParser extends DateTimeParser {
 
 	private static final int INDEX_FOR_START = 0;
 
-	private static final int INDEX_FOR_NONTIME_STRING = 2;
+	private static final int INDEX_FOR_UNPARSED = 2;
 	
 	static final String TWELVE_HR_REGEX = "(?<=\\s|^)([0-9]?[0-9])([.:][0-9][0-9])?\\s?(am|pm)?(\\s?(?:-|to|until|til|till)\\s?([0-9]?[0-9])([.:][0-9][0-9])?\\s?)?(am|pm)(?=\\s|$)";
 	static final String TWENTYFOUR_HR_REGEX = "(?<=\\s|^)(([0-9]?[0-9])[:]([0-9][0-9]))\\s?[?:h|H]?\\s?((?:-|to|until|til|till)?\\s?(([0-9]?[0-9])[:]([0-9][0-9])))?\\s?[?:h|H]?(?=\\s|$)";
@@ -46,18 +46,14 @@ public class TimeParser extends DateTimeParser {
 		if (input == null) {
 			return null;
 		}
-		System.out.println("In formatted");
 		String[] times = new String[3];
 		times = getTwelveHrTimesFromString(input);
-		logger.log(Level.FINE, "12HR for " + input + " : " + times[0]);
-		System.out.println("12HR for " + input + " : " + times[0] + " " + times[1]);
+		logger.log(Level.FINE, "12HR for " + input + " : " + times[0] + " " + times[1]);
 		if (times[INDEX_FOR_START] == null) {
 			times = getTwentyfourHrTimesFromString(input);
-			logger.log(Level.FINE, "24HR for " + input + " : " + times[0]);
+			logger.log(Level.FINE, "24HR for " + input + " : " + times[0] + " " + times[1]);
 		} 
-		
-		times[INDEX_FOR_NONTIME_STRING] = removeTimesFromString(input);
-		// System.out.println(times[3]);
+		times[INDEX_FOR_UNPARSED] = removeTimesFromString(input);
 		if (isInvalidTimes(times)) {
 			times = null;
 		}
@@ -68,7 +64,6 @@ public class TimeParser extends DateTimeParser {
 	private static String[] getTwelveHrTimesFromString(String input) {
 		Matcher m = HMMA.matcher(input);
 		String[] timeArr = new String[3];
-		System.out.println("String " + input);
 		int i = 0;
 		
 		while (m.find() & i < 2) {
@@ -171,7 +166,6 @@ public class TimeParser extends DateTimeParser {
 			}
 			cal.setTime(dateTimeFormat.parse("1-1-15 " + times[1]));
 		} catch (java.text.ParseException e) {
-			e.printStackTrace();
 			return true; // failed to parse
 		}
 		return false;

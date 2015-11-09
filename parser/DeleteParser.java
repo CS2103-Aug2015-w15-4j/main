@@ -1,6 +1,7 @@
+//@@author A0114620X
+
 package parser;
 
-//@@author A0114620X
 public class DeleteParser extends InputParser {
 
 	ParsedCommand parse(String[] input) {

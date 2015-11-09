@@ -14,7 +14,6 @@ import parser.DateTime.ParserType;
 
 public class FormattedDateTimeParser extends DateTimeParser{
 	
-	private static final int INDEX_FOR_START = 0;
 	private static final String DELIM = "-/.";
 	static final String START = "(?<=^|\\s)";
 	static final String END = "(?=\\s|$)";
@@ -39,26 +38,22 @@ public class FormattedDateTimeParser extends DateTimeParser{
 	
 	private static final Logger logger = Logger.getLogger(FormattedDateTimeParser.class.getName() );
 	
+	private static final int INDEX_FOR_START = 0;
+	private static final int INDEX_FOR_END = 1;
+	private static final int INDEX_FOR_UNPARSED = 2;
+	
 	@Override
 	protected DateTimeBuilder parse(DateTimeBuilder currentlyParsed) {
-		System.out.println("Formatted");
 		String input = currentlyParsed.getUnparsedInput();
-		logger.log(Level.FINE, "TO FORM:" + input + ".");
+		logger.log(Level.FINE, "date section: " + input + ".");
 		String[][] formattedDates = getStandardFormattedDates(input);
-		System.out.print("Dates: ");
-		for (int i = 0; i < 2; i++) {
-			for (int j = 0; j < 3; j++) {
-				System.out.print(formattedDates[i][j] + "/");
-			}
-			System.out.print(" || ");
-		}
-		System.out.println("");
 		// logger.log(Level.FINE, "DATES:" + formattedDates[0] + ".");
 		currentlyParsed = currentlyParsed.dates(formattedDates);
 		// logger.log(Level.FINE, "TO FLEX:" + unparsedInput + ".");
 		return currentlyParsed;
 	}
 	
+	// Converts years to yyyy
 	private static String convertYearToStandardFormat(String year) {
 		if (year == null) {
 			return null;
@@ -72,21 +67,12 @@ public class FormattedDateTimeParser extends DateTimeParser{
 	
 	private static String[][] getStandardFormattedDates(String input) {
 		String[][] dates = getStandardFormattedDatesWithYear(input);
-		if (dates[INDEX_FOR_START][0] == null) {
+		if (dates[INDEX_FOR_START][INDEX_FOR_DATE_ARR] == null) {
 			dates = getStandardFormattedDatesNoYear(input);
 		}
 		return processFormattedDates(input, dates);
 	}
-	/**
-	 * This method looks for dd/mm/yy or dd.mm.yy or dd-mm-yy) substrings of userInput, single digit
-	 * inputs allowed for date and month and returns dates formated dd/MM/yy.
-	 *
-	 * @param userInput
-	 *            Unparsed command arguments input by user.
-	 * @return String array where ans[0] = first date found (if any) and ans[1]
-	 *         = second date found (if any), If no dates are found, ans[0] =
-	 *         ans[1] = null and if only one date found, ans[1] = null.
-	 */
+
 	private static String[][] getStandardFormattedDatesWithYear(String userInput) {
 		return getFormattedDates(userInput, ddmmyy);
 	}
@@ -120,9 +106,9 @@ public class FormattedDateTimeParser extends DateTimeParser{
 
 	private static String[][] processFormattedDates(String userInput, String[][] tempDates) {
 		String[][] ans = new String[4][3];
-		ans[0] = tempDates[0];
-		ans[1] = tempDates[1];
-		ans[2][0] = removeFormattedDatesFromString(userInput);
+		ans[0] = tempDates[INDEX_FOR_START];
+		ans[1] = tempDates[INDEX_FOR_END];
+		ans[INDEX_FOR_UNPARSED][0] = removeFormattedDatesFromString(userInput);
 		return ans;
 	}
 	

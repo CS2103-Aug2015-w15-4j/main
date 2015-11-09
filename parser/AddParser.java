@@ -1,4 +1,5 @@
 //@@author A0114620X
+
 package parser;
 
 import java.util.ArrayList;
@@ -13,10 +14,10 @@ public class AddParser extends InputParser {
 			String inputArgs = input[INDEX_FOR_ARGS];
 			
 			try {
-				String parsedTitle = getTitleWithKeywordsFromString(inputArgs);
+				String parsedTitle = getTitleWithDateKeywords(inputArgs);
 				Calendar[] parsedTimes = getStandardDatesTimes(inputArgs);
-				if (parsedTimes != null && parsedTimes[0] != null && parsedTimes.length > 2) { // date keyword used for date input
-					parsedTitle = removeKeywordSection(parsedTitle);
+				if (mustRemoveDateKeywordSection(parsedTimes)) { 
+					parsedTitle = removeDateKeywordSection(parsedTitle);
 				}
 				String parsedDescription = getDescriptionFromString(inputArgs);
 				ArrayList<String> parsedTags = getTagsFromString(inputArgs);
@@ -32,6 +33,5 @@ public class AddParser extends InputParser {
 				return InputParser.createParsedCommandError(e.getMessage());
 			}
 		}
-	}
-	
+	}	
 }

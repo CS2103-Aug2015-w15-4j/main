@@ -4,22 +4,22 @@ package parser;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import parser.MyParser.CommandType;
 import parser.ParsedCommand.TaskType;
 
 public class ShowParser extends InputParser {
-	private static final String NOT_KEYWORDS_REGEX = NOT_TITLE_REGEX + "|" + TASK_TYPE_REGEX;
-	
 	ParsedCommand parse(String[] input) {
 		if (isMissingArguments(input)) {
 			return createParsedCommand(CommandType.GUI_SHOW);
 		} else {
 			String inputArgs = input[INDEX_FOR_ARGS];
 			int taskId = getTaskIdFromString(inputArgs);
-			System.out.println("taskId: " + taskId);
-			if (hasTaskId(taskId)) { // show task details
+			if (hasTaskId(taskId)) { 
 				return createParsedCommandDisplay(taskId);
-			} else { // search	
+			} else { 
 				return createParsedCommandSearch(inputArgs);
 			}
 		}
@@ -29,15 +29,15 @@ public class ShowParser extends InputParser {
 		ParsedCommand pc;
 		try {
 			// System.out.println(inputArgs);
-			String parsedKeywords = getSearchKeywordsWithDateKeywordsFromString(inputArgs);
-			System.out.println("KEYWORDS: " + parsedKeywords);
+			String parsedKeywords = getSearchKeywordsWithDateKeywords(inputArgs);
+			logger.log(Level.FINE, "Search keywords: " + parsedKeywords);
 			Calendar[] parsedTimes = getSearchDatesTimes(inputArgs);
 			if (parsedTimes != null && parsedTimes[0] != null && parsedTimes.length > 2) { // date keyword used for date input
-				parsedKeywords = removeKeywordSection(parsedKeywords);
+				parsedKeywords = removeDateKeywordSection(parsedKeywords);
 			}
 			ArrayList<String> parsedTags = getTagsFromString(inputArgs);
 			Boolean parsedStatus = getTaskStatusFromString(inputArgs);
-			Boolean parsedOverdue = getOverdueFromString(inputArgs);
+			Boolean parsedOverdue = getIsOverdueFromString(inputArgs);
 			TaskType taskType = getTaskTypeFromString(inputArgs);
 			
 			pc = new ParsedCommand.ParsedCommandBuilder(CommandType.SEARCH)

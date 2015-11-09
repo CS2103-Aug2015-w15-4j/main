@@ -1,3 +1,5 @@
+//@@author A0114620X
+
 package test;
 
 import static org.junit.Assert.*;
@@ -42,6 +44,7 @@ public class MyParserTest {
 	private ArrayList<String> emptyArrayList = new ArrayList<String>();
 	// private ParsedCommand pcGui;
 	
+	//@@author A0114620X reused
 	private void initLogging(){
 		String config = "\nhandlers = java.util.logging.ConsoleHandler\n.level = ALL\n" +
 						"java.util.logging.ConsoleHandler.level = FINE\n" +
@@ -149,7 +152,6 @@ public class MyParserTest {
 		assertEquals(emptyArrayList, pcAdd.getTags());
 		assertEquals(TaskType.EVENT, pcAdd.getTaskType());
 		
-		System.out.println("________________________________________________________________________________________");
 		// Check support for deadline task natty
 		pcAdd = MyParser.parseCommand("+ meeting with john on tmr at 12pm");
 		assertEquals(MyParser.CommandType.ADD, pcAdd.getCommandType());
@@ -279,7 +281,7 @@ public class MyParserTest {
 		assertEquals(taskTags, pcAdd.getTags());
 		
 		// Check support for event spanning 2 days
-		pcAdd = MyParser.parseCommand("add meeting with john on 21 days after nov 2010  #cs2103 #proj #cs2101");
+		pcAdd = MyParser.parseCommand("add meeting with john on 20 days after nov 2010  #cs2103 #proj #cs2101");
 		assertEquals(MyParser.CommandType.ADD, pcAdd.getCommandType());
 		//assertEquals("meeting with john  12:00h", pcAdd.getTitle());
 		assertEquals("", pcAdd.getDescription());
@@ -345,7 +347,7 @@ public class MyParserTest {
 		assertEquals(list, pcDisplay.getTags());
 		assertEquals(false, pcDisplay.isCompleted());
 		assertEquals(TaskType.DEADLINE_TASK, pcDisplay.getTaskType());
-		System.out.println("...............................................................");
+		
 		// Check search function works
 		pcDisplay = MyParser.parseCommand("show meeting 23/11/15 23:59 #tag todo");
 		assertEquals(MyParser.CommandType.SEARCH, pcDisplay.getCommandType());
@@ -605,7 +607,6 @@ public class MyParserTest {
 	
 	@Test
 	public void testGuiCommands() {
-		System.out.println("*********************************************************");
 		pcGui = MyParser.parseCommand("Open 1");
 		assertEquals(CommandType.GUI_OPEN, pcGui.getCommandType());
 		assertEquals("0", pcGui.getGuiType());

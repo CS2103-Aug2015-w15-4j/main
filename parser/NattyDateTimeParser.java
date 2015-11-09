@@ -29,6 +29,18 @@ public class NattyDateTimeParser extends DateTimeParser{
 	private static final Pattern NATTY_DATES = Pattern.compile(NATTY_REGEX);
 	
 	private static final Logger logger = Logger.getLogger(NattyDateTimeParser.class.getName() );
+	private static final int INDEX_FOR_END = 1;
+	
+	@Override
+    protected DateTimeBuilder parse(DateTimeBuilder currentlyParsed) {
+    	String input = currentlyParsed.getUnparsedInput();
+    	Calendar[] dates = new Calendar[2];
+    	logger.log(Level.FINE, "Input to Natty: " + input);
+    	input = standardiseNattyInput(input);
+    	logger.log(Level.FINE,  "Standardised Natty: " + input);
+    	dates = parseDateWithNatty(input);
+    	return currentlyParsed.calDates(dates);
+    }
 	
 	public static String standardiseNattyInput(String input) {
 		input = input.replaceAll(TO_ALTERNATIVES, "to");
@@ -38,26 +50,25 @@ public class NattyDateTimeParser extends DateTimeParser{
 		while (m.find()) {
 			stdForm = stdForm + m.group() + " ";
 		}
-		// System.out.println(stdForm);
 		return stdForm;
 	}
 	
-	public static Calendar[] parseDateTimeWithNatty(String input) {
+	public static Calendar[] parseDateWithNatty(String input) {
 		
 		Calendar[] parsedDates = new Calendar[3];
 		Parser parser = new Parser();
 		List<DateGroup> groups = parser.parse(input); // returns empty list if parse fails
 		
-		if (groups.isEmpty()) { // failed to parse
+		if (groups.isEmpty()) { 
 			return parsedDates; 
 		}
 		
 		List<Date> dates = groups.get(0).getDates();
 		parsedDates[0] = convertDateToCalendar(dates.get(0));
 		if (dates.size() < 2) {
-			parsedDates[1] = null; // no end time
+			parsedDates[INDEX_FOR_END] = null; // no end time
 		} else {
-			parsedDates[1] = convertDateToCalendar(dates.get(1));
+			parsedDates[INDEX_FOR_END] = convertDateToCalendar(dates.get(1));
 		}
 		return parsedDates;
 	}
@@ -68,18 +79,5 @@ public class NattyDateTimeParser extends DateTimeParser{
     	  return cal;
     }
 
-    @Override
-    protected DateTimeBuilder parse(DateTimeBuilder currentlyParsed) {
-    	String input = currentlyParsed.getUnparsedInput();
-    	Calendar[] times = new Calendar[2];
-		
-    	logger.log(Level.FINE, "INPUT TO NATTY: " + input);
-    	System.out.println("Natty: " + input);
-    	// Times parsed by now, only dates left
-    	input = standardiseNattyInput(input);
-    	System.out.println("Standardised Natty: " + input);
-    	times = parseDateTimeWithNatty(input);
-    	System.out.println("Natty parses: [" + times[0] + ", " + times[1] +"]");
-    	return currentlyParsed.calDates(times);
-    }
+    
 }

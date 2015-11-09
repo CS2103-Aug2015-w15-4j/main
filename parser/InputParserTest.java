@@ -74,20 +74,20 @@ public class InputParserTest {
 	
 	@Test
 	public void testGetTitleFromString() {
-		assertEquals("hello this is my task", InputParser.getTitleWithKeywordsFromString(" hello this is my task 12:00 \"description\" #tags #tag1"));
-		assertEquals("13:30hello this is my task", InputParser.getTitleWithKeywordsFromString("13:30hello this is my task"));
-		assertEquals("hello this is   my task", InputParser.getTitleWithKeywordsFromString(" hello this is 12/12/12 5pm my task"));
-		assertEquals("hello  task", InputParser.getTitleWithKeywordsFromString(" hello \"this is my\" task 12:00"));
-		assertEquals("Meet John about proposal", InputParser.getTitleWithKeywordsFromString("12.2-13 Meet John about proposal #cs2103 12:00h"));
-		assertEquals("Meet John about proposal", InputParser.getTitleWithKeywordsFromString("#cs2101 Meet John about proposal on 23 jan #cs2103 12:00 12/2/13"));
-		assertEquals("Meet John about proposal", InputParser.getTitleWithKeywordsFromString(" 12:00 12/2/13 Meet John about proposal #cs2103 todo"));
-		assertEquals("", InputParser.getTitleWithKeywordsFromString("23/1/15 2pm \"description\" #tag1 #tag2"));
-		assertEquals("Meet John about proposal", InputParser.getTitleWithKeywordsFromString("#cs2101 Meet John about proposal 12:00 to 1:30pm 12/2/13"));
-		assertEquals("Meet John about proposal", InputParser.getTitleWithKeywordsFromString("#cs2101 Meet John about proposal #cs2103 12:00 until 15:30 12/2/13"));
-		assertEquals("Meet John about proposal", InputParser.getTitleWithKeywordsFromString("#cs2101 Meet John about proposal 23 jan #cs2103 from 12:00 to 12/2/13"));
-		assertEquals("Meet John about proposal", InputParser.getTitleWithKeywordsFromString("#cs2101 Meet John about proposal 23 jan #cs2103 at 12:00 to 12/2/13"));	
-		assertEquals("watch", InputParser.getTitleWithKeywordsFromString("watch tmr"));
-		assertEquals("do proj on cats", InputParser.getTitleWithKeywordsFromString("do proj on cats"));
+		assertEquals("hello this is my task", InputParser.getTitleWithDateKeywords(" hello this is my task 12:00 \"description\" #tags #tag1"));
+		assertEquals("13:30hello this is my task", InputParser.getTitleWithDateKeywords("13:30hello this is my task"));
+		assertEquals("hello this is   my task", InputParser.getTitleWithDateKeywords(" hello this is 12/12/12 5pm my task"));
+		assertEquals("hello  task", InputParser.getTitleWithDateKeywords(" hello \"this is my\" task 12:00"));
+		assertEquals("Meet John about proposal", InputParser.getTitleWithDateKeywords("12.2-13 Meet John about proposal #cs2103 12:00h"));
+		assertEquals("Meet John about proposal", InputParser.getTitleWithDateKeywords("#cs2101 Meet John about proposal on 23 jan #cs2103 12:00 12/2/13"));
+		assertEquals("Meet John about proposal", InputParser.getTitleWithDateKeywords(" 12:00 12/2/13 Meet John about proposal #cs2103 todo"));
+		assertEquals("", InputParser.getTitleWithDateKeywords("23/1/15 2pm \"description\" #tag1 #tag2"));
+		assertEquals("Meet John about proposal", InputParser.getTitleWithDateKeywords("#cs2101 Meet John about proposal 12:00 to 1:30pm 12/2/13"));
+		assertEquals("Meet John about proposal", InputParser.getTitleWithDateKeywords("#cs2101 Meet John about proposal #cs2103 12:00 until 15:30 12/2/13"));
+		assertEquals("Meet John about proposal", InputParser.getTitleWithDateKeywords("#cs2101 Meet John about proposal 23 jan #cs2103 from 12:00 to 12/2/13"));
+		assertEquals("Meet John about proposal", InputParser.getTitleWithDateKeywords("#cs2101 Meet John about proposal 23 jan #cs2103 at 12:00 to 12/2/13"));	
+		assertEquals("watch", InputParser.getTitleWithDateKeywords("watch tmr"));
+		assertEquals("do proj on cats", InputParser.getTitleWithDateKeywords("do proj on cats"));
 	}
 
 	@Test
@@ -137,7 +137,6 @@ public class InputParserTest {
 		assertEquals(Date.from(dt.atZone(ZoneId.systemDefault()).toInstant()).toString(), InputParser.getStandardDatesTimes("Meet John about proposal by tmr 2pm #cs2103 #cs2101")[0].getTime().toString());
 		assertEquals(null, InputParser.getStandardDatesTimes("Meet John about proposal by tmr 2pm #cs2101")[1]);
 				
-		System.out.println("_____________________________________________________________________");
 		// Check invalid time for Natty input
 		assertArrayEquals(null, InputParser.getStandardDatesTimes("Meet John about proposal by tmr 32pm #cs2101"));
 				
@@ -251,10 +250,10 @@ public class InputParserTest {
 	
 	@Test
 	public void test() {
-		InputParser.getTitleWithKeywordsFromString("title by nov 22");
-		InputParser.getTitleWithKeywordsFromString("title on 22/2");
-		InputParser.getTitleWithKeywordsFromString("title on today");
-		InputParser.getTitleWithKeywordsFromString("title tmr to next fri #tag");
+		InputParser.getTitleWithDateKeywords("title by nov 22");
+		InputParser.getTitleWithDateKeywords("title on 22/2");
+		InputParser.getTitleWithDateKeywords("title on today");
+		InputParser.getTitleWithDateKeywords("title tmr to next fri #tag");
 	}
 
 }

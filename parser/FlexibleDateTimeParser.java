@@ -18,11 +18,11 @@ import parser.DateTime.ParserType;
 
 public class FlexibleDateTimeParser extends DateTimeParser {
 	
+	private static final int INDEX_FOR_UNPARSED = 2;
+
 	private enum DateFormat {
 		DATE_MONTH, MONTH_DATE;
 	}
-	
-	private static final String CURRENT_YEAR = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
 	
 	private static final String MONTHS = "(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)";
 	private static final String DATES = "(\\d?\\d)(?:st|rd|nd|th)?";
@@ -33,8 +33,6 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 	
 	private static final Pattern DMMM = Pattern.compile(DATE_MONTH_REGEX);
 	private static final Pattern MMMD = Pattern.compile(MONTH_DATE_REGEX);
-	
-	private static final String STANDARD_FLEXIBLE_DATE_FORMAT = "d MMM yyyy";
 	
 	protected static final String FLEXIBLE_DATE_REGEX = "(" + DATE_MONTH_REGEX + "|" + MONTH_DATE_REGEX + ")";
 	
@@ -60,10 +58,9 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 	
 	@Override
 	protected DateTimeBuilder parse(DateTimeBuilder currentlyParsed) {
-		String input = currentlyParsed.getUnparsedInput().toLowerCase();
-		System.out.println("Flexible: " + input);
+		String input = currentlyParsed.getUnparsedInput();
 		String[][] flexibleDates = getStandardFlexibleDates(input);
-		System.out.println("Parsed start: " + flexibleDates[0][0] +"/" + flexibleDates[0][1]);
+		logger.log(Level.FINE, "Flexible parse: [" + flexibleDates[0][0] +"/" + flexibleDates[0][1]);
 		currentlyParsed = currentlyParsed.dates(flexibleDates);
 		return currentlyParsed;
 	}
@@ -71,49 +68,38 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 	private static String[][] getStandardFlexibleDates(String input) {
 		String[][] dates = new String[3][3];
 		dates = getMonthDateFromString(input);
-		System.out.println("Month date result: " + dates[0]);
-		if (dates[INDEX_FOR_START][0] == null) { // no MMM d detected
+		if (dates[INDEX_FOR_START][INDEX_FOR_DATE_ARR] == null) { 
 			dates = getDateMonthFromString(input);
-			System.out.println("date month: " + dates[0][0]);
 		}
 		return dates;
 	}
 	
 	private static String[][] getMonthDateFromString(String input) {
-		String[][] tempDateArr = parseStringToDateArray(input, DateFormat.MONTH_DATE);
-		String[][] dateArr = convertDateArrayToStdForm(tempDateArr);
-		// setDateFormatToFlexDateFormat(dateArr);
+		String[][] dateArr = parseStringToDateArray(input, DateFormat.MONTH_DATE);
+		dateArr = convertDateArrayToStdFormat(dateArr);
 		setUnparsedInput(DateFormat.MONTH_DATE, input, dateArr);
-		// System.out.println("MD");
-		// System.out.println(dateArr[0]);
-		// System.out.println(dateArr[1]);
 		// logger.log(Level.FINE, "MD start: " + dateArr[0] + " end: " + dateArr[1] + " format: " + dateArr[2] + " unparsed: " + dateArr[3]);		
 		return dateArr;
 	}
 	
 	private static String[][] getDateMonthFromString(String input) {
-		String[][] temp = parseStringToDateArray(input, DateFormat.DATE_MONTH);
-		String[][] dateArr = convertDateArrayToStdForm(temp);
+		String[][] dateArr = parseStringToDateArray(input, DateFormat.DATE_MONTH);
+		dateArr = convertDateArrayToStdFormat(dateArr);
 		setUnparsedInput(DateFormat.DATE_MONTH, input, dateArr);
-		// System.out.println("DM");
-		// System.out.println(dateArr[0]);
-		// System.out.println(dateArr[1]);
 		//logger.log(Level.FINE, "DM start: " + dateArr[0] + " end: " + dateArr[1] + " format: " + dateArr[2] + " unparsed: " + dateArr[3]);
 		return dateArr;
 	}
 
 	private static String[][] parseStringToDateArray(String input, DateFormat df) {
 		input = input.toLowerCase();
-		String[][] temp = new String[2][3];
+		String[][] dateArr = new String[2][3];
 		Matcher m;
 		int[] dmyIndices;
 		
 		if (df == DateFormat.MONTH_DATE) {
 			m = MMMD.matcher(input);
 			dmyIndices = MD_INDICES;
-			System.out.println("In month date");
 		} else if (df == DateFormat.DATE_MONTH) {
-			System.out.println("In date month");
 			m = DMMM.matcher(input);
 			dmyIndices = DM_INDICES;
 		} else {
@@ -125,11 +111,10 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 			String date = m.group(dmyIndices[INDEX_FOR_DATE_ARR]);
 			String month = m.group(dmyIndices[INDEX_FOR_MONTH_ARR]);
 			String year = m.group(dmyIndices[INDEX_FOR_YEAR_ARR]);
-			updateDateArray(temp, i, date, month, year);
+			updateDateArray(dateArr, i, date, month, year);
 			i++;
-			System.out.println("FOUND date month!");
 		}
-		return temp;
+		return dateArr;
 	}
 
 	private static void updateDateArray(String[][] temp, int i, String date, String month, String year) {
@@ -138,7 +123,7 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 		temp[i][INDEX_FOR_YEAR_ARR] = year;
 	}
 	
-	private static String[][] convertDateArrayToStdForm(String[][] temp) {
+	private static String[][] convertDateArrayToStdFormat(String[][] temp) {
 		String[][] dateArr = new String[3][3];
 		dateArr[0] = convertToStandardDateFormat(temp[0]);
 		dateArr[1] = convertToStandardDateFormat(temp[1]);
@@ -169,9 +154,9 @@ public class FlexibleDateTimeParser extends DateTimeParser {
 	
 	private static void setUnparsedInput(DateFormat df, String input, String[][] dateArr) {
 		if (df == DateFormat.MONTH_DATE) {
-			dateArr[2][0] = removeMonthDateFromString(input);
+			dateArr[INDEX_FOR_UNPARSED][0] = removeMonthDateFromString(input);
 		} else if (df == DateFormat.DATE_MONTH) {
-			dateArr[2][0] = removeDateMonthFromString(input);
+			dateArr[INDEX_FOR_UNPARSED][0] = removeDateMonthFromString(input);
 		}
 	}
 	
