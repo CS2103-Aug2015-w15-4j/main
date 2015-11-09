@@ -45,6 +45,9 @@ public class Task implements Comparable<Task> {
 		setTaskType(taskType);
 	}
 
+	/*
+	 *	Constructor for cloning a task
+	 */
 	public Task(Task newTask) {
 		this.name = newTask.getName();
 		this.details = newTask.getDescription();
@@ -68,7 +71,7 @@ public class Task implements Comparable<Task> {
 	 *	array[0] contains the field name and array[1] contains the field data value. An ArrayList containing the
 	 *	String array fields is returned.
 	 *
-	 *	@return an Arraylist containing the String data
+	 *	@return an Arraylist of two field arrays(i.e. array[2]) containing the String data
 	 *
 	 */
 	public ArrayList<String[]> getTaskDetails() {

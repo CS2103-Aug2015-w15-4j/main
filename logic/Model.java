@@ -27,6 +27,9 @@ public class Model {
 	
 	private Storage storage;
 
+	/*
+	 *	Constuctor used for testing
+	 */
 	public Model() {
 
 	}
@@ -76,13 +79,19 @@ public class Model {
 
 	public int getFocusId() { return focusId; }
 
-
+	/*
+	 *	Updates the searchQuery so that Model can automatically refresh the searchList through
+	 * 	future user commands.
+	 */
 	public void updateSearch(String consoleMessage, ParsedCommand searchQuery, List<Task> searchList) {
 		this.consoleMessage = consoleMessage;
 		this.searchQuery = searchQuery;
 		this.searchList = searchList;
 	}
 
+	/*
+	 *	Method to automate updating the searchList whenever updateModel is called.
+	 */
 	public void updateSearchList() {
 		try {
 			Search search = new Search();
@@ -93,18 +102,28 @@ public class Model {
 			consoleMessage = "Error: Search IOException";
 		}
 	}
-	
+
+	/*
+	 *	Updates all possible fields in the Model and assigns the new message as the consoleMessage.
+	 */
 	public void updateModel(String consoleMessage) {
 		this.consoleMessage = consoleMessage;
 		updateModel();
 	}
 
+	/*
+	 *	Updates all possible fields in the Model and assigns the new message as the consoleMessage
+	 * 	as well as the new task id as the focusId.
+	 */
 	public void updateModel(String consoleMessage,int focusId) {
 		this.consoleMessage = consoleMessage;
 		updateModel();
 		this.focusId = focusId;
 	}
 
+	/*
+	 *	Updates all of : allTask, mainList, todayList, floatingList, overdueList and searchList if possible.
+	 */
 	public void updateModel() {
 		this.allTasks = storage.getAllTasks();
 		this.mainList = Logic.updateMainList();
@@ -116,10 +135,17 @@ public class Model {
 		}
 	}
 
+	/*
+	 *	Sets a particular task as the focus for the focus view.
+	 */
 	public void updateFocus(int focusId) {
 		this.focusId = focusId;
 	}
 
+
+	/*
+	 *	Sets the consoleMessage to the new message without updating the view.
+	 */
 	public void setConsoleMessage(String consoleMessage) {
 		this.consoleMessage = consoleMessage;
 	}

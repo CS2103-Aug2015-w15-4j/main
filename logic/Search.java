@@ -95,12 +95,12 @@ public class Search {
 	public static List<Task> search(List<Task> taskList, String query) throws IOException, ParseException{
 		StandardAnalyzer analyzer = new StandardAnalyzer();
 		Directory index = indexTaskList(taskList,analyzer);
-	    
+
 	    String querystr = query;
-	    Query q = new QueryParser("name", analyzer).parse(querystr);	// Searches through the 'name' field by default 
+	    Query q = new QueryParser("name", analyzer).parse(querystr);	// Searches through the 'name' field by default
 	    																// if no field explicitly specified.
 	    ArrayList<Task> hitList = queryIndex(index, q);
-	    
+
 		return hitList;
 	}
 

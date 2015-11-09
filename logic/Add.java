@@ -10,6 +10,7 @@ public class Add implements Command {
 	private static final TaskType TASK = TaskType.FLOATING_TASK;
 	private static final TaskType DEADLINETASK = TaskType.DEADLINE_TASK;
 	private static final TaskType EVENT = TaskType.EVENT;
+	public static final String MESSAGE_ADDED = "%1$s added";
 
 	private Task newTask;
 	private ParsedCommand specifications;
@@ -43,7 +44,7 @@ public class Add implements Command {
 			newTask = newEvent;
 		}
 
-		model.updateModel(newTask.getName() + " added",newTask.getId());
+		model.updateModel(String.format(MESSAGE_ADDED, newTask.getName()),newTask.getId());
 	}
 
 	@Override

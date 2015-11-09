@@ -3,6 +3,9 @@ package logic;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.lucene.queryparser.classic.ParseException;
 
@@ -17,8 +20,9 @@ public class Logic {
 	public static final SimpleDateFormat displayDateFormatter = new SimpleDateFormat("dd-MM-yyyy, HH:mm");
 
 	// Error Messages
-	public static final String ERROR_INVALID_ID = "Error: Invalid ID";
-	public static final String ERROR_SEARCH_FAILED = "Error: Search Failed";
+	public static final String ERROR_INVALID_ID = "Oops! Invalid ID!";
+	public static final String ERROR_CANNOT_REDO = "Uh Oh. Cannot redo without first doing an undo!";
+	public static final String ERROR_SEARCH_FAILED = "Oops! Something went wrong, search failed";
 
 	// Constants for Searching to end of the day
 	public static final int TODAY_LAST_HOUR = 23;
@@ -35,12 +39,12 @@ public class Logic {
 	public static final String MESSAGE_NOTHING_TO_UNDO = "Nothing to undo";
 	public static final String MESSAGE_UNDO_SUCCESSFUL = "Undo Successful";
 	public static final String MESSAGE_AVATAR_SWITCHED = "Avatar switched";
-	public static final String MESSAGE_BACKGROUND_SWITCHED = "Background switched";
 	public static final String MESSAGE_FAILED_TO_SET_NEW_PATH = "Failed to Set new Path";
-	public static final String MESSAGE_NOTHING_TO_REDO = "Nothing to redo";
+	public static final String MESSAGE_NOTHING_TO_REDO = "Oops! Nothing to redo!";
 	public static final String MESSAGE_REDO_SUCCESSFUL = "Redo successful";
-	public static final String ERROR_CANNOT_REDO = "Error: Cannot redo without first doing an undo";
 	public static final String MESSAGE_INVALID_FORMAT = "invalid command format :%1$s";
+	public static final String MESSAGE_X_RESULTS_FOUND = "%1$s results found";
+	public static final String MESSAGE_DATA_FILE_SET_TO = "data file set to %1$s";
 
 	public static class UnrecognisedCommandException extends Exception {
 		/**
@@ -59,21 +63,43 @@ public class Logic {
 	private boolean canRedo = false;
 	private LinkedList<Command> redoList = new LinkedList<Command>();
 
+	private static final Logger logger = Logger.getGlobal();
+	static {
+		try {
+			logger.addHandler(new FileHandler("Oracle log", 100000, 1, true));
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+
+	// Contructor used for testing purposes
 	public Logic(Storage storage) {
 		this.storage = storage;
 		this.model = new Model(storage);
 	}
 
-	public Logic() throws ExceptionInInitializerError {
+	// Constructor
+	public Logic() {
 		storage = new Storage();
 		model = new Model(storage);
 	}
 
+	/* 	Executes the user command based on the parsed input. Updates the Model based on
+	 *	the command executed.
+	 *	@param ParsedCommand
+	 *	@return Model
+	 */
 	public Model executeCommand(ParsedCommand parsedCommand) throws UnrecognisedCommandException {
+		logger.log(Level.INFO, "executing user input ", parsedCommand);
 		if (checkIfEmptyCommand(parsedCommand)) {
 			model.updateModel(MESSAGE_INVALID_FORMAT);
 			return model;
 		}
+
+		assert(parsedCommand != null);
 
 		switch (parsedCommand.getCommandType()) {
 			case ADD:
@@ -86,10 +112,6 @@ public class Logic {
 				return executeRedo();
 			case DELETE:
 				return executeDelete(parsedCommand);
-			// case CLEAR:
-			// return clear();
-			// case SORT:
-			// return sort();
 			case CONFIG_DATA:
 				return executeSetData(parsedCommand);
 			case CONFIG_IMG:
@@ -115,6 +137,9 @@ public class Logic {
 
 	}
 
+	/*
+	 *	Method for changing Avatar
+	 */
 	private Model executeSet(ParsedCommand parsedCommand) {
 		String consoleMessage = MESSAGE_FAILED_TO_SET_NEW_PATH;
 		try {
@@ -124,6 +149,7 @@ public class Logic {
 				consoleMessage = MESSAGE_AVATAR_SWITCHED;
 			}
 		} catch (Exception e) {
+			logger.log(Level.WARNING, MESSAGE_FAILED_TO_SET_NEW_PATH, e);
 			consoleMessage = MESSAGE_FAILED_TO_SET_NEW_PATH;
 			this.model.setConsoleMessage(consoleMessage);
 			e.printStackTrace();
@@ -134,15 +160,18 @@ public class Logic {
 		return model;
 	}
 
+	/*
+	 *	Method for changing file folder
+	 */
 	private Model executeSetData(ParsedCommand parsedCommand) {
 
 		String consoleMessage = MESSAGE_FAILED_TO_SET_NEW_PATH;
 		try {
 			storage.setFileLocation(parsedCommand.getConfigPath());
-			consoleMessage = "data file set to "
-					+ parsedCommand.getConfigPath();
+			consoleMessage = String.format(MESSAGE_DATA_FILE_SET_TO,parsedCommand.getConfigPath());
 			this.model.setConsoleMessage(consoleMessage);
 		} catch (Exception e) {
+			logger.log(Level.WARNING, MESSAGE_FAILED_TO_SET_NEW_PATH, e);
 			this.model.setConsoleMessage(consoleMessage);
 			e.printStackTrace();
 			return model;
@@ -150,6 +179,9 @@ public class Logic {
 		return model;
 	}
 
+	/*
+	 *	Method for executing search
+	 */
 	private Model executeSearch(ParsedCommand parsedCommand) {
 		List<Task> tasksToDisplay;
 		String consoleMessage;
@@ -161,10 +193,11 @@ public class Logic {
 			} else if (tasksToDisplay.size() == 1) {
 				consoleMessage = MESSAGE_1_RESULT_FOUND;
 			} else {
-				consoleMessage = tasksToDisplay.size() + " results found";
+				consoleMessage = String.format(MESSAGE_X_RESULTS_FOUND,tasksToDisplay.size());
 			}
 			model.updateSearch(consoleMessage, parsedCommand, tasksToDisplay);
 		} catch (IOException | ParseException e) {
+			logger.log(Level.WARNING, ERROR_SEARCH_FAILED, e);
 			model.updateModel(ERROR_SEARCH_FAILED);
 			e.printStackTrace();
 			return model;
@@ -173,6 +206,9 @@ public class Logic {
 		return model;
 	}
 
+	/*
+	 *	Method for executing edit
+	 */
 	private Model executeUpdate(ParsedCommand userCommand) {
 
 		Command command = new Update(userCommand, storage, model);
@@ -186,6 +222,9 @@ public class Logic {
 		return model;
 	}
 
+	/*
+	 *	Method for executing undo
+	 */
 	private Model executeUndo() {
 		canRedo = true;
 		if (commandHistory.size() != 0) {
@@ -199,6 +238,9 @@ public class Logic {
 		return model;
 	}
 
+	/*
+	 *	Method for executing Redo
+	 */
 	private Model executeRedo() {
 		if (canRedo) {
 			if (redoList.size() != 0) {
@@ -215,6 +257,9 @@ public class Logic {
 		return model;
 	}
 
+	/*
+	 *	Method for executing delete
+	 */
 	private Model executeDelete(ParsedCommand userCommand) {
 
 		if (!Delete.checkValid(userCommand,model)) {
@@ -228,6 +273,9 @@ public class Logic {
 		}
 	}
 
+	/*
+	 *	Method for executing Add.
+	 */
 	private Model executeAdd(ParsedCommand userCommand) {
 
 		if (!Add.checkValid(userCommand, model)) {
@@ -277,6 +325,12 @@ public class Logic {
 		return parsedCommand == null;
 	}
 
+	/*
+	 *	Searches the taskList and finds the task specified.
+	 *	@param taskList The task list to search in.
+	 *	@param taskId	The id of the task to find.
+	 * 	@return task specified
+	 */
 	public static Task searchList(List<Task> taskList, int taskId) throws IndexOutOfBoundsException {
 		for (int i = 0; i < taskList.size(); i++) {
 			if (taskList.get(i).getId() == taskId) {
@@ -291,7 +345,7 @@ public class Logic {
 	 *	Results are sorted by date with the earliest tasks appearing first while the later tasks
 	 *	appearing later.
 	 *
-	 *	@returns List<Task>
+	 *	@returns List<Task> returns the updated today List.
 	 */
 	public static List<Task> updateTodayList() {
 		try {
@@ -308,11 +362,11 @@ public class Logic {
 
 			return todayList;
 		} catch (ParseException e) {
-
+			logger.log(Level.WARNING, "update TodayList failed", e);
 			e.printStackTrace();
 			return null;
 		} catch (IOException e) {
-
+			logger.log(Level.WARNING, "update TodayList failed", e);
 			e.printStackTrace();
 			return null;
 		}
@@ -322,6 +376,8 @@ public class Logic {
 	 *	Searches for all tasks that are due from today onwards. Returns the results in a List.
 	 *	Returns the results in a List. Results are sorted by date with the earliest tasks appearing
 	 *	first while the later tasks	appearing later.
+	 *
+	 *	@return List<Task> returns the updated Main List.
 	 */
 	public static List<Task> updateMainList() {
 		try {
@@ -336,11 +392,11 @@ public class Logic {
 			return mainList;
 
 		} catch (ParseException e) {
-
+			logger.log(Level.WARNING, "update main List failed", e);
 			e.printStackTrace();
 			return null;
 		} catch (IOException e) {
-
+			logger.log(Level.WARNING, "update main List failed", e);
 			e.printStackTrace();
 			return null;
 		}
@@ -348,6 +404,7 @@ public class Logic {
 
 	/*
 	 *	Searches for all floating tasks. Results are returned in a List.
+	 *	@returns List<Task> returns the updated floating List.
 	 */
 	public static List<Task> updateFloatingList() {
 		try {
@@ -356,11 +413,11 @@ public class Logic {
 			return Search.search(storage.getAllTasks(), FLOATING_TASKS);
 
 		} catch (ParseException e) {
-
+			logger.log(Level.WARNING, "update floating list failed", e);
 			e.printStackTrace();
 			return null;
 		} catch (IOException e) {
-
+			logger.log(Level.WARNING, "update floating list failed", e);
 			e.printStackTrace();
 			return null;
 		}
@@ -370,6 +427,8 @@ public class Logic {
 	 *	Searches for all Overdue tasks. Results are returned in a List.
 	 *	Results are sorted by date with the earliest tasks appearing
 	 *	first while the later tasks	appearing later.
+	 *
+	 *	@return List<Task> returns the updated Overdue List.
 	 */
 	public static List<Task> updateOverdueList() {
 		try {
@@ -387,11 +446,11 @@ public class Logic {
 			return overdue;
 
 		} catch (ParseException e) {
-
+			logger.log(Level.WARNING, "update overdue List failed", e);
 			e.printStackTrace();
 			return null;
 		} catch (IOException e) {
-
+			logger.log(Level.WARNING, "update overdue List failed", e);
 			e.printStackTrace();
 			return null;
 		}

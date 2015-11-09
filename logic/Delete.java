@@ -8,6 +8,7 @@ import storage.Storage;
 //@@author A0124777W
 public class Delete implements Command {
 
+	public static final String MESSAGE_TASK_DELETED = "Task %1$s deleted";
 	private Task toDelete;
 	private int taskId;
 	private Storage storage;
@@ -29,7 +30,7 @@ public class Delete implements Command {
 	public void execute() {
 		storage.delete(taskId);
 
-		model.updateModel("Task " + taskId + " deleted");
+		model.updateModel(String.format(MESSAGE_TASK_DELETED, taskId));
 	}
 
 	@Override

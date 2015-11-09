@@ -14,6 +14,9 @@ public class Update implements Command {
 	private static final TaskType TASK = TaskType.FLOATING_TASK;
 	private static final TaskType DEADLINETASK = TaskType.DEADLINE_TASK;
 	private static final TaskType EVENT = TaskType.EVENT;
+
+	public static final String MESSAGE_UPDATED = "%1$s updated";
+
 	private ParsedCommand specifications;
 	private Task toUpdate;
 	private Task updated;
@@ -49,7 +52,7 @@ public class Update implements Command {
 		
 		storage.delete(toUpdate.getId());
 		storage.add(updated);
-		model.updateModel(toUpdate.getName() + " updated",updated.getId());
+		model.updateModel(String.format(MESSAGE_UPDATED, toUpdate.getName()),updated.getId());
 	}
 
 	public void undo() {
@@ -59,7 +62,10 @@ public class Update implements Command {
 		model.updateFocus(toUpdate.getId());
 	}
 
-
+	/*
+	 * Returns a Task Object with all the specified fields updated. Does not add
+	 * anything to database.
+	 */
 	public Task updateTask(ParsedCommand parsedInput, Task toUpdate) {
 		String title = parsedInput.getTitle();
 		String description = parsedInput.getDescription();
