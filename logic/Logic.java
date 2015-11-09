@@ -10,7 +10,7 @@ import parser.ParsedCommand;
 import parser.ParsedCommand.ConfigType;
 import storage.Storage;
 
-//@author A0124777W
+//@@author A0124777W
 public class Logic {
 
 	// Date formatter for
@@ -27,7 +27,6 @@ public class Logic {
 
 	// Search String queries
 	public static final String INCOMPLTETED_TASKS = "isCompleted: false";
-	public static final String COMPLETED_TASKS = "isCompleted: true";
 	public static final String FLOATING_TASKS = "taskType: FLOATING_TASK";
 
 	// Messages
@@ -38,6 +37,10 @@ public class Logic {
 	public static final String MESSAGE_AVATAR_SWITCHED = "Avatar switched";
 	public static final String MESSAGE_BACKGROUND_SWITCHED = "Background switched";
 	public static final String MESSAGE_FAILED_TO_SET_NEW_PATH = "Failed to Set new Path";
+	public static final String MESSAGE_NOTHING_TO_REDO = "Nothing to redo";
+	public static final String MESSAGE_REDO_SUCCESSFUL = "Redo successful";
+	public static final String ERROR_CANNOT_REDO = "Error: Cannot redo without first doing an undo";
+	public static final String MESSAGE_INVALID_FORMAT = "invalid command format :%1$s";
 
 	public static class UnrecognisedCommandException extends Exception {
 		/**
@@ -50,24 +53,23 @@ public class Logic {
 		}
 	}
 
-	private static final String MESSAGE_INVALID_FORMAT = "invalid command format :%1$s";
-
 	private Storage storage;
 	private LinkedList<Command> commandHistory = new LinkedList<Command>();
 	private Model model;
+	private boolean canRedo = false;
+	private LinkedList<Command> redoList = new LinkedList<Command>();
 
-	public Logic() {
-		storage = new Storage();
-		model = Model.getInstance(storage);
+	public Logic(Storage storage) {
+		this.storage = storage;
+		this.model = new Model(storage);
 	}
 
-	public static Model initializeTaskList() {
-		Storage storage = new Storage();
-		return new Model(storage);
+	public Logic() throws ExceptionInInitializerError {
+		storage = new Storage();
+		model = new Model(storage);
 	}
 
 	public Model executeCommand(ParsedCommand parsedCommand) throws UnrecognisedCommandException {
-
 		if (checkIfEmptyCommand(parsedCommand)) {
 			model.updateModel(MESSAGE_INVALID_FORMAT);
 			return model;
@@ -75,9 +77,13 @@ public class Logic {
 
 		switch (parsedCommand.getCommandType()) {
 			case ADD:
+				canRedo = false;
 				return executeAdd(parsedCommand);
 			case UNDO:
+				canRedo = false;
 				return executeUndo();
+			case REDO:
+				return executeRedo();
 			case DELETE:
 				return executeDelete(parsedCommand);
 			// case CLEAR:
@@ -91,6 +97,7 @@ public class Logic {
 			case FLAG:
 				// Fall Over
 			case EDIT:
+				canRedo = false;
 				return executeUpdate(parsedCommand);
 			case DISPLAY:
 				// Fall Over
@@ -105,13 +112,14 @@ public class Logic {
 				// throw an error if the command is not recognized
 				throw new UnrecognisedCommandException("Unrecognized command type: " + parsedCommand.getCommandType());
 		}
+
 	}
 
 	private Model executeSet(ParsedCommand parsedCommand) {
 		String consoleMessage = MESSAGE_FAILED_TO_SET_NEW_PATH;
 		try {
 			ParsedCommand.ConfigType type = parsedCommand.getConfigType();
-			if (type == ConfigType.AVATAR) {
+			 if (type == ConfigType.AVATAR) {
 				model.setAvatarLocation(parsedCommand.getConfigPath());
 				consoleMessage = MESSAGE_AVATAR_SWITCHED;
 			}
@@ -179,13 +187,31 @@ public class Logic {
 	}
 
 	private Model executeUndo() {
+		canRedo = true;
 		if (commandHistory.size() != 0) {
-			commandHistory.poll().undo();
+			Command toUndo = commandHistory.poll();
+			redoList.addFirst(toUndo);
+			toUndo.undo();
+			model.updateModel(MESSAGE_UNDO_SUCCESSFUL);
 		} else {
 			model.updateModel(MESSAGE_NOTHING_TO_UNDO);
-			return model;
 		}
-		model.updateModel(MESSAGE_UNDO_SUCCESSFUL);
+		return model;
+	}
+
+	private Model executeRedo() {
+		if (canRedo) {
+			if (redoList.size() != 0) {
+				Command toRedo = redoList.poll();
+				commandHistory.addFirst(toRedo);
+				toRedo.execute();
+				model.updateModel(MESSAGE_REDO_SUCCESSFUL);
+			} else {
+				model.updateModel(MESSAGE_NOTHING_TO_REDO);
+			}
+		} else {
+			model.updateModel(ERROR_CANNOT_REDO);
+		}
 		return model;
 	}
 
@@ -236,6 +262,9 @@ public class Logic {
 		Storage storage = new Storage();
 		List<Task> taskList = storage.getAllTasks();
 		boolean isFound = false;
+		if (id >= getNewId() || id < 1){
+			return false;
+		}
 		for (Task task : taskList) {
 			if (task.getId() == id) {
 				isFound = true;
@@ -258,7 +287,11 @@ public class Logic {
 	}
 
 	/*
-	 *	Searches for all tasks from now to the end of the day
+	 *	Searches for all tasks from now to the end of the day. Returns the results in a List.
+	 *	Results are sorted by date with the earliest tasks appearing first while the later tasks
+	 *	appearing later.
+	 *
+	 *	@returns List<Task>
 	 */
 	public static List<Task> updateTodayList() {
 		try {
@@ -286,7 +319,9 @@ public class Logic {
 	}
 
 	/*
-	 *	Updates the To-do tab
+	 *	Searches for all tasks that are due from today onwards. Returns the results in a List.
+	 *	Returns the results in a List. Results are sorted by date with the earliest tasks appearing
+	 *	first while the later tasks	appearing later.
 	 */
 	public static List<Task> updateMainList() {
 		try {
@@ -311,6 +346,9 @@ public class Logic {
 		}
 	}
 
+	/*
+	 *	Searches for all floating tasks. Results are returned in a List.
+	 */
 	public static List<Task> updateFloatingList() {
 		try {
 			Storage storage = new Storage();
@@ -328,6 +366,11 @@ public class Logic {
 		}
 	}
 
+	/*
+	 *	Searches for all Overdue tasks. Results are returned in a List.
+	 *	Results are sorted by date with the earliest tasks appearing
+	 *	first while the later tasks	appearing later.
+	 */
 	public static List<Task> updateOverdueList() {
 		try {
 
@@ -342,22 +385,6 @@ public class Logic {
 			Collections.sort(overdue,Task.compareByDate);
 
 			return overdue;
-
-		} catch (ParseException e) {
-
-			e.printStackTrace();
-			return null;
-		} catch (IOException e) {
-
-			e.printStackTrace();
-			return null;
-		}
-	}
-
-	public static List<Task> updateCompletedList() {
-		try {
-			Storage storage = new Storage();
-			return Search.search(storage.getAllTasks(), COMPLETED_TASKS);
 
 		} catch (ParseException e) {
 

@@ -1,12 +1,14 @@
 package logic;
 
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import storage.Storage;
 import parser.ParsedCommand;
 import parser.ParsedCommand.TaskType;
 
-//@author A0124777W
+//@@author A0124777W
 public class Update implements Command {
 
 	private static final TaskType TASK = TaskType.FLOATING_TASK;
@@ -18,20 +20,19 @@ public class Update implements Command {
 	private Storage storage;
 	private Model model;
 
-	public Update(Storage storage) {
-		this.storage = storage;
+	public Update() {
+
 	}
-	
+
 	public Update(ParsedCommand specifications,Storage storage,Model model) {
 		this.specifications = specifications;
 		this.storage = storage;
 		this.model = model;
-
 	}
 
 	public void execute() {
 		List<Task> taskList = storage.getAllTasks();
-		toUpdate = Logic.searchList(taskList,specifications.getTaskId());
+		toUpdate = Logic.searchList(taskList, specifications.getTaskId());
 		// Clone Task
 		if (toUpdate.getTaskType() == TASK) {
 			updated = new Task(toUpdate);
@@ -58,40 +59,52 @@ public class Update implements Command {
 		model.updateFocus(toUpdate.getId());
 	}
 
+
+	public Task updateTask(ParsedCommand parsedInput, Task toUpdate) {
+		String title = parsedInput.getTitle();
+		String description = parsedInput.getDescription();
+		ArrayList<String> tags = parsedInput.getTags();
+		Boolean isCompleted = parsedInput.isCompleted();
+		Calendar firstDate = parsedInput.getFirstDate();
+		Calendar secondDate = parsedInput.getSecondDate();
+
+		return updateTask(title,description,tags,isCompleted,firstDate,secondDate, toUpdate);
+	}
+
 	/*
 	 * Returns a Task Object with all the specified fields updated. Does not add
 	 * anything to database.
 	 */
-	public Task updateTask(ParsedCommand parsedInput, Task toUpdate) {
+	public Task updateTask(String title,String description,ArrayList<String> tags,Boolean isCompleted,Calendar firstDate,Calendar secondDate, Task toUpdate) {
 
-		if (parsedInput.getTitle() != null && !parsedInput.getTitle().isEmpty()) {
-			toUpdate.setName(parsedInput.getTitle());
+		if (title != null && !title.isEmpty()) {
+			toUpdate.setName(title);
 		}
-		if (parsedInput.getDescription() != null && !parsedInput.getDescription().isEmpty()) {
-			toUpdate.setDetails(parsedInput.getDescription());
+		if (description != null && !description.isEmpty()) {
+			toUpdate.setDescription(description);
 		}
-		if (parsedInput.getTags().size() != 0) {
-			toUpdate.setTags(parsedInput.getTags());
+		if (tags != null && tags.size() != 0) {
+			toUpdate.setTags(tags);
 		}
-		if (parsedInput.isCompleted() != null) {
-			toUpdate.setIsCompleted(parsedInput.isCompleted());
+		if (isCompleted != null) {
+			toUpdate.setIsCompleted(isCompleted);
 		}
-		if (parsedInput.getFirstDate() != null && parsedInput.getSecondDate() == null) {
+		if (firstDate != null && secondDate == null) {
 			if (toUpdate.getTaskType() == TASK) {
-				toUpdate = new DeadlineTask(toUpdate,parsedInput.getFirstDate());	// Convert to DeadlineTask
+				toUpdate = new DeadlineTask(toUpdate,firstDate);	// Convert from task to DeadlineTask
 			} else if (toUpdate.getTaskType() == DEADLINETASK) {
-				((DeadlineTask) toUpdate).setEnd(parsedInput.getFirstDate());
+				((DeadlineTask) toUpdate).setEnd(firstDate);
 			} else if (toUpdate.getTaskType() == EVENT) {
-				toUpdate = new DeadlineTask(toUpdate,parsedInput.getFirstDate());
+				toUpdate = new DeadlineTask(toUpdate,firstDate);	// Convert from Event to DealineTask
 			}
 
-		} else if (parsedInput.getFirstDate() != null && parsedInput.getSecondDate() != null) {
+		} else if (firstDate != null && secondDate != null) {
 
 			if (toUpdate.getTaskType() == TASK || toUpdate.getTaskType() == DEADLINETASK) {
-				toUpdate = new Event(toUpdate,parsedInput.getFirstDate(),parsedInput.getSecondDate());	// Convert to Event
+				toUpdate = new Event(toUpdate,firstDate,secondDate);	// Convert to Event
 			} else if (toUpdate.getTaskType() == EVENT) {
-				((Event) toUpdate).setStart(parsedInput.getFirstDate());
-				((Event) toUpdate).setEnd(parsedInput.getSecondDate());
+				((Event) toUpdate).setStart(firstDate);
+				((Event) toUpdate).setEnd(secondDate);
 			}
 		}
 
@@ -104,8 +117,8 @@ public class Update implements Command {
 	 */
 	public static boolean checkValid(ParsedCommand parsedInput, Model view) {
 
-		if (parsedInput.getTaskId() >= Logic.getNewId()) {
-			view.setConsoleMessage("Error: Invalid TaskID");
+		if (!Logic.checkID(parsedInput.getTaskId())) {
+			view.setConsoleMessage(Logic.ERROR_INVALID_ID);
 			return false;
 		}
 
