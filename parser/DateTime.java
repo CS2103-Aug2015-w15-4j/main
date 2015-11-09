@@ -325,6 +325,7 @@ public class DateTime {
 				String[] end = convertCalToArr(calEnd);
 				this.endDate = end;
 			} 
+			this.parser = ParserType.NATTY_PARSER;
 			return this;
 		}
 
