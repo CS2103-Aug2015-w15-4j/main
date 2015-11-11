@@ -12,7 +12,7 @@ import gui.PreloaderWindow;
 import javafx.application.Platform;
 import logic.Logic.UnrecognisedCommandException;
 
-//@@author A0122534
+//@@author A0122534R
 public class GuiControllerTest extends GuiController {
 	@BeforeClass
 	public static void initialise() throws InterruptedException {

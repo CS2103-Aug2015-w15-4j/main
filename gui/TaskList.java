@@ -495,9 +495,6 @@ public class TaskList {
 			grid.add(label, COL_CONTENT, i, COL_CONTENT_SIZE, 1);
 		}
 		
-		// lock the maximum height
-		grid.maxHeightProperty().bind(name.heightProperty().add(label.heightProperty().multiply(details.size()+10)));
-		
 		return grid;
 	}//*/
 	

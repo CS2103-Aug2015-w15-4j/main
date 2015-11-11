@@ -90,7 +90,7 @@ public class GuiShortcutTest {
 		// Ctrl + P only
 		isControlDown = true;
 		keyEvent = new KeyEvent(null, null, null, KeyCode.P, isShiftDown, isControlDown, isAltDown, false);
-		assertEquals(CommandType.UNPIN, ShortcutManager.processKeyEvent(keyEvent));
+		assertEquals(CommandType.PIN, ShortcutManager.processKeyEvent(keyEvent));
 	}
 	
 	@Test
@@ -103,9 +103,9 @@ public class GuiShortcutTest {
 	
 	@Test
 	public void invalidTest01() {
-		// Ctrl + P only
+		// Ctrl + Q only
 		isControlDown = true;
-		keyEvent = new KeyEvent(null, null, null, KeyCode.P, isShiftDown, isControlDown, isAltDown, false);
+		keyEvent = new KeyEvent(null, null, null, KeyCode.Q, isShiftDown, isControlDown, isAltDown, false);
 		assertEquals(CommandType.NONE, ShortcutManager.processKeyEvent(keyEvent));
 	}
 }
