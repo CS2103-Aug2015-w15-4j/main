@@ -999,7 +999,7 @@ public class GuiController extends Application {
 	 */
 	protected boolean isPinnedFocused(Scene scene) {
 		Node focused = scene.getFocusOwner();
-		if (focused!=null) {
+		if (focused!=null&&taskListPinned!=TASKLIST_INVALID) {
 			TaskList list = taskLists.get(taskListPinned);
 			for (int i=0;i<NESTED_NODE_NUM;i++) {
 				if (focused==list.getNode()) {
