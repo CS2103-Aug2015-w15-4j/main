@@ -235,10 +235,16 @@ public class ParsedCommand {
 		}
 		
 		public ParsedCommandBuilder title(String title) {
-			this.title = removeEscapeChars(title);
+			title = removeEscapeChars(title);
+			title = formatTitle(title);
+			this.title = title;
 			return this;
 		}
 		
+		private String formatTitle(String title) {
+			return title.trim().replaceAll("\\s+", " ");
+		}
+
 		public ParsedCommandBuilder description(String description) {
 			this.description = description;
 			return this;
