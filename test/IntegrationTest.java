@@ -1076,7 +1076,7 @@ public class IntegrationTest {
 		output = readFile(CONFIG_FILENAME);
 		expected += dataFilePath;
 		expected += "\n";
-		expected += "avatar.jpg";
+		expected += "avatar.png";
 		assertEquals(expected, output);
 
 		clear();
@@ -1116,7 +1116,7 @@ public class IntegrationTest {
 		output = readFile(CONFIG_FILENAME);
 		expected += dataFilePath;
 		expected += "\n";
-		expected += "avatar.jpg";
+		expected += "avatar.png";
 		assertEquals(expected, output);
 
 		clear();

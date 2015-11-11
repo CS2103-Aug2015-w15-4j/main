@@ -8,10 +8,10 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ 
 	ParserTestSuite.class,
-	GuiShortcutTest.class,
 	IntegrationTest.class,
 	StorageTest.class,
-	LogicTestSuite.class
+	LogicTestSuite.class,
+	GuiTestSuite.class
 })
 
 

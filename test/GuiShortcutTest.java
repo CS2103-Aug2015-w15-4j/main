@@ -9,7 +9,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import gui.ShortcutManager.CommandType;
 
-//@@author A0122534
+//@@author A0122534R
 public class GuiShortcutTest {
 	boolean isShiftDown = false; 
 	boolean isControlDown = false; 
